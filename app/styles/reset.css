@@ -1,0 +1,90 @@
+/* ============================================================================
+   reset.css — minimal, opinionated. Nothing here is decorative; every rule
+   removes a browser default that would otherwise fight the token sheet.
+   ========================================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body,
+h1, h2, h3, h4, h5, h6,
+p, figure, blockquote, dl, dd, ol, ul {
+  margin: 0;
+  padding: 0;
+}
+
+ol[role='list'],
+ul[role='list'] {
+  list-style: none;
+}
+
+body {
+  min-height: 100svh;
+  text-rendering: optimizeSpeed;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* The display face is never bolded — hierarchy is size and colour only.
+   Browsers default h1–h6 to bold, so unset it at the source rather than
+   overriding it in every component. See CLAUDE.md non-negotiable §3. */
+h1, h2, h3, h4, h5, h6 {
+  font-size: inherit;
+  font-weight: 400;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+}
+
+button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+/* Every accordion and disclosure on this site is a real <button>. Keep the
+   focus ring visible for keyboard users and suppress it for pointer users —
+   the design has no room for a permanent outline. */
+:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+/* Media must always carry explicit dimensions — the CLS budget is < 0.05. */
+img,
+video {
+  height: auto;
+}

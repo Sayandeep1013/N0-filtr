@@ -5,87 +5,147 @@ not a log. The template is at the bottom.
 
 ---
 
-# → To the agent starting Phase 0
+# → To the agent starting Phase 1
 
-**From:** the spec & system session (Opus) · 2026-08-25 · commit `43b2f1f`
+**From:** phase 00 · 2026-08-25 · commit `033b3aa` · **Opus**
 
 ## What I did
 
-Reverse-engineered tonik.com end to end and wrote the build specification, then designed the
-build system you're about to work inside. No application code exists yet — the repo is specs,
-research, and this system. You are the first builder.
+The repo now runs. There is a Next 15 app with the complete token system, both faces self-hosted,
+the fluid root working, and Lenis riding the GSAP ticker behind a `MotionProvider` that owns all
+responsive and reduced-motion state. And there is the harness: `npm run verify` runs four checks,
+writes `tools/verify/output/report.md`, and exits non-zero when something is wrong. I proved it
+by breaking three things and confirming it caught all three.
 
-Two things worth knowing about how the specs were made, because it changes how much you should
-trust them:
-
-1. **The values are measured, not designed.** I recovered tonik's actual animation source — both
-   engines. Their GSAP bundle from Slater, and their Webflow IX2 interaction store (130 events,
-   39 action lists), plus their 24 CSS `:hover` rules. When a spec says `.7s` or
-   `power2.inOut` or `#3b3b3b`, that came off their running site. Treat those as facts.
-2. **Where I guessed, I've said so.** The confidence table in
-   `docs/spec/00-brief-and-decisions.md` rates every aspect honestly. Anything below 8 is a
-   place where you should expect to exercise judgement rather than transcribe.
+There are **no components**. `/` is deliberately blank. That is your phase.
 
 ## Known gaps
 
-Be aware of these; none of them block Phase 0.
+**In the build**
 
-- **Culture collage composition (spec confidence 7/10).** The motion is exact, the *layout* is
-  ours to author. Phase 5 will need real design judgement, not transcription.
-- **Blog and industry templates (6/10).** I know their sections and card design; I did not crawl
-  their interiors. Phase 7 and 9 may want a re-measure against the live site first.
-- **The 3D hero object (5/10).** Their hero is an opaque Spline binary. We are *not* cloning it —
-  we're building our own aperture. Its *behaviour* is at 10/10 though: I recovered the exact
-  per-object rotation curves. See `50-brand-and-3d.md` §2.
-- **Content is largely unwritten.** The 12 works have theses and summaries; the case-study
-  bodies, service pages, industry pages and the whole About page still need writing (Phase 10).
-- **The physics pit values are starting points.** `frictionAir 0.02` and `restitution 0.35`
-  decide whether it reads "fluffy" or "hard". They need tuning on real content, last, with the
-  user in the loop.
+- **`/` renders nothing.** By design — T0.1's acceptance was a blank page. The only route with
+  content is `/probe`, which is dev-only and exists for the harness.
+- **No component has been verified, because none exist.** The motion check's five timeline
+  assertions are all `pending`. Two are yours: `loader.enter` and `contact.open`.
+- **The ScrollTrigger leak check passes against a baseline of zero.** It is live and correct but
+  it has never seen a real trigger. It becomes meaningful the moment you create one.
+- **Three budget assertions are vacuous** and say so in the report: `three`, `matter-js` and
+  `plyr` are "absent from the bundle" only because they are not installed.
+- **`--t-p-big` line-height is unitless (1.6)** while every other step is a rem length. That is
+  what the spec says; just don't be surprised by it.
+- **The ≤479 breakpoint is not implemented at all** (I-007). The spec names it but gives no
+  values. Below 480 you get the ≤767 values.
+- **Lighthouse is not in `verify:budget`.** LCP/CLS come from the browser's own observers on an
+  unthrottled local load — a regression signal, not a score. Real Lighthouse is phase 12, via
+  `mcp__chrome-devtools__lighthouse_audit`.
+
+**Two real defects I found and did *not* fix, because they are spec-faithful**
+
+- **I-005 — at ≤767, `h1-sm` (3.25rem) renders LARGER than `h1` (3rem).** The mobile step-down
+  in §3 names h1/h2/h3/h4 and not h1-sm, so the secondary hero style out-ranks the primary one on
+  mobile. Look at `tools/verify/output/shots/type-scale-390.png` after a `verify:visual` run —
+  it is the biggest thing on the page. Bites phase 3 and phase 7.
+- **I-006 — `h1` tracking is not stepped down with `h1` size.** `-0.15rem` is 2.5% of a 6rem face
+  and 5% of a 3rem one, so mobile h1 is proportionally twice as tight.
+
+Both are logged. Protocol §4 says implement the conservative reading and escalate, not silently
+correct — so I did. **Both want the same 20-minute re-measure of tonik at 390.** If you are
+opening Playwright against tonik for anything else in phase 1, grab these while you are there and
+put the answers in the spec.
 
 ## What you should do first
 
-1. Read `docs/build/00-PROTOCOL.md` §1 (the loop) and §2 (orientation). It's the operating
-   manual and this is your first session, so read it properly.
-2. Read your Reading Map: `docs/spec/10-design-system.md` **in full**, plus
-   `60-architecture-and-build.md` §1, §2, §3, §5, plus `docs/build/02-VERIFICATION.md` in full.
-3. `git checkout -b phase/00-foundation`, set STATE to in-progress, commit that.
-4. Work T0.1 → T0.10 in order.
+1. `git checkout main && git pull && git checkout -b phase/01-chrome`, set STATE to in-progress,
+   commit that immediately.
+2. `npm install` if this is a fresh clone, then **`npm run verify`** before you touch anything.
+   It should be green. If it is not, something in your environment differs from mine and you want
+   to know that now, not after you have written a loader.
+3. Read your Reading Map — `20-components-and-motion.md` §1, §2, §3, §20, §21.1, §22 ·
+   `30-page-specs.md` global chrome note · `10-design-system.md` §5, §6. Not the rest.
+4. Work T1.1 → T1.9.
 
-**The single most important thing in Phase 0 is the harness, not the scaffold.** Every phase
-after yours is measured by the tooling you build. If you run short of context, ship a smaller
-scaffold and a complete harness rather than the reverse.
+**As you build, flip the assertions.** `tools/verify/motion.config.ts` has `loader.enter` and
+`contact.open` seeded with the shapes from `02-VERIFICATION.md` and `pending: true`. Set them to
+`false` when you build them and add the navbar mini threshold and the footer sibling-dim.
+`tools/verify/visual.config.ts` has a `footer` shot pending. **A phase that adds no assertions has
+not been verified.**
 
-**And prove it works by breaking it.** Set a token to a wrong value, confirm `verify:tokens`
-fails, revert. Record that you did. A harness that has never failed is just a script that
-exits zero.
+**And reset `AGENT_JUDGEMENT` to `null` when you start.** Mine describes the type scale on a page
+with no components. If you leave it, the run goes green on a stale judgement and the visual check
+silently stops meaning anything. Set it to null, build, run `verify:visual`, actually open the
+PNGs, then write what you saw.
 
 ## Things that will bite you
 
-- **The fluid root is the whole responsive system.** `calc(0.4375rem + 0.625vw)` above 1440px,
-  locked to `1rem` at or below. At 1512px the root must compute to **16.45px** — assert this
-  first, because every other dimension on the site is a multiple of it.
-- **Split text only after `document.fonts.ready`.** SplitType measures word boxes; running it
-  against the fallback face produces wrong geometry that looks fine until it doesn't.
-- **One ticker.** GSAP's ticker drives Lenis now and Matter later. Never add a second rAF loop,
-  never use `Matter.Runner`.
-- **Don't set git identity.** The global config is already correct. I set it locally on the
-  first commit and misattributed it to the wrong GitHub account. Protocol §9 has the detail.
+- **The dev server must not already be running.** The harness boots its own on :3000 and kills
+  the tree on exit. If you have `npm run dev` open in another terminal, `verify` will measure
+  *that* server — including whatever uncompiled state it is in.
+- **`verify` runs a full production build** for the budget check, so it takes ~90s. Use
+  `npm run verify:tokens` / `:motion` / `:visual` while iterating; run the full thing before you
+  commit a task.
+- **Register timelines or they cannot be checked.** `registerTimeline('loader.enter', tl)` from
+  `lib/motion/registry.ts`. It is dev-only and compiles out. A timeline nobody registered reports
+  as a failure once you flip its `pending`, which is the intended pressure.
+- **Split text only after `document.fonts.ready`.** Inherited warning from the spec session, and
+  still true — the harness itself awaits it before every measurement for the same reason.
+- **Get scroll state from `useMotion()`, never from a resize listener.** It gives you `lenis`,
+  `reducedMotion`, `isDesktop` (>991), `isAbove767`, and `stopScroll` / `startScroll` for the
+  contact panel. `stopScroll` handles the reduced-motion case too, where there is no Lenis at all.
+- **Don't add a rAF loop.** The check classifies rather than counts (D-004) and will name your
+  stack in the failure.
+- **Don't set git identity.** Global config is already correct — `saaiyaan1013@gmail.com`.
 
 ## Anything surprising
 
-`initLoader()` in tonik's recovered bundle is **dead code** — never called. Their real loader is
-a Webflow IX2 action list with different easing (`inOutQuad`, not `power3.in`). I specced the
-dead function first and had to correct it. If you find yourself reading
-`docs/research/source/tonik-animations.js` directly, remember that not everything in it runs.
+**GSAP runs two rAF loops, and that is fine.** ScrollTrigger has `_rafBugFix`, a no-op keep-alive
+that exists because Firefox does not repaint consistently unless something is queued
+(`node_modules/gsap/ScrollTrigger.js:61`). It drives nothing. The one-loop check allowlists it by
+name — see D-004. If you had counted, you would have concluded the rule was already broken.
+
+**`normalizeWheel` is gone from Lenis** (I-004). Every other specced option survives.
+
+**Fonts: General Sans ships a variable cut**, 200–700 in 38KB — smaller than two statics and
+covering every weight §3 names. IBM Plex Mono has no variable cut on Fontsource, so it ships 400
+and 500 only (D-003). Adding a mono weight is one line in `app/fonts/fonts.ts` plus a woff2.
+
+**The visual check is the one that found the real bugs.** The 132 computed-style assertions all
+passed while `h1-sm` was rendering larger than `h1` on mobile — because that is *correct against
+the spec*. Assertions verify what you told them to; only looking catches what nobody thought to
+assert. Open the PNGs.
+
+**The budget is tighter than it looks.** JS on `/` is already **159.5KB of the 190KB budget**
+with nothing but React, GSAP and Lenis. Three.js is ~48KB gzipped and arrives in phase 2. If it
+is not dynamically imported, phase 2 blows the budget on its own — `60-architecture-and-build.md`
+§5 already requires the dynamic import, and now you know why it is not optional.
+
+## Verification state
+
+```
+Run: 2026-08-25 · Phase 00 · commit 033b3aa · branch phase/00-foundation
+
+tokens  ✅ 132/132
+motion  ⚠️ 35/40  (5 pending, owed by later phases)
+visual  ⚠️ reviewed by agent — see judgement
+budget  ✅ 4/4
+```
+
+Key figures: root **16.45px @1512** and **16px @1440** · JS 159.5KB/190KB · total 204.5KB/1800KB ·
+CLS 0 · both faces confirmed painting via CDP · zero network font requests.
+
+Full report: `tools/verify/output/report.md` (committed). Phase record with the break-test
+results: `docs/build/phases/PHASE-00.md`.
 
 ## Commands you'll need
 
 ```bash
-npm run dev                    # once T0.1 exists
-npm run verify                 # once T0.10 exists
-node docs/research/source/decode-ix2-timed.mjs MOUSE_OVER        # if the local files are present
-node docs/research/source/decode-ix2-continuous.mjs a-3 a-23
+npm run dev                # :3000
+npm run verify             # the gate — ~90s, includes a production build
+npm run verify:tokens      # ~20s, use these while iterating
+npm run verify:motion
+npm run verify:visual      # then OPEN tools/verify/output/contact-sheet.html
+npm run verify -- --keep   # leave the server up, for debugging the harness itself
+npm run lint               # real eslint now, and clean
+npx tsc --noEmit           # strict, with noUncheckedIndexedAccess
 ```
 
 ---

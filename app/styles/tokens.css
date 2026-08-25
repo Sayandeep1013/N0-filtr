@@ -1,0 +1,145 @@
+/* ============================================================================
+   tokens.css — the single source of truth for colour, type and layout.
+   Transcribed from docs/spec/10-design-system.md §2, §3, §4, §5.
+
+   Every value here was measured off tonik's running site. Do not round, adjust
+   or "improve" one. If a value looks wrong, log it in docs/build/ISSUES.md.
+   ========================================================================= */
+
+:root {
+  /* ── colour primitives ──────────────────────────────────────────────── */
+  --black: #212121; /* page ground */
+  --white: #efefef; /* primary text */
+  --grey-900: #2e2e2e; /* secondary ground: CTA panel, open accordion row */
+  --grey-800: #3b3b3b; /* tertiary ground: cards, loader, social bars */
+  --grey-700: #737373; /* secondary text, inactive nav */
+  --grey-600: #e0e0e0; /* form fills, alternate borders */
+
+  /* ── alphas ─────────────────────────────────────────────────────────── */
+  --white-30: #ffffff4d; /* hairlines — the most-used border on the site */
+  --white-10: #ffffff1a; /* ghost button fills */
+  --white-50: #efefef80; /* muted text on dark */
+  --black-50: #21212180; /* scrim */
+  --black-70: #212121b3; /* heavy scrim */
+
+  /* ── semantic ───────────────────────────────────────────────────────── */
+  --bg-primary: var(--black);
+  --bg-secondary: var(--grey-900);
+  --bg-tertiary: var(--grey-800);
+  --bg-alternate: var(--white); /* inverted surfaces */
+  --bg-transparent: var(--white-10);
+  --text-primary: var(--white);
+  --text-secondary: var(--grey-700);
+  --text-alternate: var(--black); /* on inverted surfaces */
+  --border-primary: var(--white-30);
+  --border-alternate: var(--black);
+
+  /* ── system ─────────────────────────────────────────────────────────── */
+  --success: #027a48;
+  --success-bg: #ecfdf3;
+  --error: #b42318;
+  --error-bg: #fef3f2;
+
+  /* ── per-page accent — set by the case-study template (phase 6) ─────── */
+  --accent: var(--black);
+
+  /* ── families ───────────────────────────────────────────────────────── */
+  /* --font-display / --font-mono are injected by next/font/local in layout.tsx
+     and already carry their own fallback stacks. These aliases exist so that
+     component CSS never has to know which mechanism supplied them. */
+  --family-display: var(--font-display), Inter, 'Helvetica Neue', Arial, sans-serif;
+  --family-mono: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* ── type scale ─────────────────────────────────────────────────────── */
+  /* size · line-height · tracking. All display weights are 400, always. */
+  --t-h1-size: 6rem;          --t-h1-lh: 6rem;          --t-h1-track: -0.15rem;
+  --t-h1-sm-size: 3.25rem;    --t-h1-sm-lh: 3.25rem;    --t-h1-sm-track: 0;
+  --t-h2-size: 5rem;          --t-h2-lh: 5rem;          --t-h2-track: 0;
+  --t-h3-size: 2rem;          --t-h3-lh: 2.5rem;        --t-h3-track: 0;
+  --t-h4-size: 2rem;          --t-h4-lh: 2rem;          --t-h4-track: 0;
+  --t-h5-size: 1.5rem;        --t-h5-lh: 1.75rem;       --t-h5-track: 0;
+  --t-h6-size: 1rem;          --t-h6-lh: 1.25rem;       --t-h6-track: 0;
+
+  --t-p-big-size: 1.25rem;    --t-p-big-lh: 1.6;        --t-p-big-track: 0;
+  --t-p-size: 1rem;           --t-p-lh: 1.25rem;        --t-p-track: 0;
+  --t-p-sm-size: 0.625rem;    --t-p-sm-lh: 0.75rem;     --t-p-sm-track: 0;
+
+  --t-label-big-size: 0.875rem; --t-label-big-lh: 0.875rem; --t-label-big-track: -0.0175rem;
+  --t-label-size: 0.75rem;      --t-label-lh: 0.75rem;      --t-label-track: -0.015rem;
+  --t-label-sm-size: 0.5rem;    --t-label-sm-lh: 0.5rem;    --t-label-sm-track: -0.01rem;
+
+  /* ── layout ─────────────────────────────────────────────────────────── */
+  --gutter: 2.5rem;
+  /* Spec writes this literally as calc(100vw - (2 * 2.5rem)). Expressed through
+     --gutter so the documented mobile gutter override cascades. Identical at
+     desktop; the substitution is notation, not a changed value. */
+  --content: calc(100vw - (2 * var(--gutter)));
+  --hairline: 1px solid var(--border-primary);
+
+  /* The 12-column reference grid. Ours, not theirs — tonik has no formal grid
+     class, but every one of their layouts resolves to twelfths of --content. */
+  --grid-gap: 1.5rem;
+  --col: calc((var(--content) - (11 * var(--grid-gap))) / 12);
+
+  --section-y: 8rem; /* standard vertical section padding */
+
+  /* ── motion, mirrored from lib/motion/tokens.ts for CSS-side transitions ──
+     The [css] hover rules in 20-components-and-motion.md §22 use these. If you
+     change one, change both — verify:motion reads the TS side, and asserts
+     that these two definitions agree. */
+  --dur-micro: 0.25s;
+  --dur-fast: 0.3s;
+  --dur-base: 0.4s;
+  --dur-mid: 0.5s;
+  --dur-slow: 0.6s;
+  --dur-slower: 0.7s;
+  --dur-wipe: 0.75s;
+  --ease-in-out: cubic-bezier(0.37, 0, 0.63, 1); /* power1.inOut */
+}
+
+/* ── mobile step-down (≤767) ───────────────────────────────────────────────
+   Sizes only. Label sizes are deliberately UNCHANGED at every breakpoint —
+   that is what keeps the interface feeling technical on small screens.
+   Tracking is likewise unchanged; the spec's step-down list names sizes and
+   line-heights only. See I-006. */
+@media (max-width: 767px) {
+  :root {
+    --t-h1-size: 3rem;   --t-h1-lh: 3rem;
+    --t-h2-size: 2.5rem; --t-h2-lh: 2.5rem;
+    --t-h3-size: 1.5rem; --t-h3-lh: 1.75rem;
+    --t-h4-size: 1.5rem; --t-h4-lh: 1.75rem;
+
+    --gutter: 1.25rem;
+    --section-y: 4rem;
+  }
+}
+
+/* ============================================================================
+   Type application. Every typography element carries data-t naming its scale
+   token — this is the hook verify:tokens probes, and it costs nothing.
+   ========================================================================= */
+
+[data-t] {
+  font-family: var(--family-display);
+  font-weight: 400;
+  margin: 0;
+}
+
+[data-t^='label'] {
+  font-family: var(--family-mono);
+  text-transform: uppercase;
+}
+
+[data-t='h1']        { font-size: var(--t-h1-size);        line-height: var(--t-h1-lh);        letter-spacing: var(--t-h1-track); }
+[data-t='h1-sm']     { font-size: var(--t-h1-sm-size);     line-height: var(--t-h1-sm-lh);     letter-spacing: var(--t-h1-sm-track); }
+[data-t='h2']        { font-size: var(--t-h2-size);        line-height: var(--t-h2-lh);        letter-spacing: var(--t-h2-track); }
+[data-t='h3']        { font-size: var(--t-h3-size);        line-height: var(--t-h3-lh);        letter-spacing: var(--t-h3-track); }
+[data-t='h4']        { font-size: var(--t-h4-size);        line-height: var(--t-h4-lh);        letter-spacing: var(--t-h4-track); }
+[data-t='h5']        { font-size: var(--t-h5-size);        line-height: var(--t-h5-lh);        letter-spacing: var(--t-h5-track); }
+[data-t='h6']        { font-size: var(--t-h6-size);        line-height: var(--t-h6-lh);        letter-spacing: var(--t-h6-track); }
+[data-t='p-big']     { font-size: var(--t-p-big-size);     line-height: var(--t-p-big-lh);     letter-spacing: var(--t-p-big-track); }
+[data-t='p']         { font-size: var(--t-p-size);         line-height: var(--t-p-lh);         letter-spacing: var(--t-p-track); }
+[data-t='p-sm']      { font-size: var(--t-p-sm-size);      line-height: var(--t-p-sm-lh);      letter-spacing: var(--t-p-sm-track); }
+[data-t='label-big'] { font-size: var(--t-label-big-size); line-height: var(--t-label-big-lh); letter-spacing: var(--t-label-big-track); }
+[data-t='label']     { font-size: var(--t-label-size);     line-height: var(--t-label-lh);     letter-spacing: var(--t-label-track); }
+[data-t='label-sm']  { font-size: var(--t-label-sm-size);  line-height: var(--t-label-sm-lh);  letter-spacing: var(--t-label-sm-track); }

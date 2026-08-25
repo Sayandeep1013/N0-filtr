@@ -17,6 +17,9 @@ Thumbs.db
 # verification output (regenerated; evidence reports are committed explicitly)
 tools/verify/.cache/
 tools/verify/output/**/*.png
+# the contact sheet only means anything next to its screenshots, and those are
+# not committed — regenerate it with `npm run verify:visual`
+tools/verify/output/contact-sheet.html
 !tools/verify/output/**/report.md
 
 # ── tonik-owned material ────────────────────────────────────────────────
