@@ -1,5 +1,5 @@
 # Verification report
-Run: 2026-08-25T20:09:28.607Z · Phase 02 · commit `ef1a5e6` · branch `phase/02-brand-3d`
+Run: 2026-08-25T20:15:35.283Z · Phase 02 · commit `7a40d82` · branch `phase/02-brand-3d`
 
 ## Summary
 ```
@@ -369,12 +369,12 @@ not have moved anything on the /probe surface. It did not.
 ℹ️ matter-js absent from the eagerly-loaded bundle — vacuous: matter-js is not installed yet
 ℹ️ three absent from the eagerly-loaded bundle — vacuous: three is not installed yet
 ℹ️ plyr absent from the eagerly-loaded bundle — vacuous: plyr is not installed yet
-ℹ️ all built chunks, gzipped (not a per-route figure) = 307.6KB
+ℹ️ all built chunks, gzipped (not a per-route figure) = 307.8KB
 ✅ JS on / (transferred) = 170.1KB / 190KB
-✅ home page total weight = 234.8KB / 1800KB
+✅ home page total weight = 235.5KB / 1800KB
 ✅ zero network font requests = both faces self-hosted
 ✅ CLS (local, unthrottled) = 0.0027
-ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 88ms
+ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 80ms
 
 > Poster and reel budgets become binding in phase 10, when assets exist.
 > Lighthouse scores are a phase 12 deliverable via mcp__chrome-devtools__lighthouse_audit; the figures here are local and unthrottled.

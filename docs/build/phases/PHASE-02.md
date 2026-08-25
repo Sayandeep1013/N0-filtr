@@ -82,7 +82,7 @@ requires this and the phase-01 handoff supplies the number. Installing `three` a
 | T2.6 | Mobile — scroll-driven `rotationY −0.525 → −1.5` | ⬜ next | — |
 | T2.7 | Perf — DPR clamp, IntersectionObserver suspend, route fade | ⬜ next | — |
 | T2.8 | Reduced motion — one static frame; no-WebGL → WebP fallback | ⬜ next | — |
-| T2.9 | Mark applied to loader, nav, footer, favicon, OG | ⬜ next | loader / nav / footer done in phase 1; favicon + OG owed |
+| T2.9 | Mark applied to loader, nav, footer, favicon, OG | ✅ | four assets generated + `manifest.ts` + `metadataBase`; all four routes prerendered |
 
 ---
 
@@ -157,6 +157,51 @@ in a screenshot; it would have surfaced as a mysterious layout shift somewhere i
 
 Question 1 is the user's by CLAUDE.md's ground rules — brand is a non-technical decision.
 Questions 2 and 3 are offered with a recommendation attached so a delegated answer is cheap.
+
+---
+
+## T2.9 — the mark everywhere
+
+Taken first rather than last. Favicon and OG were the only two surfaces the mark was not on, they
+are the cheapest possible confirmation that the approved glyph is the shipping glyph, and they
+need no Three.js — so doing them before the 3D means the brand is fully applied even if the hero
+slips a session.
+
+**One script, `npm run brand:assets`, writes all four.** It derives the geometry from the same
+four ratios as `ApertureMark.tsx` rather than embedding a second copy of the path data, so the
+favicon and the on-page glyph cannot drift. The generated `icon.svg` carries a header saying so.
+
+| Output | Size | Why |
+|---|---|---|
+| `app/icon.svg` | 64×64 | scalable, covers §4's 32 case |
+| `app/apple-icon.png` | 180×180 | §4 |
+| `public/icon-512.png` | 512×512 | §4 |
+| `app/opengraph-image.png` | 1200×630 | §4 — glyph + wordmark on `--black` |
+
+**Why a script and not `next/og`.** `ImageResponse` cannot load a woff2, and General Sans ships
+from Fontshare as a variable woff2 only. An OG card set in a fallback face would misrepresent the
+wordmark, which is the single thing that card exists to show. Playwright is already a
+devDependency for the harness, renders the real face, and the output is static with zero runtime
+cost. The trade — assets generated at author time and committed — is right for something that
+changes as often as the brand does.
+
+**Three decisions inside it, all small.**
+
+The tiles are the mark on a filled `--black` ground, not on transparency. A white-stroked mark on
+transparency vanishes against a light browser tab and a black-stroked one vanishes against a dark
+tab; the tile is what makes it survive both. The mark takes 48 of the 64-unit tile — a 12.5% safe
+area that keeps it clear of the rounding some platforms apply.
+
+`app/manifest.ts` was added so the 512 asset has a consumer. §4 asks for 512 and Next has no
+convention that serves it; an unreferenced file would have been dead weight rather than the thing
+it was specced to be.
+
+`metadataBase` was added because without it Next emits relative OG paths and warns — a card that
+scrapes to nothing. The domain is still open item 5, so `SITE.url` reads `NEXT_PUBLIC_SITE_URL`
+and falls back to `https://nofilter.example`: obviously provisional rather than plausibly real.
+
+Verified by the build, which prerenders all four as routes: `/icon.svg`, `/apple-icon.png`,
+`/opengraph-image.png`, `/manifest.webmanifest`. Both raster outputs were opened and looked at.
 
 ---
 

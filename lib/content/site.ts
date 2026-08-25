@@ -53,6 +53,21 @@ export const SERVICES: ServiceSummary[] = [
   { slug: 'engineering', name: 'Engineering' },
 ];
 
+/* ── identity ──────────────────────────────────────────────────────────────
+   The canonical origin, used for `metadataBase`, the OG card's absolute URLs
+   and the manifest. **The domain is still a placeholder** — open item 5 in
+   00-brief-and-decisions.md — so it reads from an env var and falls back to a
+   name that is obviously provisional rather than to something that looks real.
+   Set NEXT_PUBLIC_SITE_URL on the deploy and this stops mattering. */
+
+export const SITE = {
+  name: 'No Filter',
+  /** The wordmark's own casing. Used where the brand is set, not where it is read aloud. */
+  wordmark: 'NO FiLTER',
+  description: 'A studio for work that does not need softening.',
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? 'https://nofilter.example',
+} as const;
+
 /* ── contact details ───────────────────────────────────────────────────────
    Supplied by Sayandeep, 2026-08-25. One real address for everything; there is
    deliberately no street address, so the studio row carries the locality and the
