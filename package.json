@@ -7,7 +7,7 @@
     "dev": "next dev -p 3000",
     "build": "next build",
     "start": "next start -p 3000",
-    "lint": "next lint",
+    "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "verify": "tsx tools/verify/run.ts",
     "verify:tokens": "tsx tools/verify/run.ts --only=tokens",
@@ -24,9 +24,12 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.6",
     "@types/node": "^22.10.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^15.5.23",
     "playwright": "^1.49.0",
     "tsx": "^4.19.0",
     "typescript": "^5.7.0"

@@ -74,8 +74,6 @@ export type Assertion =
       family: string;
     };
 
-const PROBE = '/probe';
-
 /* ── the fluid root ────────────────────────────────────────────────────────
    The single most important assertion on the site. Every other dimension is a
    multiple of this number, so it is checked first and at five widths: side of
