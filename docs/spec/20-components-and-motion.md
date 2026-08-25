@@ -88,12 +88,19 @@ window.addEventListener('pageshow', e => {
 **Anatomy**
 ```
 .nav                     fixed inset:0 0 auto, z-10, bg transparent
-                         padding-top 1.5rem, transition all .3s ease-in-out
+                         padding-top 1.5rem (1rem ≤991), padding-bottom 0
+                         transition all .3s ease-in-out
   └ .nav__logo           wordmark, 4.25rem × 1.25rem
-  └ .nav__links          WORKS¹² · ABOUT · SERVICES · BLOG
-  └ .nav__cta            CONTACT pill (inverted: light bg, dark text, dark circle arrow)
-  └ .nav__burger         ≤991 only — a "+" glyph
+  └ .nav__links          WORKS¹² · ABOUT · SERVICES · BLOG — flex, gap 2.5rem
+  └ .nav__cta            CONTACT — inverted: light bg, dark text, dark circle arrow.
+                         Square corners; the pill radius in §9 is the ghost button's.
+  └ .nav__burger         ≤991 only — a "+" glyph, 1.5rem box, two 1px strokes
 ```
+
+> **Re-measured phase 1** (1512 and 390). `padding-bottom` is **0**, not symmetric with the top —
+> the bar has no background at rest so nothing shows, and in `is-mini` the fill sits tight under
+> the content. Link gap is `2.5rem`, the same figure as `--gutter`. The burger's two strokes are
+> each exactly `1px` on a `1.5rem` square, `--white`. `padding-top` steps to `1rem` below 992.
 
 **States**
 
@@ -139,6 +146,15 @@ Global, triggered by any `[data-contact]` element (nav CTA, CTA block, footer, s
       └ __heading        "Contact Us" (--t-h3) + lead (--t-p) + divider + close ×
       └ __body           [data-lenis-prevent] — Tally iframe (or native fallback)
 ```
+
+> **Re-measured phase 1** at 1512. The sidebar is `848.2 / 1512 = 56.1%` — 56% confirmed — with
+> `padding: 0 1.25rem`. The heading part is `position: sticky` with `padding-top: 1.25rem`, so it
+> holds while the form scrolls under it. The close button is a `1.25rem` square inset `1.25rem`
+> from the sidebar's top-right. The divider is a solid `1px` of `--border-alternate` at full
+> width — not a hairline alpha. The gif sits one `--gutter` from the left edge and is `~28rem`
+> wide. The scrim is `--black-50`, confirmed exactly. Their z-index is 100000; ours stays at the
+> specced 9000, which is deliberately below the loader's 9999 so a link clicked inside the panel
+> is still covered by the page transition.
 
 **Open [src]**
 ```js
@@ -374,7 +390,39 @@ background var(--bg-alternate); color var(--text-alternate);
 transition background-color .3s ease-in-out
 .is-inverted → background var(--black), color var(--white)
 ```
-Sizes: `1.5rem` inline, `2.5rem` social bars, `6rem` CTA block.
+Sizes: `1rem` inline, `2.5rem` social bars, `6rem` CTA block.
+
+> **Re-measured phase 1.** The inline size is `1rem`, not 1.5rem — measured on both the navbar
+> CTA and the footer social bars, where `.button_icon-box` and its `-bg` are 16.45px at a 16.45px
+> root. The `.3s ease-in-out` background transition is confirmed exactly.
+
+### Button fill overlay `[css]` — the hover the spec was missing
+
+Every `.button-icon` on tonik — the nav CTA and the footer social bars are the two in this phase —
+carries an absolutely-positioned overlay that **slides up to fill the button**. It is not GSAP and
+not IX2; it is a plain CSS transition, which is why it was invisible to both recovered sources.
+
+```
+.button-icon                 position: relative; overflow: hidden
+  └ .button-icon-overlay     position: absolute; inset: 100% 0 auto 0
+                             width 100%; height 200%
+                             transition: transform .4s ease-in-out
+     nav CTA   → background var(--grey-800)
+     footer    → background var(--bg-alternate)
+:hover .button-icon-overlay  transform: translateY(-55%)
+```
+
+`-55%` of a 200%-tall overlay is `-110%` of the button, so the fill overshoots the top edge by a
+tenth of the button's height and covers it completely. The label and the circle cross-fade with
+it, on their own timings:
+
+| Element | Rest | Hover | Transition |
+|---|---|---|---|
+| label | nav: `--black` · footer: `--white` | nav: `--white` · footer: `--black` | `color .4s ease-in-out` |
+| `.button_icon-box` (the glyph) | nav: `--white` · footer: `--black` | inverts | `color .4s ease-in-out` |
+| `.button_icon-box-bg` (the disc) | nav: `--black` · footer: `--white` | inverts | `background-color .3s ease-in-out` |
+
+The disc runs 100ms ahead of everything else. That is measured, not rounded.
 
 ### Load-more `<LoadMoreButton />` [src]
 The most elaborate hover on the site:
@@ -599,18 +647,41 @@ Three per row on the blog card row; a filtered grid on `/blog`.
 ## 20. Footer `<Footer />`
 
 ```
-border-top: var(--hairline); padding: 6rem var(--gutter) 3rem
-┌ SERVICES (icon + label ×5)              │ BUSINESS ENQUIRIES → email
-│                                          │ OPPORTUNITIES → …
-│                                          │ CITY, CC · GMT+X + address
-│                                          │ SOCIALS → full-width bars, bg var(--grey-800),
-│                                          │           IconCircle ↗ right
-├ mono tagline (--t-label, --text-secondary)
-└ WORDMARK — font-size: 14vw, color var(--white), line-height .8
-                                            year · privacy policy, bottom-right
+border-top: var(--hairline); padding: 5rem var(--gutter) 2.75rem
+grid-template-columns: 3fr 2fr 1fr;  gap 1.25rem   (one column <=767, row-gap 3rem)
+
+col 1  SERVICES              --t-label, --white-50
+       icon 1.25rem @ opacity .5  +  label --t-p,  gap .75rem,  x5, list gap .5rem
+       -- gap 1.5rem --
+       mono tagline          --t-label, --white-50
+       WORDMARK              14vw, color var(--white), line-height .8
+                             (spans cols 1-2 -- ours is a longer word than tonik's)
+
+col 2  empty -- a spacer, not a content column
+
+col 3  BUSINESS ENQUIRIES -> email        label --t-label --white-50
+       OPPORTUNITIES -> ...               value --t-p
+       CITY, CC | GMT+X + address         col gap .5rem, part gap 2.25rem
+       SOCIALS                            list gap .75rem
+         full-width bar, 2rem tall, bg var(--white-10)
+         padding .5rem .75rem, gap .5rem
+         label --t-label  +  IconCircle 1rem, right
+       -- padding-top 1.25rem --
+       2026  [mark]  PRIVACY POLICY       year row gap .5rem; the mark sits in a
+                                          1.75rem square of var(--white-10)
 ```
 
 The `14vw` wordmark is the one place the site abandons rem. Keep it in `vw`.
+
+> **Re-measured phase 1** at 1512 and 390. Corrections to what this section said before:
+> padding is `5rem / 2.75rem`, not `6rem / 3rem`, and it does **not** change at 390. The social
+> bars are `--white-10`, not `--grey-800` -- on the `--black` ground those composite to within a
+> few points of each other, which is how the teardown read `#3b3b3b` off a screenshot. The labels
+> and the tagline are `--white-50`, not `--text-secondary`. The hairline sits on the grid, not on
+> the footer element. Social bars and the nav CTA share the fill-overlay hover in §9.
+>
+> tonik's wordmark is an SVG sized to 100% of its column, which is why 14vw is right at 1512 and
+> wrong at 390 -- see I-013.
 
 **Service link hover [ix2 `a-17`/`a-18`]** — the footer service list uses the same sibling-dim
 pattern as the works grid:

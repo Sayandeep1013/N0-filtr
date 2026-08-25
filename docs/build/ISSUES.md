@@ -84,7 +84,7 @@ the option was forgotten.
 
 ---
 
-## I-005 · At ≤767, `h1-sm` (3.25rem) is larger than `h1` (3rem)  🟡
+## I-005 · At ≤767, `h1-sm` (3.25rem) is larger than `h1` (3rem)  🟢
 
 **Found:** phase 00, 2026-08-25 · **Area:** `10-design-system.md` §3 Mobile step-down
 
@@ -100,13 +100,26 @@ and phase 7 (service/industry heroes, which are the `h1-sm` consumers) are where
 **Workaround:** Implemented the spec literally — `h1-sm` is unchanged at ≤767. Not silently
 "fixed", per protocol §4. The probe page makes the inversion obvious to the next agent.
 
-**Needs:** A re-measure of tonik at 390 on a page with a secondary hero (a service page), to see
-what their `h1-sm` actually does below 768. Cheap — do it at the start of phase 7. If they do
-step it down, the value goes in the spec first, then here.
+**Resolved:** phase 01, 2026-08-25. Re-measured on tonik at 390 (root 16px):
+
+| element | class | measured |
+|---|---|---|
+| homepage hero | `.t-heading-1-rg` | 40px / 40px / **-0.8px** |
+| `/product-design` hero | `.t-heading-1-small-rg` | 40px / 40px / **-0.8px** |
+| CTA heading | `.cta-heading` | 40px / 40px / **-0.8px** |
+
+They **collapse to the same step**: `2.5rem / 2.5rem / -0.05rem`. There is no inversion because
+below 768 there is no distinction — the secondary hero style simply stops being secondary. The
+spec's `--t-h1: 3rem` was also wrong; the real value is 2.5rem.
+
+`10-design-system.md` §3 and `app/styles/tokens.css` updated, and `MOBILE_SCALE` in
+`tools/verify/tokens.config.ts` with them.
+
+**Needs:** Nothing.
 
 ---
 
-## I-006 · `h1` tracking is not stepped down with `h1` size  🟡
+## I-006 · `h1` tracking is not stepped down with `h1` size  🟢
 
 **Found:** phase 00, 2026-08-25 · **Area:** `10-design-system.md` §3 Mobile step-down
 
@@ -120,8 +133,15 @@ Visible at 390 in the probe capture: h1 is noticeably tighter than the untracked
 line-heights only, and the most conservative reading of "the rest is unchanged" is that tracking
 does not move.
 
-**Needs:** Measure `letter-spacing` on tonik's mobile h1 at 390 and put the answer in the spec.
-Bundle it with the I-005 re-measure — same page, same session, one trip.
+**Resolved:** phase 01, 2026-08-25, in the same trip as I-005. tonik's mobile h1 letter-spacing
+is **-0.8px = -0.05rem**, not the desktop -0.15rem — so it *is* stepped down, and by exactly the
+same factor as the size (6→2.5rem is ×0.417; -0.15→-0.05rem is ×0.333, holding the optical
+tightness roughly constant rather than the ratio exactly). The observation that -0.15rem was
+proportionally twice as tight on mobile was correct, and tonik does not do it.
+
+`10-design-system.md` §3, `app/styles/tokens.css` and `tools/verify/tokens.config.ts` updated.
+
+**Needs:** Nothing.
 
 ---
 
@@ -158,3 +178,115 @@ CSS or images, and all of ours are in-repo. It is a build-time surface only.
 
 **Needs:** A Next patch release that bumps them, or a deliberate decision to move to Next 16.
 Re-check at phase 12 before launch.
+
+---
+
+## I-009 · The aperture mark's tick stroke weight is unspecified  🟡
+
+**Found:** phase 01, 2026-08-25 · **Area:** `50-brand-and-3d.md` §1 The mark
+
+**Problem:** The 2D glyph spec gives the ring's stroke weight (1/12 of the diameter) and each
+tick's *length* (1/6 of the radius), but no stroke weight for the ticks. At the ring's own weight
+a tick that short renders as a square blob rather than a retracted blade.
+
+**Impact:** Cosmetic, but it is the loader glyph, the nav mark and the favicon.
+
+**Workaround:** Ticks drawn at **half** the ring's weight in `components/brand/ApertureMark.tsx`.
+Both numbers are derived from the spec's ratios at the top of that file, so changing the choice is
+one constant.
+
+**Needs:** Phase 2 is the brand gate and has to show the mark to the user anyway. Settle it there
+and write the number into the spec.
+
+---
+
+## I-010 · `loader.enter` was seeded at 1.0s; IX2 says 0.6s  🟢
+
+**Found:** phase 01, 2026-08-25 · **Area:** `02-VERIFICATION.md` §2, `motion.config.ts`
+
+**Problem:** The seeded assertion gave `loader.enter` a `totalDuration` of 1.0s — the sum of the
+mark fade (.4) and the panel slide (.6), i.e. assuming they run in sequence. The timeline in
+`20-components-and-motion.md` §1 places them together with `'<'`.
+
+**Evidence:** `docs/research/source/tonik-ix2.json`, action list `a-23`. The scale, opacity and
+move items are three `actionItems` of the **same** `actionItemGroup`, and IX2 runs a group
+concurrently — groups, not items, are the sequential unit. The spec's `'<'` is right.
+
+**Resolution:** `totalDuration` corrected to 0.6 in `tools/verify/motion.config.ts`. The spec
+needed no change. Recorded so nobody re-derives it.
+
+**Needs:** Nothing.
+
+---
+
+## I-011 · The mobile step-down for h3–h6 does not match tonik  🔴
+
+**Found:** phase 01, 2026-08-25 · **Area:** `10-design-system.md` §3 Mobile step-down
+
+**Problem:** Re-measured on tonik at 390 (root 16px) while resolving I-005/I-006:
+
+| token | tonik @390 | our spec ≤767 |
+|---|---|---|
+| h3 | 1.5rem / **1.5rem** | 1.5rem / 1.75rem |
+| h4 | **1.25rem** / **1.5rem** | 1.5rem / 1.75rem |
+| h5 | **1.25rem** / **1.5rem** | 1.5rem / 1.75rem (not stepped) |
+| h6 | **1.25rem** / **1.25rem** | 1rem / 1.25rem (not stepped) |
+
+Labels are confirmed unchanged at every breakpoint (12px/12px/-0.24px and 8px/8px/-0.16px),
+which is the property the spec is most emphatic about and it holds.
+
+**Impact:** Every heading below h2 is one step too large on mobile, and h4/h5 sit at the same
+size as h3 rather than below it.
+
+**Workaround:** None. Left at the specced values — unlike h1/h1-sm these have no open issue
+against them, they were sampled from one page each, and two of the four elements carried
+`is-mobile-*` modifier classes that may be per-instance overrides rather than the base scale.
+
+**Needs:** Twenty minutes at 390 on tonik's `/about` and a case study, confirming the base
+classes without modifiers. Owner: **phase 3**, the first phase to render these at 390. If they
+confirm, the values go in `10-design-system.md` §3 and in `MOBILE_SCALE` in
+`tools/verify/tokens.config.ts` together.
+
+---
+
+## I-012 · tonik's nav link padding is asymmetric — `.4rem .6rem .4rem .5rem`  🟡
+
+**Found:** phase 01, 2026-08-25 · **Area:** `20-components-and-motion.md` §2 Navbar
+
+**Problem:** The spec gives the nav link `padding: .4rem .5rem`. Measured on `.navbar_link` at
+1512: top/bottom 6.58px (.4rem ✓), left 8.225px (.5rem ✓), **right 9.87px (.6rem)**.
+
+**Impact:** The active pill and the hover fill are 0.1rem wider on the right than on the left —
+sub-pixel-visible, and only on a filled state.
+
+**Workaround:** Implemented as the spec writes it, `.4rem .5rem`. The asymmetry is more likely a
+Webflow inheritance artefact than a design decision, and the conservative reading is the
+symmetric one.
+
+**Needs:** A decision, not a measurement. Cheap either way.
+
+---
+
+## I-013 · The footer wordmark fills its column on tonik; ours is `14vw` everywhere  🟡
+
+**Found:** phase 01, 2026-08-25 · **Area:** `20-components-and-motion.md` §20, CLAUDE.md §4
+
+**Problem:** tonik's footer wordmark is an **SVG sized to 100% of its column**, not type at a
+fixed size. At 1512 that lands at 694×211px — 211px being 14vw, which is where the specced
+`font-size: 14vw` comes from. At 390 the same SVG is 350×109px, i.e. **28vw**, because it is
+still filling the column. Our wordmark is real text at a fixed `14vw`, so at 390 it renders at
+54.6px — a quarter the relative size of theirs.
+
+Ours is also a longer word. `no filter` at 14vw is roughly 950px wide at 1512 against tonik's
+694px column, so it is laid out across the first two grid columns rather than the first.
+
+**Impact:** The footer's biggest single element is proportionally much smaller than tonik's on
+mobile. Desktop is right.
+
+**Workaround:** `14vw` kept at every width — it is one of only two rem exceptions CLAUDE.md §4
+names, and inventing a mobile value is not mine to do. The wordmark spans grid columns 1–2 so
+the longer word has room.
+
+**Needs:** A value for ≤767 (28vw would match tonik's proportion), or a decision that the
+wordmark should be width-fitted rather than size-fixed. Owner: phase 12 polish, or sooner if the
+mobile footer looks wrong to the user.

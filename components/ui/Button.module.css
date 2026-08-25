@@ -1,0 +1,40 @@
+/* docs/spec/20-components-and-motion.md §9 — the pill button.
+
+   padding .5rem .75rem; gap .5rem; border-radius 999px;
+   background var(--white-10); color var(--white); --t-label
+     └ circular icon 1.5rem, background var(--white), icon dark
+   hover [new]: background var(--white-30), .3s ease-in-out */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 999px;
+  background-color: var(--bg-transparent);
+  color: var(--text-primary);
+  font-family: var(--family-mono);
+  font-size: var(--t-label-size);
+  line-height: var(--t-label-lh);
+  letter-spacing: var(--t-label-track);
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: background-color var(--dur-fast) var(--ease-in-out);
+}
+
+/* The nav CTA. §2 describes it as "inverted: light bg, dark text, dark circle
+   arrow" — the pill's own colours swap and the IconCircle inverts with it.
+   No hover background is specced for this variant and none is invented: its
+   hover is the §21.3 icon swap. */
+.inverted {
+  background-color: var(--bg-alternate);
+  color: var(--text-alternate);
+}
+
+/* Hover is gated at >991px like every other hover on the site (CLAUDE.md §6).
+   This one is CSS rather than GSAP, so the gate is a media query. */
+@media (min-width: 992px) {
+  .button:not(.inverted):hover {
+    background-color: var(--border-primary); /* --white-30 */
+  }
+}

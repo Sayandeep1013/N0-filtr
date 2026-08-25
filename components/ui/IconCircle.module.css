@@ -1,0 +1,65 @@
+/* docs/spec/20-components-and-motion.md §9 — <IconCircle />.
+
+   aspect-ratio 1; border-radius 50%;
+   background var(--bg-alternate); color var(--text-alternate);
+   transition background-color .3s ease-in-out
+   .is-inverted → background var(--black), color var(--white)
+
+   Sizes: 1.5rem inline · 2.5rem social bars · 6rem CTA block. */
+
+.circle {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background-color: var(--bg-alternate);
+  color: var(--text-alternate);
+  transition: background-color var(--dur-fast) var(--ease-in-out);
+  /* The diagonal swap in §21.3 works by throwing one icon out of the box while
+     its twin arrives from the opposite corner. Without this they both show. */
+  overflow: hidden;
+}
+
+.inline {
+  width: 1.5rem;
+}
+
+.social {
+  width: 2.5rem;
+}
+
+.cta {
+  width: 6rem;
+}
+
+.inverted {
+  background-color: var(--black);
+  color: var(--white);
+}
+
+/* Each icon fills the circle and centres its glyph, so a percentage translate is
+   a percentage of the circle — which is what the 101% in §21.3 means. */
+.icon {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+/* The twin's resting offset. Written as the CSS `translate` property, not inside
+   `transform`, so GSAP owns `transform` alone and the two compose cleanly. */
+.twin {
+  translate: -101% 101%;
+}
+
+/* The 325° static offset that orients the glyph along the diagonal it travels.
+   It sits on the glyph rather than on `.button-icon` — where §21.3 records it —
+   because a rotation on the animated element would rotate the frame its
+   percentage translate resolves in, and send it off in the wrong direction.
+   It does not animate either way. */
+.glyph {
+  width: 45%;
+  height: 45%;
+  transform: rotate(325deg);
+}
