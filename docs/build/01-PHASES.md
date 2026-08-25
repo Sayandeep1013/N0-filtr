@@ -29,7 +29,9 @@ harness has to be trustworthy before any component exists.
 
 ### Reading Map
 - `docs/spec/10-design-system.md` — **all of it**
-- `docs/spec/60-architecture-and-build.md` §1 Stack, §2 Structure, §3 Motion architecture, §5 Budgets
+- `docs/spec/60-architecture-and-build.md` §1 Stack, §2 Structure, §3 Motion architecture,
+  §5 Budgets, **§6 Accessibility** (added in phase 0 — it governs the reset: focus-visible,
+  the skip link, and keyboard scrolling surviving the hidden scrollbars)
 - `docs/build/02-VERIFICATION.md` — all of it
 
 ### Tasks
