@@ -100,6 +100,16 @@ Lenis · SplitType · Three.js + custom GLSL · Embla · Matter.js · MDX + Shik
 
 ---
 
+## Model policy
+
+**Run this build on Opus.** Decided by the user, not a default. Two phases have no reference to
+transcribe and rest entirely on judgement — Phase 2 (the aperture mark and its GLSL material) and
+Phase 6 (the first case study, whose pattern eleven more inherit) — and the fidelity audits are
+where a weaker model quietly passes work that is subtly wrong.
+
+If a session is running on something else, say so in the handoff so the next agent knows which
+work to re-check.
+
 ## Ground rules for the agent
 
 - **Never mark a task done without evidence.** `npm run verify` output, or a screenshot, or a
