@@ -66,31 +66,4 @@ export const SHOTS: Shot[] = [
  * Set it back to null at the start of a phase so a stale judgement from the
  * previous phase cannot be mistaken for a fresh one.
  */
-export const AGENT_JUDGEMENT: string | null = [
-  'Phase 0, /probe at 1512 and 390. There is no page yet, so this is a judgement about the type',
-  'system, not about composition against tonik — the first real composition judgement is owed by',
-  'phase 1 (footer) and phase 3 (hero).',
-  '',
-  'At 1512: the thirteen steps descend cleanly and h1 dominates. Every display step reads at the',
-  'same weight — no step looks bolder than its neighbours, so the 400-only rule holds visually and',
-  'not merely in the computed styles. General Sans is unmistakably the face that painted it: the',
-  'single-storey g is clearly visible in "dog" and "jumps", which is the specific detail',
-  '10-design-system.md §3 chose the family for. The three mono steps are visibly a different',
-  'family, uppercase and tighter-tracked. h3 and h4 correctly render at the same size and differ',
-  'only in leading. Text begins one gutter (41px) from the left edge, as measured.',
-  '',
-  'At 390 two things are worth recording. First, the h1/h2/h3/h4 steps have stepped down and the',
-  'three mono label steps have visibly NOT — which is the property that keeps the interface',
-  'technical on small screens, and is the thing most likely to be broken by a careless mobile',
-  'override later. Second, a real defect surfaced: h1-sm (3.25rem, not stepped down) renders',
-  'LARGER than h1 (3rem, stepped down), so the secondary hero style out-ranks the primary one on',
-  'mobile. It is the biggest thing on the 390 capture. Logged as I-005, implemented as specced',
-  'rather than silently corrected. h1 also reads noticeably tighter than the untracked h1-sm',
-  'beside it, because -0.15rem of tracking is 2.5% of a 6rem face but 5% of a 3rem one — logged',
-  'as I-006.',
-  '',
-  'One further observation, not a defect: at ≤767 h3, h4 and h5 all resolve to 1.5rem/1.75rem, so',
-  'three consecutive steps collapse into one size. That follows from the specced step-down and is',
-  'a legitimate compression of the scale, but a phase choosing between h4 and h5 on mobile should',
-  'know the choice is invisible there.',
-].join('\n');
+export const AGENT_JUDGEMENT: string | null = null;

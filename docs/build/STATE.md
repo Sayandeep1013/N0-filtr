@@ -3,7 +3,7 @@
 **The first file every agent reads. It must always be true.**
 If you change the build, change this file in the same session — not later.
 
-Last updated: **2026-08-25** · by: **phase 0 session (Opus)** · commit: `033b3aa`
+Last updated: **2026-08-25** · by: **phase 1 session (Opus)** · commit: `39823cd`
 
 ---
 
@@ -11,13 +11,13 @@ Last updated: **2026-08-25** · by: **phase 0 session (Opus)** · commit: `033b3
 
 > **Phase 0 is complete.** The scaffold, the token system and all four verification
 > checks exist and are green. The harness has been proven by deliberately breaking it.
-> **Phase 1 (global chrome) is next and unclaimed.**
+> **Phase 1 (global chrome) is claimed and in progress.**
 
 | | |
 |---|---|
-| Current phase | **1 — Global chrome** *(unclaimed)* |
-| Status | ⬜ not started |
-| Branch | *(create `phase/01-chrome`)* |
+| Current phase | **1 — Global chrome** |
+| Status | 🔨 in-progress — claimed 2026-08-25 |
+| Branch | `phase/01-chrome` |
 | Blocked | no |
 | Verify report | `tools/verify/output/report.md` — tokens 132/132, motion 35/40 (5 pending), budget 4/4, visual judged |
 
@@ -28,7 +28,7 @@ Last updated: **2026-08-25** · by: **phase 0 session (Opus)** · commit: `033b3
 | # | Phase | Status | Branch | Tag | Notes |
 |---|---|---|---|---|---|
 | 0 | Foundation & harness | ✅ | `phase/00-foundation` | `phase-00-complete` | harness proven by break-test |
-| 1 | Global chrome | ⬜ | `phase/01-chrome` | — | needs 0 |
+| 1 | Global chrome | 🔨 | `phase/01-chrome` | — | needs 0 · claimed 2026-08-25 |
 | 2 | Brand & 3D hero 🚦 | ⬜ | `phase/02-brand-3d` | — | **GATE** · needs 0 |
 | 3 | Homepage upper | ⬜ | `phase/03-home-upper` | — | needs 1, 2 |
 | 4 | Works grid | ⬜ | `phase/04-works-grid` | — | needs 3 |
@@ -67,9 +67,9 @@ Full record: `docs/build/phases/PHASE-00.md`
 | T0.9 | `verify:budget` | ✅ | JS 159.5KB / 190KB, total 204.5KB / 1800KB, CLS 0 |
 | T0.10 | `npm run verify` aggregator | ✅ | one command, one report, non-zero exit |
 
-### Phase 1 — Global chrome ⬜ not started
+### Phase 1 — Global chrome 🔨 in-progress
 
-Copy the task table from `01-PHASES.md` when you claim it.
+Record: `docs/build/phases/PHASE-01.md`
 
 | id | task | status | evidence |
 |---|---|---|---|

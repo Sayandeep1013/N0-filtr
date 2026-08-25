@@ -62,9 +62,15 @@ harness has to be trustworthy before any component exists.
 `phase/01-chrome` · needs 0 · **~1 session**
 
 ### Reading Map
-- `20-components-and-motion.md` §1 Loader, §2 Navbar, §3 Contact panel, §20 Footer, §21.1, §22
+- `20-components-and-motion.md` §1 Loader, §2 Navbar, §3 Contact panel, §9 Buttons, §20 Footer,
+  §21.1, §21.3, §22
 - `30-page-specs.md` — the global chrome note at the top
 - `10-design-system.md` §5 Motion primitives, §6 Global chrome
+- `50-brand-and-3d.md` §1 The mark — the loader and navbar have nothing to render without it
+
+*(§9, §21.3 and `50-brand-and-3d.md` §1 added by the phase-1 session, per protocol §2: the nav
+CTA pill needs `Button` + `IconCircle` and their diagonal icon swap, and the loader needs the
+glyph. Building them ad-hoc here would guarantee they are rebuilt in phase 3.)*
 
 ### Tasks
 | id | task | done-when |
