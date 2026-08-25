@@ -162,5 +162,24 @@ Protocol §6, worked through honestly.
   the real cause was `networkidle`. Carrying it would have silently under-counted real weight
   once the routes exist.
 
+## Postscript — after the tag
+
+Two decisions came back from Sayandeep once the phase was already merged and tagged. Both were
+applied on `fix/i-017-easing` and merged into `main` after `phase-01-complete`; the tag is left
+where it is, marking the phase as it was verified.
+
+- **I-017 resolved.** The call was delegated back to me and I took my own recommendation:
+  `EASE.quad` is now `power1.inOut`. Changed in seven places and re-verified — `EASE.quad`,
+  both `loader.enter` ease assertions, and the footer sibling-dim still landing on exactly 0.30.
+- **Contact details supplied**, and no physical address. `sayandeepmondal1013@gmail.com`. The
+  footer's third row became `STUDIO → Kolkata, IN · GMT+5:30`, and `OPPORTUNITIES` kept tonik's
+  own "Work with us" wording rather than printing the same address twice.
+
+Applying the real email exposed a latent bug the placeholder had been short enough to hide: the
+footer grid was `3fr 2fr 1fr`, and a bare `fr` track has an `auto` minimum, so a 312px
+unbreakable string against a 311.5px track was widening its own column at the other two's
+expense. Now `minmax(0, Nfr)`, verified holding exactly 3:2:1 at 1024, 1200 and 1512, with a
+`<wbr>` after the `@` so the address breaks where a reader expects.
+
 ## Handed off to
-Phase 02 · see HANDOFF.md at commit `83ff9ae`
+Phase 02 · see HANDOFF.md at commit `83ff9ae`, plus the postscript above

@@ -7,7 +7,13 @@
 
 .grid {
   display: grid;
-  grid-template-columns: 3fr 2fr 1fr;
+  /* minmax(0, Nfr), not bare Nfr. A bare fr track has an `auto` minimum, so one
+     long unbreakable string — a contact email is exactly that — silently widens
+     its column and steals the space from the other two. At 1512 the email is
+     312px against a 311.5px track, which fits by half a pixel and would not
+     between 992 and 1440, where the root locks at 16px while the column keeps
+     shrinking with the viewport. */
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr) minmax(0, 1fr);
   gap: 1.25rem;
   padding-top: 5rem;
   padding-bottom: 2.75rem;
@@ -74,6 +80,9 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  /* The email has no break opportunity in it. Given a track it cannot fit, wrap
+     it rather than let it escape the column. */
+  overflow-wrap: anywhere;
 }
 
 .socials {

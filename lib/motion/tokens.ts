@@ -20,7 +20,7 @@ export const EASE = {
   out: 'power3.out', // things arriving
   in: 'power3.in', // things leaving
   soft: 'power2.out', // Flip transitions
-  quad: 'power2.inOut', // the loader — Webflow's inOutQuad          [ix2]
+  quad: 'power1.inOut', // the loader — Webflow's inOutQuad          [ix2]
   circ: 'circ.out', // button icon diagonal swap                     [ix2]
   inOut: 'power1.inOut', // hover state changes, IX2 'ease'
   gentle: 'power1.out', // staggered text
@@ -33,8 +33,19 @@ export const EASE = {
  * every [ix2]-marked timeline in 20-components-and-motion.md was converted
  * through it.
  *
- *   inOutQuad → power2.inOut      outCirc → circ.out
+ *   inOutQuad → power1.inOut      outCirc → circ.out
  *   easeInOut → power1.inOut      ease    → power1.inOut
+ *
+ * `quad` and `inOut` therefore hold the same value, and that is correct rather
+ * than a duplicate to be tidied away: Webflow's `inOutQuad`, `easeInOut` and
+ * `ease` are all quadratic-in-out curves within a hair of each other. The two
+ * names are kept apart because they record different provenance — `quad` is the
+ * loader and the sibling-dim, `inOut` is every IX2 `ease` hover — and because a
+ * future re-measure could separate them again.
+ *
+ * GSAP's `powerN` is offset by one from the Penner names: `Quad === Power1`,
+ * `Cubic === Power2` (gsap-core.js:1526). The spec said `power2.inOut` here
+ * until phase 1, which was one power too strong everywhere. See I-017.
  */
 export const IX2_EASE = {
   inOutQuad: EASE.quad,

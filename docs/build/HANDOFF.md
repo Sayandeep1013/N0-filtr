@@ -24,23 +24,37 @@ that neither recovered source can see. And **the harness gained a behaviour laye
 the real interface instead of reading registered timelines — it found five real problems within
 an hour of existing, one of which reached users.
 
-## ⚠ One decision I need from you — I-017
+## Decisions Sayandeep made after the phase closed
 
-**The spec's `inOutQuad → power2.inOut` translation is wrong, and I did not change it.**
+Both were applied on `fix/i-017-easing`, merged into main after `phase-01-complete`. The tag
+still marks the phase as it was verified; these came after.
 
-GSAP's `powerN` aliases are offset by one from the Penner names (`gsap-core.js:1526`):
-`Quad === Power1`, `Cubic === Power2`. So `power2.inOut` is **cubic**. Webflow's `inOutQuad` is
-quadratic. I confirmed it by scrubbing our own loader: at 25% progress the panel had travelled
-`4p³` of its sweep — cubic to four decimal places — where quadratic would be `2p²`.
+**I-017 — the easing. Decided: change it.** He delegated the call back, and the change is in.
+`EASE.quad` is now `power1.inOut`. GSAP's `powerN` is offset by one from the Penner names —
+`Quad === Power1`, `Cubic === Power2` (`gsap-core.js:1526`) — so the spec's `power2.inOut` was
+cubic where the recovered value is quadratic, and every `[ix2] inOutQuad` timeline was one power
+too strong. Changed in seven places (see I-017 for the table), re-verified: `EASE.quad` asserts
+`power1.inOut`, both `loader.enter` tweens assert it, and the footer sibling-dim still lands on
+exactly 0.30.
 
-The token is *named* `quad`. GSAP even ships `quad.inOut` as an alias for `power1.inOut`. The name
-and the recovered IX2 value agree with each other; only the transcribed value disagrees with both.
-That reads like a slip.
+`EASE.quad` and `EASE.inOut` now hold the same value. **That is correct and not a duplicate to
+tidy away** — Webflow's `inOutQuad`, `easeInOut` and `ease` are all quadratic-in-out within a
+hair of each other. They stay separate names because they record different provenance, and a
+note saying so sits beside both definitions.
 
-Protocol §4 says log it and leave it, so `EASE.quad` is still `power2.inOut` and `verify:motion`
-is green against it. **My recommendation is to change it to `power1.inOut`.** It is three lines
-today — `lib/motion/tokens.ts`, `SPEC_EASE` in `motion.config.ts`, and the two mapping tables in
-the specs — and it costs more every phase that adds an inOutQuad timeline. Settle it in phase 2.
+**Contact details. Decided: one email, no physical address.**
+`sayandeepmondal1013@gmail.com`, in `lib/content/site.ts`. The footer's third row is now
+`STUDIO → Kolkata, IN · GMT+5:30` rather than an address block, and `OPPORTUNITIES` keeps
+tonik's own "Work with us" wording pointing at the same mailbox with a subject — printing the
+same address twice, two rows apart, reads as a copy-paste bug. Open items 1 and 3 in
+`00-brief-and-decisions.md` are closed; the domain, the social handles, the tagline and the Tally
+id are still placeholders.
+
+That change surfaced a latent layout bug worth knowing about: the footer grid was
+`3fr 2fr 1fr`, and a bare `fr` track has an `auto` minimum, so a 312px unbreakable email against
+a 311.5px track was silently widening its own column and stealing the space from the other two.
+It is `minmax(0, Nfr)` now, verified holding exactly 3:2:1 at 1024, 1200 and 1512. **Use
+`minmax(0, …)` for every fr track you write** — the works grid in phase 4 has the same exposure.
 
 ## Known gaps
 
@@ -59,9 +73,10 @@ the specs — and it costs more every phase that adds an inOutQuad timeline. Set
 - **The five footer service icons are placeholder art** (I-014). One file,
   `components/ui/ServiceIcon.tsx`, five paths.
 - **The contact form has no endpoint.** With no `NEXT_PUBLIC_TALLY_FORM_ID` it composes a
-  `mailto:`. That works, but it is not the shipping path. The budget bands and the four referral
-  chips are invented — the spec names the fields and not their options (I-015). **These are
-  content decisions and therefore Sayandeep's.**
+  `mailto:` — which now goes to a real address. That works, but it is not the shipping path. The
+  budget bands and the four referral chips are **still invented**; the spec names the fields and
+  not their options (I-015), and they are Sayandeep's to answer. Two constants at the top of
+  `ContactForm.tsx`.
 - **The form's fields are ~40px tall against tonik's ~51px**, so our form runs about 170px
   shorter. Measured off `s12-contact.png` rather than off computed styles, so I left it rather
   than guess a third number. Grab it if you open their panel.
@@ -90,8 +105,7 @@ the specs — and it costs more every phase that adds an inOutQuad timeline. Set
 3. **Reset `AGENT_JUDGEMENT` to `null`** in `tools/verify/visual.config.ts`. Mine describes a
    footer and a contact panel. If you leave it, your run goes green on a stale judgement and the
    visual check silently stops meaning anything.
-4. **Settle I-017** — see above. It is the cheapest it will ever be.
-5. **Show Sayandeep the aperture mark before you build the 3D.** `50-brand-and-3d.md` §5 makes
+4. **Show Sayandeep the aperture mark before you build the 3D.** `50-brand-and-3d.md` §5 makes
    approval a precondition and phase 2 is the gate. It already renders in three places, so a
    screenshot of the loader, the nav and the footer *is* the sign-off material — you do not need
    to build anything to ask. If the concept is rejected, the replacement is

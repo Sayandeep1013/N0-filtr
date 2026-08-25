@@ -40,13 +40,18 @@ Global. Rendered in the root layout, above everything.
 // exact IX2 sequence
 gsap.timeline()
   .set('.loader',      { display: 'flex' })                                   // step 1, 0ms
-  .to ('.loader__mark',{ opacity: 0, scale: .5, duration: .4, ease: 'power2.inOut' })  // inOutQuad
-  .to ('.loader',      { yPercent: -100, duration: .6, ease: 'power2.inOut' }, '<')
+  .to ('.loader__mark',{ opacity: 0, scale: .5, duration: .4, ease: 'power1.inOut' })  // inOutQuad
+  .to ('.loader',      { yPercent: -100, duration: .6, ease: 'power1.inOut' }, '<')
   .set('.loader',      { display: 'none' })                                   // step 3
   .set('.loader__mark',{ opacity: 1 });                                       // reset for reuse
 ```
 
-GSAP's `power2.inOut` is the exact equivalent of Webflow's `inOutQuad`.
+GSAP's `power1.inOut` is the exact equivalent of Webflow's `inOutQuad`.
+
+> **Corrected in phase 1.** This section said `power2.inOut` and that was wrong: GSAP's `powerN`
+> aliases are offset by one from the Penner names — `Quad === Power1`, `Cubic === Power2`
+> (`gsap-core.js:1526`). `power2` is cubic. Confirmed by scrubbing our own loader, which travelled
+> `4p³` where quadratic is `2p²`. See I-017.
 
 **Exit — intercepting any internal link [src, corrected]**
 ```js
@@ -702,7 +707,7 @@ out: .service-link          → opacity 1,   400ms inOutQuad
 ## 21. The IX2 interaction layer
 
 Everything below was recovered from Webflow's Interactions store and is reproduced with GSAP.
-Webflow easing names map directly: `inOutQuad → power2.inOut`, `outCirc → circ.out`,
+Webflow easing names map directly: `inOutQuad → power1.inOut`, `outCirc → circ.out`,
 `easeInOut → power1.inOut`, `ease → power1.inOut`.
 
 ### 21.1 Sibling-dim — a site-wide pattern

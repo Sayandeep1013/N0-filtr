@@ -14,7 +14,7 @@ import { DUR, EASE, MQ } from './tokens';
  * | Component               | Source           | Duration / ease   |
  * |-------------------------|------------------|-------------------|
  * | Works grid card         | [src] GSAP       | .4s power1.inOut  |
- * | Footer service link     | [ix2] a-17/a-18  | .4s power2.inOut  |
+ * | Footer service link     | [ix2] a-17/a-18  | .4s power1.inOut  |
  * | Featured-customer link  | [ix2] a-27/a-28  | .5s power1.inOut  |
  *
  * The footer row is verified against the recovered action lists: `a-17` group 1

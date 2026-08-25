@@ -1,5 +1,5 @@
 # Verification report
-Run: 2026-08-25T16:06:42.708Z · Phase 02 · commit `83ff9ae` · branch `phase/01-chrome`
+Run: 2026-08-25T19:18:13.263Z · Phase 02 · commit `24e858c` · branch `fix/i-017-easing`
 
 ## Summary
 ```
@@ -160,7 +160,7 @@ budget  ✅ 4/4
 ✅ EASE.out = power3.out
 ✅ EASE.in = power3.in
 ✅ EASE.soft = power2.out
-✅ EASE.quad = power2.inOut
+✅ EASE.quad = power1.inOut
 ✅ EASE.circ = circ.out
 ✅ EASE.inOut = power1.inOut
 ✅ EASE.gentle = power1.out
@@ -195,12 +195,12 @@ budget  ✅ 4/4
 ✅ loader.enter tween[0] props = display, yPercent, opacity, parent, repeat, immediateRender
 ✅ loader.enter tween[0] startTime = 0s
 ✅ loader.enter tween[1] duration = 0.4s
-✅ loader.enter tween[1] ease = power2.inOut
+✅ loader.enter tween[1] ease = power1.inOut
 ✅ loader.enter tween[1] target = div.Loader_mark__6dBzw.loader__mark
 ✅ loader.enter tween[1] props = opacity, scale, parent
 ✅ loader.enter tween[1] startTime = 0s
 ✅ loader.enter tween[2] duration = 0.6s
-✅ loader.enter tween[2] ease = power2.inOut
+✅ loader.enter tween[2] ease = power1.inOut
 ✅ loader.enter tween[2] target = div.Loader_loader__LpNgN.loader
 ✅ loader.enter tween[2] props = yPercent, parent
 ✅ loader.enter tween[2] startTime (<) = 0s
@@ -301,13 +301,18 @@ column from x≈1238 to the right gutter with the social bars flush to it. The w
 test I expected to fail and did not: "no filter" at 14vw ends at x≈737 against tonik’s 737,
 because 14vw is a proportion and both words happen to occupy the same fraction of the line.
 Three differences, all deliberate and all content: we have one social bar where they have four,
-"—" where they have a three-line address, and five service rows whose icons are placeholders
-(I-014) — theirs are drawn, ours are geometric stand-ins and read thinner. The gap between the
-services block and the tagline is larger on theirs because their enquiry column is taller and
-stretches the row; that closes on its own when the address and socials are real.
+a STUDIO row carrying the locality where they have a three-line street address, and five service
+rows whose icons are placeholders (I-014) — theirs are drawn, ours are geometric stand-ins and
+read thinner. The gap between the services block and the tagline is larger on theirs because
+their enquiry column is taller and stretches the row; that closes when the socials are real.
 
-One real error found here and fixed: the meta row had the year before the mark. tonik puts the
-mark first, then 2026, then PRIVACY POLICY hard right. Corrected, re-captured, confirmed.
+Two real errors found here and fixed. The meta row had the year before the mark — tonik puts the
+mark first, then 2026, then PRIVACY POLICY hard right. And the grid was written `3fr 2fr 1fr`,
+which has an `auto` minimum, so the contact email — 312px of unbreakable string against a 311.5px
+track — was quietly widening its own column and taking the space from the other two. Now
+`minmax(0, Nfr)`, verified holding exactly 3:2:1 at 1024, 1200 and 1512. The email wraps instead,
+at a `<wbr>` after the @ so it breaks as `sayandeepmondal1013@` / `gmail.com` rather than
+mid-domain. Both corrected, re-captured, confirmed.
 
 CONTACT PANEL @1512 vs s12-contact.png. The sidebar geometry is right — 56% of the viewport,
 flush right, full height, over a --black-50 scrim with the page legible behind it. The heading,
@@ -366,12 +371,12 @@ to be broken by a careless mobile override later.
 ℹ️ matter-js absent from the eagerly-loaded bundle — vacuous: matter-js is not installed yet
 ℹ️ three absent from the eagerly-loaded bundle — vacuous: three is not installed yet
 ℹ️ plyr absent from the eagerly-loaded bundle — vacuous: plyr is not installed yet
-ℹ️ all built chunks, gzipped (not a per-route figure) = 307.5KB
-✅ JS on / (transferred) = 170.0KB / 190KB
-✅ home page total weight = 234.6KB / 1800KB
+ℹ️ all built chunks, gzipped (not a per-route figure) = 307.6KB
+✅ JS on / (transferred) = 170.1KB / 190KB
+✅ home page total weight = 234.8KB / 1800KB
 ✅ zero network font requests = both faces self-hosted
-✅ CLS (local, unthrottled) = 0.0018
-ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 84ms
+✅ CLS (local, unthrottled) = 0.0019
+ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 76ms
 
 > Poster and reel budgets become binding in phase 10, when assets exist.
 > Lighthouse scores are a phase 12 deliverable via mcp__chrome-devtools__lighthouse_audit; the figures here are local and unthrottled.

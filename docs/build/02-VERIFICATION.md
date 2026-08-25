@@ -102,8 +102,8 @@ The check reads them back and asserts shape:
 ```ts
 export const MOTION_ASSERTIONS = [
   { id: 'loader.enter',      totalDuration: 1.0,
-    tweens: [ { target: '.loader__mark', duration: 0.4, ease: 'power2.inOut' },
-              { target: '.loader',       duration: 0.6, ease: 'power2.inOut' } ] },
+    tweens: [ { target: '.loader__mark', duration: 0.4, ease: 'power1.inOut' },
+              { target: '.loader',       duration: 0.6, ease: 'power1.inOut' } ] },
 
   { id: 'work-card.hover',
     tweens: [ { duration: 0.25, ease: 'power1.inOut', props: { y: '-110%' } },
