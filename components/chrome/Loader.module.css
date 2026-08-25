@@ -1,0 +1,31 @@
+/* docs/spec/20-components-and-motion.md §1 — <Loader />.
+
+   .loader   fixed inset-0, z-9999, bg var(--grey-800), centred content
+   .mark     3rem square, color var(--white) — the aperture glyph
+
+   It paints covering the viewport on first byte and the enter timeline sweeps it
+   away. That is the point of a preloader: nothing half-painted is ever visible.
+   The <noscript> rule at the bottom is the escape hatch — without it a JS
+   failure would leave the page permanently covered. */
+
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  /* The spec writes `place-items: center`. In a flex container that resolves to
+     align-items only — justify-items is ignored — which would leave the mark
+     hard against the left edge. Both axes, explicitly. */
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-tertiary);
+  /* The panel slides on the Y axis; nothing behind it should ever be scrolled
+     by a stray touch while it covers the page. */
+  touch-action: none;
+}
+
+.mark {
+  width: 3rem;
+  height: 3rem;
+  color: var(--text-primary);
+}

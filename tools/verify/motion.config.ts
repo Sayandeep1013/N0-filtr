@@ -52,7 +52,16 @@ export interface TweenAssertion {
   target?: string;
   /** Property names the tween must animate. */
   props?: string[];
+  /**
+   * The GSAP position parameter as the spec writes it. Documentation only —
+   * `startTime` is the checked form, because a position string is relative to
+   * whatever came before it and only the resolved playhead can be read back.
+   * Write both: the string says what the spec asked for, the number says what
+   * it must resolve to.
+   */
   position?: string;
+  /** Seconds into the timeline this tween must start. */
+  startTime?: number;
 }
 
 export interface TimelineAssertion {
@@ -70,14 +79,56 @@ export interface TimelineAssertion {
 }
 
 export const TIMELINE_ASSERTIONS: TimelineAssertion[] = [
+  /**
+   * IX2 `a-23` "preload-load-animation-in". The mark fade and the panel slide
+   * are two items of the SAME actionItemGroup, and IX2 runs a group
+   * concurrently — so the spec's `'<'` is right and the 1.0s seeded here from
+   * 02-VERIFICATION.md was wrong. Total is 0.6s. See I-010.
+   *
+   * Indices count gsap.set() calls, because they are zero-duration tweens and
+   * getChildren() returns them.
+   */
   {
     id: 'loader.enter',
     phase: 1,
-    pending: true,
-    totalDuration: 1.0,
+    pending: false,
+    totalDuration: 0.6,
+    tweenCount: 5,
     tweens: [
-      { target: '.loader__mark', duration: 0.4, ease: 'power2.inOut' },
-      { target: '.loader', duration: 0.6, ease: 'power2.inOut' },
+      { target: '.loader', duration: 0, props: ['display', 'yPercent'], startTime: 0 },
+      {
+        target: '.loader__mark',
+        duration: 0.4,
+        ease: 'power2.inOut',
+        props: ['opacity', 'scale'],
+        startTime: 0,
+      },
+      {
+        target: '.loader',
+        duration: 0.6,
+        ease: 'power2.inOut',
+        props: ['yPercent'],
+        position: '<',
+        startTime: 0,
+      },
+      { target: '.loader', duration: 0, props: ['display'], startTime: 0.6 },
+      { target: '.loader__mark', duration: 0, props: ['opacity', 'scale'], startTime: 0.6 },
+    ],
+  },
+  /**
+   * Our one deliberate correction to tonik: they animate the exit panel
+   * `200 → 100`, which never brings it on screen. We animate `100 → 0`.
+   */
+  {
+    id: 'loader.exit',
+    phase: 1,
+    pending: false,
+    totalDuration: 0.5,
+    tweenCount: 3,
+    tweens: [
+      { target: '.loader', duration: 0, props: ['yPercent', 'display'], startTime: 0 },
+      { target: '.loader__mark', duration: 0, props: ['opacity', 'scale'], startTime: 0 },
+      { target: '.loader', duration: 0.5, ease: 'power3.out', props: ['yPercent'], startTime: 0 },
     ],
   },
   {

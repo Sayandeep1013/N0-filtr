@@ -8,6 +8,7 @@ import './styles/global.css';
 
 import { displayFont, monoFont } from './fonts/fonts';
 import { MotionProvider } from '@/lib/motion/MotionProvider';
+import { Loader } from '@/components/chrome/Loader';
 
 export const metadata: Metadata = {
   title: {
@@ -30,8 +31,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <a className="skip-link" href="#main">
             Skip to content
           </a>
-          {/* Chrome — Loader, Navbar, ContactPanel, Hero3D, Footer — mounts here
-              in phase 1. It lives outside <main> so it survives route changes. */}
+          {/* Chrome lives outside <main> so it survives route changes — the
+              loader in particular has to persist across the navigation it is
+              covering. Hero3D joins them in phase 2. */}
+          <Loader />
           <main id="main">{children}</main>
         </MotionProvider>
       </body>

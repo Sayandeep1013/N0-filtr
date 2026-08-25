@@ -1,0 +1,23 @@
+/* docs/spec/50-brand-and-3d.md §1 — the wordmark.
+   Lowercase throughout, matching tonik's own lowercase `tonik`, which keeps the
+   mono labels doing the shouting. */
+
+.wordmark {
+  display: inline-flex;
+  align-items: baseline;
+  font-family: var(--family-display);
+  /* Never bolded. CLAUDE.md non-negotiable §3. */
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  text-transform: lowercase;
+  white-space: nowrap;
+}
+
+/* The space between the two words is tightened to 0.22em. Drawn as an explicit
+   box rather than a text space so the measurement is exact and does not depend
+   on the face's own space glyph. */
+.gap {
+  display: inline-block;
+  width: 0.22em;
+}

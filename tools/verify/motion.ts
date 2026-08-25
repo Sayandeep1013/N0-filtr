@@ -369,6 +369,19 @@ function assertTimeline(a: TimelineAssertion, tl: SerialisedTimeline): CheckResu
           : fail(`${label} props`, want.props.join(', '), `missing ${missing.join(', ')}`),
       );
     }
+    /* The position parameter, resolved. `'<+0.3'` is relative to whatever tween
+       preceded it, so the only thing that can be read back — and the only thing
+       worth asserting — is the playhead it lands on. A wrong position parameter
+       is otherwise completely invisible to this check: every duration and ease
+       passes while the sequence plays in the wrong order. */
+    if (want.startTime !== undefined) {
+      const suffix = want.position ? ` (${want.position})` : '';
+      out.push(
+        near(got.startTime, want.startTime)
+          ? pass(`${label} startTime${suffix}`, `${got.startTime}s`)
+          : fail(`${label} startTime${suffix}`, `${want.startTime}s`, `${got.startTime}s`),
+      );
+    }
   });
 
   return out;
