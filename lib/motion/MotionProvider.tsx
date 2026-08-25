@@ -41,7 +41,18 @@ export function useMotion(): MotionValue {
 
 export function MotionProvider({ children }: { children: ReactNode }) {
   const lenisRef = useRef<Lenis | null>(null);
-  const [reducedMotion, setReducedMotion] = useState(false);
+  /* Seeded synchronously rather than left false until the matchMedia context
+     fires. React runs a child's layout effects before its parent's, so without
+     this the Loader builds — and plays — its full 0.6s sweep before the provider
+     has told it the visitor asked for reduced motion. That is the whole loader,
+     at full speed, for exactly the person who asked not to see it.
+
+     A one-off read, not a listener: gsap.matchMedia still owns every subsequent
+     change (CLAUDE.md non-negotiable §6). Caught by verify:motion's behaviour
+     check, which is what that check is for. */
+  const [reducedMotion, setReducedMotion] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia(MQ.reduced).matches,
+  );
   const [isDesktop, setIsDesktop] = useState(false);
   const [isAbove767, setIsAbove767] = useState(false);
   const [, forceLenisRerender] = useState(0);
@@ -99,10 +110,17 @@ export function MotionProvider({ children }: { children: ReactNode }) {
       forceLenisRerender((n) => n + 1);
       publish();
 
+      // Dev only: verify:motion's behaviour checks have to move the page to a
+      // known scroll position, and window.scrollTo fights a smooth-scroll
+      // library. Same pattern as gsap/ScrollTrigger in lib/motion/gsap.ts, and
+      // folded out of production the same way.
+      if (process.env.NODE_ENV === 'development') Object.assign(window, { lenis });
+
       return () => {
         gsap.ticker.remove(raf);
         lenis.destroy();
         lenisRef.current = null;
+        if (process.env.NODE_ENV === 'development') delete (window as { lenis?: unknown }).lenis;
         forceLenisRerender((n) => n + 1);
         publish();
       };

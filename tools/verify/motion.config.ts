@@ -52,7 +52,16 @@ export interface TweenAssertion {
   target?: string;
   /** Property names the tween must animate. */
   props?: string[];
+  /**
+   * The GSAP position parameter as the spec writes it. Documentation only —
+   * `startTime` is the checked form, because a position string is relative to
+   * whatever came before it and only the resolved playhead can be read back.
+   * Write both: the string says what the spec asked for, the number says what
+   * it must resolve to.
+   */
   position?: string;
+  /** Seconds into the timeline this tween must start. */
+  startTime?: number;
 }
 
 export interface TimelineAssertion {
@@ -65,29 +74,111 @@ export interface TimelineAssertion {
   totalDuration?: number;
   tweenCount?: number;
   tweens?: TweenAssertion[];
-  /** 1.2 for panels, 1.5 for buttons. Checked by invoking reverse(). */
+  /**
+   * 1.2 for panels, 1.5 for buttons. Checked by invoking `reverse()` on the
+   * registered timeline and reading the scale back — which only passes if the
+   * timeline is *already sitting* at that scale.
+   *
+   * Every component on this site applies the scale inside its own handler
+   * (`tl.timeScale(1.2).reverse()`), so on correct code this reads 1 and fails.
+   * Prefer a behaviour check that drives the real close or mouseleave: see
+   * behaviour.config.ts, `contactPanel` and `buttonIcon`. Left here because a
+   * timeline that *is* parked at its reverse scale can still be asserted cheaply.
+   */
   reverseTimeScale?: number;
 }
 
 export const TIMELINE_ASSERTIONS: TimelineAssertion[] = [
+  /**
+   * IX2 `a-23` "preload-load-animation-in". The mark fade and the panel slide
+   * are two items of the SAME actionItemGroup, and IX2 runs a group
+   * concurrently — so the spec's `'<'` is right and the 1.0s seeded here from
+   * 02-VERIFICATION.md was wrong. Total is 0.6s. See I-010.
+   *
+   * Indices count gsap.set() calls, because they are zero-duration tweens and
+   * getChildren() returns them.
+   */
   {
     id: 'loader.enter',
     phase: 1,
-    pending: true,
-    totalDuration: 1.0,
+    pending: false,
+    totalDuration: 0.6,
+    tweenCount: 5,
     tweens: [
-      { target: '.loader__mark', duration: 0.4, ease: 'power2.inOut' },
-      { target: '.loader', duration: 0.6, ease: 'power2.inOut' },
+      { target: '.loader', duration: 0, props: ['display', 'yPercent'], startTime: 0 },
+      {
+        target: '.loader__mark',
+        duration: 0.4,
+        ease: 'power2.inOut',
+        props: ['opacity', 'scale'],
+        startTime: 0,
+      },
+      {
+        target: '.loader',
+        duration: 0.6,
+        ease: 'power2.inOut',
+        props: ['yPercent'],
+        position: '<',
+        startTime: 0,
+      },
+      { target: '.loader', duration: 0, props: ['display'], startTime: 0.6 },
+      { target: '.loader__mark', duration: 0, props: ['opacity', 'scale'], startTime: 0.6 },
     ],
   },
+  /**
+   * Our one deliberate correction to tonik: they animate the exit panel
+   * `200 → 100`, which never brings it on screen. We animate `100 → 0`.
+   */
+  {
+    id: 'loader.exit',
+    phase: 1,
+    pending: false,
+    totalDuration: 0.5,
+    tweenCount: 3,
+    tweens: [
+      { target: '.loader', duration: 0, props: ['yPercent', 'display'], startTime: 0 },
+      { target: '.loader__mark', duration: 0, props: ['opacity', 'scale'], startTime: 0 },
+      { target: '.loader', duration: 0.5, ease: 'power3.out', props: ['yPercent'], startTime: 0 },
+    ],
+  },
+  /**
+   * [src] `initContact`. Seven children, not the six seeded here — the two
+   * gsap.set() calls are zero-duration tweens and getChildren() returns them.
+   *
+   * tween[5] reports a duration of **1.0s**, not the .5s it was given: GSAP
+   * folds a stagger's `amount` into the tween's own duration, so a .5s tween
+   * staggered across .5s spans 1.0s. That is also why the total is 1.5s
+   * whatever the meta count turns out to be — `amount` distributes a fixed
+   * total rather than adding per item.
+   *
+   * No `reverseTimeScale` here. The checker reads it by calling reverse() on
+   * the registered timeline, which only works if the timeline is already
+   * sitting at that scale; this component applies 1.2 inside its close path,
+   * like every component on this site. The behaviour check drives the real
+   * close instead — behaviour.config.ts `contactPanel`.
+   */
   {
     id: 'contact.open',
     phase: 1,
-    pending: true,
+    pending: false,
     totalDuration: 1.5,
-    tweenCount: 6,
-    tweens: [{ duration: 0.4 }, { duration: 0.7, position: '<+0.3' }],
-    reverseTimeScale: 1.2,
+    tweenCount: 7,
+    tweens: [
+      { target: '.contact__heading', duration: 0, props: ['opacity'], startTime: 0 },
+      { target: '.contact__meta', duration: 0, props: ['opacity', 'x'], startTime: 0 },
+      { target: '.contact', duration: 0.4, props: ['opacity'], startTime: 0 },
+      { target: '.contact__sidebar', duration: 0.7, props: ['x'], position: '<+0.3', startTime: 0.3 },
+      { target: '.contact__heading', duration: 0.3, props: ['opacity'], position: '<+0.2', startTime: 0.5 },
+      {
+        target: '.contact__meta',
+        duration: 1.0,
+        ease: 'power3.out',
+        props: ['opacity', 'x'],
+        position: '<',
+        startTime: 0.5,
+      },
+      { target: '.contact__gif', duration: 0.5, props: ['y'], position: '<+0.2', startTime: 0.7 },
+    ],
   },
   {
     id: 'work-card.hover',

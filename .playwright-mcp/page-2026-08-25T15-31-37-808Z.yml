@@ -1,0 +1,454 @@
+- generic [ref=f11e2]:
+  - generic:
+    - generic:
+      - generic:
+        - heading "Contact Us" [level=2]
+        - generic:
+          - paragraph: We're always looking for a challenge. Got a project in mind?
+      - iframe [ref=f11e3]:
+        
+  - main [ref=f11e7]:
+    - generic [ref=f11e8]:
+      - generic [ref=f11e12]:
+        - heading "Design studio open showreel for visionaries" [level=1] [ref=f11e13]:
+          - generic [ref=f11e14]: Design studio
+          - generic [ref=f11e15]:
+            - button "open showreel" [ref=f11e16] [cursor=pointer]
+            - generic [ref=f11e22]: for visionaries
+        - generic [ref=f11e23]:
+          - generic [ref=f11e24]: 0→1 BRAND AND PRODUCT DESIGN FOR EARLY-STAGE FOUNDERS
+          - generic [ref=f11e26]: trusted by 200+ YCOMBINATOR & Speedrun founders
+      - list [ref=f11e34]:
+        - listitem [ref=f11e35]:
+          - img "a16z speedrun" [ref=f11e36]
+        - listitem [ref=f11e37]:
+          - img "extropic" [ref=f11e38]
+        - listitem [ref=f11e39]:
+          - img "Liamaindex" [ref=f11e40]
+        - listitem [ref=f11e41]:
+          - img "n8n" [ref=f11e42]
+        - listitem [ref=f11e43]:
+          - img "langchain" [ref=f11e44]
+        - listitem [ref=f11e45]:
+          - img "Supabase" [ref=f11e46]
+        - listitem [ref=f11e47]:
+          - img "okta" [ref=f11e48]
+        - listitem [ref=f11e49]:
+          - img "clay" [ref=f11e50]
+        - listitem [ref=f11e51]:
+          - img "retool" [ref=f11e52]
+        - listitem [ref=f11e53]:
+          - img "speaksy" [ref=f11e54]
+        - listitem [ref=f11e55]:
+          - img "maintainx" [ref=f11e56]
+        - listitem [ref=f11e57]:
+          - img "meritech" [ref=f11e58]
+        - listitem [ref=f11e59]:
+          - img "datafold" [ref=f11e60]
+        - listitem [ref=f11e61]:
+          - img "twilio" [ref=f11e62]
+        - listitem [ref=f11e63]:
+          - img "segment" [ref=f11e64]
+        - listitem [ref=f11e65]:
+          - img "orange" [ref=f11e66]
+        - listitem [ref=f11e67]:
+          - img "einride" [ref=f11e68]
+        - listitem [ref=f11e69]:
+          - img "colossal" [ref=f11e70]
+        - listitem [ref=f11e71]:
+          - img "gem" [ref=f11e72]
+        - listitem [ref=f11e73]:
+          - img "Supermemory" [ref=f11e74]
+        - listitem [ref=f11e75]:
+          - img "guardrails" [ref=f11e76]
+        - listitem [ref=f11e77]:
+          - img "common-room" [ref=f11e78]
+        - listitem [ref=f11e79]:
+          - img "metronome" [ref=f11e80]
+        - listitem [ref=f11e81]:
+          - img "Letta" [ref=f11e82]
+        - listitem [ref=f11e83]:
+          - img "auth0" [ref=f11e84]
+        - listitem [ref=f11e85]:
+          - img "chili piper" [ref=f11e86]
+        - listitem [ref=f11e87]:
+          - img "cloudKitchens" [ref=f11e88]
+    - generic [ref=f11e91]:
+      - heading "Founder-first, 0→1 studio that defines, designs, and builds products and other digital wizardry." [level=2] [ref=f11e93]:
+        - generic [ref=f11e94]: Founder-first,
+        - generic [ref=f11e95]: 0→1
+        - generic [ref=f11e96]: studio
+        - generic [ref=f11e97]: that
+        - generic [ref=f11e98]: defines,
+        - generic [ref=f11e99]: designs,
+        - generic [ref=f11e100]: and
+        - generic [ref=f11e101]: builds
+        - generic [ref=f11e102]: products
+        - generic [ref=f11e103]: and
+        - generic [ref=f11e104]: other
+        - generic [ref=f11e105]: digital
+        - generic [ref=f11e106]: wizardry.
+      - generic [ref=f11e107]:
+        - list [ref=f11e109]:
+          - listitem [ref=f11e110]:
+            - generic [ref=f11e111]:
+              - img "Meritech Analytics" [ref=f11e113]
+              - generic [ref=f11e114]: case study
+            - generic [ref=f11e117]:
+              - heading "Meritech Analytics" [level=2] [ref=f11e118]
+              - paragraph [ref=f11e119]: Turning data overload into sharp, frictionless design.
+            - link "Meritech Analytics" [ref=f11e120] [cursor=pointer]:
+              - /url: /case-studies/meritech-analytics
+        - list [ref=f11e122]:
+          - listitem [ref=f11e123]:
+            - generic [ref=f11e124]:
+              - img "Letta" [ref=f11e126]
+              - generic [ref=f11e127]: case study
+            - generic [ref=f11e130]:
+              - heading "Letta" [level=2] [ref=f11e131]
+              - paragraph [ref=f11e132]: Letta is your platform for building AI agents that remember, reason, and evolve.
+            - link "Letta" [ref=f11e133] [cursor=pointer]:
+              - /url: /case-studies/letta
+        - list [ref=f11e135]:
+          - listitem [ref=f11e136]:
+            - img "Supabase" [ref=f11e139]
+            - generic [ref=f11e141]:
+              - heading "Supabase" [level=2] [ref=f11e142]
+              - paragraph [ref=f11e143]: Part spaceflight, part internet spectacle - we turned Supabase Launch Week 14 into a fully immersive, retro-futuristic experience.
+            - link [ref=f11e144] [cursor=pointer]:
+              - /url: /case-studies/supabase
+        - list [ref=f11e146]:
+          - listitem [ref=f11e147]:
+            - generic [ref=f11e148]:
+              - img "LlamaIndex" [ref=f11e150]
+              - generic [ref=f11e151]: case study
+            - generic [ref=f11e154]:
+              - heading "LlamaIndex" [level=2] [ref=f11e155]
+              - paragraph [ref=f11e156]: LlamaIndex is a platform for building AI agents that turn unstructured data into operational intelligence.
+            - link "LlamaIndex" [ref=f11e157] [cursor=pointer]:
+              - /url: /case-studies/llamaindex
+        - list [ref=f11e159]:
+          - listitem [ref=f11e160]:
+            - generic [ref=f11e161]:
+              - img "Langchain" [ref=f11e163]
+              - generic [ref=f11e164]: case study
+            - generic [ref=f11e167]:
+              - heading "Langchain" [level=2] [ref=f11e168]
+              - paragraph [ref=f11e169]: LangChain is the go-to platform for developers and enterprises building AI apps, taking them from prototype to production at lightning speed.
+            - link "Langchain" [ref=f11e170] [cursor=pointer]:
+              - /url: /case-studies/langchain
+        - list [ref=f11e172]:
+          - listitem [ref=f11e173]:
+            - generic [ref=f11e174]:
+              - img "Lemon Markets" [ref=f11e176]
+              - generic [ref=f11e177]: case study
+            - generic [ref=f11e180]:
+              - heading "Lemon Markets" [level=2] [ref=f11e181]
+              - paragraph [ref=f11e182]: lemon.markets provides companies with the technical and regulatory infrastructure to launch investment products through their brokerage API.
+            - link "Lemon Markets" [ref=f11e183] [cursor=pointer]:
+              - /url: /case-studies/lemon-markets
+        - list [ref=f11e185]:
+          - listitem [ref=f11e186]:
+            - generic [ref=f11e187]:
+              - img "Auriga" [ref=f11e189]
+              - generic [ref=f11e190]: case study
+            - generic [ref=f11e193]:
+              - heading "Auriga" [level=2] [ref=f11e194]
+              - paragraph [ref=f11e195]: Auriga builds electrically powered, on-demand hypersonic launch technology for space and defense applications.
+            - link "Auriga" [ref=f11e196] [cursor=pointer]:
+              - /url: /case-studies/auriga
+        - list [ref=f11e198]:
+          - listitem [ref=f11e199]:
+            - generic [ref=f11e200]:
+              - img "Wildfires" [ref=f11e202]
+              - generic [ref=f11e203]: case study
+            - generic [ref=f11e206]:
+              - heading "Wildfires" [level=2] [ref=f11e207]
+              - paragraph [ref=f11e208]: Battling infernos with innovation
+            - link "Wildfires" [ref=f11e209] [cursor=pointer]:
+              - /url: /case-studies/wildfires
+        - generic [ref=f11e210]:
+          - paragraph [ref=f11e211]: tonik was the secret sauce behind our growth. They’re fun, creative and incredibly efficient. I recommend them to all the founders I advise.
+          - generic [ref=f11e212]:
+            - img "Ilya Volodarsky tonik testiomonial" [ref=f11e213]
+            - generic [ref=f11e214]:
+              - generic [ref=f11e215]: Ilya Volodarsky
+              - generic [ref=f11e216]: Co-founder of Segment
+      - generic [ref=f11e217]:
+        - list [ref=f11e219]:
+          - listitem [ref=f11e220]:
+            - generic [ref=f11e221]:
+              - img "Segment" [ref=f11e223]
+              - generic [ref=f11e224]: case study
+            - generic [ref=f11e227]:
+              - heading "Segment" [level=2] [ref=f11e228]
+              - paragraph [ref=f11e229]: Over 25,000 businesses use Segment to manage their customer data.
+            - link "Segment" [ref=f11e230] [cursor=pointer]:
+              - /url: /case-studies/segment
+        - generic [ref=f11e231]:
+          - paragraph [ref=f11e232]: You can waste years trying to find an agency. Or you can just go with tonik. They’re reliable and always coming up with ideas better than mine.
+          - generic [ref=f11e233]:
+            - img "Julian Shapiro tonik testiomonial" [ref=f11e234]
+            - generic [ref=f11e235]:
+              - generic [ref=f11e236]: Julian Shapiro
+              - generic [ref=f11e237]: Founder of Demand Curve
+        - list [ref=f11e239]:
+          - listitem [ref=f11e240]:
+            - img "Desert Fox Racing" [ref=f11e243]
+            - generic [ref=f11e245]:
+              - heading "Desert Fox Racing" [level=2] [ref=f11e246]
+              - paragraph [ref=f11e247]: From the initial workshops to the final implementation, we helped them transform their entire event management process into a seamless experience.
+            - link [ref=f11e248] [cursor=pointer]:
+              - /url: /case-studies/desert-fox-racing
+        - list [ref=f11e250]:
+          - listitem [ref=f11e251]:
+            - generic [ref=f11e252]:
+              - img "Form Bio" [ref=f11e254]
+              - generic [ref=f11e255]: case study
+            - generic [ref=f11e258]:
+              - heading "Form Bio" [level=2] [ref=f11e259]
+              - paragraph [ref=f11e260]: We built Form Bio from the ground up, merging the latest in biology with seamless UX.
+            - link "Form Bio" [ref=f11e261] [cursor=pointer]:
+              - /url: /case-studies/form-bio
+      - generic [ref=f11e262]:
+        - list [ref=f11e264]:
+          - listitem [ref=f11e265]:
+            - img "Orange Charger" [ref=f11e268]
+            - generic [ref=f11e270]:
+              - heading "Orange Charger" [level=2] [ref=f11e271]
+              - paragraph [ref=f11e272]: We partnered with Orange Charger to elevate the brand and create a website from ground up.
+            - link [ref=f11e273] [cursor=pointer]:
+              - /url: /case-studies/orange-charger
+        - list [ref=f11e275]:
+          - listitem [ref=f11e276]:
+            - generic [ref=f11e277]:
+              - img "Chili Piper" [ref=f11e279]
+              - generic [ref=f11e280]: case study
+            - generic [ref=f11e283]:
+              - heading "Chili Piper" [level=2] [ref=f11e284]
+              - paragraph [ref=f11e285]: Chili Piper turned the outdated process into a profitable business.
+            - link "Chili Piper" [ref=f11e286] [cursor=pointer]:
+              - /url: /case-studies/chili-piper
+        - list [ref=f11e288]:
+          - listitem [ref=f11e289]:
+            - img "Matrices" [ref=f11e292]
+            - generic [ref=f11e294]:
+              - heading "Matrices" [level=2] [ref=f11e295]
+              - paragraph [ref=f11e296]: With Matrices, you can explore, visualize, and share large (100k row) datasets – all without code. No SQL, no Python, no endless configuration. Just you, your data, and a few clicks.
+            - link [ref=f11e297] [cursor=pointer]:
+              - /url: /case-studies/matrices
+        - generic [ref=f11e298]:
+          - paragraph [ref=f11e299]: Insanely good work and break-neck speeds! They’ll grow with you as your needs evolve, but you’ll have world-class design from day one.
+          - generic [ref=f11e300]:
+            - img "James Schuler tonik testiomonial" [ref=f11e301]
+            - generic [ref=f11e302]:
+              - generic [ref=f11e303]: James Schuler
+              - generic [ref=f11e304]: CTO of Kafene
+        - link "CHECK OUR WORKS CHECK OUR WORKS" [ref=f11e305] [cursor=pointer]:
+          - /url: /product-design
+          - button "CHECK OUR WORKS" [ref=f11e306]
+          - generic [ref=f11e312]: CHECK OUR WORKS
+    - generic [ref=f11e318]:
+      - generic [ref=f11e319]:
+        - heading "OUR SERVICES" [level=2] [ref=f11e320]
+        - paragraph [ref=f11e321]:
+          - generic [ref=f11e322]: Design
+          - generic [ref=f11e323]: is
+          - generic [ref=f11e324]: the
+          - generic [ref=f11e325]: API
+          - generic [ref=f11e326]: between
+          - generic [ref=f11e327]: vision
+          - generic [ref=f11e328]: and
+          - generic [ref=f11e329]: reality.
+          - generic [ref=f11e330]: Consider
+          - generic [ref=f11e331]: us
+          - generic [ref=f11e332]: your
+          - generic [ref=f11e333]: gateway.
+      - list [ref=f11e335]:
+        - listitem [ref=f11e336]:
+          - generic [ref=f11e337]:
+            - button [ref=f11e338] [cursor=pointer]:
+              - heading "Product Design" [level=3] [ref=f11e340]
+            - generic [ref=f11e345]:
+              - generic [ref=f11e346]:
+                - generic [ref=f11e347]:
+                  - heading "Your shortcut from MVP to PMF. Where data meets delight." [level=4] [ref=f11e348]
+                  - generic [ref=f11e349]:
+                    - paragraph [ref=f11e350]: The best products create their own categories. They're not better; they're different. Our design philosophy doesn't compete on features—it reframes problems.
+                    - paragraph [ref=f11e351]: Let’s build products that make users question how they ever lived without them
+                    - paragraph [ref=f11e352]: ‍
+                - link "More about Product design" [ref=f11e353] [cursor=pointer]:
+                  - /url: product-design
+              - generic [ref=f11e361]:
+                - paragraph [ref=f11e362]: Tonik was the secret sauce behind our growth. They’re fun, creative and incredibly efficient. I recommend them to all the founders I advise.
+                - generic [ref=f11e364]:
+                  - generic [ref=f11e365]: Ilya Volodarsky
+                  - generic [ref=f11e366]: Co-Founder of Segment
+        - listitem [ref=f11e367]:
+          - generic [ref=f11e368]:
+            - button [ref=f11e369] [cursor=pointer]:
+              - heading "Websites" [level=3] [ref=f11e371]
+            - generic [ref=f11e376]:
+              - generic [ref=f11e377]:
+                - generic [ref=f11e378]:
+                  - 'heading "Turning browsers into believers: the art of frictionless persuasion." [level=4] [ref=f11e379]'
+                  - generic [ref=f11e380]:
+                    - paragraph [ref=f11e381]: Your website isn't a destination; it's a distribution channel for your ideas. We design not for impressions, but for impact. Each element is a lever, each page a fulcrum. Our approach treats attention as the scarce resource it is, optimizing for maximum cognitive ROI.
+                    - paragraph [ref=f11e382]: In a world of noise, we create signal.
+                - link "More about Websites" [ref=f11e383] [cursor=pointer]:
+                  - /url: websites
+              - generic [ref=f11e391]:
+                - paragraph [ref=f11e392]: You can waste years trying to find an agency. Or you can just go with tonik. They’re reliable and always coming up with ideas better than mine.
+                - generic [ref=f11e394]:
+                  - generic [ref=f11e395]: Julian Shapiro
+                  - generic [ref=f11e396]: Founder of Demand Curve
+        - listitem [ref=f11e397]:
+          - generic [ref=f11e398]:
+            - button [ref=f11e399] [cursor=pointer]:
+              - heading "Branding" [level=3] [ref=f11e401]
+            - generic [ref=f11e406]:
+              - generic [ref=f11e407]:
+                - generic [ref=f11e408]:
+                  - heading "Your culture and DNA, visualized." [level=4] [ref=f11e409]
+                  - generic [ref=f11e410]:
+                    - paragraph [ref=f11e411]: In the attention economy, your brand is the currency. We design identities that demand notice and command loyalty - from TikTok to term sheets, we'll make sure you’re not just seen—you’re remembered.
+                    - paragraph [ref=f11e412]: Because when attention converts to traction, your brand becomes your biggest ROI.
+                    - paragraph [ref=f11e413]: ‍
+                - link "More about branding" [ref=f11e414] [cursor=pointer]:
+                  - /url: branding
+              - generic [ref=f11e422]:
+                - paragraph [ref=f11e423]: They nailed a major brand upgrade and website overhaul. We wanted our new website to have a memorable, unique style, Tonik elevated our idea of what was possible!
+                - generic [ref=f11e425]:
+                  - generic [ref=f11e426]: Julia Schottenstein
+                  - generic [ref=f11e427]: Head of GTM LangChain
+        - listitem [ref=f11e428]:
+          - generic [ref=f11e429]:
+            - button [ref=f11e430] [cursor=pointer]:
+              - heading "No-code Development" [level=3] [ref=f11e432]
+            - generic [ref=f11e437]:
+              - generic [ref=f11e438]:
+                - generic [ref=f11e439]:
+                  - heading "Launch 10x faster with no-code. Conserve capital & validate early." [level=4] [ref=f11e440]
+                  - generic [ref=f11e441]:
+                    - paragraph [ref=f11e442]: Why burn through your runway waiting for traditional development when you could be acquiring users and impressing investors today?
+                    - paragraph [ref=f11e443]: We build functional, scalable MVPs faster than you can say "product-market fit."
+                    - paragraph [ref=f11e444]: ‍
+                - link "More about No-code" [ref=f11e445] [cursor=pointer]:
+                  - /url: no-code-development
+              - generic [ref=f11e453]:
+                - paragraph [ref=f11e454]: Insanely good work and break-neck speeds! They’ll grow with you as your needs evolve, but you’ll have world-class design from day one.
+                - generic [ref=f11e456]:
+                  - generic [ref=f11e457]: James Schuler
+                  - generic [ref=f11e458]: CTO of Kafene
+        - listitem [ref=f11e459]:
+          - generic [ref=f11e460]:
+            - button [ref=f11e461] [cursor=pointer]:
+              - heading "Engineering" [level=3] [ref=f11e463]
+            - generic [ref=f11e468]:
+              - generic [ref=f11e469]:
+                - generic [ref=f11e470]:
+                  - heading "Your technical co-founder. Minus the equity sacrifice." [level=4] [ref=f11e471]
+                  - paragraph [ref=f11e473]: From day one, we architect systems that are ready for your hockey stick moment, ensuring you spend less time putting out fires and more time lighting them under your competition.
+                - link "More about Engineering" [ref=f11e474] [cursor=pointer]:
+                  - /url: engineering
+              - generic [ref=f11e482]:
+                - paragraph [ref=f11e483]: Tonik was the secret sauce behind our growth. They’re fun, creative and incredibly efficient. I recommend them to all the founders I advise.
+                - generic [ref=f11e485]:
+                  - generic [ref=f11e486]: Ilya Volodarsky
+                  - generic [ref=f11e487]: Co-Founder of Segment
+    - button [ref=f11e491] [cursor=pointer]:
+      - heading "WORK WITH US" [level=2] [ref=f11e492]
+      - heading "Get in touch." [level=3] [ref=f11e494]
+    - generic [ref=f11e503]:
+      - generic [ref=f11e504]: OUR STUDIO
+      - generic [ref=f11e507]:
+        - heading "We ship like machines but hug like humans." [level=2] [ref=f11e508]
+        - paragraph [ref=f11e509]: AI, Fintech, Medtech - you name it. While we’re trailblazing design in emerging industries, we're not yes-men or rubber stamps. The best partners are those who challenge your thinking.
+      - generic [ref=f11e510]:
+        - generic [ref=f11e511]: business as usual
+        - generic [ref=f11e515]: wine's good
+      - generic [ref=f11e519]:
+        - generic [ref=f11e520]: xoxo waysconf '23
+        - generic [ref=f11e522]: qwerty fabian
+      - generic [ref=f11e526]: Always brave always mysterious
+      - paragraph [ref=f11e532]: We don't just build products; we build leverage. Each detail, from pixel to code, is a force multiplier for your vision. You’ll work with a team grounded in reality but not afraid to voice game-changing perspectives.
+      - generic [ref=f11e533]: WEbflow conf 2023
+      - generic [ref=f11e539]:
+        - generic [ref=f11e540]:
+          - paragraph [ref=f11e541]: Always open to new nodes in our network, we focus our energy on what truly excites us, leveraging our expertise and passion. This, as a result, skyrockets your big idea.
+          - link "meet the gang" [ref=f11e542] [cursor=pointer]:
+            - /url: /about
+        - generic [ref=f11e550]: "tonik design academy #3"
+        - generic [ref=f11e554]: OLA & ELI
+    - generic [ref=f11e561]:
+      - generic [ref=f11e562]:
+        - heading "We share what we know." [level=2] [ref=f11e563]
+        - link "Check out our blog" [ref=f11e564] [cursor=pointer]:
+          - /url: /blog
+      - list [ref=f11e573]:
+        - listitem [ref=f11e574]:
+          - link "The build got cheap. The brand didn't. Design Read Article" [ref=f11e575] [cursor=pointer]:
+            - /url: /blog/the-build-got-cheap-the-brand-didnt
+            - heading "The build got cheap. The brand didn't." [level=3] [ref=f11e580]
+            - generic [ref=f11e581]:
+              - generic [ref=f11e582]: Design
+              - generic [ref=f11e584]: Read Article
+        - listitem [ref=f11e591]:
+          - link "The brief is dead. Long live the prototype. Design Read Article" [ref=f11e592] [cursor=pointer]:
+            - /url: /blog/the-brief-is-dead-long-live-the-prototype
+            - heading "The brief is dead. Long live the prototype." [level=3] [ref=f11e597]
+            - generic [ref=f11e598]:
+              - generic [ref=f11e599]: Design
+              - generic [ref=f11e601]: Read Article
+        - listitem [ref=f11e608]:
+          - 'link "WordPress to Webflow migration: why and how to make the switch in 2025 No-Code Read Article" [ref=f11e609] [cursor=pointer]':
+            - /url: /blog/wordpress-to-webflow-migration-why-and-how-to-make-the-switch
+            - 'heading "WordPress to Webflow migration: why and how to make the switch in 2025" [level=3] [ref=f11e614]'
+            - generic [ref=f11e615]:
+              - generic [ref=f11e616]: No-Code
+              - generic [ref=f11e618]: Read Article
+  - contentinfo [ref=f11e625]:
+    - generic [ref=f11e628]:
+      - generic [ref=f11e629]:
+        - generic [ref=f11e630]: SERVICES
+        - generic [ref=f11e631]:
+          - link "Product Design" [ref=f11e632] [cursor=pointer]:
+            - /url: /product-design
+          - link "Websites" [ref=f11e640] [cursor=pointer]:
+            - /url: /websites
+          - link "Brand Design" [ref=f11e648] [cursor=pointer]:
+            - /url: /branding
+          - link "No-Code Development" [ref=f11e659] [cursor=pointer]:
+            - /url: /no-code-development
+          - link "Engineering" [ref=f11e666] [cursor=pointer]:
+            - /url: /engineering
+      - generic [ref=f11e673]:
+        - generic [ref=f11e674]:
+          - generic [ref=f11e675]: BUSINESS ENQUIRIES
+          - link "hello@tonik.com" [ref=f11e677] [cursor=pointer]:
+            - /url: mailto:hello@tonik.com?subject=Hello%20from%20website
+        - generic [ref=f11e678]:
+          - generic [ref=f11e679]: Opportunities at tonik
+          - link "Work with us" [ref=f11e681] [cursor=pointer]:
+            - /url: /workwithus
+        - generic [ref=f11e682]:
+          - generic [ref=f11e683]:
+            - generic [ref=f11e684]: POZNAN, PL
+            - generic [ref=f11e685]: GMT+1
+          - paragraph [ref=f11e686]: Kochanowskiego 4/460-825 PoznanPoland
+        - generic [ref=f11e687]:
+          - generic [ref=f11e688]: SOCIALS
+          - generic [ref=f11e689]:
+            - link "INSTAGRAM" [ref=f11e690] [cursor=pointer]:
+              - /url: https://www.instagram.com/wearetonik
+            - link "Linkedin" [ref=f11e698] [cursor=pointer]:
+              - /url: https://www.linkedin.com/company/tonik-studio/
+            - link "x / Twitter" [ref=f11e706] [cursor=pointer]:
+              - /url: https://x.com/wearetonik
+            - link "clutch [4.9]" [ref=f11e714] [cursor=pointer]:
+              - /url: https://clutch.co/profile/tonik#highlights
+          - generic [ref=f11e722]:
+            - generic [ref=f11e723]: "2026"
+            - link "Privacy policy" [ref=f11e731] [cursor=pointer]:
+              - /url: /privacy-policy
+      - generic [ref=f11e732]: DESIGNING A VISION OF BIG THINKING FOUNDERS

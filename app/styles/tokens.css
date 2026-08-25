@@ -98,16 +98,23 @@
 }
 
 /* ── mobile step-down (≤767) ───────────────────────────────────────────────
-   Sizes only. Label sizes are deliberately UNCHANGED at every breakpoint —
-   that is what keeps the interface feeling technical on small screens.
-   Tracking is likewise unchanged; the spec's step-down list names sizes and
-   line-heights only. See I-006. */
+   Label sizes are deliberately UNCHANGED at every breakpoint — that is what
+   keeps the interface feeling technical on small screens, and it is confirmed
+   by measurement, not assumed.
+
+   h1 and h1-sm collapse onto the same step below 768: re-measured on tonik at
+   390 in phase 1, the homepage hero, a service hero and the CTA heading all
+   compute to 40px / 40px / -0.8px. See I-005 and I-006, both resolved.
+
+   h3 and h4 are left at the spec's values. tonik disagrees with them too, but
+   from a one-page sample and through modifier classes — I-011, owed by phase 3. */
 @media (max-width: 767px) {
   :root {
-    --t-h1-size: 3rem;   --t-h1-lh: 3rem;
-    --t-h2-size: 2.5rem; --t-h2-lh: 2.5rem;
-    --t-h3-size: 1.5rem; --t-h3-lh: 1.75rem;
-    --t-h4-size: 1.5rem; --t-h4-lh: 1.75rem;
+    --t-h1-size: 2.5rem;    --t-h1-lh: 2.5rem;    --t-h1-track: -0.05rem;
+    --t-h1-sm-size: 2.5rem; --t-h1-sm-lh: 2.5rem; --t-h1-sm-track: -0.05rem;
+    --t-h2-size: 2.5rem;    --t-h2-lh: 2.5rem;
+    --t-h3-size: 1.5rem;    --t-h3-lh: 1.75rem;
+    --t-h4-size: 1.5rem;    --t-h4-lh: 1.75rem;
 
     --gutter: 1.25rem;
     --section-y: 4rem;

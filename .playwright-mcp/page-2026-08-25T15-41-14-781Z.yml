@@ -1,0 +1,74 @@
+- generic [active] [ref=f14e1]:
+  - link "Skip to content" [ref=f14e2] [cursor=pointer]:
+    - /url: "#main"
+  - banner [ref=f14e3]:
+    - generic [ref=f14e4]:
+      - link "No Filter — home" [ref=f14e5] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f14e6]:
+          - generic [ref=f14e7]: No Filter
+          - generic [ref=f14e8]: "no"
+          - generic [ref=f14e9]: filter
+      - navigation "Primary" [ref=f14e11]:
+        - link "Works — 12 projects" [ref=f14e12] [cursor=pointer]:
+          - /url: /works
+          - text: Works12
+          - generic [ref=f14e13]: — 12 projects
+        - link "About" [ref=f14e14] [cursor=pointer]:
+          - /url: /about
+        - link "Services" [ref=f14e15] [cursor=pointer]:
+          - /url: /services
+        - link "Blog" [ref=f14e16] [cursor=pointer]:
+          - /url: /blog
+        - button "Contact" [ref=f14e17] [cursor=pointer]
+  - main [ref=f14e26]:
+    - generic [ref=f14e28]:
+      - heading "404" [level=1] [ref=f14e29]
+      - heading "This page could not be found." [level=2] [ref=f14e31]
+  - contentinfo [ref=f14e32]:
+    - generic [ref=f14e33]:
+      - generic [ref=f14e34]:
+        - paragraph [ref=f14e35]: Services
+        - list [ref=f14e36]:
+          - listitem [ref=f14e37]:
+            - link "Product Design" [ref=f14e38] [cursor=pointer]:
+              - /url: /services/product-design
+          - listitem [ref=f14e42]:
+            - link "Branding" [ref=f14e43] [cursor=pointer]:
+              - /url: /services/branding
+          - listitem [ref=f14e47]:
+            - link "Websites" [ref=f14e48] [cursor=pointer]:
+              - /url: /services/websites
+          - listitem [ref=f14e52]:
+            - link "No-Code Development" [ref=f14e53] [cursor=pointer]:
+              - /url: /services/no-code
+          - listitem [ref=f14e57]:
+            - link "Engineering" [ref=f14e58] [cursor=pointer]:
+              - /url: /services/engineering
+      - generic [ref=f14e62]:
+        - generic [ref=f14e63]:
+          - paragraph [ref=f14e64]: Business enquiries
+          - link "hello@nofilter.studio" [ref=f14e65] [cursor=pointer]:
+            - /url: mailto:hello@nofilter.studio
+        - generic [ref=f14e66]:
+          - paragraph [ref=f14e67]: Opportunities
+          - link "work@nofilter.studio" [ref=f14e68] [cursor=pointer]:
+            - /url: mailto:work@nofilter.studio
+        - generic [ref=f14e69]:
+          - paragraph [ref=f14e70]: Kolkata, IN · GMT+5:30
+          - paragraph [ref=f14e71]: —
+        - generic [ref=f14e72]:
+          - paragraph [ref=f14e73]: Socials
+          - link "GitHub" [ref=f14e75] [cursor=pointer]:
+            - /url: https://github.com/Sayandeep1013
+        - generic [ref=f14e84]:
+          - generic [ref=f14e94]: "2026"
+          - link "Privacy policy" [ref=f14e95] [cursor=pointer]:
+            - /url: /privacy
+      - generic [ref=f14e96]:
+        - paragraph [ref=f14e97]: No filter between the idea and the thing
+        - generic [ref=f14e98]:
+          - generic [ref=f14e99]: No Filter
+          - generic [ref=f14e100]: "no"
+          - generic [ref=f14e101]: filter
+  - alert [ref=f14e102]

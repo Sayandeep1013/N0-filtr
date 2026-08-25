@@ -140,9 +140,21 @@ size and colour alone. This is a defining property of the look; do not introduce
 
 ### Mobile step-down (≤767)
 
-`--t-h1: 3rem/3rem` · `--t-h2: 2.5rem/2.5rem` · `--t-h3/-h4: 1.5rem/1.75rem`.
+`--t-h1: 2.5rem/2.5rem`, tracking `-.05rem` · `--t-h1-sm: 2.5rem/2.5rem`, tracking `-.05rem` ·
+`--t-h2: 2.5rem/2.5rem` · `--t-h3/-h4: 1.5rem/1.75rem`.
+
 Label sizes are **unchanged** — the mono labels stay at `.75rem` at every breakpoint, which is
-what keeps the interface feeling technical on small screens.
+what keeps the interface feeling technical on small screens. Confirmed by re-measure: `.75rem`
+label and `.5rem` label-sm are byte-identical at 1512 and 390, tracking included.
+
+> **Re-measured in phase 1** (2026-08-25, tonik at 390, root 16px). The h1 and h1-sm rows above
+> replace `3rem/3rem` and an unstated h1-sm. Three separate elements — the homepage hero
+> `.t-heading-1-rg`, the `/product-design` hero `.t-heading-1-small-rg` and `.cta-heading` — all
+> compute to `40px / 40px / -0.8px`. Below 768 the primary and secondary hero steps **collapse
+> into one**, which is why the spec's silence about h1-sm produced an inversion. See I-005, I-006.
+>
+> The same trip found h3–h6 disagreeing with the table above as well, from a thinner sample.
+> Those are **not** changed here — see I-011, owed by phase 3.
 
 ## 4. Layout
 

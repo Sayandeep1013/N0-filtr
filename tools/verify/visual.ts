@@ -94,11 +94,42 @@ export async function checkVisual(browser: Browser, baseUrl: string): Promise<Se
         try {
           await page.goto(`${baseUrl}${shot.ours}`, { waitUntil: 'networkidle' });
           await page.evaluate(() => document.fonts.ready);
-          if (shot.scroll) {
-            await page.evaluate((y) => window.scrollTo(0, y), shot.scroll);
-            // Lenis interpolates; give it time to land before the shutter.
-            await page.waitForTimeout(1200);
+          // The loader covers the page for its first 600ms.
+          await page.waitForTimeout(900);
+
+          const target = shot.ourScroll ?? shot.scroll;
+          if (target !== undefined) {
+            await page.evaluate((y) => {
+              const max = document.documentElement.scrollHeight - window.innerHeight;
+              const to = y === 'bottom' ? max : Math.min(y as number, max);
+              // Go past Lenis rather than through it: window.scrollTo fights a
+              // smooth-scroll library and lands somewhere between the two.
+              const lenis = (window as unknown as { lenis?: { scrollTo(v: number, o?: object): void } }).lenis;
+              if (lenis) lenis.scrollTo(to, { immediate: true, force: true });
+              else window.scrollTo(0, to);
+            }, target);
+            await page.waitForTimeout(600);
           }
+
+          if (shot.prepare === 'contact-open') {
+            // Below 992 the CTA lives inside the collapsed menu — the same place
+            // tonik puts it — so the burger has to come first.
+            const burger = page.locator('.nav__burger');
+            if (await burger.isVisible()) {
+              await burger.click();
+              await page.waitForTimeout(700);
+            }
+            await page.locator('[data-contact]').first().click();
+            // The open timeline is 1.5s.
+            await page.waitForTimeout(1900);
+          } else if (shot.prepare === 'nav-menu-open') {
+            const burger = page.locator('.nav__burger');
+            if (await burger.isVisible()) {
+              await burger.click();
+              await page.waitForTimeout(800);
+            }
+          }
+
           const ourPath = join(SHOT_DIR, `${shot.name}-${viewport.w}.png`);
           await page.screenshot({ path: ourPath });
 

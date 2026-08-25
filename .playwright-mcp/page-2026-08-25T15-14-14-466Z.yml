@@ -1,0 +1,24 @@
+- generic [active] [ref=f6e1]:
+  - link "Skip to content" [ref=f6e2] [cursor=pointer]:
+    - /url: "#main"
+  - banner [ref=f6e13]:
+    - generic [ref=f6e14]:
+      - link "No Filter — home" [ref=f6e15] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f6e16]:
+          - generic [ref=f6e17]: No Filter
+          - generic [ref=f6e18]: "no"
+          - generic [ref=f6e19]: filter
+      - navigation "Primary" [ref=f6e21]:
+        - link "Works — 12 projects" [ref=f6e22] [cursor=pointer]:
+          - /url: /works
+          - text: Works12
+          - generic [ref=f6e23]: — 12 projects
+        - link "About" [ref=f6e24] [cursor=pointer]:
+          - /url: /about
+        - link "Services" [ref=f6e25] [cursor=pointer]:
+          - /url: /services
+        - link "Blog" [ref=f6e26] [cursor=pointer]:
+          - /url: /blog
+        - button "Contact" [ref=f6e27] [cursor=pointer]
+  - main

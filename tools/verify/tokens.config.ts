@@ -140,7 +140,11 @@ function scaleAssertions(at: number, rows: ScaleRow[]): Assertion[] {
 /* ── mobile step-down (≤767) ───────────────────────────────────────────────
    Sizes only. Labels are deliberately unchanged at every breakpoint. */
 const MOBILE_SCALE: ScaleRow[] = [
-  { token: 'h1', size: 3, lh: 3, track: -0.15 },
+  // h1 and h1-sm collapse onto one step below 768 — re-measured in phase 1,
+  // three separate hero elements on tonik all compute to 40px/40px/-0.8px at
+  // 390. I-005 and I-006, both resolved.
+  { token: 'h1', size: 2.5, lh: 2.5, track: -0.05 },
+  { token: 'h1-sm', size: 2.5, lh: 2.5, track: -0.05 },
   { token: 'h2', size: 2.5, lh: 2.5, track: 0 },
   { token: 'h3', size: 1.5, lh: 1.75, track: 0 },
   { token: 'h4', size: 1.5, lh: 1.75, track: 0 },

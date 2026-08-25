@@ -1,0 +1,165 @@
+/* docs/spec/20-components-and-motion.md §2 — <Navbar />.
+
+   .nav      fixed inset:0 0 auto, z-10, bg transparent
+             padding-top 1.5rem (1rem ≤991), padding-bottom 0
+             transition all .3s ease-in-out
+   .is-mini  background var(--black), padding-top .75rem
+
+   Everything below the logo — the four links and the CTA — lives in one flex
+   group with a 2.5rem gap, which is how tonik lays it out: the CTA is a member
+   of the links group, not a sibling of it. That is why it disappears with the
+   links below 992 and the burger takes over. */
+
+.nav {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 10;
+  padding-top: 1.5rem;
+  padding-bottom: 0;
+  background-color: transparent;
+  transition: all var(--dur-fast) var(--ease-in-out);
+}
+
+/* The mini state is keyed off the global `is-mini` class the ScrollTrigger
+   toggles — the same class name tonik uses, so the DOM reads like the teardown
+   and the behaviour check can assert it without knowing our hashes. */
+.nav:global(.is-mini) {
+  padding-top: 0.75rem;
+  background-color: var(--black);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* The logo box is exact: 4.25rem × 1.25rem, which "no filter" fills at a 1rem
+   face. 50-brand-and-3d.md §4. */
+.logo {
+  display: flex;
+  flex: none;
+  align-items: center;
+  width: 4.25rem;
+  height: 1.25rem;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.menu {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+}
+
+.link {
+  padding: 0.4rem 0.5rem;
+  color: var(--text-primary);
+  font-family: var(--family-mono);
+  font-size: var(--t-label-size);
+  line-height: var(--t-label-lh);
+  letter-spacing: var(--t-label-track);
+  text-transform: uppercase;
+  white-space: nowrap;
+  background-color: transparent;
+  transition: background-color var(--dur-fast) var(--ease-in-out);
+}
+
+/* The filled pill on the current page. [src] */
+.active {
+  background-color: var(--bg-transparent);
+}
+
+/* The works count, bound to the content so it cannot drift from reality. */
+.count {
+  font-size: var(--t-label-sm-size);
+  line-height: var(--t-label-sm-lh);
+  letter-spacing: var(--t-label-sm-track);
+  vertical-align: super;
+}
+
+/* §22 — `.navbar_link:hover { background-color: var(--white-10) }`, and the
+   same rule reset to transparent below 992. Written as a min-width query so the
+   reset is the absence of the rule rather than a second rule fighting it. */
+@media (min-width: 992px) {
+  .link:hover {
+    background-color: var(--bg-transparent);
+  }
+}
+
+/* ── ≤991: burger, and the links become a panel ──────────────────────────── */
+
+.burger {
+  position: relative;
+  display: none;
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--text-primary);
+}
+
+/* The "+" is two 1px strokes — hairlines, one of the two documented exceptions
+   to the rem rule (CLAUDE.md §4). Opening rotates only the vertical one. */
+.stroke {
+  position: absolute;
+  background-color: currentColor;
+}
+
+.strokeH {
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  margin-top: -0.5px;
+}
+
+.strokeV {
+  top: 0;
+  left: 50%;
+  width: 1px;
+  height: 100%;
+  margin-left: -0.5px;
+}
+
+@media (max-width: 991px) {
+  .nav {
+    padding-top: 1rem;
+  }
+
+  .nav:global(.is-mini) {
+    padding-top: 0.75rem;
+  }
+
+  .burger {
+    display: block;
+  }
+
+  /* The panel hangs off the bottom of the bar and is clipped by this wrapper,
+     so the closed state slides out of sight rather than sitting above the page. */
+  .menuWrap {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .menu {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem var(--gutter) 2rem;
+    background-color: var(--black);
+    transform: translateY(-100%);
+    transition: transform var(--dur-mid) var(--ease-in-out);
+  }
+
+  .menuOpen {
+    pointer-events: auto;
+  }
+
+  .menuOpen .menu {
+    transform: translateY(0);
+  }
+}

@@ -1,20 +1,24 @@
 # Verification report
-Run: 2026-08-25T14:27:22.197Z · Phase 00 · commit `a42223c` · branch `phase/00-foundation`
+Run: 2026-08-25T16:06:42.708Z · Phase 02 · commit `83ff9ae` · branch `phase/01-chrome`
 
 ## Summary
 ```
-tokens  ✅ 132/132
-motion  ⚠️ 35/40  (5 pending, owed by later phases)
+tokens  ✅ 136/136
+motion  ⚠️ 129/132  (3 pending, owed by later phases)
 visual  ⚠️ reviewed by agent — see judgement
 budget  ✅ 4/4
 ```
 
 ## tokens
 
-✅ [data-t="h1"] @390 font-size = 48.000px
-✅ [data-t="h1"] @390 line-height = 48.000px
-✅ [data-t="h1"] @390 letter-spacing = -2.400px
+✅ [data-t="h1"] @390 font-size = 40.000px
+✅ [data-t="h1"] @390 line-height = 40.000px
+✅ [data-t="h1"] @390 letter-spacing = -0.800px
 ✅ [data-t="h1"] @390 font-weight = 400
+✅ [data-t="h1-sm"] @390 font-size = 40.000px
+✅ [data-t="h1-sm"] @390 line-height = 40.000px
+✅ [data-t="h1-sm"] @390 letter-spacing = -0.800px
+✅ [data-t="h1-sm"] @390 font-weight = 400
 ✅ [data-t="h2"] @390 font-size = 40.000px
 ✅ [data-t="h2"] @390 line-height = 40.000px
 ✅ [data-t="h2"] @390 letter-spacing = normal
@@ -129,7 +133,7 @@ budget  ✅ 4/4
 ✅ [data-probe-colour="error"] @1512 background-color = rgb(180, 35, 24)
 ✅ [data-probe-colour="error-bg"] @1512 background-color = rgb(254, 243, 242)
 ✅ [data-probe-colour="accent"] @1512 background-color = rgb(33, 33, 33)
-✅ [data-t^="h"], [data-t^="p"] @1512 font-weight = 10 elements, all 400
+✅ [data-t^="h"], [data-t^="p"] @1512 font-weight = 20 elements, all 400
 ✅ [data-probe="gutter"] @1512 padding-left = 41.125px
 ✅ [data-probe="gutter"] @1512 padding-right = 41.125px
 ✅ [data-probe-length="grid-gap"] @1512 width = 24.672px
@@ -180,56 +184,181 @@ budget  ✅ 4/4
 ✅ prefers-reduced-motion detected = true
 ✅ Lenis destroyed under reduced motion = native scroll
 ✅ no rAF loop outside the GSAP ticker, under reduced motion = 0 unsanctioned
-✅ ScrollTrigger count returns to baseline after route changes = 0
-⏳ loader.enter — owed by phase 1
-⏳ contact.open — owed by phase 1
+✅ ScrollTrigger count returns to baseline after route changes = 1
 ⏳ work-card.hover — owed by phase 4
 ⏳ accordion.open — owed by phase 5
 ⏳ accordion.close — owed by phase 5
+✅ loader.enter totalDuration = 0.6s
+✅ loader.enter tween count = 5
+✅ loader.enter tween[0] duration = 0s
+✅ loader.enter tween[0] target = div.Loader_loader__LpNgN.loader
+✅ loader.enter tween[0] props = display, yPercent, opacity, parent, repeat, immediateRender
+✅ loader.enter tween[0] startTime = 0s
+✅ loader.enter tween[1] duration = 0.4s
+✅ loader.enter tween[1] ease = power2.inOut
+✅ loader.enter tween[1] target = div.Loader_mark__6dBzw.loader__mark
+✅ loader.enter tween[1] props = opacity, scale, parent
+✅ loader.enter tween[1] startTime = 0s
+✅ loader.enter tween[2] duration = 0.6s
+✅ loader.enter tween[2] ease = power2.inOut
+✅ loader.enter tween[2] target = div.Loader_loader__LpNgN.loader
+✅ loader.enter tween[2] props = yPercent, parent
+✅ loader.enter tween[2] startTime (<) = 0s
+✅ loader.enter tween[3] duration = 0s
+✅ loader.enter tween[3] target = div.Loader_loader__LpNgN.loader
+✅ loader.enter tween[3] props = display, parent, repeat, immediateRender
+✅ loader.enter tween[3] startTime = 0.6s
+✅ loader.enter tween[4] duration = 0s
+✅ loader.enter tween[4] target = div.Loader_mark__6dBzw.loader__mark
+✅ loader.enter tween[4] props = opacity, scale, parent, repeat, immediateRender
+✅ loader.enter tween[4] startTime = 0.6s
+✅ loader.exit totalDuration = 0.5s
+✅ loader.exit tween count = 3
+✅ loader.exit tween[0] duration = 0s
+✅ loader.exit tween[0] target = div.Loader_loader__LpNgN.loader
+✅ loader.exit tween[0] props = yPercent, display, opacity, parent, repeat, immediateRender
+✅ loader.exit tween[0] startTime = 0s
+✅ loader.exit tween[1] duration = 0s
+✅ loader.exit tween[1] target = div.Loader_mark__6dBzw.loader__mark
+✅ loader.exit tween[1] props = opacity, scale, parent, repeat, immediateRender
+✅ loader.exit tween[1] startTime = 0s
+✅ loader.exit tween[2] duration = 0.5s
+✅ loader.exit tween[2] ease = power3.out
+✅ loader.exit tween[2] target = div.Loader_loader__LpNgN.loader
+✅ loader.exit tween[2] props = yPercent, parent
+✅ loader.exit tween[2] startTime = 0s
+✅ contact.open totalDuration = 1.5s
+✅ contact.open tween count = 7
+✅ contact.open tween[0] duration = 0s
+✅ contact.open tween[0] target = div.ContactPanel_heading__IUuco.contact__heading
+✅ contact.open tween[0] props = opacity, parent, repeat, immediateRender
+✅ contact.open tween[0] startTime = 0s
+✅ contact.open tween[1] duration = 0s
+✅ contact.open tween[1] target = p.ContactPanel_lead__d8xpB.contact__meta, div.ContactPanel_divider__HxrAW.contact__meta, div.ContactPanel_body__sAqvT.contact__meta
+✅ contact.open tween[1] props = opacity, x, parent, repeat, immediateRender
+✅ contact.open tween[1] startTime = 0s
+✅ contact.open tween[2] duration = 0.4s
+✅ contact.open tween[2] target = div.ContactPanel_contact__I3BfT.contact
+✅ contact.open tween[2] props = opacity, parent
+✅ contact.open tween[2] startTime = 0s
+✅ contact.open tween[3] duration = 0.7s
+✅ contact.open tween[3] target = div.ContactPanel_sidebar__TFeFW.contact__sidebar
+✅ contact.open tween[3] props = x, parent
+✅ contact.open tween[3] startTime (<+0.3) = 0.3s
+✅ contact.open tween[4] duration = 0.3s
+✅ contact.open tween[4] target = div.ContactPanel_heading__IUuco.contact__heading
+✅ contact.open tween[4] props = opacity, parent
+✅ contact.open tween[4] startTime (<+0.2) = 0.5s
+✅ contact.open tween[5] duration = 1s
+✅ contact.open tween[5] ease = power3.out
+✅ contact.open tween[5] target = p.ContactPanel_lead__d8xpB.contact__meta, div.ContactPanel_divider__HxrAW.contact__meta, div.ContactPanel_body__sAqvT.contact__meta
+✅ contact.open tween[5] props = opacity, x, parent
+✅ contact.open tween[5] startTime (<) = 0.5s
+✅ contact.open tween[6] duration = 0.5s
+✅ contact.open tween[6] target = div.ContactPanel_gif__T7RsE.contact__gif
+✅ contact.open tween[6] props = y, parent
+✅ contact.open tween[6] startTime (<+0.2) = 0.7s
+✅ nav.is-mini threshold — off at 20px = no is-mini
+✅ nav.is-mini threshold — on at 100px = is-mini
+✅ nav.is-mini threshold — background = rgb(33, 33, 33)
+✅ nav.is-mini threshold — padding-top = 0.750rem
+✅ nav.is-mini threshold — off again after scrolling back up = no is-mini
+✅ footer service sibling-dim @1512 — siblings dim = 0.30, 0.30, 0.30, 0.30
+✅ footer service sibling-dim @1512 — hovered stays lit = 1.00
+✅ footer service sibling-dim @1512 — restores on leave = 1 across the list
+✅ footer service sibling-dim @991 — gated off = nothing dimmed
+✅ contact panel open/close — closed at rest = display: none
+✅ contact panel open/close — opens = display: block, opacity 1
+✅ contact panel open/close — sidebar rests at x 0% = 0.0px from the right edge
+✅ contact panel open/close — sidebar width = 56.0%
+✅ contact panel open/close — is a modal dialog = role=dialog aria-modal=true
+✅ contact panel open/close — focus moves into the panel = yes
+✅ contact panel open/close — close runs at the panel scale = -1.2 (reversing at 1.2)
+✅ contact panel open/close — Escape closes it = display: none
+✅ contact panel open/close — focus returns to the trigger = yes
+✅ button icon-swap reverse scale — plays forward on hover = progress 1.00
+✅ button icon-swap reverse scale — forward runs at 1 = 1
+✅ button icon-swap reverse scale — reverse runs at the button scale = -1.5 (reversing at 1.5)
+✅ loader under reduced motion — a 200ms fade = 0.2s
+✅ loader under reduced motion — no transform = opacity, duration, ease, parent, overwrite, delay
+✅ loader under reduced motion — loader clears the page = display: none
 
 > Pending entries are timelines the spec names but no phase has built yet. The phase that builds one flips `pending: false` in motion.config.ts.
+> Behaviour checks drive the real interface — scroll, hover, click, Escape — rather than reading a registered timeline. They are the only instrument that catches an unwired handler, a matchMedia gate that leaks below 992, or a reverse running at the wrong timeScale. See behaviour.config.ts.
 
 ## visual
 
 Contact sheet: `tools/verify/output/contact-sheet.html`
 
-**Agent judgement:** Phase 0, /probe at 1512 and 390. There is no page yet, so this is a judgement about the type
-system, not about composition against tonik — the first real composition judgement is owed by
-phase 1 (footer) and phase 3 (hero).
+**Agent judgement:** Phase 1. Eight captures at 1512 and 390: footer, contact panel, mobile menu, and the phase-0
+type scale carried forward. Three have tonik references — footer (s11), contact panel (s12) —
+and the composition judgement below is against those. The homepage above the footer is still
+blank, so there is no hero comparison to make; that is owed by phase 3.
 
-At 1512: the thirteen steps descend cleanly and h1 dominates. Every display step reads at the
-same weight — no step looks bolder than its neighbours, so the 400-only rule holds visually and
-not merely in the computed styles. General Sans is unmistakably the face that painted it: the
-single-storey g is clearly visible in "dog" and "jumps", which is the specific detail
-10-design-system.md §3 chose the family for. The three mono steps are visibly a different
-family, uppercase and tighter-tracked. h3 and h4 correctly render at the same size and differ
-only in leading. Text begins one gutter (41px) from the left edge, as measured.
+FOOTER @1512 vs s11-footer.png. The composition lands. Both start one gutter (41px) from the
+left; both put the services list at the same height under the hairline; both run the enquiry
+column from x≈1238 to the right gutter with the social bars flush to it. The wordmark is the
+test I expected to fail and did not: "no filter" at 14vw ends at x≈737 against tonik’s 737,
+because 14vw is a proportion and both words happen to occupy the same fraction of the line.
+Three differences, all deliberate and all content: we have one social bar where they have four,
+"—" where they have a three-line address, and five service rows whose icons are placeholders
+(I-014) — theirs are drawn, ours are geometric stand-ins and read thinner. The gap between the
+services block and the tagline is larger on theirs because their enquiry column is taller and
+stretches the row; that closes on its own when the address and socials are real.
 
-At 390 two things are worth recording. First, the h1/h2/h3/h4 steps have stepped down and the
-three mono label steps have visibly NOT — which is the property that keeps the interface
-technical on small screens, and is the thing most likely to be broken by a careless mobile
-override later. Second, a real defect surfaced: h1-sm (3.25rem, not stepped down) renders
-LARGER than h1 (3rem, stepped down), so the secondary hero style out-ranks the primary one on
-mobile. It is the biggest thing on the 390 capture. Logged as I-005, implemented as specced
-rather than silently corrected. h1 also reads noticeably tighter than the untracked h1-sm
-beside it, because -0.15rem of tracking is 2.5% of a 6rem face but 5% of a 3rem one — logged
-as I-006.
+One real error found here and fixed: the meta row had the year before the mark. tonik puts the
+mark first, then 2026, then PRIVACY POLICY hard right. Corrected, re-captured, confirmed.
 
-One further observation, not a defect: at ≤767 h3, h4 and h5 all resolve to 1.5rem/1.75rem, so
-three consecutive steps collapse into one size. That follows from the specced step-down and is
-a legitimate compression of the scale, but a phase choosing between h4 and h5 on mobile should
-know the choice is invisible there.
+CONTACT PANEL @1512 vs s12-contact.png. The sidebar geometry is right — 56% of the viewport,
+flush right, full height, over a --black-50 scrim with the page legible behind it. The heading,
+lead and divider stack at the same rhythm as theirs and the divider lands at the same place
+relative to the first field.
+
+Looking at this pair is what caught three form errors, none of which any assertion would have:
+the fieldsets were rendering their native browser border with the legend notched into it; the
+chips were small rounded pills huddled at the left where tonik’s are square and fill the row in
+five and four equal columns; and every text field carried a visible label above it where tonik
+uses the placeholder as the label. All three fixed. This is the second phase running where the
+visual check found what the assertions could not — the 132 token assertions were green
+throughout.
+
+One difference left standing: their fields are ~51px tall against our ~40px, so their form runs
+about 170px longer. That is roughly 1.125rem of vertical input padding against our 0.75rem. I
+have not changed it — 51px is measured off a screenshot rather than off computed styles, 0.75rem
+is the value the rest of the site actually uses, and guessing a third number would be worse than
+either. Noted for whoever next opens tonik with a panel on screen.
+
+MOBILE @390. The footer collapses to one column in the right order and the gutter steps to
+1.25rem. The burger is a clean "+" of two 1px strokes, and opening it slides the panel down and
+rotates the vertical stroke onto the horizontal — which makes a dash, not an ×. That is what
+their code does and what their site does; it looks like a bug and is not.
+
+The 390 footer is where I-013 becomes obvious rather than theoretical. Our wordmark at 14vw is
+~180px of a 350px column; tonik’s fills the column, because theirs is an SVG scaled to 100%
+width and only *happens* to equal 14vw at 1512. Desktop is right and mobile is visibly under-
+scaled. Left as specced — 14vw is one of only two rem exceptions CLAUDE.md names — and logged.
+
+TYPE SCALE @390. Re-checked deliberately, because this phase changed it. h1 and h1-sm now render
+at the same size, which resolves the inversion phase 0 flagged as I-005: below 768 tonik has no
+separate secondary hero step at all. h1 no longer reads tighter than everything around it
+(I-006). The three mono label steps are unchanged from 1512, which is the property most likely
+to be broken by a careless mobile override later.
 
 ⏳ hero — owed by phase 3
 ⏳ stack-wall — owed by phase 3
 ⏳ works-a — owed by phase 4
 ⏳ services — owed by phase 5
 ⏳ cta — owed by phase 5
-⏳ footer — owed by phase 1
 ⏳ cs-hero — owed by phase 6
 ⏳ service — owed by phase 7
 ✅ type-scale @1512 = captured, no reference
+✅ footer @1512 = captured, reference paired
+✅ contact-panel @1512 = captured, reference paired
+✅ nav-menu @1512 = captured, no reference
 ✅ type-scale @390 = captured, no reference
+✅ footer @390 = captured, reference paired
+✅ contact-panel @390 = captured, reference paired
+✅ nav-menu @390 = captured, no reference
 ℹ️ contact sheet = tools/verify/output/contact-sheet.html
 
 ## budget
@@ -237,12 +366,12 @@ know the choice is invisible there.
 ℹ️ matter-js absent from the eagerly-loaded bundle — vacuous: matter-js is not installed yet
 ℹ️ three absent from the eagerly-loaded bundle — vacuous: three is not installed yet
 ℹ️ plyr absent from the eagerly-loaded bundle — vacuous: plyr is not installed yet
-ℹ️ all built chunks, gzipped (not a per-route figure) = 297.1KB
-✅ JS on / (transferred) = 159.5KB / 190KB
-✅ home page total weight = 204.5KB / 1800KB
+ℹ️ all built chunks, gzipped (not a per-route figure) = 307.5KB
+✅ JS on / (transferred) = 170.0KB / 190KB
+✅ home page total weight = 234.6KB / 1800KB
 ✅ zero network font requests = both faces self-hosted
-✅ CLS (local, unthrottled) = 0.0000
-ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 0ms
+✅ CLS (local, unthrottled) = 0.0018
+ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 84ms
 
 > Poster and reel budgets become binding in phase 10, when assets exist.
 > Lighthouse scores are a phase 12 deliverable via mcp__chrome-devtools__lighthouse_audit; the figures here are local and unthrottled.

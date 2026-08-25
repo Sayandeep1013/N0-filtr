@@ -1,0 +1,69 @@
+- generic [active] [ref=f7e1]:
+  - link "Skip to content" [ref=f7e2] [cursor=pointer]:
+    - /url: "#main"
+  - banner [ref=f7e13]:
+    - generic [ref=f7e14]:
+      - link "No Filter — home" [ref=f7e15] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f7e16]:
+          - generic [ref=f7e17]: No Filter
+          - generic [ref=f7e18]: "no"
+          - generic [ref=f7e19]: filter
+      - navigation "Primary" [ref=f7e21]:
+        - link "Works — 12 projects" [ref=f7e22] [cursor=pointer]:
+          - /url: /works
+          - text: Works12
+          - generic [ref=f7e23]: — 12 projects
+        - link "About" [ref=f7e24] [cursor=pointer]:
+          - /url: /about
+        - link "Services" [ref=f7e25] [cursor=pointer]:
+          - /url: /services
+        - link "Blog" [ref=f7e26] [cursor=pointer]:
+          - /url: /blog
+        - button "Contact" [ref=f7e27] [cursor=pointer]
+  - main
+  - contentinfo [ref=f7e36]:
+    - generic [ref=f7e37]:
+      - generic [ref=f7e38]:
+        - paragraph [ref=f7e39]: Services
+        - list [ref=f7e40]:
+          - listitem [ref=f7e41]:
+            - link "Product Design" [ref=f7e42] [cursor=pointer]:
+              - /url: /services/product-design
+          - listitem [ref=f7e46]:
+            - link "Branding" [ref=f7e47] [cursor=pointer]:
+              - /url: /services/branding
+          - listitem [ref=f7e51]:
+            - link "Websites" [ref=f7e52] [cursor=pointer]:
+              - /url: /services/websites
+          - listitem [ref=f7e56]:
+            - link "No-Code Development" [ref=f7e57] [cursor=pointer]:
+              - /url: /services/no-code
+          - listitem [ref=f7e61]:
+            - link "Engineering" [ref=f7e62] [cursor=pointer]:
+              - /url: /services/engineering
+      - generic [ref=f7e66]:
+        - generic [ref=f7e67]:
+          - paragraph [ref=f7e68]: Business enquiries
+          - link "hello@nofilter.studio" [ref=f7e69] [cursor=pointer]:
+            - /url: mailto:hello@nofilter.studio
+        - generic [ref=f7e70]:
+          - paragraph [ref=f7e71]: Opportunities
+          - link "work@nofilter.studio" [ref=f7e72] [cursor=pointer]:
+            - /url: mailto:work@nofilter.studio
+        - generic [ref=f7e73]:
+          - paragraph [ref=f7e74]: Kolkata, IN · GMT+5:30
+          - paragraph [ref=f7e75]: —
+        - generic [ref=f7e76]:
+          - paragraph [ref=f7e77]: Socials
+          - link "GitHub" [ref=f7e79] [cursor=pointer]:
+            - /url: https://github.com/Sayandeep1013
+        - generic [ref=f7e88]:
+          - generic [ref=f7e89]: "2026"
+          - link "Privacy policy" [ref=f7e99] [cursor=pointer]:
+            - /url: /privacy
+      - generic [ref=f7e100]:
+        - paragraph [ref=f7e101]: No filter between the idea and the thing
+        - generic [ref=f7e102]:
+          - generic [ref=f7e103]: No Filter
+          - text: no filter

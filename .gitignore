@@ -14,6 +14,10 @@ dist/
 Thumbs.db
 *.log
 
+# Playwright MCP scratch — page snapshots and console dumps from driving the
+# dev server by hand. Nothing here is evidence; verify writes that itself.
+.playwright-mcp/
+
 # verification output (regenerated; evidence reports are committed explicitly)
 tools/verify/.cache/
 tools/verify/output/**/*.png

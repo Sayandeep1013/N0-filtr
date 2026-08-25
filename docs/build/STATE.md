@@ -3,23 +3,28 @@
 **The first file every agent reads. It must always be true.**
 If you change the build, change this file in the same session — not later.
 
-Last updated: **2026-08-25** · by: **phase 0 session (Opus)** · commit: `033b3aa`
+Last updated: **2026-08-25** · by: **phase 1 session (Opus)** · commit: `83ff9ae`
 
 ---
 
 ## Where we are
 
-> **Phase 0 is complete.** The scaffold, the token system and all four verification
-> checks exist and are green. The harness has been proven by deliberately breaking it.
-> **Phase 1 (global chrome) is next and unclaimed.**
+> **Phase 1 is complete.** All four global components — Loader, Navbar, ContactPanel, Footer —
+> are built, mounted in the root layout and verified. The harness gained a behaviour layer that
+> drives the real interface. **Phase 2 (brand & 3D hero) is next and unclaimed — it is a GATE.**
+>
+> ⚠ **One open decision blocks nothing but should be settled in phase 2: I-017.** The spec
+> translates Webflow's `inOutQuad` to GSAP's `power2.inOut`, which is cubic, not quadratic.
+> Every `[ix2] inOutQuad` timeline is one power too strong. Three-line fix; gets more expensive
+> every phase.
 
 | | |
 |---|---|
-| Current phase | **1 — Global chrome** *(unclaimed)* |
+| Current phase | **2 — Brand & 3D hero** 🚦 *(unclaimed, GATE)* |
 | Status | ⬜ not started |
-| Branch | *(create `phase/01-chrome`)* |
+| Branch | *(create `phase/02-brand-3d`)* |
 | Blocked | no |
-| Verify report | `tools/verify/output/report.md` — tokens 132/132, motion 35/40 (5 pending), budget 4/4, visual judged |
+| Verify report | `tools/verify/output/report.md` — tokens 136/136, motion 129/132 (3 pending), budget 4/4, visual judged |
 
 ---
 
@@ -28,7 +33,7 @@ Last updated: **2026-08-25** · by: **phase 0 session (Opus)** · commit: `033b3
 | # | Phase | Status | Branch | Tag | Notes |
 |---|---|---|---|---|---|
 | 0 | Foundation & harness | ✅ | `phase/00-foundation` | `phase-00-complete` | harness proven by break-test |
-| 1 | Global chrome | ⬜ | `phase/01-chrome` | — | needs 0 |
+| 1 | Global chrome | ✅ | `phase/01-chrome` | `phase-01-complete` | + a behaviour layer in the harness |
 | 2 | Brand & 3D hero 🚦 | ⬜ | `phase/02-brand-3d` | — | **GATE** · needs 0 |
 | 3 | Homepage upper | ⬜ | `phase/03-home-upper` | — | needs 1, 2 |
 | 4 | Works grid | ⬜ | `phase/04-works-grid` | — | needs 3 |
@@ -41,7 +46,7 @@ Last updated: **2026-08-25** · by: **phase 0 session (Opus)** · commit: `033b3
 | 11 | Block pit | ⬜ | `phase/11-block-pit` | — | needs 1 · parallel-safe |
 | 12 | Polish & launch | ⬜ | `phase/12-polish` | — | needs all |
 
-**Progress: 1 / 13 phases.**
+**Progress: 2 / 13 phases.**
 
 ---
 
@@ -67,41 +72,47 @@ Full record: `docs/build/phases/PHASE-00.md`
 | T0.9 | `verify:budget` | ✅ | JS 159.5KB / 190KB, total 204.5KB / 1800KB, CLS 0 |
 | T0.10 | `npm run verify` aggregator | ✅ | one command, one report, non-zero exit |
 
-### Phase 1 — Global chrome ⬜ not started
+### Phase 1 — Global chrome ✅ complete
 
-Copy the task table from `01-PHASES.md` when you claim it.
+Full record: `docs/build/phases/PHASE-01.md`
 
 | id | task | status | evidence |
 |---|---|---|---|
-| T1.1 | Loader — IX2 enter timeline | ⬜ | |
-| T1.2 | Loader exit + link interception | ⬜ | |
-| T1.3 | Navbar — layout, `WORKS¹²`, active pill, CTA pill | ⬜ | |
-| T1.4 | Navbar `is-mini` | ⬜ | |
-| T1.5 | Navbar mobile | ⬜ | |
-| T1.6 | Footer | ⬜ | |
-| T1.7 | Contact panel | ⬜ | |
-| T1.8 | Contact form | ⬜ | |
-| T1.9 | CSS hover states from §22 | ⬜ | |
+| T1.1 | Loader — IX2 enter timeline | ✅ | `loader.enter` 0.6s, 5 children, both tweens `power2.inOut` at startTime 0 |
+| T1.2 | Loader exit + link interception | ✅ | `loader.exit` 0.5s `power3.out`; driven on a real route change in-browser |
+| T1.3 | Navbar — layout, `WORKS¹²`, active pill, CTA pill | ✅ | logo 4.25rem×1.25rem, gap 2.5rem, link .4/.5rem — all against tonik's computed styles |
+| T1.4 | Navbar `is-mini` | ✅ | behaviour: off at 20px, on at 100px, off again on the way up |
+| T1.5 | Navbar mobile | ✅ | `shots/nav-menu-390.png` |
+| T1.6 | Footer | ✅ | behaviour: siblings dim to **0.30**, restore to 1, inactive at 991 |
+| T1.7 | Contact panel | ✅ | `contact.open` 1.5s / 7 children / every position resolved; opens, traps focus, Escape closes at −1.2, focus restored |
+| T1.8 | Contact form | ✅ | `shots/contact-panel-1512.png` — renders with no Tally ID |
+| T1.9 | CSS hover states from §22 | ✅ | every `:hover` confirmed inside a `min-width: 992px` query |
+
+### Phase 2 — Brand & 3D hero 🚦 ⬜ not started
+
+Copy the task table from `01-PHASES.md` when you claim it.
 
 ---
 
 ## What is verified
 
-Nothing yet. This table is the honest record of what has actually been *proven*, as distinct
-from what has been written.
+The honest record of what has actually been *proven*, as distinct from what has been written.
 
 | Area | Verified? | By what |
 |---|---|---|
 | Fluid root at 1440 / 1512 / 1920 | ✅ | `verify:tokens` — also 1280, 1441, 2560 |
 | Colour tokens | ✅ | `verify:tokens` — all 26, incl. alpha round-trip |
-| Type scale | ✅ | `verify:tokens` — 13 steps at 1512, 7 at 390 |
+| Type scale | ✅ | `verify:tokens` — 13 steps at 1512, 8 at 390 (h1-sm added in phase 1) |
 | Display weight never > 400 | ✅ | `verify:tokens` every-match on `[data-t^=h], [data-t^=p]` |
-| Motion durations & eases | ⚠️ | `verify:motion` — the DUR/EASE **tables** are verified, incl. the CSS mirrors. No timeline exists yet; 5 are pending. |
-| matchMedia gating at ≤991 | ✅ | `verify:motion` — asserted inactive @991, active @1512 |
-| ScrollTrigger leak-free across routes | ⚠️ | `verify:motion` — check is live and passing, but baseline is 0 triggers. Meaningful from phase 1. |
-| Bundle budgets | ⚠️ | `verify:budget` — JS/total/CLS/fonts real. The three/matter/plyr absence checks are **vacuous**: not installed yet. |
-| Reduced motion | ✅ | `verify:motion` — emulated `reduce`: Lenis destroyed, no extra loop |
-| Visual composition vs tonik | ❌ | no page to compare yet — owed by phases 1 and 3 |
+| Motion durations & eases | ⚠️ | `verify:motion` — tables and CSS mirrors verified. **But see I-017: `EASE.quad` is cubic where the source is quadratic.** The table is self-consistent; its translation from IX2 is not. |
+| Timeline shapes | ✅ | 4 registered and asserted — `loader.enter`, `loader.exit`, `contact.open`, `button.icon` — including every resolved position parameter |
+| matchMedia gating at ≤991 | ✅ | `verify:motion` asserted inactive @991 / active @1512, **and** the footer sibling-dim asserted inactive at 991 through a real hover |
+| Reverse discipline (1.2 / 1.5) | ✅ | behaviour checks, through the real close and mouseleave paths |
+| ScrollTrigger leak-free across routes | ✅ | baseline is now **1**, not 0 — the check finally has something to leak |
+| Bundle budgets | ⚠️ | JS **170.0KB / 190KB**, total 234.6KB, CLS 0.0018. The three/matter/plyr absence checks are still **vacuous**: not installed. |
+| Reduced motion | ✅ | emulated `reduce`: Lenis destroyed, no extra loop, **and the loader asserted as a 200ms fade with no transform** |
+| Visual composition vs tonik | ⚠️ | footer and contact panel compared against `s11`/`s12` and judged. Hero and everything above the footer owed by phase 3. |
+| Keyboard operation of the contact panel | ✅ | behaviour: focus enters, Escape closes, focus returns to the trigger |
 
 ---
 
