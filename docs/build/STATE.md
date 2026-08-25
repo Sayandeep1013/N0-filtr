@@ -3,22 +3,22 @@
 **The first file every agent reads. It must always be true.**
 If you change the build, change this file in the same session — not later.
 
-Last updated: **2026-08-25** · by: **spec/system session (Opus)** · commit: `43b2f1f`
+Last updated: **2026-08-25** · by: **phase 0 session (Opus)** · commit: `1a6a7fb`
 
 ---
 
 ## Where we are
 
-> **Phase 0 has not started.** The repo contains specs and the build system only —
-> no scaffold, no `package.json`, no `src/`. The next agent starts Phase 0 from scratch.
+> **Phase 0 is in progress.** Scaffold and harness are being built on
+> `phase/00-foundation`. See the task board below for exactly how far it has got.
 
 | | |
 |---|---|
 | Current phase | **0 — Foundation & verification harness** |
-| Status | ⬜ not started |
-| Branch | *(none yet — create `phase/00-foundation`)* |
+| Status | 🔨 in progress |
+| Branch | `phase/00-foundation` |
 | Blocked | no |
-| Verify report | *(none yet)* |
+| Verify report | *(not yet produced)* |
 
 ---
 
@@ -26,7 +26,7 @@ Last updated: **2026-08-25** · by: **spec/system session (Opus)** · commit: `4
 
 | # | Phase | Status | Branch | Tag | Notes |
 |---|---|---|---|---|---|
-| 0 | Foundation & harness | ⬜ | `phase/00-foundation` | — | start here |
+| 0 | Foundation & harness | 🔨 | `phase/00-foundation` | — | in progress |
 | 1 | Global chrome | ⬜ | `phase/01-chrome` | — | needs 0 |
 | 2 | Brand & 3D hero 🚦 | ⬜ | `phase/02-brand-3d` | — | **GATE** · needs 0 |
 | 3 | Homepage upper | ⬜ | `phase/03-home-upper` | — | needs 1, 2 |
