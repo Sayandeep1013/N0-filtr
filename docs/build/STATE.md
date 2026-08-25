@@ -3,27 +3,32 @@
 **The first file every agent reads. It must always be true.**
 If you change the build, change this file in the same session — not later.
 
-Last updated: **2026-08-25** · by: **phase 1 session (Opus)** · commit: `83ff9ae`
+Last updated: **2026-08-26** · by: **phase 2 session (Opus)** · commit: `63f4490`
 
 ---
 
 ## Where we are
 
-> **Phase 1 is complete.** All four global components — Loader, Navbar, ContactPanel, Footer —
-> are built, mounted in the root layout and verified. The harness gained a behaviour layer that
-> drives the real interface. **Phase 2 (brand & 3D hero) is next and unclaimed — it is a GATE.**
+> **Phase 2 is claimed and in progress.** Phase 1 is confirmed complete: `npm run verify` was
+> re-run at `63f4490` on 2026-08-26 before any phase-2 work and came back green —
+> `tokens 136/136 · motion 129/132 (3 pending) · visual judged · budget 4/4`, exit 0.
 >
-> Two decisions from Sayandeep were applied *after* the phase tag, on `fix/i-017-easing`:
-> **I-017 is resolved** — `EASE.quad` is now `power1.inOut`, because GSAP's `power2` is cubic
-> where Webflow's `inOutQuad` is quadratic — and the **contact details are real**:
-> `sayandeepmondal1013@gmail.com`, no physical address. No open decisions block phase 2.
+> **Phase 2 is currently blocked on the T2.1 gate.** The aperture mark and wordmark already
+> exist (built in phase 1 under D-009, because the loader had nothing to render without them),
+> so the sign-off material is the mark itself rather than something that had to be built.
+> It has been presented to Sayandeep for approval along with the three specced alternates and
+> the **I-009** tick-weight choice. `50-brand-and-3d.md` §5 makes approval a precondition for
+> everything downstream, so no Three.js work starts until the answer comes back.
+>
+> `AGENT_JUDGEMENT` in `tools/verify/visual.config.ts` has been reset to `null`, so the visual
+> check cannot pass on phase 1's stale reading.
 
 | | |
 |---|---|
-| Current phase | **2 — Brand & 3D hero** 🚦 *(unclaimed, GATE)* |
-| Status | ⬜ not started |
-| Branch | *(create `phase/02-brand-3d`)* |
-| Blocked | no |
+| Current phase | **2 — Brand & 3D hero** 🚦 *(claimed, GATE)* |
+| Status | 🔨 in progress |
+| Branch | `phase/02-brand-3d` |
+| Blocked | **yes — T2.1 awaits user approval of the mark** |
 | Verify report | `tools/verify/output/report.md` — tokens 136/136, motion 129/132 (3 pending), budget 4/4, visual judged |
 
 ---
@@ -34,7 +39,7 @@ Last updated: **2026-08-25** · by: **phase 1 session (Opus)** · commit: `83ff9
 |---|---|---|---|---|---|
 | 0 | Foundation & harness | ✅ | `phase/00-foundation` | `phase-00-complete` | harness proven by break-test |
 | 1 | Global chrome | ✅ | `phase/01-chrome` | `phase-01-complete` | + a behaviour layer in the harness |
-| 2 | Brand & 3D hero 🚦 | ⬜ | `phase/02-brand-3d` | — | **GATE** · needs 0 |
+| 2 | Brand & 3D hero 🚦 | 🔨 | `phase/02-brand-3d` | — | **GATE** · needs 0 · at the T2.1 gate |
 | 3 | Homepage upper | ⬜ | `phase/03-home-upper` | — | needs 1, 2 |
 | 4 | Works grid | ⬜ | `phase/04-works-grid` | — | needs 3 |
 | 5 | Homepage lower | ⬜ | `phase/05-home-lower` | — | needs 4 |
@@ -88,9 +93,26 @@ Full record: `docs/build/phases/PHASE-01.md`
 | T1.8 | Contact form | ✅ | `shots/contact-panel-1512.png` — renders with no Tally ID |
 | T1.9 | CSS hover states from §22 | ✅ | every `:hover` confirmed inside a `min-width: 992px` query |
 
-### Phase 2 — Brand & 3D hero 🚦 ⬜ not started
+### Phase 2 — Brand & 3D hero 🚦 🔨 in progress
 
-Copy the task table from `01-PHASES.md` when you claim it.
+Claimed 2026-08-26. Full record: `docs/build/phases/PHASE-02.md`.
+
+| id | task | status | evidence |
+|---|---|---|---|
+| T2.1 | Aperture mark — glyph at 16/32/48px + `no filter` wordmark | 🚧 **awaiting user approval** | sign-off sheet presented; mark and wordmark already built in phase 1 under D-009 |
+| T2.2 | Three.js scene — persistent mount outside `<main>` | ⬜ blocked by T2.1 | — |
+| T2.3 | Geometry — torus ring + 6 extruded bevelled blades | ⬜ blocked by T2.1 | — |
+| T2.4 | GLSL material — object-space simplex grain + fresnel rim | ⬜ blocked by T2.1 | — |
+| T2.5 | Mouse parallax — the exact tonik curves | ⬜ blocked by T2.1 | — |
+| T2.6 | Mobile — scroll-driven `rotationY −0.525 → −1.5` | ⬜ blocked by T2.1 | — |
+| T2.7 | Perf — DPR clamp, IntersectionObserver suspend, route fade | ⬜ blocked by T2.1 | — |
+| T2.8 | Reduced motion — one static frame; no-WebGL → WebP fallback | ⬜ blocked by T2.1 | — |
+| T2.9 | Mark applied to loader, nav, footer, favicon, OG | ⬜ blocked by T2.1 | loader/nav/footer already done; favicon + OG owed |
+
+**Open questions put to Sayandeep** — all three in the sign-off sheet:
+1. Approve the Open Aperture, or pick one of the three specced alternates.
+2. **I-009** — tick stroke weight: half the ring's weight (built, recommended), two-thirds, or full.
+3. **I-014**, optional — redraw the five footer service icons now, or leave them for phase 10.
 
 ---
 
