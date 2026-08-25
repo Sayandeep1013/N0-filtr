@@ -23,6 +23,25 @@ import s from './Footer.module.css';
  * takes the others to exactly 0.3 over 400ms inOutQuad. Same primitive as the
  * works grid, different timing — §21.1.
  */
+/**
+ * An email address has no natural break opportunity, so a column too narrow to
+ * hold it breaks it wherever it happens to run out — `…@gmail.` / `com`. One
+ * `<wbr>` after the `@` gives the browser a break it prefers, and the
+ * `overflow-wrap: anywhere` on the column stays as the guarantee that it can
+ * never escape its track.
+ */
+function EmailText({ address }: { address: string }) {
+  const at = address.indexOf('@');
+  if (at === -1) return <>{address}</>;
+  return (
+    <>
+      {address.slice(0, at + 1)}
+      <wbr />
+      {address.slice(at + 1)}
+    </>
+  );
+}
+
 export function Footer() {
   const servicesRef = useRef<HTMLDivElement>(null);
   useSiblingDim(servicesRef, {
@@ -61,7 +80,7 @@ export function Footer() {
               Business enquiries
             </p>
             <a data-t="p" href={`mailto:${CONTACT.email}`}>
-              {CONTACT.email}
+              <EmailText address={CONTACT.email} />
             </a>
           </div>
 
@@ -69,16 +88,19 @@ export function Footer() {
             <p data-t="label" className={s.label}>
               Opportunities
             </p>
-            <a data-t="p" href={`mailto:${CONTACT.opportunities}`}>
-              {CONTACT.opportunities}
+            <a
+              data-t="p"
+              href={`mailto:${CONTACT.email}?subject=${encodeURIComponent(CONTACT.opportunitiesSubject)}`}
+            >
+              {CONTACT.opportunitiesLabel}
             </a>
           </div>
 
           <div className={s.contactCol}>
             <p data-t="label" className={s.label}>
-              {`${CONTACT.city} · ${CONTACT.gmt}`}
+              Studio
             </p>
-            <p data-t="p">{CONTACT.address}</p>
+            <p data-t="p">{`${CONTACT.city} · ${CONTACT.gmt}`}</p>
           </div>
 
           <div className={s.contactCol}>

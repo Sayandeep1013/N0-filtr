@@ -124,14 +124,18 @@ decisions regardless. Item 2 is a known, cheap gap I can close on request.
 
 Not blocking; each has a stated placeholder I will build against until you replace it.
 
-| Item | Placeholder in use |
+| Item | Status |
 |---|---|
-| Business email | `hello@nofilter.studio` |
-| Domain | `nofilter.studio` |
-| City + GMT offset for footer | `KOLKATA, IN · GMT+5:30` |
-| Social handles (Instagram / LinkedIn / X / GitHub) | GitHub → `Sayandeep1013`, rest omitted |
-| Tally form ID | contact panel renders a styled native fallback until supplied |
-| Footer tagline (tonik's is "DESIGNING A VISION OF BIG THINKING FOUNDERS") | `NO FILTER BETWEEN THE IDEA AND THE THING` |
+| Business email | ✅ **`sayandeepmondal1013@gmail.com`** — supplied 2026-08-25 |
+| Physical address | ✅ **none** — decided 2026-08-25. The footer's studio row carries the locality and the GMT offset instead of an address block. |
+| Domain | ⬜ placeholder `nofilter.studio` |
+| City + GMT offset for footer | ✅ `KOLKATA, IN · GMT+5:30` |
+| Social handles (Instagram / LinkedIn / X / GitHub) | ⬜ GitHub → `Sayandeep1013`, rest omitted |
+| Tally form ID | ⬜ contact panel renders a styled native fallback until supplied |
+| Footer tagline (tonik's is "DESIGNING A VISION OF BIG THINKING FOUNDERS") | ⬜ placeholder `NO FILTER BETWEEN THE IDEA AND THE THING` |
+| Contact form budget bands + referral chips | ⬜ invented — see I-015 |
+
+All of these live in `lib/content/site.ts` and nowhere else, so replacing one is a single edit.
 
 ## The one thing I want you to push back on
 

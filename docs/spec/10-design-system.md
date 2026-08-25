@@ -202,7 +202,7 @@ export const EASE = {
   out:     'power3.out',    // things arriving
   in:      'power3.in',     // things leaving
   soft:    'power2.out',    // Flip transitions
-  quad:    'power2.inOut',  // the loader — Webflow's inOutQuad  [ix2]
+  quad:    'power1.inOut',  // the loader — Webflow's inOutQuad  [ix2]
   circ:    'circ.out',      // button icon diagonal swap          [ix2]
   inOut:   'power1.inOut',  // hover state changes, IX2 'ease'
   gentle:  'power1.out',    // staggered text
@@ -211,8 +211,16 @@ export const EASE = {
 } as const;
 
 // Webflow IX2 easing → GSAP
-// inOutQuad → power2.inOut   outCirc → circ.out
+// inOutQuad → power1.inOut   outCirc → circ.out
 // easeInOut → power1.inOut   ease    → power1.inOut
+//
+// `quad` and `inOut` hold the same value on purpose — Webflow's inOutQuad,
+// easeInOut and ease are all quadratic-in-out within a hair of each other. They
+// stay separate names because they record different provenance.
+//
+// Corrected in phase 1: this table said `inOutQuad → power2.inOut`. GSAP's
+// powerN is offset by one from the Penner names (Quad === Power1), so power2 is
+// cubic and every [ix2] inOutQuad timeline was one power too strong. See I-017.
 
 export const REVERSE_SCALE = 1.2;   // panels
 export const REVERSE_SCALE_FAST = 1.5; // buttons

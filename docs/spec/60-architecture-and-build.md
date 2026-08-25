@@ -192,7 +192,7 @@ How we prove "1:1" rather than asserting it:
 2. **Motion audit, both engines.** Every timeline marked **[src]** is checked line-by-line
    against `docs/research/source/tonik-animations.js`; every one marked **[ix2]** against
    `docs/research/source/tonik-ix2.json`. Durations, eases, stagger amounts and position
-   parameters must match exactly. Webflow easing maps: `inOutQuad → power2.inOut`,
+   parameters must match exactly. Webflow easing maps: `inOutQuad → power1.inOut`,
    `outCirc → circ.out`, `easeInOut → power1.inOut`, `ease → power1.inOut`.
 3. **Token audit.** Computed styles on our built page compared against the extracted token
    table — colours, font sizes, line heights, tracking, gutters.
@@ -208,7 +208,7 @@ How we prove "1:1" rather than asserting it:
    - **the block pit below the footer — an addition, not a deviation (decision 9)**
 
    Corrections made after the IX2 pass, now matching the source rather than deviating from it:
-   - loader easing is `power2.inOut` (their `inOutQuad`), **not** the `power3.in` in their dead
+   - loader easing is `power1.inOut` (their `inOutQuad`), **not** the `power3.in` in their dead
      `initLoader()` function
    - hero parallax drives two objects at different rates, not the camera
 

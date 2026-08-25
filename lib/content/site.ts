@@ -50,19 +50,29 @@ export const SERVICES: ServiceSummary[] = [
   { slug: 'engineering', name: 'Engineering' },
 ];
 
-/* ── placeholders from 00-brief-and-decisions.md "Open items" ──────────────
-   Each of these is a stated placeholder the user will replace. They are
-   gathered here, and nowhere else, so replacing them is one edit. */
+/* ── contact details ───────────────────────────────────────────────────────
+   Supplied by Sayandeep, 2026-08-25. One real address for everything; there is
+   deliberately no street address, so the studio row carries the locality and the
+   offset instead of an address block. 00-brief-and-decisions.md open items 1
+   and 3 are closed.
+
+   Still placeholders below: the domain, the social handles beyond GitHub, the
+   footer tagline, and the Tally form id. */
 
 export const CONTACT = {
-  /** Placeholder — open item 1. */
-  email: 'hello@nofilter.studio',
-  /** Placeholder — open item 1. */
-  opportunities: 'work@nofilter.studio',
-  /** Placeholder — open item 3. */
+  email: 'sayandeepmondal1013@gmail.com',
+  /**
+   * tonik's second footer row is "OPPORTUNITIES AT TONIK → Work with us",
+   * linking to their careers page. Decision 2 dropped careers, and printing the
+   * same address twice two rows apart reads as a copy-paste bug — so the row
+   * keeps its label and its "Work with us" wording and routes to the same
+   * mailbox with a subject that sorts it.
+   */
+  opportunitiesLabel: 'Work with us',
+  opportunitiesSubject: 'Opportunities',
+  /** No street address. The locality and the offset are the whole row. */
   city: 'Kolkata, IN',
   gmt: 'GMT+5:30',
-  address: '—',
 } as const;
 
 export interface SocialLink {

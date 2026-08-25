@@ -340,6 +340,11 @@ That is a working path, not a stub, but it is not the shipping one.
 they are theirs. A media asset for 3, from phase 10. A form endpoint or a Tally ID before launch,
 in phase 12.
 
+**Partly resolved 2026-08-25:** Sayandeep supplied the contact address —
+`sayandeepmondal1013@gmail.com` — and decided against a physical address. The form's `mailto:`
+fallback now goes somewhere real. The budget bands and the four referral chips are **still
+invented** and still need his answer; they are two constants at the top of `ContactForm.tsx`.
+
 ---
 
 ## I-016 · `'1rem top'` / `'30rem top'` are pixels — ScrollTrigger has no rem  🟢
@@ -373,7 +378,7 @@ to. The note now lives in `behaviour.config.ts` next to the assertion, in
 
 ---
 
-## I-017 · `inOutQuad → power2.inOut` is wrong. GSAP's `power2` is cubic.  🔴
+## I-017 · `inOutQuad → power2.inOut` is wrong. GSAP's `power2` is cubic.  🟢
 
 **Found:** phase 01, 2026-08-25 · **Area:** `20-components-and-motion.md` §21 easing table,
 `10-design-system.md` §5 `EASE.quad`, `lib/motion/tokens.ts` `IX2_EASE`
@@ -418,16 +423,28 @@ There is a second oddity that points the same way: the spec maps `easeInOut` and
 `power1.inOut` and `inOutQuad` to `power2.inOut`, which would make Webflow's `inOutQuad` sharper
 than its `easeInOut`. In Webflow those two are near-identical curves.
 
-**Workaround:** **None — left exactly as specced.** `EASE.quad` is still `power2.inOut`,
-`SPEC_EASE.quad` still asserts it, and `verify:motion` is green against it. Protocol §4 is
-explicit that a value believed wrong is logged and left, and this one is a named token in the
-design-system table that phase 0 asserted and later phases will build on.
+**Resolved:** 2026-08-25, immediately after phase 1, by Sayandeep's decision — the call was
+delegated back with "you know better than me". `EASE.quad` is now **`power1.inOut`**.
 
-**Needs:** A decision from Sayandeep. **Recommendation: change `EASE.quad` to `power1.inOut`.**
-The evidence that the transcription slipped is strong and the fidelity cost of leaving it is real.
+Changed in seven places, all in one commit:
 
-It is a three-line change today — `lib/motion/tokens.ts`, `tools/verify/motion.config.ts`
-`SPEC_EASE`, and the two mapping tables in the specs — and it gets more expensive with every
-phase that adds an inOutQuad timeline. **Cheapest to settle in phase 2.** Nothing else in
-`EASE` is affected: `circ.out` for `outCirc` is correct, and `power3.out`/`power3.in` are our own
-choices rather than IX2 translations.
+| file | change |
+|---|---|
+| `lib/motion/tokens.ts` | `EASE.quad` and the `IX2_EASE` comment table |
+| `tools/verify/motion.config.ts` | `SPEC_EASE.quad`, and both `loader.enter` ease assertions |
+| `lib/motion/useSiblingDim.ts` | the §21.1 provenance table in its doc comment |
+| `docs/spec/10-design-system.md` §5 | the `EASE` block and the Webflow mapping |
+| `docs/spec/20-components-and-motion.md` §1, §21 | the loader timeline and the mapping table |
+| `docs/spec/60-architecture-and-build.md` §8 | the fidelity-verification easing map |
+| `docs/build/02-VERIFICATION.md` §2 | the seeded `loader.enter` example |
+
+`EASE.quad` and `EASE.inOut` now hold the same value. That is correct, not a duplicate to be
+tidied away — Webflow's `inOutQuad`, `easeInOut` and `ease` are all quadratic-in-out curves
+within a hair of each other. The two names are kept apart because they record different
+provenance, and a note saying so sits next to both definitions so nobody collapses them.
+
+Nothing else in `EASE` was affected: `circ.out` for `outCirc` is correct, and `power3.out` /
+`power3.in` are our own choices rather than IX2 translations.
+
+**Needs:** Nothing. Two live consumers were re-verified after the change — `loader.enter` (both
+tweens) and the footer sibling-dim, which still lands on exactly 0.3.

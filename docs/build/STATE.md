@@ -13,10 +13,10 @@ Last updated: **2026-08-25** · by: **phase 1 session (Opus)** · commit: `83ff9
 > are built, mounted in the root layout and verified. The harness gained a behaviour layer that
 > drives the real interface. **Phase 2 (brand & 3D hero) is next and unclaimed — it is a GATE.**
 >
-> ⚠ **One open decision blocks nothing but should be settled in phase 2: I-017.** The spec
-> translates Webflow's `inOutQuad` to GSAP's `power2.inOut`, which is cubic, not quadratic.
-> Every `[ix2] inOutQuad` timeline is one power too strong. Three-line fix; gets more expensive
-> every phase.
+> Two decisions from Sayandeep were applied *after* the phase tag, on `fix/i-017-easing`:
+> **I-017 is resolved** — `EASE.quad` is now `power1.inOut`, because GSAP's `power2` is cubic
+> where Webflow's `inOutQuad` is quadratic — and the **contact details are real**:
+> `sayandeepmondal1013@gmail.com`, no physical address. No open decisions block phase 2.
 
 | | |
 |---|---|
@@ -104,7 +104,7 @@ The honest record of what has actually been *proven*, as distinct from what has 
 | Colour tokens | ✅ | `verify:tokens` — all 26, incl. alpha round-trip |
 | Type scale | ✅ | `verify:tokens` — 13 steps at 1512, 8 at 390 (h1-sm added in phase 1) |
 | Display weight never > 400 | ✅ | `verify:tokens` every-match on `[data-t^=h], [data-t^=p]` |
-| Motion durations & eases | ⚠️ | `verify:motion` — tables and CSS mirrors verified. **But see I-017: `EASE.quad` is cubic where the source is quadratic.** The table is self-consistent; its translation from IX2 is not. |
+| Motion durations & eases | ✅ | `verify:motion` — tables and CSS mirrors verified, and the IX2 translation corrected (I-017): `EASE.quad` is `power1.inOut`, which is what Webflow's `inOutQuad` actually is. |
 | Timeline shapes | ✅ | 4 registered and asserted — `loader.enter`, `loader.exit`, `contact.open`, `button.icon` — including every resolved position parameter |
 | matchMedia gating at ≤991 | ✅ | `verify:motion` asserted inactive @991 / active @1512, **and** the footer sibling-dim asserted inactive at 991 through a real hover |
 | Reverse discipline (1.2 / 1.5) | ✅ | behaviour checks, through the real close and mouseleave paths |
