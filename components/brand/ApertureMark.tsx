@@ -15,18 +15,21 @@
  * The numbers below are derived from those ratios rather than typed in, so the
  * mark stays correct at any viewBox and the spec is legible in the code.
  *
- * ⚠ The concept is not yet user-approved — 50-brand-and-3d.md §5 makes approval a
- * precondition, and phase 2 is the gate that does it. Everything brand-shaped is
- * confined to components/brand/ so replacing it is two files.
+ * ✓ Approved by Sayandeep at the phase-2 brand gate, 2026-08-26, over the three
+ * alternates in 50-brand-and-3d.md §1. See D-010.
  *
- * Two notes on what the spec does not say:
+ * One note on what the spec does not say, and one on a value it now does:
  *
  *  · The spec says the mark is drawn with `fill="currentColor"`. A ring and six
  *    ticks are drawn here with `stroke="currentColor"` instead — the same
  *    inheritance, far less path arithmetic, and it keeps the ratios visible.
- *  · The spec gives no stroke weight for the ticks. They are drawn at half the
- *    ring's weight; at the ring's own weight a tick 1/6-of-a-radius long renders
- *    as a square blob rather than a blade. See I-009.
+ *  · The tick stroke weight was missing from the spec (I-009) and this file chose
+ *    half the ring's weight provisionally. That choice was put to Sayandeep at the
+ *    gate against two-thirds and full, rendered side by side at 48px and 16px, and
+ *    half was confirmed: it is the only one where six separate blades stay
+ *    countable at favicon size. It is now a **specced** value — 50-brand-and-3d.md
+ *    §1 carries it — so under CLAUDE.md non-negotiable §1 it may not be adjusted
+ *    without logging an issue. I-009 is closed.
  */
 
 const SIZE = 48;
@@ -41,6 +44,7 @@ const INNER = R - RING_STROKE / 2;
 const TICK = R / 6;
 /** Rotated off-radial so six ticks read as a mechanism, not a compass rose. */
 const OFF_RADIAL = 8;
+/** Half the ring's weight — spec §1, settled at the phase-2 gate. See I-009. */
 const TICK_STROKE = RING_STROKE / 2;
 
 const TICKS = Array.from({ length: 6 }, (_, i) => i * 60);

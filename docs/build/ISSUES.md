@@ -32,18 +32,18 @@ Newest last. **Owner** is the phase that should resolve it, not the phase that f
 | I-006 | `h1` tracking is not stepped down with `h1` size | 🟢 resolved in 1 | — |
 | I-007 | The `small` (≤479) breakpoint has no values | 🟡 worked around | 3 |
 | I-008 | Next 15.5 pulls transitively vulnerable postcss and sharp | 🟡 worked around | 12 |
-| I-009 | The aperture mark's tick stroke weight is unspecified | 🟡 worked around | **2** |
+| I-009 | The aperture mark's tick stroke weight is unspecified | 🟢 resolved in 2 | — |
 | I-010 | `loader.enter` was seeded at 1.0s; IX2 says 0.6s | 🟢 resolved in 1 | — |
 | I-011 | The mobile step-down for h3–h6 does not match tonik | 🔴 open | **3** |
 | I-012 | tonik's nav link padding is asymmetric | 🟡 worked around | any |
 | I-013 | The footer wordmark fills its column on tonik; ours is `14vw` | 🟡 worked around | 12 |
-| I-014 | The footer's five service icons are placeholder art | 🟡 worked around | 2 or 10 |
+| I-014 | The footer's five service icons are placeholder art | 🟡 worked around | 10 |
 | I-015 | The contact form's options and its gif have no source | 🟡 part-resolved | user, 10, 12 |
 | I-016 | `'1rem top'` / `'30rem top'` are pixels — ScrollTrigger has no rem | 🟢 resolved in 1 | — |
 | I-017 | `inOutQuad → power2.inOut` is wrong; GSAP's `power2` is cubic | 🟢 resolved in 1 | — |
 
-**Nothing open blocks phase 2.** I-009 and I-014 are both brand-shaped and cheapest to settle in
-the same conversation that approves the mark.
+**Nothing open blocks phase 2.** I-009 and I-014 were both settled in the conversation that
+approved the mark, on 2026-08-26 — I-009 resolved, I-014 explicitly deferred to phase 10.
 
 ---
 
@@ -210,7 +210,7 @@ Re-check at phase 12 before launch.
 
 ---
 
-## I-009 · The aperture mark's tick stroke weight is unspecified  🟡
+## I-009 · The aperture mark's tick stroke weight is unspecified  🟢
 
 **Found:** phase 01, 2026-08-25 · **Area:** `50-brand-and-3d.md` §1 The mark
 
@@ -224,8 +224,13 @@ a tick that short renders as a square blob rather than a retracted blade.
 Both numbers are derived from the spec's ratios at the top of that file, so changing the choice is
 one constant.
 
-**Needs:** Phase 2 is the brand gate and has to show the mark to the user anyway. Settle it there
-and write the number into the spec.
+**Resolved:** phase 02, 2026-08-26. Sayandeep chose **half the ring's weight** — 1/24 of the
+diameter — at the brand gate, taking the recommendation. Half is the only one of the three
+candidates at which six separate blades stay countable at 16px; at the ring's own weight a tick
+1/6-of-a-radius long is nearly as wide as it is long and renders as a square blob. All three were
+rendered side by side at 48px and 16px so the choice was made by eye rather than from a
+description. **No code change** — the provisional value was the chosen one. The number is now
+written into `50-brand-and-3d.md` §1, which no longer omits it.
 
 ---
 
@@ -336,8 +341,10 @@ minimal geometric marks drawn to fill the slot, not a designed set.
 **Workaround:** `components/ui/ServiceIcon.tsx` — one file, five paths on a 20×20 grid at the
 same 1.5-unit stroke as the aperture. Replacing them is one edit and touches nothing else.
 
-**Needs:** Real icons. Phase 2 owns the brand and phase 10 owns assets; either could take it.
-Not blocking anything.
+**Needs:** Real icons. **Phase 10.** Put to Sayandeep at the phase-2 brand gate on 2026-08-26
+alongside the mark, since phase 2 could equally have taken it; he chose to leave them until the
+assets phase. The owner column is now 10 rather than "2 or 10", and phase 2 will not raise it
+again.
 
 ---
 

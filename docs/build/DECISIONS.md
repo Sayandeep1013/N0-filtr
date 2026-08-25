@@ -235,3 +235,51 @@ different way, and it would have to be found and replaced rather than simply app
 swap and the §9 fill overlay already asserted. If phase 2's gate rejects the aperture, the
 replacement is `ApertureMark.tsx` and `Wordmark.tsx` and nothing else — every consumer takes
 `currentColor` and sizes from its container.
+
+---
+
+## D-010 · The Open Aperture is the mark; the gate was cleared with a rendered sheet
+
+**Phase:** 2 · **Date:** 2026-08-26 · **Status:** active
+
+**Context:** `50-brand-and-3d.md` §5 makes user approval a precondition for the 3D hero, and
+`01-PHASES.md` marks T2.1 **"STOP. Present to user. Do not proceed without approval."** Phase 2
+is a gate, so everything after T2.1 was blocked on a decision that is Sayandeep's to make —
+brand is a non-technical decision under CLAUDE.md's ground rules.
+
+Two things made the presentation unusual. The mark already existed, because phase 1 built it
+under D-009 — the loader had nothing to render without a glyph. And the *concept* still needed
+approving even though the *drawing* was already in three shipped components.
+
+**Decision:** Present the mark as a published sign-off sheet rather than as a static render, and
+generate every glyph on that sheet from the same four ratios `ApertureMark.tsx` uses rather than
+redrawing them. The sheet is set in the project's own tokens and in the real General Sans and
+IBM Plex Mono, inlined from `app/fonts/`.
+
+Two consequences follow from generating rather than redrawing. The approved drawing and the
+shipping drawing **cannot drift apart** — there is no second source. And the I-009 tick-weight
+options could be rendered as live variants of one function at both 48px and 16px, so the choice
+was made by eye instead of from a description.
+
+Setting it in the real faces is not a nicety: a wordmark whose whole specification is
+`General Sans 400 / -0.02em / 0.22em word gap` cannot be approved in a substitute face, and the
+0.22em gap is invisible as a decision unless you can see the two words set.
+
+**Sayandeep's answers, 2026-08-26:**
+
+1. **The Open Aperture, approved** over the three alternates in §1.
+2. **I-009 — half the ring's weight**, taking the recommendation. Resolved; written into the
+   spec, which had omitted it. No code change: the provisional value was the chosen one.
+3. **I-014 — the footer service icons stay placeholder until phase 10.** Phase 2 owns the brand
+   and could have taken them; he chose not to spend the phase on them.
+
+**Alternatives:** A static PNG render of the assembly, which §5 point 2 literally asks for — but
+the 3D assembly does not exist yet, and rendering the 2D mark to a bitmap to approve a vector is
+a worse artefact than the vector. Asking in prose with no visual, which is how a brand gets
+approved by someone who cannot see it. Building the hero first and asking afterwards, which is
+the failure mode the gate exists to prevent.
+
+**Consequence:** T2.2–T2.9 are unblocked. The 3D assembly still owes its **own** sign-off — the
+phase-2 acceptance criteria require a screen recording of the hero before phase 3 starts, and
+that is a second gate, not the same one. The tick weight is now a specced value, so it falls
+under CLAUDE.md non-negotiable §1 like any other: it may not be silently adjusted.
