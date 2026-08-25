@@ -370,3 +370,64 @@ already correct. The **harness assertion** was wrong: it tested 300px/700px arou
 times further down the page than tonik's, and every phase that touches the navbar will be tempted
 to. The note now lives in `behaviour.config.ts` next to the assertion, in
 `20-components-and-motion.md` §2 next to the code, and here.
+
+---
+
+## I-017 · `inOutQuad → power2.inOut` is wrong. GSAP's `power2` is cubic.  🔴
+
+**Found:** phase 01, 2026-08-25 · **Area:** `20-components-and-motion.md` §21 easing table,
+`10-design-system.md` §5 `EASE.quad`, `lib/motion/tokens.ts` `IX2_EASE`
+
+**Problem:** The spec states, twice and emphatically, that *"GSAP's `power2.inOut` is the exact
+equivalent of Webflow's `inOutQuad`"*. It is not. GSAP's `powerN` aliases are offset by one from
+the Penner names:
+
+```js
+// node_modules/gsap/gsap-core.js:1526
+_forEachName("Linear,Quad,Cubic,Quart,Quint,Strong", function (name, i) {
+  var power = i < 5 ? i + 1 : i;
+  _insertEase(name + ",Power" + (power - 1), …Math.pow(p, power)…);
+});
+```
+
+| i | Penner name | exponent | GSAP alias |
+|---|---|---|---|
+| 0 | Linear | 1 | Power0 |
+| 1 | **Quad** | **2** | **Power1** |
+| 2 | Cubic | 3 | Power2 |
+| 3 | Quart | 4 | Power3 |
+| 4 | Quint | 5 | Power4 |
+
+`Quad === Power1`. `power2` is **cubic**, one power too strong.
+
+**Confirmed by scrubbing our own loader** rather than by reading the table. Driving
+`loader.enter` to 25% put the panel at `-75px` of a 1200px sweep — 6.25%, which is `4p³` (cubic
+in-out) exactly. Quadratic in-out would be `2p²` = 12.5% = `-150px`. The mark's opacity at the
+same instant read `0.7891`, again cubic to four decimals.
+
+**The token is named `quad`.** GSAP even ships `quad.inOut` as an alias for `power1.inOut`. The
+token's *name* and the recovered IX2 value agree with each other; only the transcribed *value*
+disagrees with both. That reads like a slip, not a decision.
+
+**Impact:** every `[ix2] inOutQuad` timeline on the site accelerates harder and settles later
+than tonik's. In this phase that is `loader.enter` (both tweens) and the footer sibling-dim. It
+also reaches §21.7's filter dropdown in phase 7, and every later phase that adds an inOutQuad
+timeline inherits it.
+
+There is a second oddity that points the same way: the spec maps `easeInOut` and `ease` to
+`power1.inOut` and `inOutQuad` to `power2.inOut`, which would make Webflow's `inOutQuad` sharper
+than its `easeInOut`. In Webflow those two are near-identical curves.
+
+**Workaround:** **None — left exactly as specced.** `EASE.quad` is still `power2.inOut`,
+`SPEC_EASE.quad` still asserts it, and `verify:motion` is green against it. Protocol §4 is
+explicit that a value believed wrong is logged and left, and this one is a named token in the
+design-system table that phase 0 asserted and later phases will build on.
+
+**Needs:** A decision from Sayandeep. **Recommendation: change `EASE.quad` to `power1.inOut`.**
+The evidence that the transcription slipped is strong and the fidelity cost of leaving it is real.
+
+It is a three-line change today — `lib/motion/tokens.ts`, `tools/verify/motion.config.ts`
+`SPEC_EASE`, and the two mapping tables in the specs — and it gets more expensive with every
+phase that adds an inOutQuad timeline. **Cheapest to settle in phase 2.** Nothing else in
+`EASE` is affected: `circ.out` for `outCirc` is correct, and `power3.out`/`power3.in` are our own
+choices rather than IX2 translations.

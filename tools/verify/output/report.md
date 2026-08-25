@@ -1,10 +1,152 @@
 # Verification report
-Run: 2026-08-25T15:33:57.514Z · Phase 01 · commit `8b23459` · branch `phase/01-chrome`
+Run: 2026-08-25T15:59:14.490Z · Phase 01 · commit `bf46ec0` · branch `phase/01-chrome`
 
 ## Summary
 ```
+tokens  ✅ 136/136
 motion  ⚠️ 129/132  (3 pending, owed by later phases)
+visual  ⚠️ reviewed by agent — see judgement
+budget  ✅ 4/4
 ```
+
+## tokens
+
+✅ [data-t="h1"] @390 font-size = 40.000px
+✅ [data-t="h1"] @390 line-height = 40.000px
+✅ [data-t="h1"] @390 letter-spacing = -0.800px
+✅ [data-t="h1"] @390 font-weight = 400
+✅ [data-t="h1-sm"] @390 font-size = 40.000px
+✅ [data-t="h1-sm"] @390 line-height = 40.000px
+✅ [data-t="h1-sm"] @390 letter-spacing = -0.800px
+✅ [data-t="h1-sm"] @390 font-weight = 400
+✅ [data-t="h2"] @390 font-size = 40.000px
+✅ [data-t="h2"] @390 line-height = 40.000px
+✅ [data-t="h2"] @390 letter-spacing = normal
+✅ [data-t="h2"] @390 font-weight = 400
+✅ [data-t="h3"] @390 font-size = 24.000px
+✅ [data-t="h3"] @390 line-height = 28.000px
+✅ [data-t="h3"] @390 letter-spacing = normal
+✅ [data-t="h3"] @390 font-weight = 400
+✅ [data-t="h4"] @390 font-size = 24.000px
+✅ [data-t="h4"] @390 line-height = 28.000px
+✅ [data-t="h4"] @390 letter-spacing = normal
+✅ [data-t="h4"] @390 font-weight = 400
+✅ [data-t="label-big"] @390 font-size = 14.000px
+✅ [data-t="label-big"] @390 line-height = 14.000px
+✅ [data-t="label-big"] @390 letter-spacing = -0.280px
+✅ [data-t="label-big"] @390 font-weight = 400
+✅ [data-t="label-big"] @390 text-transform = uppercase
+✅ [data-t="label"] @390 font-size = 12.000px
+✅ [data-t="label"] @390 line-height = 12.000px
+✅ [data-t="label"] @390 letter-spacing = -0.240px
+✅ [data-t="label"] @390 font-weight = 400
+✅ [data-t="label"] @390 text-transform = uppercase
+✅ [data-t="label-sm"] @390 font-size = 8.000px
+✅ [data-t="label-sm"] @390 line-height = 8.000px
+✅ [data-t="label-sm"] @390 letter-spacing = -0.160px
+✅ [data-t="label-sm"] @390 font-weight = 400
+✅ [data-t="label-sm"] @390 text-transform = uppercase
+✅ [data-probe="gutter"] @390 padding-left = 20.000px
+✅ [data-probe-length="section-y"] @390 width = 64.000px
+✅ html @1280 font-size = 16.000px
+✅ html @1440 font-size = 16.000px
+✅ html @1441 font-size = 16.006px
+✅ html @1512 font-size = 16.450px
+✅ [data-t="h1"] @1512 font-size = 98.700px
+✅ [data-t="h1"] @1512 line-height = 98.700px
+✅ [data-t="h1"] @1512 letter-spacing = -2.467px
+✅ [data-t="h1"] @1512 font-weight = 400
+✅ [data-t="h1-sm"] @1512 font-size = 53.462px
+✅ [data-t="h1-sm"] @1512 line-height = 53.462px
+✅ [data-t="h1-sm"] @1512 letter-spacing = normal
+✅ [data-t="h1-sm"] @1512 font-weight = 400
+✅ [data-t="h2"] @1512 font-size = 82.250px
+✅ [data-t="h2"] @1512 line-height = 82.250px
+✅ [data-t="h2"] @1512 letter-spacing = normal
+✅ [data-t="h2"] @1512 font-weight = 400
+✅ [data-t="h3"] @1512 font-size = 32.900px
+✅ [data-t="h3"] @1512 line-height = 41.125px
+✅ [data-t="h3"] @1512 letter-spacing = normal
+✅ [data-t="h3"] @1512 font-weight = 400
+✅ [data-t="h4"] @1512 font-size = 32.900px
+✅ [data-t="h4"] @1512 line-height = 32.900px
+✅ [data-t="h4"] @1512 letter-spacing = normal
+✅ [data-t="h4"] @1512 font-weight = 400
+✅ [data-t="h5"] @1512 font-size = 24.675px
+✅ [data-t="h5"] @1512 line-height = 28.788px
+✅ [data-t="h5"] @1512 letter-spacing = normal
+✅ [data-t="h5"] @1512 font-weight = 400
+✅ [data-t="h6"] @1512 font-size = 16.450px
+✅ [data-t="h6"] @1512 line-height = 20.563px
+✅ [data-t="h6"] @1512 letter-spacing = normal
+✅ [data-t="h6"] @1512 font-weight = 400
+✅ [data-t="p-big"] @1512 font-size = 20.563px
+✅ [data-t="p-big"] @1512 line-height = 32.900px
+✅ [data-t="p-big"] @1512 letter-spacing = normal
+✅ [data-t="p-big"] @1512 font-weight = 400
+✅ [data-t="p"] @1512 font-size = 16.450px
+✅ [data-t="p"] @1512 line-height = 20.563px
+✅ [data-t="p"] @1512 letter-spacing = normal
+✅ [data-t="p"] @1512 font-weight = 400
+✅ [data-t="p-sm"] @1512 font-size = 10.281px
+✅ [data-t="p-sm"] @1512 line-height = 12.338px
+✅ [data-t="p-sm"] @1512 letter-spacing = normal
+✅ [data-t="p-sm"] @1512 font-weight = 400
+✅ [data-t="label-big"] @1512 font-size = 14.394px
+✅ [data-t="label-big"] @1512 line-height = 14.394px
+✅ [data-t="label-big"] @1512 letter-spacing = -0.288px
+✅ [data-t="label-big"] @1512 font-weight = 400
+✅ [data-t="label-big"] @1512 text-transform = uppercase
+✅ [data-t="label"] @1512 font-size = 12.338px
+✅ [data-t="label"] @1512 line-height = 12.338px
+✅ [data-t="label"] @1512 letter-spacing = -0.247px
+✅ [data-t="label"] @1512 font-weight = 400
+✅ [data-t="label"] @1512 text-transform = uppercase
+✅ [data-t="label-sm"] @1512 font-size = 8.225px
+✅ [data-t="label-sm"] @1512 line-height = 8.225px
+✅ [data-t="label-sm"] @1512 letter-spacing = -0.165px
+✅ [data-t="label-sm"] @1512 font-weight = 400
+✅ [data-t="label-sm"] @1512 text-transform = uppercase
+✅ [data-probe-colour="black"] @1512 background-color = rgb(33, 33, 33)
+✅ [data-probe-colour="white"] @1512 background-color = rgb(239, 239, 239)
+✅ [data-probe-colour="grey-900"] @1512 background-color = rgb(46, 46, 46)
+✅ [data-probe-colour="grey-800"] @1512 background-color = rgb(59, 59, 59)
+✅ [data-probe-colour="grey-700"] @1512 background-color = rgb(115, 115, 115)
+✅ [data-probe-colour="grey-600"] @1512 background-color = rgb(224, 224, 224)
+✅ [data-probe-colour="white-30"] @1512 background-color = rgba(255, 255, 255, 0.3)
+✅ [data-probe-colour="white-10"] @1512 background-color = rgba(255, 255, 255, 0.1)
+✅ [data-probe-colour="white-50"] @1512 background-color = rgba(239, 239, 239, 0.5)
+✅ [data-probe-colour="black-50"] @1512 background-color = rgba(33, 33, 33, 0.5)
+✅ [data-probe-colour="black-70"] @1512 background-color = rgba(33, 33, 33, 0.7)
+✅ [data-probe-colour="bg-primary"] @1512 background-color = rgb(33, 33, 33)
+✅ [data-probe-colour="bg-secondary"] @1512 background-color = rgb(46, 46, 46)
+✅ [data-probe-colour="bg-tertiary"] @1512 background-color = rgb(59, 59, 59)
+✅ [data-probe-colour="bg-alternate"] @1512 background-color = rgb(239, 239, 239)
+✅ [data-probe-colour="bg-transparent"] @1512 background-color = rgba(255, 255, 255, 0.1)
+✅ [data-probe-colour="text-primary"] @1512 background-color = rgb(239, 239, 239)
+✅ [data-probe-colour="text-secondary"] @1512 background-color = rgb(115, 115, 115)
+✅ [data-probe-colour="text-alternate"] @1512 background-color = rgb(33, 33, 33)
+✅ [data-probe-colour="border-primary"] @1512 background-color = rgba(255, 255, 255, 0.3)
+✅ [data-probe-colour="border-alternate"] @1512 background-color = rgb(33, 33, 33)
+✅ [data-probe-colour="success"] @1512 background-color = rgb(2, 122, 72)
+✅ [data-probe-colour="success-bg"] @1512 background-color = rgb(236, 253, 243)
+✅ [data-probe-colour="error"] @1512 background-color = rgb(180, 35, 24)
+✅ [data-probe-colour="error-bg"] @1512 background-color = rgb(254, 243, 242)
+✅ [data-probe-colour="accent"] @1512 background-color = rgb(33, 33, 33)
+✅ [data-t^="h"], [data-t^="p"] @1512 font-weight = 20 elements, all 400
+✅ [data-probe="gutter"] @1512 padding-left = 41.125px
+✅ [data-probe="gutter"] @1512 padding-right = 41.125px
+✅ [data-probe-length="grid-gap"] @1512 width = 24.672px
+✅ [data-probe-length="section-y"] @1512 width = 131.594px
+✅ [data-probe-length="content"] @1512 width = 1429.750px
+✅ [data-probe-length="col"] @1512 width = 96.516px
+✅ [data-t="h1"] @1512 painted-with = General Sans Variable
+✅ [data-t="label"] @1512 painted-with = IBM Plex Mono
+✅ body @1512 (/) background-color = rgb(33, 33, 33)
+✅ body @1512 (/) color = rgb(239, 239, 239)
+✅ html @1512 (/) scrollbar-width = none
+✅ html @1920 font-size = 19.000px
+✅ html @2560 font-size = 23.000px
 
 ## motion
 
@@ -143,3 +285,93 @@ motion  ⚠️ 129/132  (3 pending, owed by later phases)
 
 > Pending entries are timelines the spec names but no phase has built yet. The phase that builds one flips `pending: false` in motion.config.ts.
 > Behaviour checks drive the real interface — scroll, hover, click, Escape — rather than reading a registered timeline. They are the only instrument that catches an unwired handler, a matchMedia gate that leaks below 992, or a reverse running at the wrong timeScale. See behaviour.config.ts.
+
+## visual
+
+Contact sheet: `tools/verify/output/contact-sheet.html`
+
+**Agent judgement:** Phase 1. Eight captures at 1512 and 390: footer, contact panel, mobile menu, and the phase-0
+type scale carried forward. Three have tonik references — footer (s11), contact panel (s12) —
+and the composition judgement below is against those. The homepage above the footer is still
+blank, so there is no hero comparison to make; that is owed by phase 3.
+
+FOOTER @1512 vs s11-footer.png. The composition lands. Both start one gutter (41px) from the
+left; both put the services list at the same height under the hairline; both run the enquiry
+column from x≈1238 to the right gutter with the social bars flush to it. The wordmark is the
+test I expected to fail and did not: "no filter" at 14vw ends at x≈737 against tonik’s 737,
+because 14vw is a proportion and both words happen to occupy the same fraction of the line.
+Three differences, all deliberate and all content: we have one social bar where they have four,
+"—" where they have a three-line address, and five service rows whose icons are placeholders
+(I-014) — theirs are drawn, ours are geometric stand-ins and read thinner. The gap between the
+services block and the tagline is larger on theirs because their enquiry column is taller and
+stretches the row; that closes on its own when the address and socials are real.
+
+One real error found here and fixed: the meta row had the year before the mark. tonik puts the
+mark first, then 2026, then PRIVACY POLICY hard right. Corrected, re-captured, confirmed.
+
+CONTACT PANEL @1512 vs s12-contact.png. The sidebar geometry is right — 56% of the viewport,
+flush right, full height, over a --black-50 scrim with the page legible behind it. The heading,
+lead and divider stack at the same rhythm as theirs and the divider lands at the same place
+relative to the first field.
+
+Looking at this pair is what caught three form errors, none of which any assertion would have:
+the fieldsets were rendering their native browser border with the legend notched into it; the
+chips were small rounded pills huddled at the left where tonik’s are square and fill the row in
+five and four equal columns; and every text field carried a visible label above it where tonik
+uses the placeholder as the label. All three fixed. This is the second phase running where the
+visual check found what the assertions could not — the 132 token assertions were green
+throughout.
+
+One difference left standing: their fields are ~51px tall against our ~40px, so their form runs
+about 170px longer. That is roughly 1.125rem of vertical input padding against our 0.75rem. I
+have not changed it — 51px is measured off a screenshot rather than off computed styles, 0.75rem
+is the value the rest of the site actually uses, and guessing a third number would be worse than
+either. Noted for whoever next opens tonik with a panel on screen.
+
+MOBILE @390. The footer collapses to one column in the right order and the gutter steps to
+1.25rem. The burger is a clean "+" of two 1px strokes, and opening it slides the panel down and
+rotates the vertical stroke onto the horizontal — which makes a dash, not an ×. That is what
+their code does and what their site does; it looks like a bug and is not.
+
+The 390 footer is where I-013 becomes obvious rather than theoretical. Our wordmark at 14vw is
+~180px of a 350px column; tonik’s fills the column, because theirs is an SVG scaled to 100%
+width and only *happens* to equal 14vw at 1512. Desktop is right and mobile is visibly under-
+scaled. Left as specced — 14vw is one of only two rem exceptions CLAUDE.md names — and logged.
+
+TYPE SCALE @390. Re-checked deliberately, because this phase changed it. h1 and h1-sm now render
+at the same size, which resolves the inversion phase 0 flagged as I-005: below 768 tonik has no
+separate secondary hero step at all. h1 no longer reads tighter than everything around it
+(I-006). The three mono label steps are unchanged from 1512, which is the property most likely
+to be broken by a careless mobile override later.
+
+⏳ hero — owed by phase 3
+⏳ stack-wall — owed by phase 3
+⏳ works-a — owed by phase 4
+⏳ services — owed by phase 5
+⏳ cta — owed by phase 5
+⏳ cs-hero — owed by phase 6
+⏳ service — owed by phase 7
+✅ type-scale @1512 = captured, no reference
+✅ footer @1512 = captured, reference paired
+✅ contact-panel @1512 = captured, reference paired
+✅ nav-menu @1512 = captured, no reference
+✅ type-scale @390 = captured, no reference
+✅ footer @390 = captured, reference paired
+✅ contact-panel @390 = captured, reference paired
+✅ nav-menu @390 = captured, no reference
+ℹ️ contact sheet = tools/verify/output/contact-sheet.html
+
+## budget
+
+ℹ️ matter-js absent from the eagerly-loaded bundle — vacuous: matter-js is not installed yet
+ℹ️ three absent from the eagerly-loaded bundle — vacuous: three is not installed yet
+ℹ️ plyr absent from the eagerly-loaded bundle — vacuous: plyr is not installed yet
+ℹ️ all built chunks, gzipped (not a per-route figure) = 307.5KB
+✅ JS on / (transferred) = 170.0KB / 190KB
+✅ home page total weight = 234.6KB / 1800KB
+✅ zero network font requests = both faces self-hosted
+✅ CLS (local, unthrottled) = 0.0018
+ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 100ms
+
+> Poster and reel budgets become binding in phase 10, when assets exist.
+> Lighthouse scores are a phase 12 deliverable via mcp__chrome-devtools__lighthouse_audit; the figures here are local and unthrottled.

@@ -110,20 +110,20 @@ export function ContactForm() {
     <form className={s.form} onSubmit={onSubmit} noValidate={false}>
       <div className={s.row}>
         <div className={s.field}>
-          <label data-t="label" className={s.label} htmlFor="contact-name">
+          <label className="visually-hidden" htmlFor="contact-name">
             Name
           </label>
           <input
             id="contact-name"
             name="name"
             className={cx(s.input, 'form_input')}
-            placeholder="Your name"
+            placeholder="Name"
             autoComplete="name"
             required
           />
         </div>
         <div className={s.field}>
-          <label data-t="label" className={s.label} htmlFor="contact-company">
+          <label className="visually-hidden" htmlFor="contact-company">
             Company
           </label>
           <input
@@ -137,7 +137,7 @@ export function ContactForm() {
       </div>
 
       <div className={s.field}>
-        <label data-t="label" className={s.label} htmlFor="contact-email">
+        <label className="visually-hidden" htmlFor="contact-email">
           Email
         </label>
         <input
@@ -145,7 +145,7 @@ export function ContactForm() {
           name="email"
           type="email"
           className={cx(s.input, 'form_input')}
-          placeholder="you@company.com"
+          placeholder="Email"
           autoComplete="email"
           required
         />
@@ -159,26 +159,26 @@ export function ContactForm() {
       />
 
       <div className={s.field}>
-        <label data-t="label" className={s.label} htmlFor="contact-project">
+        <label className="visually-hidden" htmlFor="contact-project">
           Tell us about your project
         </label>
         <textarea
           id="contact-project"
           name="project"
           className={cx(s.textarea, 'form_input')}
-          placeholder="What are you building?"
+          placeholder="Tell us about your project"
           required
         />
       </div>
 
       <div className={s.field}>
-        <label data-t="label" className={s.label} htmlFor="contact-budget">
+        <label className="visually-hidden" htmlFor="contact-budget">
           What budget do you have?
         </label>
         <div className={s.selectWrap}>
           <select id="contact-budget" name="budget" className={cx(s.select, 'form_input')} defaultValue="">
             <option value="" disabled>
-              Select a range
+              What budget do you have?
             </option>
             {BUDGETS.map((budget) => (
               <option key={budget} value={budget}>

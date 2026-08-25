@@ -28,7 +28,9 @@
 
 .gif {
   position: absolute;
-  bottom: 0;
+  /* One gutter off both edges — measured at 41px from the left and 42px from
+     the bottom at a 16.45px root. */
+  bottom: var(--gutter);
   left: var(--gutter);
   width: 28rem;
   max-width: 40vw;

@@ -71,8 +71,17 @@ async function measureHome(browser: Browser, baseUrl: string): Promise<CheckResu
   });
 
   try {
-    await page.goto(`${baseUrl}/`, { waitUntil: 'networkidle' });
+    /* `load` plus a fixed settle, not `networkidle`.
+       `networkidle` stopped resolving on the production build the moment the
+       page had chrome on it — it waits for 500ms with zero connections, which a
+       page with a router, a smooth-scroll loop and ten links does not reliably
+       reach, and Playwright's own docs discourage it for exactly this reason.
+       `load` is deterministic, and the settle covers anything the router fires
+       after it. Router prefetches are deliberately NOT excluded from the totals:
+       a prefetch is weight the visitor actually pays for. */
+    await page.goto(`${baseUrl}/`, { waitUntil: 'load' });
     await page.evaluate(() => document.fonts.ready);
+    await page.waitForTimeout(2000);
 
     const jsBytes = js.reduce((n, r) => n + r.bytes, 0);
     out.push(
@@ -91,6 +100,7 @@ async function measureHome(browser: Browser, baseUrl: string): Promise<CheckResu
         ? pass('zero network font requests', 'both faces self-hosted')
         : fail('zero network font requests', 'none', [...new Set(fontHosts)].join(', ')),
     );
+
 
     /* LCP and CLS off the browser's own observers. Unthrottled and local, so
        these are a regression signal, not a field measurement. */

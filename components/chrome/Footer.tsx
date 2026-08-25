@@ -95,10 +95,11 @@ export function Footer() {
           </div>
 
           <div className={s.meta}>
-            <span data-t="label">{year}</span>
+            {/* Mark first, then the year — the order tonik uses. */}
             <span className={s.markWell}>
               <ApertureMark />
             </span>
+            <span data-t="label">{year}</span>
             <Link href="/privacy" data-t="label" className={s.privacy}>
               Privacy policy
             </Link>

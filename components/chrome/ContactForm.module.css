@@ -16,16 +16,23 @@
   gap: 0.75rem;
 }
 
+/* fieldset brings a border, a padding and a margin of its own, and notches the
+   legend into the border. All three have to go. */
 .field {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  padding: 0;
+  border: 0;
+  margin: 0;
 }
 
-.legend,
-.label {
+/* The chip groups are the only fields with a visible label. The text inputs
+   carry theirs as the placeholder, the way tonik's do — §3's table says
+   "mono uppercase placeholder", and their form has no label row at all. */
+.legend {
+  padding: 0;
   color: var(--text-alternate);
-  opacity: 0.6;
 }
 
 .input,
@@ -76,18 +83,21 @@
   color: var(--text-alternate);
 }
 
+/* The chips fill the row rather than sitting as a huddle of pills on the left:
+   on tonik the five service chips are five equal columns spanning the full
+   sidebar width, and the four referral chips are four. An equal flex-basis
+   reproduces that at desktop and wraps at mobile. Gap measured at ~10px off
+   docs/research/screens/s12-contact.png. */
 .chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  padding: 0;
-  border: 0;
-  margin: 0;
+  gap: 0.625rem;
 }
 
 .chip {
-  padding: 0.5rem 0.75rem;
-  border-radius: 999px;
+  flex: 1 1 8rem;
+  padding: 0.75rem;
+  /* Square, not a pill — the pill radius belongs to the §9 button, not here. */
   background-color: var(--grey-600);
   color: var(--text-alternate);
   font-family: var(--family-mono);
