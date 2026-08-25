@@ -283,3 +283,84 @@ the failure mode the gate exists to prevent.
 phase-2 acceptance criteria require a screen recording of the hero before phase 3 starts, and
 that is a second gate, not the same one. The tick weight is now a specced value, so it falls
 under CLAUDE.md non-negotiable §1 like any other: it may not be silently adjusted.
+
+---
+
+## D-011 · `NO FiLTER`, and Creative Development replaces No-Code
+
+**Phase:** 2 · **Date:** 2026-08-26 · **Status:** active
+
+**Context:** Two content changes from Sayandeep, both arriving after the T2.1 gate had already
+cleared and neither of them a technical call. They are recorded together because they came in
+one message and both are corrections to things the build had inherited rather than chosen.
+
+### The wordmark casing
+
+Spec §1 set the wordmark lowercase throughout, reasoning that it matched tonik's own lowercase
+`tonik` and kept the mono labels doing the shouting. Sayandeep asked for `No FiLTER`
+*"…something like that"* — a direction, not a final form.
+
+**Decision:** Render four candidates and let him choose by eye rather than pick one from the
+description. `NO FiLTER`, `No FiLTER`, `No Filter` and `NO FILTER`, each set in the real
+General Sans 400 with the specced `0.22em` word gap, at display size and at the 1.0625rem the
+navbar actually uses. **He chose `NO FiLTER`.**
+
+Both words in caps make the lone lowercase `i` unmistakably deliberate rather than a slip — with
+only `F` capitalised in `No FiLTER`, the odd letter reads as a typo. And it earns its keep: the
+`i` drops a dot into a run of caps, a small void inside the letterform that rhymes with the
+aperture's empty centre. The two halves of the identity now say the same thing.
+
+**The casing is authored as literal text in `Wordmark.tsx`; `text-transform` is `none`.** Not
+`uppercase` — a transform would eat the lowercase `i`, which is the entire device. That is worth
+stating because `uppercase` is the reflex for a caps wordmark and it would silently destroy this
+one.
+
+**Two values were deliberately *not* changed, then measured in the same session.**
+`letter-spacing: -0.02em` and the footer's `14vw` were both verified in phase 1 against the
+lowercase form. Both are specced, so under CLAUDE.md non-negotiable §1 they get measured before
+they get touched. Logged as **I-018**, measured immediately rather than deferred, and **both
+hold** — the footer wordmark fills 82.5% of its column at 1512 and 71.6% at 390 and overflows at
+neither. It grew from ~59% and ~51%, which halves the gap I-013 complains about at no cost.
+
+**The measurement found a real overrun somewhere else: the navbar.** §4 fixes the logo box at
+`4.25rem × 1.25rem` and `flex: none` reserves that width in the nav row, so the box is measured
+and the face size is not — phase 1 had set `font-size: 1rem` because that is what made the
+*lowercase* wordmark fill 4.25rem exactly. Caps measured **4.59rem in a 4.25rem box, an 8%
+overrun into the links group.** `4.25 / 4.59 = 0.926` → `font-size: 0.925rem`, re-measured at
+99.9% of the box at both 1512 and 390. One value moved and it is the fitted one, not the
+measured one. This is the lesson worth carrying: **a casing change is a metrics change**, and
+every box the wordmark sits in had been fitted to the old metrics.
+
+### Service 04
+
+The five services were transcribed from tonik, and slot 04 was **No-Code Development** — "Launch
+10× faster. Conserve capital, validate early." tonik build in Webflow. This site is Next.js with
+hand-written GSAP timelines, a custom GLSL material and a Matter.js floor. Offering a no-code
+service line underneath that is a claim the codebase directly contradicts, and Sayandeep caught
+it.
+
+**Decision: `creative-development` / Creative Development**, chosen over Motion & Interaction,
+AI Products, and dropping to four services. "The web, doing things the web isn't supposed to do."
+
+It is the exact inverse of the slot it replaces, it is the industry's own term for WebGL, scroll
+choreography and physics, and it is **evidenced rather than asserted** — its strongest portfolio
+piece is the site the claim is written on. That matters here: `40-content-model.md` §3 recorded
+slot 04 as having **zero** supporting works, and `30-page-specs.md` already specified a fallback
+for its empty grid. One rename fixes a positioning lie and a content gap at once.
+
+Motion & Interaction was the runner-up and reads as a discipline inside Product Design rather
+than a service beside it. AI Products would have repeated slot 04's original problem — an
+unevidenced service — with a more fashionable word.
+
+**Consequence:** The slug change touches `lib/content/site.ts`, `ServiceIcon.tsx`, and four spec
+files (`20` §17, `30` §/services, `40` §3, `01-PHASES` phase 7). Done in this commit, before
+phase 7 builds five pages against the old name.
+
+The service icon was re-keyed and **redrawn**: the old glyph was stacked blocks clicking
+together, a no-code metaphor that means nothing under the new name. It is a wireframe cube now.
+Still placeholder art like the other four — I-014 stands, and phase 10 still owns the set.
+
+`docs/research/02-content-inventory.md` is left untouched. It records "No-Code Development —
+nothing; no Webflow/no-code work exists", which is the evidence trail that led to this decision.
+Research files are snapshots of what was found; rewriting them to match a later choice would
+destroy the reasoning.

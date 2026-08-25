@@ -178,12 +178,22 @@ Industries: AI, Mobile
 | 01 | `product-design` | Product Design | "Your shortcut from idea to shipped. Where data meets delight." | strong — 8 works |
 | 02 | `branding` | Branding | "Your culture and DNA, visualised." | **thin — 0 works** |
 | 03 | `websites` | Websites | "Turning browsers into believers." | strong — Santioni, RepoLogs |
-| 04 | `no-code` | No-Code Development | "Launch 10× faster. Conserve capital, validate early." | **thin — 0 works** |
+| 04 | `creative-development` | Creative Development | "The web, doing things the web isn't supposed to do." | this site, + phase 11's block pit |
 | 05 | `engineering` | Engineering | "Your technical co-founder. Minus the equity sacrifice." | strongest — 12 works |
 
-Services 02 and 04 are offered per your decision but have no portfolio evidence. Their pages
-lead with the spec table and FAQ; their works grid falls back to studio-wide selected work with
-the honest label "SELECTED WORK ACROSS THE STUDIO".
+> **Service 04 was replaced on 2026-08-26.** It read `no-code` / "No-Code Development" /
+> "Launch 10× faster. Conserve capital, validate early." — tonik's positioning, transcribed
+> along with everything else. tonik build in Webflow; we build in Next.js with hand-written GSAP
+> timelines, a custom GLSL material and a Matter.js floor, so that service line was a claim our
+> own codebase contradicts. Sayandeep replaced it with **Creative Development**. See D-011.
+>
+> It also fixes the evidence problem in the row above: slot 04 had **zero** supporting works,
+> and the replacement's strongest piece of evidence is the site it is written on.
+
+**Service 02 is offered per your decision but has no portfolio evidence.** Its page leads with
+the spec table and FAQ; its works grid falls back to studio-wide selected work with the honest
+label "SELECTED WORK ACROSS THE STUDIO". Service 04 no longer needs that fallback, but it keeps
+it until the works are actually written in phase 10.
 
 **Accordion right-panel content** (OUTPUT / TOOLS) per service — e.g. Product Design:
 OUTPUT — Audit and user tests · User flows · Style guides · Design systems · Interactive

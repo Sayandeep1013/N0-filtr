@@ -1,5 +1,5 @@
 # Verification report
-Run: 2026-08-25T19:28:43.647Z · Phase 02 · commit `63f4490` · branch `main`
+Run: 2026-08-25T20:09:28.607Z · Phase 02 · commit `ef1a5e6` · branch `phase/02-brand-3d`
 
 ## Summary
 ```
@@ -290,64 +290,62 @@ budget  ✅ 4/4
 
 Contact sheet: `tools/verify/output/contact-sheet.html`
 
-**Agent judgement:** Phase 1. Eight captures at 1512 and 390: footer, contact panel, mobile menu, and the phase-0
-type scale carried forward. Three have tonik references — footer (s11), contact panel (s12) —
-and the composition judgement below is against those. The homepage above the footer is still
-blank, so there is no hero comparison to make; that is owed by phase 3.
+**Agent judgement:** Phase 2, T2.1. Eight captures at 1512 and 390. There is still no hero to compare — the 3D
+assembly is the rest of this phase and the homepage is blank above the footer — so this is a
+judgement about the two content changes that landed with the brand gate: the wordmark casing
+and the rename of service 04. Both surfaces are phase-1 components being re-read, not new ones.
 
-FOOTER @1512 vs s11-footer.png. The composition lands. Both start one gutter (41px) from the
-left; both put the services list at the same height under the hairline; both run the enquiry
-column from x≈1238 to the right gutter with the social bars flush to it. The wordmark is the
-test I expected to fail and did not: "no filter" at 14vw ends at x≈737 against tonik’s 737,
-because 14vw is a proportion and both words happen to occupy the same fraction of the line.
-Three differences, all deliberate and all content: we have one social bar where they have four,
-a STUDIO row carrying the locality where they have a three-line street address, and five service
-rows whose icons are placeholders (I-014) — theirs are drawn, ours are geometric stand-ins and
-read thinner. The gap between the services block and the tagline is larger on theirs because
-their enquiry column is taller and stretches the row; that closes when the socials are real.
+THE WORDMARK, NOW `NO FiLTER`. Compared footer-1512 and footer-390 against their pre-change
+captures and against s11-footer.png. The device works: at 14vw the lone lowercase i sits in a
+run of caps as a visible notch with a dot over it, and it reads as deliberate rather than as a
+typo — which was the argument for choosing caps-caps over `No FiLTER`. It survives at navbar
+size too, which was the real risk. I cropped and upscaled the nav wordmark to check: at a
+15.2px face the dot and the shortened stem are both still legible. It does not degrade into
+`NO FILTER`.
 
-Two real errors found here and fixed. The meta row had the year before the mark — tonik puts the
-mark first, then 2026, then PRIVACY POLICY hard right. And the grid was written `3fr 2fr 1fr`,
-which has an `auto` minimum, so the contact email — 312px of unbreakable string against a 311.5px
-track — was quietly widening its own column and taking the space from the other two. Now
-`minmax(0, Nfr)`, verified holding exactly 3:2:1 at 1024, 1200 and 1512. The email wraps instead,
-at a `<wbr>` after the @ so it breaks as `sayandeepmondal1013@` / `gmail.com` rather than
-mid-domain. Both corrected, re-captured, confirmed.
+AND WHAT THE SCREENSHOTS DID NOT SHOW. The nav wordmark was overrunning its box by 8% and I
+could not see it in any capture. `.logo` is `4.25rem` wide with `flex: none`, so an overrun
+does not clip and does not visibly collide — it silently eats into the gap before the links
+group, 5.6px of it at 1512. It turned up only because I measured `getBoundingClientRect` on
+every `.wordmark` instead of trusting the picture: 75.5px of text in a 69.9px box. The box is
+the specced value (§4, measured off tonik) and the face size was the one phase 1 fitted to the
+lowercase form, so the face size took the correction, 1rem → 0.925rem = 4.25/4.59. Re-measured
+at 99.9% of the box at both 1512 and 390. This is the third phase running where the check that
+found the real defect was not the one that was supposed to. MEASURE THE WORDMARK, DO NOT LOOK
+AT IT.
 
-CONTACT PANEL @1512 vs s12-contact.png. The sidebar geometry is right — 56% of the viewport,
-flush right, full height, over a --black-50 scrim with the page legible behind it. The heading,
-lead and divider stack at the same rhythm as theirs and the divider lands at the same place
-relative to the first field.
+THE FOOTER vs s11-footer.png. The composition is unchanged from phase 1's reading and still
+lands — same left gutter, same services height, same enquiry column. One difference is new and
+large enough to state: our wordmark now ends at x=1012.5 where tonik's ends at 737. That is
+275px further right and it is correct. `14vw` is a proportion, our word is longer than `tonik`,
+and it is now in caps; the setting is untouched. It stays inside its own column (1177.8px wide)
+with 165px of slack, so nothing overlaps the enquiry column. It is also a straight improvement
+on I-013: the wordmark fills 82.5% of its column at 1512 against ~59% before, and 71.6% at 390
+against ~51%, which is materially closer to tonik's column-filling SVG at no cost. I-013 is
+amended rather than closed — 71.6% is not 100% — but it is a smaller issue than it was.
 
-Looking at this pair is what caught three form errors, none of which any assertion would have:
-the fieldsets were rendering their native browser border with the legend notched into it; the
-chips were small rounded pills huddled at the left where tonik’s are square and fill the row in
-five and four equal columns; and every text field carried a visible label above it where tonik
-uses the placeholder as the label. All three fixed. This is the second phase running where the
-visual check found what the assertions could not — the 132 token assertions were green
-throughout.
+SERVICE 04, NOW CREATIVE DEVELOPMENT. It renders in three places and I checked all three. The
+footer rail reads `Creative Development` at row 4 with the new wireframe-cube glyph, which sits
+at the same 1.25rem and 0.5 opacity as its four neighbours and does not read heavier or lighter
+than them — it is still placeholder art like the rest of the set (I-014, phase 10), but it no
+longer illustrates a service we do not offer. The old drawing was stacked blocks clicking
+together, which was a no-code metaphor and would have been quietly wrong under the new name.
 
-One difference left standing: their fields are ~51px tall against our ~40px, so their form runs
-about 170px longer. That is roughly 1.125rem of vertical input padding against our 0.75rem. I
-have not changed it — 51px is measured off a screenshot rather than off computed styles, 0.75rem
-is the value the rest of the site actually uses, and guessing a third number would be worse than
-either. Noted for whoever next opens tonik with a panel on screen.
+The contact form picked the rename up on its own, because the chips read from SERVICES rather
+than from a copy. At 1512 `CREATIVE DEVELOPMENT` is the only chip of five that wraps to two
+lines. I looked hard at whether to shorten the label and decided not to: the five chips are a
+grid, all five boxes stay exactly the same height, the wrapped label is centred, and the row
+reads even. Inventing a short form here would also put it at odds with the canonical name in
+SERVICES and in the content model. At 390 the chips are two-up and it fits on one line with
+room, so the wrap is a 1512-only artefact of the longest name in the list.
 
-MOBILE @390. The footer collapses to one column in the right order and the gutter steps to
-1.25rem. The burger is a clean "+" of two 1px strokes, and opening it slides the panel down and
-rotates the vertical stroke onto the horizontal — which makes a dash, not an ×. That is what
-their code does and what their site does; it looks like a bug and is not.
+MOBILE @390. Menu opens, the burger still rotates to a dash rather than an x — phase 1
+established that this is what their code does and it is unchanged. Footer collapses in the same
+order. Nothing regressed.
 
-The 390 footer is where I-013 becomes obvious rather than theoretical. Our wordmark at 14vw is
-~180px of a 350px column; tonik’s fills the column, because theirs is an SVG scaled to 100%
-width and only *happens* to equal 14vw at 1512. Desktop is right and mobile is visibly under-
-scaled. Left as specced — 14vw is one of only two rem exceptions CLAUDE.md names — and logged.
-
-TYPE SCALE @390. Re-checked deliberately, because this phase changed it. h1 and h1-sm now render
-at the same size, which resolves the inversion phase 0 flagged as I-005: below 768 tonik has no
-separate secondary hero step at all. h1 no longer reads tighter than everything around it
-(I-006). The three mono label steps are unchanged from 1512, which is the property most likely
-to be broken by a careless mobile override later.
+TYPE SCALE. Untouched this phase and re-read only to confirm that: the wordmark carries its own
+face size and letter-spacing and does not inherit from the scale, so changing its casing could
+not have moved anything on the /probe surface. It did not.
 
 ⏳ hero — owed by phase 3
 ⏳ stack-wall — owed by phase 3
@@ -373,10 +371,10 @@ to be broken by a careless mobile override later.
 ℹ️ plyr absent from the eagerly-loaded bundle — vacuous: plyr is not installed yet
 ℹ️ all built chunks, gzipped (not a per-route figure) = 307.6KB
 ✅ JS on / (transferred) = 170.1KB / 190KB
-✅ home page total weight = 234.7KB / 1800KB
+✅ home page total weight = 234.8KB / 1800KB
 ✅ zero network font requests = both faces self-hosted
-✅ CLS (local, unthrottled) = 0.0019
-ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 64ms
+✅ CLS (local, unthrottled) = 0.0027
+ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 88ms
 
 > Poster and reel budgets become binding in phase 10, when assets exist.
 > Lighthouse scores are a phase 12 deliverable via mcp__chrome-devtools__lighthouse_audit; the figures here are local and unthrottled.

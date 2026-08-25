@@ -258,7 +258,8 @@ Build **one** work end to end. The other eleven are content, not code.
 
 ### Acceptance
 - Filtering re-arms reveals and doesn't leak ScrollTriggers (check `ScrollTrigger.getAll().length`).
-- Branding and no-code pages handle their empty works grid gracefully.
+- The `branding` page handles its empty works grid gracefully (slot 04 is `creative-development`
+  as of D-011 and has evidence; `branding` still does not).
 
 ---
 

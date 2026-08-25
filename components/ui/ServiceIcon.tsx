@@ -10,6 +10,12 @@
  *
  * Drawn on a 20×20 grid at a 1.5-unit stroke, matching the mark's ratio of
  * stroke to box.
+ *
+ * The `creative-development` glyph replaced a `no-code` one on 2026-08-26 when
+ * that service was renamed (D-011). The old drawing was stacked blocks clicking
+ * together — a no-code metaphor that meant nothing under the new name. It is a
+ * wireframe cube now, which at least points at the WebGL work. Still placeholder
+ * art like the other four.
  */
 
 const PATHS: Record<string, string> = {
@@ -19,8 +25,8 @@ const PATHS: Record<string, string> = {
   branding: 'M5 16a5 5 0 0 1 5-5 5 5 0 0 1 5 5M2 16a8 8 0 0 1 8-8 8 8 0 0 1 8 8M10 5v0',
   // Websites — a browser chrome bar
   websites: 'M3 5h14v10H3zM3 8h14M5.5 6.5h0M8 6.5h0',
-  // No-Code — stacked blocks clicking together
-  'no-code': 'M3 4h6v6H3zM11 10h6v6h-6zM9 7h2M9 13h2',
+  // Creative Development — a cube in wireframe, the 3D the service is about
+  'creative-development': 'M10 3l6 3.5v7L10 17l-6-3.5v-7zM10 3v7m0 0l6-3.5M10 10l-6-3.5',
   // Engineering — an angle bracket pair
   engineering: 'M7 6l-4 4 4 4M13 6l4 4-4 4',
 };

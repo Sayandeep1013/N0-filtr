@@ -13,22 +13,32 @@ Last updated: **2026-08-26** · by: **phase 2 session (Opus)** · commit: `63f44
 > re-run at `63f4490` on 2026-08-26 before any phase-2 work and came back green —
 > `tokens 136/136 · motion 129/132 (3 pending) · visual judged · budget 4/4`, exit 0.
 >
-> **Phase 2 is currently blocked on the T2.1 gate.** The aperture mark and wordmark already
-> exist (built in phase 1 under D-009, because the loader had nothing to render without them),
-> so the sign-off material is the mark itself rather than something that had to be built.
-> It has been presented to Sayandeep for approval along with the three specced alternates and
-> the **I-009** tick-weight choice. `50-brand-and-3d.md` §5 makes approval a precondition for
-> everything downstream, so no Three.js work starts until the answer comes back.
+> **The T2.1 gate is cleared.** Sayandeep approved **the Open Aperture** over the three specced
+> alternates, settled **I-009** (ticks at half the ring's weight — what was already built, now
+> written into the spec that had omitted it), and deferred **I-014** to phase 10. See D-010.
+> T2.2–T2.9 are unblocked.
 >
-> `AGENT_JUDGEMENT` in `tools/verify/visual.config.ts` has been reset to `null`, so the visual
-> check cannot pass on phase 1's stale reading.
+> **Two content corrections came in after the gate** and are done — see D-011.
+> The wordmark is **`NO FiLTER`**, not lowercase, with the lone lowercase `i` authored as literal
+> text so no `text-transform` can eat it. And service 04 is **Creative Development**, not
+> tonik's *No-Code Development* — they build in Webflow, we do not, and the old line was a claim
+> this codebase contradicts.
+>
+> The casing change turned out to be a metrics change: the **navbar wordmark was overrunning its
+> measured 4.25rem box by 8%**, found by measuring rather than looking. The box is the specced
+> value so the face size took the correction — `0.925rem`, re-measured at 99.9% of the box at
+> both breakpoints. The footer's `14vw` and `-0.02em` both hold. **I-018** resolved, **I-013**
+> materially reduced.
+>
+> `AGENT_JUDGEMENT` in `tools/verify/visual.config.ts` was reset to `null` at the start of the
+> phase, so the visual check cannot pass on phase 1's stale reading.
 
 | | |
 |---|---|
 | Current phase | **2 — Brand & 3D hero** 🚦 *(claimed, GATE)* |
 | Status | 🔨 in progress |
 | Branch | `phase/02-brand-3d` |
-| Blocked | **yes — T2.1 awaits user approval of the mark** |
+| Blocked | no — the T2.1 gate cleared 2026-08-26 |
 | Verify report | `tools/verify/output/report.md` — tokens 136/136, motion 129/132 (3 pending), budget 4/4, visual judged |
 
 ---
@@ -39,7 +49,7 @@ Last updated: **2026-08-26** · by: **phase 2 session (Opus)** · commit: `63f44
 |---|---|---|---|---|---|
 | 0 | Foundation & harness | ✅ | `phase/00-foundation` | `phase-00-complete` | harness proven by break-test |
 | 1 | Global chrome | ✅ | `phase/01-chrome` | `phase-01-complete` | + a behaviour layer in the harness |
-| 2 | Brand & 3D hero 🚦 | 🔨 | `phase/02-brand-3d` | — | **GATE** · needs 0 · at the T2.1 gate |
+| 2 | Brand & 3D hero 🚦 | 🔨 | `phase/02-brand-3d` | — | **GATE** · needs 0 · T2.1 cleared, 3D next |
 | 3 | Homepage upper | ⬜ | `phase/03-home-upper` | — | needs 1, 2 |
 | 4 | Works grid | ⬜ | `phase/04-works-grid` | — | needs 3 |
 | 5 | Homepage lower | ⬜ | `phase/05-home-lower` | — | needs 4 |
@@ -99,20 +109,22 @@ Claimed 2026-08-26. Full record: `docs/build/phases/PHASE-02.md`.
 
 | id | task | status | evidence |
 |---|---|---|---|
-| T2.1 | Aperture mark — glyph at 16/32/48px + `no filter` wordmark | 🚧 **awaiting user approval** | sign-off sheet presented; mark and wordmark already built in phase 1 under D-009 |
-| T2.2 | Three.js scene — persistent mount outside `<main>` | ⬜ blocked by T2.1 | — |
-| T2.3 | Geometry — torus ring + 6 extruded bevelled blades | ⬜ blocked by T2.1 | — |
-| T2.4 | GLSL material — object-space simplex grain + fresnel rim | ⬜ blocked by T2.1 | — |
-| T2.5 | Mouse parallax — the exact tonik curves | ⬜ blocked by T2.1 | — |
-| T2.6 | Mobile — scroll-driven `rotationY −0.525 → −1.5` | ⬜ blocked by T2.1 | — |
-| T2.7 | Perf — DPR clamp, IntersectionObserver suspend, route fade | ⬜ blocked by T2.1 | — |
-| T2.8 | Reduced motion — one static frame; no-WebGL → WebP fallback | ⬜ blocked by T2.1 | — |
-| T2.9 | Mark applied to loader, nav, footer, favicon, OG | ⬜ blocked by T2.1 | loader/nav/footer already done; favicon + OG owed |
+| T2.1 | Aperture mark — glyph at 16/32/48px + `NO FiLTER` wordmark | ✅ | **approved by Sayandeep 2026-08-26** (D-010). Casing revised to `NO FiLTER` (D-011); nav box re-fitted and re-measured at 99.9% (I-018) |
+| T2.2 | Three.js scene — persistent mount outside `<main>` | ⬜ next | — |
+| T2.3 | Geometry — torus ring + 6 extruded bevelled blades | ⬜ next | — |
+| T2.4 | GLSL material — object-space simplex grain + fresnel rim | ⬜ next | — |
+| T2.5 | Mouse parallax — the exact tonik curves | ⬜ next | — |
+| T2.6 | Mobile — scroll-driven `rotationY −0.525 → −1.5` | ⬜ next | — |
+| T2.7 | Perf — DPR clamp, IntersectionObserver suspend, route fade | ⬜ next | — |
+| T2.8 | Reduced motion — one static frame; no-WebGL → WebP fallback | ⬜ next | — |
+| T2.9 | Mark applied to loader, nav, footer, favicon, OG | ⬜ next | loader/nav/footer already done; favicon + OG owed |
 
-**Open questions put to Sayandeep** — all three in the sign-off sheet:
-1. Approve the Open Aperture, or pick one of the three specced alternates.
-2. **I-009** — tick stroke weight: half the ring's weight (built, recommended), two-thirds, or full.
-3. **I-014**, optional — redraw the five footer service icons now, or leave them for phase 10.
+**Answered by Sayandeep, 2026-08-26** — no open questions:
+1. **The Open Aperture, approved** over the three alternates. (D-010)
+2. **I-009** — ticks at half the ring's weight. Resolved; written into the spec.
+3. **I-014** — footer service icons stay placeholder until phase 10.
+4. **Wordmark casing** — `NO FiLTER`, over `No FiLTER` / `No Filter` / `NO FILTER`. (D-011)
+5. **Service 04** — `creative-development` / Creative Development, replacing No-Code. (D-011)
 
 ---
 

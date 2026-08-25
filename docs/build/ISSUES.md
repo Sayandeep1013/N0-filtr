@@ -41,6 +41,7 @@ Newest last. **Owner** is the phase that should resolve it, not the phase that f
 | I-015 | The contact form's options and its gif have no source | 🟡 part-resolved | user, 10, 12 |
 | I-016 | `'1rem top'` / `'30rem top'` are pixels — ScrollTrigger has no rem | 🟢 resolved in 1 | — |
 | I-017 | `inOutQuad → power2.inOut` is wrong; GSAP's `power2` is cubic | 🟢 resolved in 1 | — |
+| I-018 | The wordmark's fit was measured against the *lowercase* form | 🟢 resolved in 2 | — |
 
 **Nothing open blocks phase 2.** I-009 and I-014 were both settled in the conversation that
 approved the mark, on 2026-08-26 — I-009 resolved, I-014 explicitly deferred to phase 10.
@@ -325,6 +326,20 @@ the longer word has room.
 wordmark should be width-fitted rather than size-fixed. Owner: phase 12 polish, or sooner if the
 mobile footer looks wrong to the user.
 
+> **Amended phase 02, 2026-08-26 — this issue is materially smaller than it was.** The numbers
+> above describe the *lowercase* wordmark; the casing changed to `NO FiLTER` (D-011) and caps are
+> wider. Re-measured: the footer wordmark now fills **71.6%** of its 350px column at 390, not the
+> ~51% this issue was written against, and **82.5%** at 1512 against ~59%. The gap to tonik's
+> column-filling SVG is roughly halved by the casing change alone, at no cost — `14vw` is
+> untouched.
+>
+> The second paragraph above is also now wrong in its arithmetic: `NO FiLTER` at 14vw measures
+> **971px** at 1512, not the ~950px estimated for `no filter`. The conclusion is unchanged — it
+> still spans grid columns 1–2 and still has room.
+>
+> Whether 71.6% is close enough to stop calling this an issue is a judgement for phase 12 with
+> the real footer in front of it. Left open, at reduced severity.
+
 ---
 
 ## I-014 · The footer's five service icons are placeholder art  🟡
@@ -484,3 +499,52 @@ Nothing else in `EASE` was affected: `circ.out` for `outCirc` is correct, and `p
 
 **Needs:** Nothing. Two live consumers were re-verified after the change — `loader.enter` (both
 tweens) and the footer sibling-dim, which still lands on exactly 0.3.
+
+
+---
+
+## I-018 · The wordmark's fit was measured against the lowercase form  🟢
+
+**Found:** phase 02, 2026-08-26 · **Area:** `50-brand-and-3d.md` §1, `components/chrome/Footer`
+
+**Problem:** Phase 1's visual judgement recorded that `no filter` at `14vw` ends at x≈737 at 1512,
+against tonik's own 737 — and treated the coincidence as evidence the setting was right. That
+measurement was taken on the **lowercase** wordmark. The casing changed to `NO FiLTER` on
+2026-08-26 (D-011) and caps are wider, so the number no longer describes what ships.
+
+Two values are implicated, not one. The `14vw` size is one of only two `rem` exceptions
+CLAUDE.md names, so it is not free to change. And `letter-spacing: -0.02em` was chosen for
+lowercase — caps normally want tracking at or slightly above zero, and −2% on caps is tight.
+
+**Impact:** Cosmetic, and confined to the footer and the navbar. Nothing is broken; the wordmark
+may simply overrun its column at 14vw, or read cramped. It also means **I-013 needs re-reading**
+— that issue says our mobile wordmark is proportionally a quarter of tonik's, and the arithmetic
+behind that claim assumed the lowercase form too.
+
+**Workaround:** Both values left exactly as specced. Under CLAUDE.md non-negotiable §1 a specced
+value is not adjusted by feel, and the honest sequence is to measure first.
+
+**Resolved:** phase 02, 2026-08-26, by measuring rather than deferring. `getBoundingClientRect`
+on every `.wordmark` at 1512 and 390, against its own container:
+
+| Surface | Width | Container | Fit |
+|---|---|---|---|
+| Footer @1512 | 971.4px @ 211.68px (=14vw ✓) | 1177.8px | **82.5%** |
+| Footer @390 | 250.6px @ 54.6px (=14vw ✓) | 350px | **71.6%** |
+| Navbar @1512 | 75.5px **before** | 69.9px (4.25rem) | **108% — overrun** |
+| Navbar @1512 | 69.8px **after** | 69.9px | 99.9% |
+| Navbar @390 | 67.9px **after** | 68px | 99.9% |
+
+**The footer was never the problem — the navbar was.** `14vw` and `-0.02em` both hold: the
+footer wordmark grew from ~59% to 82.5% of its column at 1512 and from ~51% to 71.6% at 390, and
+overflows at neither. Both specced values are therefore left exactly as written.
+
+The navbar was overrunning its box by 8%. `50-brand-and-3d.md` §4 fixes the logo at
+**4.25rem × 1.25rem**, measured off tonik, and `flex: none` means it reserves that width in the
+nav row — so the box is the value that cannot move, and the face size is the free variable.
+Phase 1 had set `font-size: 1rem` because that is what made the *lowercase* wordmark fill
+4.25rem exactly; caps measured 4.59rem in the same box. `4.25 / 4.59 = 0.926`, so
+`font-size: 0.925rem`. Re-measured: 99.9% of the box at both breakpoints. One value changed, and
+it is the one that was fitted rather than measured.
+
+**This also moves I-013**, which is written against the old proportions — see the note there.

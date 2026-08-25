@@ -42,11 +42,14 @@ export interface ServiceSummary {
   name: string;
 }
 
+/* Service 04 was `no-code` / "No-Code Development" — inherited straight from tonik,
+   who build in Webflow. We do not. Replaced with Creative Development by Sayandeep
+   on 2026-08-26; see D-011. */
 export const SERVICES: ServiceSummary[] = [
   { slug: 'product-design', name: 'Product Design' },
   { slug: 'branding', name: 'Branding' },
   { slug: 'websites', name: 'Websites' },
-  { slug: 'no-code', name: 'No-Code Development' },
+  { slug: 'creative-development', name: 'Creative Development' },
   { slug: 'engineering', name: 'Engineering' },
 ];
 

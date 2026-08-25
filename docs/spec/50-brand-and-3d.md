@@ -36,9 +36,28 @@ Reads as an aperture at 48px and as a clean geometric circle at 16px. Drawn with
 `fill="currentColor"` so it inherits from the loader, nav and footer without variants.
 
 **Wordmark**
-`no filter` — lowercase, General Sans 400, tracking `-0.02em`, the space between the two words
-tightened to `0.22em`. The footer sets it at `14vw` exactly as tonik does. Lowercase throughout
-matches tonik's own lowercase `tonik` and keeps the mono labels doing the shouting.
+`NO FiLTER` — General Sans 400, tracking `-0.02em`, the space between the two words tightened to
+`0.22em`. The footer sets it at `14vw` exactly as tonik does.
+
+Both words in caps, **with the `i` of FiLTER left lowercase.** That single letter is the whole
+device: it drops a dot into a run of caps — a small void inside the letterform that rhymes with
+the aperture's empty centre. The casing is authored as literal text in
+`components/brand/Wordmark.tsx`, never via `text-transform: uppercase`, which would eat it.
+
+> **Changed by Sayandeep, 2026-08-26.** This clause originally read *"lowercase throughout,
+> matching tonik's own lowercase `tonik`"*. He asked for a mixed case; four candidates —
+> `NO FiLTER`, `No FiLTER`, `No Filter`, `NO FILTER` — were set in the real face at display and
+> navbar size, and he chose `NO FiLTER`. See D-011.
+>
+> **The metrics were re-measured in the same session** — a casing change is a metrics change,
+> and every box the wordmark sits in had been fitted to the lowercase form. `-0.02em` and the
+> footer's `14vw` both **hold**: the footer wordmark fills 82.5% of its column at 1512 and 71.6%
+> at 390, up from ~59% and ~51%, and overflows at neither.
+>
+> The **navbar** did not hold. §4's `4.25rem × 1.25rem` logo box is measured off tonik and
+> `flex: none` reserves it, so the box is fixed and the face size is the free variable; caps
+> measured 4.59rem inside it, an 8% overrun. The face is `0.925rem` now — `4.25 / 4.59` — and
+> lands at 99.9% of the box at both breakpoints. See I-018.
 
 ### Alternates (if you'd rather not go aperture)
 

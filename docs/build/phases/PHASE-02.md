@@ -74,15 +74,15 @@ requires this and the phase-01 handoff supplies the number. Installing `three` a
 
 | id | task | status | evidence |
 |---|---|---|---|
-| T2.1 | Aperture mark — glyph at 16/32/48px + `no filter` wordmark | 🚧 awaiting user approval | sign-off sheet presented 2026-08-26 |
-| T2.2 | Three.js scene — persistent mount outside `<main>` | ⬜ blocked by T2.1 | — |
-| T2.3 | Geometry — torus ring + 6 extruded bevelled blades | ⬜ blocked by T2.1 | — |
-| T2.4 | GLSL material — object-space simplex grain + fresnel rim | ⬜ blocked by T2.1 | — |
-| T2.5 | Mouse parallax — the exact tonik curves | ⬜ blocked by T2.1 | — |
-| T2.6 | Mobile — scroll-driven `rotationY −0.525 → −1.5` | ⬜ blocked by T2.1 | — |
-| T2.7 | Perf — DPR clamp, IntersectionObserver suspend, route fade | ⬜ blocked by T2.1 | — |
-| T2.8 | Reduced motion — one static frame; no-WebGL → WebP fallback | ⬜ blocked by T2.1 | — |
-| T2.9 | Mark applied to loader, nav, footer, favicon, OG | ⬜ blocked by T2.1 | loader / nav / footer done in phase 1; favicon + OG owed |
+| T2.1 | Aperture mark — glyph at 16/32/48px + `NO FiLTER` wordmark | ✅ | approved 2026-08-26 (D-010); casing revised (D-011); nav box re-measured at 99.9% (I-018) |
+| T2.2 | Three.js scene — persistent mount outside `<main>` | ⬜ next | — |
+| T2.3 | Geometry — torus ring + 6 extruded bevelled blades | ⬜ next | — |
+| T2.4 | GLSL material — object-space simplex grain + fresnel rim | ⬜ next | — |
+| T2.5 | Mouse parallax — the exact tonik curves | ⬜ next | — |
+| T2.6 | Mobile — scroll-driven `rotationY −0.525 → −1.5` | ⬜ next | — |
+| T2.7 | Perf — DPR clamp, IntersectionObserver suspend, route fade | ⬜ next | — |
+| T2.8 | Reduced motion — one static frame; no-WebGL → WebP fallback | ⬜ next | — |
+| T2.9 | Mark applied to loader, nav, footer, favicon, OG | ⬜ next | loader / nav / footer done in phase 1; favicon + OG owed |
 
 ---
 
@@ -98,6 +98,53 @@ actual-size renders at 16 / 32 / 48px plus an inverted favicon swatch; the wordm
 the mark in situ in the phase-1 loader, navbar and footer; the three specced alternates sketched
 at matching weight; the recovered parallax table showing what approval unlocks; and the three
 questions.
+
+### Answered, 2026-08-26
+
+**1. The Open Aperture is approved**, over the three alternates. **2. I-009 — half the ring's
+weight**, which is what was already built; the value is now in the spec that had omitted it, so
+no code changed. **3. I-014 — the footer service icons stay placeholder until phase 10.**
+Recorded as D-010.
+
+### Two corrections that arrived after the gate
+
+Neither was a technical call and both were things the build had *inherited* rather than chosen.
+Recorded together as D-011.
+
+**The wordmark is `NO FiLTER`.** Spec §1 set it lowercase, reasoning from tonik's own lowercase
+`tonik`. Sayandeep asked for `No FiLTER` *"…something like that"* — a direction, not a form — so
+four candidates were set in the real face at display and navbar size and he chose from them.
+Both words in caps make the lone lowercase `i` unmistakably deliberate rather than a typo, and
+the `i` drops a dot into a run of caps: a small void inside the letterform that rhymes with the
+aperture's empty centre. `text-transform` is `none`, not `uppercase` — the reflex would have
+eaten the whole device.
+
+**Service 04 is Creative Development.** It was *No-Code Development*, transcribed from tonik with
+everything else. tonik build in Webflow; this site is Next.js with hand-written GSAP, a custom
+GLSL material and a Matter.js floor, so the old line was a claim the codebase contradicts. The
+rename also fixes a content gap: `40-content-model.md` §3 recorded slot 04 as having **zero**
+supporting works, and the replacement's strongest evidence is the site it is written on.
+
+### What the casing change cost, and how it was found
+
+**A casing change is a metrics change.** Every box the wordmark sits in had been fitted to the
+lowercase form, so the two specced values were left untouched and measured instead —
+`getBoundingClientRect` on every `.wordmark` at 1512 and 390.
+
+The footer was fine. `14vw` and `-0.02em` both hold: it fills **82.5%** of its column at 1512 and
+**71.6%** at 390, up from ~59% and ~51%, and overflows at neither — which halves the gap I-013
+complains about at no cost.
+
+**The navbar was not fine: the wordmark was overrunning its box by 8%** — 4.59rem of text in the
+4.25rem box §4 measures off tonik, with `flex: none` reserving that width in the nav row. The box
+is the measured value and the face size is the fitted one, so the face size took the correction:
+`1rem → 0.925rem`, which is `4.25 / 4.59`. Re-measured at **99.9%** of the box at both
+breakpoints. Logged and closed as I-018.
+
+This is the argument for measuring instead of looking. The overrun is 5.6px at 1512 and invisible
+in a screenshot; it would have surfaced as a mysterious layout shift somewhere in phase 3.
+
+### Original questions as put
 
 ### Questions put to Sayandeep
 
