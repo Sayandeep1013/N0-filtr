@@ -1,0 +1,139 @@
+/* docs/spec/20-components-and-motion.md §20 — <Footer />.
+
+   Every number here was re-measured on tonik in phase 1 at 1512 and 390. The
+   hairline sits on the grid rather than on the footer element, and the padding
+   (5rem / 2.75rem) is identical at both breakpoints — only the column count
+   changes. */
+
+.grid {
+  display: grid;
+  grid-template-columns: 3fr 2fr 1fr;
+  gap: 1.25rem;
+  padding-top: 5rem;
+  padding-bottom: 2.75rem;
+  border-top: var(--hairline);
+}
+
+.services {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Column 2 is a spacer on tonik and carries nothing. Ours holds the overflow of
+   a longer wordmark instead — see I-013. */
+.contact {
+  grid-column: 3;
+  grid-row: 1 / span 2;
+  display: flex;
+  flex-direction: column;
+  gap: 2.25rem;
+}
+
+.brand {
+  grid-column: 1 / span 2;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: flex-start;
+  justify-content: flex-end;
+}
+
+/* Section labels, and the tagline, are --white-50 — not --text-secondary.
+   Re-measured; the grey-700 reading came off a screenshot. */
+.label {
+  color: var(--white-50);
+}
+
+.serviceList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  list-style: none;
+}
+
+.serviceLink {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--text-primary);
+}
+
+.serviceIcon {
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  /* The icon is half-strength; the label carries the row. */
+  opacity: 0.5;
+}
+
+.contactCol {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.socials {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-top: 1.25rem;
+}
+
+/* The mark sits in a 1.75rem well of --white-10 beside the year. */
+.markWell {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0.25rem;
+  background-color: var(--bg-transparent);
+  color: var(--text-primary);
+}
+
+.privacy {
+  margin-left: auto;
+  color: var(--text-primary);
+  transition: opacity var(--dur-fast) var(--ease-in-out);
+}
+
+/* The one place the site abandons rem — CLAUDE.md non-negotiable §4.
+   No display override: Wordmark is inline-flex so the box shrinks to the word
+   and the brand column can measure it. */
+.wordmark {
+  font-size: 14vw;
+  line-height: 0.8;
+  color: var(--text-primary);
+}
+
+@media (min-width: 992px) {
+  /* §22 — secondary controls drop to .6 on hover. */
+  .privacy:hover {
+    opacity: 0.6;
+  }
+}
+
+@media (max-width: 767px) {
+  .grid {
+    grid-template-columns: 1fr;
+    row-gap: 3rem;
+  }
+
+  /* One column: explicit placement would strand the rows. */
+  .services,
+  .contact,
+  .brand {
+    grid-column: 1;
+    grid-row: auto;
+  }
+}

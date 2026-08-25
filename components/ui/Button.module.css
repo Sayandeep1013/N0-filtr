@@ -1,18 +1,25 @@
-/* docs/spec/20-components-and-motion.md §9 — the pill button.
+/* docs/spec/20-components-and-motion.md §9 — the button family.
 
-   padding .5rem .75rem; gap .5rem; border-radius 999px;
-   background var(--white-10); color var(--white); --t-label
-     └ circular icon 1.5rem, background var(--white), icon dark
-   hover [new]: background var(--white-30), .3s ease-in-out */
+   ghost     the pill:  padding .5rem .75rem; gap .5rem; radius 999px;
+                        bg var(--white-10); color var(--white); --t-label
+                        hover [new]: bg var(--white-30), .3s ease-in-out
+   inverted  the navbar CTA: same box, square corners, light ground, dark text
+   bar       the footer social row: full width, space-between
+
+   `inverted` and `bar` carry the fill overlay §9 records — a 200%-tall panel
+   parked directly below the button that slides up over it on hover while the
+   label and the disc invert. It is a plain CSS transition on tonik, which is
+   why neither their GSAP bundle nor their IX2 store mentions it. */
 
 .button {
+  position: relative;
+  /* The overlay is thrown out of the bottom of the box at rest, and the icon
+     swap in §21.3 throws a glyph out of the top-right. Both need clipping. */
+  overflow: hidden;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
-  border-radius: 999px;
-  background-color: var(--bg-transparent);
-  color: var(--text-primary);
   font-family: var(--family-mono);
   font-size: var(--t-label-size);
   line-height: var(--t-label-lh);
@@ -22,19 +29,91 @@
   transition: background-color var(--dur-fast) var(--ease-in-out);
 }
 
-/* The nav CTA. §2 describes it as "inverted: light bg, dark text, dark circle
-   arrow" — the pill's own colours swap and the IconCircle inverts with it.
-   No hover background is specced for this variant and none is invented: its
-   hover is the §21.3 icon swap. */
+.ghost {
+  border-radius: 999px;
+  background-color: var(--bg-transparent);
+  color: var(--text-primary);
+}
+
 .inverted {
   background-color: var(--bg-alternate);
   color: var(--text-alternate);
 }
 
+.bar {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  background-color: var(--bg-transparent);
+  color: var(--text-primary);
+}
+
+/* Above the overlay, which is otherwise painted last. */
+.label {
+  position: relative;
+  z-index: 1;
+  transition: color var(--dur-base) var(--ease-in-out);
+}
+
+.button :global(.icon-circle) {
+  position: relative;
+  z-index: 1;
+}
+
+/* inset: top right bottom left — parked one full button-height below the box. */
+.overlay {
+  position: absolute;
+  inset: 100% 0 auto 0;
+  height: 200%;
+  pointer-events: none;
+  transition: transform var(--dur-base) var(--ease-in-out);
+}
+
+.inverted .overlay {
+  background-color: var(--bg-tertiary);
+}
+
+.bar .overlay {
+  background-color: var(--bg-alternate);
+}
+
 /* Hover is gated at >991px like every other hover on the site (CLAUDE.md §6).
-   This one is CSS rather than GSAP, so the gate is a media query. */
+   These are CSS rather than GSAP, so the gate is a media query. */
 @media (min-width: 992px) {
-  .button:not(.inverted):hover {
+  .ghost:hover {
     background-color: var(--border-primary); /* --white-30 */
+  }
+
+  /* -55% of a 200%-tall overlay is -110% of the button: the fill overshoots the
+     top edge by a tenth of the button's height and covers it completely. */
+  .inverted:hover .overlay,
+  .inverted:focus-visible .overlay,
+  .bar:hover .overlay,
+  .bar:focus-visible .overlay {
+    transform: translateY(-55%);
+  }
+
+  .inverted:hover .label,
+  .inverted:focus-visible .label {
+    color: var(--text-primary);
+  }
+
+  .bar:hover .label,
+  .bar:focus-visible .label {
+    color: var(--text-alternate);
+  }
+
+  /* The disc and its glyph swap places with the ground behind them. Written
+     through the global hook class because the circle is a separate module. */
+  .inverted:hover :global(.icon-circle),
+  .inverted:focus-visible :global(.icon-circle) {
+    background-color: var(--bg-alternate);
+    color: var(--text-alternate);
+  }
+
+  .bar:hover :global(.icon-circle),
+  .bar:focus-visible :global(.icon-circle) {
+    background-color: var(--black);
+    color: var(--white);
   }
 }

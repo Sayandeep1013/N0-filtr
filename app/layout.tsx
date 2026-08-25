@@ -9,6 +9,8 @@ import './styles/global.css';
 import { displayFont, monoFont } from './fonts/fonts';
 import { MotionProvider } from '@/lib/motion/MotionProvider';
 import { Loader } from '@/components/chrome/Loader';
+import { Navbar } from '@/components/chrome/Navbar';
+import { Footer } from '@/components/chrome/Footer';
 
 export const metadata: Metadata = {
   title: {
@@ -35,7 +37,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               loader in particular has to persist across the navigation it is
               covering. Hero3D joins them in phase 2. */}
           <Loader />
+          <Navbar />
           <main id="main">{children}</main>
+          <Footer />
         </MotionProvider>
       </body>
     </html>
