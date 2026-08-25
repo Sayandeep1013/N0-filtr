@@ -1,5 +1,5 @@
 # Verification report
-Run: 2026-08-25T15:59:14.490Z · Phase 01 · commit `bf46ec0` · branch `phase/01-chrome`
+Run: 2026-08-25T16:06:42.708Z · Phase 02 · commit `83ff9ae` · branch `phase/01-chrome`
 
 ## Summary
 ```
@@ -371,7 +371,7 @@ to be broken by a careless mobile override later.
 ✅ home page total weight = 234.6KB / 1800KB
 ✅ zero network font requests = both faces self-hosted
 ✅ CLS (local, unthrottled) = 0.0018
-ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 100ms
+ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 84ms
 
 > Poster and reel budgets become binding in phase 10, when assets exist.
 > Lighthouse scores are a phase 12 deliverable via mcp__chrome-devtools__lighthouse_audit; the figures here are local and unthrottled.

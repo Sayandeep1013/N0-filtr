@@ -5,147 +5,209 @@ not a log. The template is at the bottom.
 
 ---
 
-# → To the agent starting Phase 1
+# → To the agent starting Phase 2
 
-**From:** phase 00 · 2026-08-25 · commit `033b3aa` · **Opus**
+**From:** phase 01 · 2026-08-25 · commit `83ff9ae` · **Opus**
 
 ## What I did
 
-The repo now runs. There is a Next 15 app with the complete token system, both faces self-hosted,
-the fluid root working, and Lenis riding the GSAP ticker behind a `MotionProvider` that owns all
-responsive and reduced-motion state. And there is the harness: `npm run verify` runs four checks,
-writes `tools/verify/output/report.md`, and exits non-zero when something is wrong. I proved it
-by breaking three things and confirming it caught all three.
+The site has chrome. Loader, Navbar, ContactPanel and Footer are built, mounted in the root
+layout outside `<main>`, and verified — `/` is still a blank page between a working navbar and a
+working footer, which is exactly what phase 3 needs. Along the way `Button`, `IconCircle` and the
+2D aperture mark exist because this phase's components could not be built without them (D-009).
 
-There are **no components**. `/` is deliberately blank. That is your phase.
+Two things beyond the brief. **I re-measured tonik**, because the phase-0 handoff asked me to grab
+the I-005/I-006 numbers if I opened Playwright anyway, and because several navbar and footer
+values were unspecified. Doing it *before* building rather than after was the right order: it
+resolved both inherited issues and corrected six spec values, including an entire interaction
+that neither recovered source can see. And **the harness gained a behaviour layer** that drives
+the real interface instead of reading registered timelines — it found five real problems within
+an hour of existing, one of which reached users.
+
+## ⚠ One decision I need from you — I-017
+
+**The spec's `inOutQuad → power2.inOut` translation is wrong, and I did not change it.**
+
+GSAP's `powerN` aliases are offset by one from the Penner names (`gsap-core.js:1526`):
+`Quad === Power1`, `Cubic === Power2`. So `power2.inOut` is **cubic**. Webflow's `inOutQuad` is
+quadratic. I confirmed it by scrubbing our own loader: at 25% progress the panel had travelled
+`4p³` of its sweep — cubic to four decimal places — where quadratic would be `2p²`.
+
+The token is *named* `quad`. GSAP even ships `quad.inOut` as an alias for `power1.inOut`. The name
+and the recovered IX2 value agree with each other; only the transcribed value disagrees with both.
+That reads like a slip.
+
+Protocol §4 says log it and leave it, so `EASE.quad` is still `power2.inOut` and `verify:motion`
+is green against it. **My recommendation is to change it to `power1.inOut`.** It is three lines
+today — `lib/motion/tokens.ts`, `SPEC_EASE` in `motion.config.ts`, and the two mapping tables in
+the specs — and it costs more every phase that adds an inOutQuad timeline. Settle it in phase 2.
 
 ## Known gaps
 
 **In the build**
 
-- **`/` renders nothing.** By design — T0.1's acceptance was a blank page. The only route with
-  content is `/probe`, which is dev-only and exists for the harness.
-- **No component has been verified, because none exist.** The motion check's five timeline
-  assertions are all `pending`. Two are yours: `loader.enter` and `contact.open`.
-- **The ScrollTrigger leak check passes against a baseline of zero.** It is live and correct but
-  it has never seen a real trigger. It becomes meaningful the moment you create one.
-- **Three budget assertions are vacuous** and say so in the report: `three`, `matter-js` and
-  `plyr` are "absent from the bundle" only because they are not installed.
-- **`--t-p-big` line-height is unitless (1.6)** while every other step is a rem length. That is
-  what the spec says; just don't be surprised by it.
-- **The ≤479 breakpoint is not implemented at all** (I-007). The spec names it but gives no
-  values. Below 480 you get the ≤767 values.
-- **Lighthouse is not in `verify:budget`.** LCP/CLS come from the browser's own observers on an
-  unthrottled local load — a regression signal, not a score. Real Lighthouse is phase 12, via
-  `mcp__chrome-devtools__lighthouse_audit`.
+- **`/` is still blank between the navbar and the footer.** By design. The footer therefore sits
+  near the top of the document, which is why `verify:visual`'s footer shot scrolls to `'bottom'`
+  rather than to tonik's measured 11,984px.
+- **Every nav destination 404s** — `/works`, `/about`, `/services`, `/blog`, `/services/[slug]`,
+  `/privacy`. Expected; they arrive with their phases. Note that **Next hard-navigates to a route
+  it cannot resolve**, so clicking a nav link today does a full page load rather than a client
+  transition. The loader still covers correctly either way, but you cannot observe a client-side
+  route change through those links. Use `/` ↔ `/probe`.
+- **The contact panel's gif slot is empty** (I-015). The element is real and animated so the
+  timeline and its assertion are honest, but there is nothing inside it until phase 10.
+- **The five footer service icons are placeholder art** (I-014). One file,
+  `components/ui/ServiceIcon.tsx`, five paths.
+- **The contact form has no endpoint.** With no `NEXT_PUBLIC_TALLY_FORM_ID` it composes a
+  `mailto:`. That works, but it is not the shipping path. The budget bands and the four referral
+  chips are invented — the spec names the fields and not their options (I-015). **These are
+  content decisions and therefore Sayandeep's.**
+- **The form's fields are ~40px tall against tonik's ~51px**, so our form runs about 170px
+  shorter. Measured off `s12-contact.png` rather than off computed styles, so I left it rather
+  than guess a third number. Grab it if you open their panel.
+- **`h3`–`h6` mobile sizes disagree with tonik** (I-011). I resolved h1 and h1-sm because they had
+  open issues and three independent elements agreed; h3–h6 came from one page and through
+  `is-mobile-*` modifier classes that may be per-instance overrides. **Phase 3 owns this** — it is
+  the first phase to render those at 390.
+- **The `≤479` breakpoint is still unimplemented** (I-007), inherited.
+- **The mobile wordmark is proportionally a quarter the size of tonik's** (I-013). Theirs is an
+  SVG scaled to 100% of its column and only *happens* to equal 14vw at 1512. Ours is text at a
+  fixed 14vw. Desktop is right; 390 is visibly under-scaled. Left as specced — 14vw is one of the
+  two rem exceptions CLAUDE.md names.
 
-**Two real defects I found and did *not* fix, because they are spec-faithful**
+**In the harness**
 
-- **I-005 — at ≤767, `h1-sm` (3.25rem) renders LARGER than `h1` (3rem).** The mobile step-down
-  in §3 names h1/h2/h3/h4 and not h1-sm, so the secondary hero style out-ranks the primary one on
-  mobile. Look at `tools/verify/output/shots/type-scale-390.png` after a `verify:visual` run —
-  it is the biggest thing on the page. Bites phase 3 and phase 7.
-- **I-006 — `h1` tracking is not stepped down with `h1` size.** `-0.15rem` is 2.5% of a 6rem face
-  and 5% of a 3rem one, so mobile h1 is proportionally twice as tight.
-
-Both are logged. Protocol §4 says implement the conservative reading and escalate, not silently
-correct — so I did. **Both want the same 20-minute re-measure of tonik at 390.** If you are
-opening Playwright against tonik for anything else in phase 1, grab these while you are there and
-put the answers in the spec.
+- **3 timeline assertions are still pending**, all owed by phases 4 and 5.
+- **The three/matter/plyr budget assertions are still vacuous** — those packages are not
+  installed. `three` stops being vacuous the moment you install it, which is your phase.
 
 ## What you should do first
 
-1. `git checkout main && git pull && git checkout -b phase/01-chrome`, set STATE to in-progress,
-   commit that immediately.
-2. `npm install` if this is a fresh clone, then **`npm run verify`** before you touch anything.
-   It should be green. If it is not, something in your environment differs from mine and you want
-   to know that now, not after you have written a loader.
-3. Read your Reading Map — `20-components-and-motion.md` §1, §2, §3, §20, §21.1, §22 ·
-   `30-page-specs.md` global chrome note · `10-design-system.md` §5, §6. Not the rest.
-4. Work T1.1 → T1.9.
+1. `git checkout main && git pull && git checkout -b phase/02-brand-3d`, set STATE to
+   in-progress, commit that immediately.
+2. **`npm run verify`** before you touch anything. ~2 minutes. It should be green:
+   `tokens 136/136 · motion 129/132 (3 pending) · visual judged · budget 4/4`.
+3. **Reset `AGENT_JUDGEMENT` to `null`** in `tools/verify/visual.config.ts`. Mine describes a
+   footer and a contact panel. If you leave it, your run goes green on a stale judgement and the
+   visual check silently stops meaning anything.
+4. **Settle I-017** — see above. It is the cheapest it will ever be.
+5. **Show Sayandeep the aperture mark before you build the 3D.** `50-brand-and-3d.md` §5 makes
+   approval a precondition and phase 2 is the gate. It already renders in three places, so a
+   screenshot of the loader, the nav and the footer *is* the sign-off material — you do not need
+   to build anything to ask. If the concept is rejected, the replacement is
+   `components/brand/ApertureMark.tsx` and `Wordmark.tsx` and nothing else; every consumer takes
+   `currentColor` and sizes from its container. Settle **I-009** — the tick stroke weight, which
+   the spec never gives — in the same conversation.
 
-**As you build, flip the assertions.** `tools/verify/motion.config.ts` has `loader.enter` and
-`contact.open` seeded with the shapes from `02-VERIFICATION.md` and `pending: true`. Set them to
-`false` when you build them and add the navbar mini threshold and the footer sibling-dim.
-`tools/verify/visual.config.ts` has a `footer` shot pending. **A phase that adds no assertions has
-not been verified.**
+## ⚠ Things that will bite you
 
-**And reset `AGENT_JUDGEMENT` to `null` when you start.** Mine describes the type scale on a page
-with no components. If you leave it, the run goes green on a stale judgement and the visual check
-silently stops meaning anything. Set it to null, build, run `verify:visual`, actually open the
-PNGs, then write what you saw.
-
-## Things that will bite you
-
-- **The dev server must not already be running.** The harness boots its own on :3000 and kills
-  the tree on exit. If you have `npm run dev` open in another terminal, `verify` will measure
-  *that* server — including whatever uncompiled state it is in.
-- **`verify` runs a full production build** for the budget check, so it takes ~90s. Use
-  `npm run verify:tokens` / `:motion` / `:visual` while iterating; run the full thing before you
-  commit a task.
-- **Register timelines or they cannot be checked.** `registerTimeline('loader.enter', tl)` from
-  `lib/motion/registry.ts`. It is dev-only and compiles out. A timeline nobody registered reports
-  as a failure once you flip its `pending`, which is the intended pressure.
-- **Split text only after `document.fonts.ready`.** Inherited warning from the spec session, and
-  still true — the harness itself awaits it before every measurement for the same reason.
-- **Get scroll state from `useMotion()`, never from a resize listener.** It gives you `lenis`,
-  `reducedMotion`, `isDesktop` (>991), `isAbove767`, and `stopScroll` / `startScroll` for the
-  contact panel. `stopScroll` handles the reduced-motion case too, where there is no Lenis at all.
-- **Don't add a rAF loop.** The check classifies rather than counts (D-004) and will name your
-  stack in the failure.
-- **Don't set git identity.** Global config is already correct — `saaiyaan1013@gmail.com`.
+- **You have 20KB of JS budget left.** `/` is at **170.0KB of 190KB**. Three.js is ~48KB gzipped.
+  If it is not dynamically imported, phase 2 blows the budget on its own —
+  `60-architecture-and-build.md` §5 already requires the dynamic import and now you know the
+  number. Phase 0 warned about this at 159.5KB; the chrome cost 10.5KB.
+- **rAF may be throttled to ~1fps in a Playwright MCP browser window that is not on top.** I lost
+  twenty minutes to a loader that appeared not to animate: `gsap.ticker.frame` advanced once per
+  second while `setInterval` ran normally, so the timeline sat at progress 0 and then jumped to 1.
+  The animation was correct the whole time. If motion looks broken when you drive the browser by
+  hand, check `gsap.ticker.frame` over a second before you change any code. The harness runs
+  headless and is unaffected — **trust `npm run verify` over what you see in the MCP browser.**
+  To prove a timeline renders without depending on frames, scrub it:
+  `tl.pause(); tl.progress(0.25); getComputedStyle(el).transform`.
+- **`'1rem top'` / `'30rem top'` are PIXELS.** ScrollTrigger has no rem support — `_offsetToPx`
+  ends in `parseFloat(value) || 0`. tonik's own trigger reports `start: 1, end: 30`, and their bar
+  is not mini at 20px and is mini at 40px. Copy the strings exactly; converting them to computed
+  rem puts the threshold sixteen times further down the page. I-016, and the warning is now in the
+  spec next to the code.
+- **GSAP negates `timeScale()` while a timeline runs backwards.** A correct reverse at 1.2 reads
+  `-1.2`. I fixed `reverseTimeScale` to compare magnitudes; it would otherwise have failed phase
+  4's perfectly correct `work-card.hover`.
+- **`reverseTimeScale` on a timeline assertion is nearly useless.** It calls `reverse()` on the
+  registered timeline and reads the scale back, which passes only if the timeline is already
+  sitting at that scale — and every component applies the scale inside its own handler. Write a
+  behaviour check instead. There are two working examples.
+- **React runs a child's layout effects before its parent's.** That is how the loader came to play
+  its full sweep before `MotionProvider` reported reduced motion. If a component needs provider
+  state on its very first effect, the provider has to seed it synchronously, not wait for a
+  matchMedia callback.
+- **A stagger's `amount` folds into the tween's reported duration.** `contact.open`'s meta tween
+  is `duration: .5` with `stagger: { amount: .5 }` and `getChildren()` reports it as **1.0s**.
+  Assert what GSAP reports, not what you wrote.
+- **`gsap.set()` calls are children.** They are zero-duration tweens and `getChildren()` returns
+  them, so tween indices in an assertion include them. All four of my timeline assertions document
+  their index mapping.
+- **The dev server must not already be running** when you `verify` — inherited warning, and I hit
+  it. The harness boots its own on :3000 and dies with `server exited early with code 1` if the
+  port is taken. On Windows `pkill -f "next dev"` does not reliably kill it; see the commands
+  below.
 
 ## Anything surprising
 
-**GSAP runs two rAF loops, and that is fine.** ScrollTrigger has `_rafBugFix`, a no-op keep-alive
-that exists because Firefox does not repaint consistently unless something is queued
-(`node_modules/gsap/ScrollTrigger.js:61`). It drives nothing. The one-loop check allowlists it by
-name — see D-004. If you had counted, you would have concluded the rule was already broken.
+**tonik has a whole interaction that neither recovered source can see.** Every `.button-icon` on
+their site — the nav CTA and the footer social bars in this phase — carries a
+`.button-icon-overlay`: a 200%-tall panel parked directly below the button that slides
+`translateY(-55%)` over `.4s` on hover, while the label and the disc invert underneath it. It is
+plain CSS, so it appears in neither their GSAP bundle nor their IX2 store, and the teardown never
+caught it. It only turned up because I hovered the button with Playwright and read the computed
+styles back. **The lesson generalises: `[css]` is a real third animation layer and the only way to
+find it is to hover things on their site and look.** §9 now documents it.
 
-**`normalizeWheel` is gone from Lenis** (I-004). Every other specced option survives.
+**Their social bars are `--white-10`, not `--grey-800`.** On the `--black` ground those composite
+to within a few points of each other, which is how the teardown read `#3b3b3b` off a screenshot.
+Worth remembering whenever a spec colour came from a capture rather than from `getComputedStyle`.
 
-**Fonts: General Sans ships a variable cut**, 200–700 in 38KB — smaller than two statics and
-covering every weight §3 names. IBM Plex Mono has no variable cut on Fontsource, so it ships 400
-and 500 only (D-003). Adding a mono weight is one line in `app/fonts/fonts.ts` plus a woff2.
+**The visual check found four errors that 136 green token assertions did not** — a reversed meta
+row, native fieldset borders, pill chips that should be square and fill the row, and visible
+labels where tonik uses placeholders. That is now two phases running. **Open the PNGs.**
 
-**The visual check is the one that found the real bugs.** The 132 computed-style assertions all
-passed while `h1-sm` was rendering larger than `h1` on mobile — because that is *correct against
-the spec*. Assertions verify what you told them to; only looking catches what nobody thought to
-assert. Open the PNGs.
-
-**The budget is tighter than it looks.** JS on `/` is already **159.5KB of the 190KB budget**
-with nothing but React, GSAP and Lenis. Three.js is ~48KB gzipped and arrives in phase 2. If it
-is not dynamically imported, phase 2 blows the budget on its own — `60-architecture-and-build.md`
-§5 already requires the dynamic import, and now you know why it is not optional.
+**Below 992 the contact panel is only reachable through the burger menu**, because tonik puts the
+CTA *inside* the links group rather than beside it, and it collapses with them. That is faithful,
+and it surprised the visual harness before it surprised me — the `contact-open` shot had to open
+the burger first.
 
 ## Verification state
 
 ```
-Run: 2026-08-25 · Phase 00 · commit 033b3aa · branch phase/00-foundation
+Run: 2026-08-25 · Phase 01 · commit 83ff9ae · branch phase/01-chrome
 
-tokens  ✅ 132/132
-motion  ⚠️ 35/40  (5 pending, owed by later phases)
+tokens  ✅ 136/136
+motion  ⚠️ 129/132  (3 pending, owed by phases 4 and 5)
 visual  ⚠️ reviewed by agent — see judgement
 budget  ✅ 4/4
 ```
 
-Key figures: root **16.45px @1512** and **16px @1440** · JS 159.5KB/190KB · total 204.5KB/1800KB ·
-CLS 0 · both faces confirmed painting via CDP · zero network font requests.
+Key figures: **JS 170.0KB / 190KB** · total 234.6KB / 1800KB · CLS 0.0018 · LCP 116ms local ·
+ScrollTrigger baseline **1** and returning to it across route changes.
 
-Full report: `tools/verify/output/report.md` (committed). Phase record with the break-test
-results: `docs/build/phases/PHASE-00.md`.
+Full report: `tools/verify/output/report.md` (committed). Phase record:
+`docs/build/phases/PHASE-01.md`.
 
 ## Commands you'll need
 
 ```bash
-npm run dev                # :3000
-npm run verify             # the gate — ~90s, includes a production build
-npm run verify:tokens      # ~20s, use these while iterating
-npm run verify:motion
+npm run dev                # :3000 — stop it before you verify
+npm run verify             # the gate — ~2 min, includes a production build
+npm run verify:motion      # ~40s now; the behaviour layer drives a real browser
 npm run verify:visual      # then OPEN tools/verify/output/contact-sheet.html
 npm run verify -- --keep   # leave the server up, for debugging the harness itself
-npm run lint               # real eslint now, and clean
+npm run lint               # clean
 npx tsc --noEmit           # strict, with noUncheckedIndexedAccess
+```
+
+Freeing port 3000 on Windows when `verify` says the server exited early:
+
+```powershell
+Get-NetTCPConnection -LocalPort 3000 -State Listen | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }
+```
+
+Reading tonik's own interaction data — how I-016 and §9's overlay were settled:
+
+```js
+// what ScrollTrigger actually resolved a position string to
+ScrollTrigger.getAll().find(t => t.trigger.tagName === 'MAIN')   // -> { start: 1, end: 30 }
+
+// a [css] hover, which no recovered source contains
+await page.hover('.navbar_component .button-icon');
+getComputedStyle(document.querySelector('.button-icon-overlay')).transform
 ```
 
 ---

@@ -143,3 +143,95 @@ GSAP effects, which is exactly where this build will leak). Leave it broken (wor
 **Consequence:** `npm run lint` is real and clean. It is not part of `npm run verify` — verify is
 about spec fidelity, lint is about code health, and conflating them would make a token failure
 and an unused import look like the same kind of problem.
+
+---
+
+## D-007 · Animated elements carry a BEM hook class as well as their module class
+
+**Phase:** 1 · **Date:** 2026-08-25 · **Status:** active
+
+**Context:** The stack is CSS Modules, which hash every class name — `.loader__mark` compiles to
+`Loader_mark__6dBzw`. But `verify:motion` identifies a tween's target by matching a substring
+against the target's className, and `02-VERIFICATION.md` seeds those assertions with the spec's
+names (`target: '.loader__mark'`). Behaviour checks, the visual harness's `prepare` steps and
+anything a future agent types into devtools have the same problem.
+
+**Decision:** Anything GSAP animates, anything the harness queries, and anything a JS handler
+toggles carries **two** classes: the hashed module class for styling and an unhashed BEM class
+for behaviour. `cx(s.mark, 'loader__mark')`. The BEM names are the spec's names, which are
+tonik's names, so the DOM reads like the teardown.
+
+Classes toggled from JS — `is-mini` — are the hook class **only**, with the module styling it
+through `.nav:global(.is-mini)`. Otherwise the toggle has to know both names.
+
+**Alternatives:** Plain global CSS for the chrome (abandons the stack decision for a quarter of
+the site). Data attributes (`[data-motion="loader-mark"]`) — cleaner in principle, but the tween
+serialiser reads className, so it would mean rewriting the harness to match assertions written
+before this phase. Configuring Next's `localIdentName` to keep names readable (fragile, global,
+and still not stable across a production build).
+
+**Consequence:** Two class names on perhaps thirty elements. In exchange the motion assertions
+work as written, the visual harness can drive real interactions by selector, and inspecting the
+running site shows the same class names as `docs/research/`. The cost is discipline: a new
+animated element needs its hook class or its assertion silently matches nothing.
+
+---
+
+## D-008 · `verify:motion` gains a behaviour layer
+
+**Phase:** 1 · **Date:** 2026-08-25 · **Status:** active
+
+**Context:** `02-VERIFICATION.md` says phase 1 owes the harness "loader, navbar mini threshold,
+contact panel timeline, footer sibling-dim". Only the first and third are timeline shapes. The
+phase-0 checker could assert what a registered timeline *is*; it had no way to assert what the
+interface *does*.
+
+Worse, `TimelineAssertion.reverseTimeScale` — the phase-0 mechanism for the "reverses run faster"
+rule — cannot work. It calls `reverse()` on the registered timeline and reads the scale back,
+which passes only if the timeline is already sitting at that scale. Every component on this site
+applies the scale inside its handler, so on **correct** code it reads 1 and fails.
+
+**Decision:** A `behaviour.ts` / `behaviour.config.ts` pair, folded into the `motion` section
+rather than made a fifth check. Each check drives the real interface — scrolls, hovers, clicks,
+presses Escape — and reads the DOM back. Values live in the config; the interactions are code,
+because each one is genuinely bespoke.
+
+**Alternatives:** A declarative DSL for interactions (more machinery than five checks justify).
+Leaving these unverified and asserting them in prose (the failure mode the whole harness exists
+to prevent). Making it a fifth report section (five sections is harder to read than four, and
+these *are* motion).
+
+**Consequence:** `verify:motion` went from ~40 to 132 assertions and takes about 40s instead of
+20s. It immediately found five real problems, including one that reached users: the loader ran
+its full sweep before the provider reported reduced motion. Later phases should add behaviour
+checks, not just timeline shapes — a timeline can be perfectly shaped and never wired to
+anything.
+
+---
+
+## D-009 · Two `ui/` primitives and the 2D mark are built in phase 1
+
+**Phase:** 1 · **Date:** 2026-08-25 · **Status:** active
+
+**Context:** Phase 1's four components need three things the phase brief assigns elsewhere.
+`IconCircle` (§9) has three consumers inside this phase alone — the nav CTA, the footer social
+bars, the form submit. `Button` (§9) is the nav CTA. And the loader has nothing to render
+without the aperture glyph, which `50-brand-and-3d.md` §1 specifies and phase 2 approves.
+
+**Decision:** Build all three here. §9, §21.3 and `50-brand-and-3d.md` §1 were added to phase 1's
+Reading Map in `01-PHASES.md`, per protocol §2.
+
+The mark's geometry is fully specified — a ring of stroke 1/12 the diameter, six ticks at 60°,
+each 1/6 of the radius, rotated 8° off-radial — so this is transcription, not design. The
+**concept** remains un-approved; `50-brand-and-3d.md` §5 makes user approval a precondition and
+phase 2 is that gate. Everything brand-shaped is confined to `components/brand/`, two files.
+
+**Alternatives:** Ad-hoc markup inside Navbar and Footer, rebuilt properly in phase 3 — which
+guarantees two implementations that diverge, and would have hidden the §9 fill-overlay hover
+that the re-measure found. A placeholder glyph for the loader (a square, a dot): dishonest in a
+different way, and it would have to be found and replaced rather than simply approved.
+
+**Consequence:** Phase 3 inherits `Button` and `IconCircle` working, with the §21.3 diagonal
+swap and the §9 fill overlay already asserted. If phase 2's gate rejects the aperture, the
+replacement is `ApertureMark.tsx` and `Wordmark.tsx` and nothing else — every consumer takes
+`currentColor` and sizes from its container.
