@@ -14,9 +14,10 @@ then follow the protocol. Do not start work from this file alone.
 ```
 1. docs/build/STATE.md        ← where the build actually is. Read first, always.
 2. docs/build/HANDOFF.md      ← what the previous agent left you. Read second.
-3. docs/build/00-PROTOCOL.md  ← how to work. Read in full on your first session.
-4. Your phase brief in docs/build/phases/PHASE-XX.md
-5. Only the spec sections your phase's Reading Map names (01-PHASES.md).
+3. docs/build/00-PROTOCOL.md  ← how to work. §1 The Loop is mandatory; rest is reference.
+4. docs/build/01-PHASES.md    ← your phase brief: tasks, acceptance, and its Reading Map.
+5. Only the spec sections that Reading Map names. Nothing more.
+6. docs/build/ISSUES.md       ← open problems that may touch your work.
 ```
 
 **Never read all of `docs/spec/` — it is ~2,500 lines.** Each phase has a Reading Map naming the
