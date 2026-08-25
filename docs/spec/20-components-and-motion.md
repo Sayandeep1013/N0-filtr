@@ -121,6 +121,12 @@ ScrollTrigger.create({
 });
 ```
 
+> ⚠ **Those are pixels.** ScrollTrigger's position parser has no rem support — `_offsetToPx`
+> ends in `parseFloat(value) || 0`, so `'30rem'` is `30`. tonik's own live trigger reports
+> `start: 1, end: 30`, and their bar is not mini at scrollY 20 and is mini at 40. Copy the
+> strings exactly as written; converting them to computed rem would put the threshold sixteen
+> times further down the page than theirs. See I-016.
+
 **Mobile burger [src]** — the glyph is a `+` built from two 1px strokes. Opening rotates only
 the **vertical** stroke:
 ```js

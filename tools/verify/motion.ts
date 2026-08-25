@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import type { Browser, Page } from 'playwright';
 import { newPage } from './lib/browser';
 import { fail, info, pass, pending, type CheckResult, type SectionResult } from './lib/types';
+import { checkBehaviour } from './behaviour';
 import {
   RUNTIME,
   SPEC_DUR,
@@ -88,7 +89,25 @@ interface MotionDebugSnapshot {
   lenisRunning: boolean;
 }
 
+/**
+ * Read the provider's debug state, once it exists.
+ *
+ * `networkidle` says the network went quiet, not that React hydrated and ran its
+ * effects — in dev those are seconds apart on a cold compile. Reading straight
+ * after the goto produced an intermittent "desktop motion context @1512:
+ * inactive" against perfectly correct code, which is the worst kind of check:
+ * one that fails at random and teaches the next agent to re-run until green.
+ *
+ * The settle after it covers React StrictMode's mount → unmount → mount, whose
+ * middle step reverts every matchMedia context and republishes an empty set.
+ */
 async function readMotionState(page: Page): Promise<MotionDebugSnapshot | null> {
+  await page
+    .waitForFunction(() => Boolean((window as unknown as { __MOTION__?: unknown }).__MOTION__), null, {
+      timeout: 10_000,
+    })
+    .catch(() => undefined);
+  await page.waitForTimeout(200);
   return page.evaluate(() => (window as unknown as { __MOTION__?: MotionDebugSnapshot }).__MOTION__ ?? null);
 }
 
@@ -425,8 +444,11 @@ async function checkTimelines(browser: Browser, baseUrl: string): Promise<CheckR
             return t.timeScale();
           }, a.id);
           const label = `${a.id} reverse timeScale`;
+          // GSAP negates timeScale while running backwards; the magnitude is the
+          // assertion. Compared as an absolute so a correct reverse does not
+          // fail on its sign.
           out.push(
-            ts === a.reverseTimeScale
+            ts !== null && Math.abs(ts) === a.reverseTimeScale
               ? pass(label, String(ts))
               : fail(label, String(a.reverseTimeScale), String(ts)),
           );
@@ -444,6 +466,8 @@ export async function checkMotion(browser: Browser, baseUrl: string): Promise<Se
     ...checkMotionTokens(),
     ...(await checkRuntime(browser, baseUrl)),
     ...(await checkTimelines(browser, baseUrl)),
+    // Behaviour: what a timeline's shape cannot tell you. See behaviour.config.ts.
+    ...(await checkBehaviour(browser, baseUrl)),
   ];
   return {
     name: 'motion',
@@ -451,6 +475,10 @@ export async function checkMotion(browser: Browser, baseUrl: string): Promise<Se
     notes: [
       'Pending entries are timelines the spec names but no phase has built yet. ' +
         'The phase that builds one flips `pending: false` in motion.config.ts.',
+      'Behaviour checks drive the real interface — scroll, hover, click, Escape — ' +
+        'rather than reading a registered timeline. They are the only instrument ' +
+        'that catches an unwired handler, a matchMedia gate that leaks below 992, ' +
+        'or a reverse running at the wrong timeScale. See behaviour.config.ts.',
     ],
   };
 }

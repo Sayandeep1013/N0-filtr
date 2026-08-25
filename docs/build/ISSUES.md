@@ -290,3 +290,83 @@ the longer word has room.
 **Needs:** A value for ≤767 (28vw would match tonik's proportion), or a decision that the
 wordmark should be width-fitted rather than size-fixed. Owner: phase 12 polish, or sooner if the
 mobile footer looks wrong to the user.
+
+---
+
+## I-014 · The footer's five service icons are placeholder art  🟡
+
+**Found:** phase 01, 2026-08-25 · **Area:** `20-components-and-motion.md` §20
+
+**Problem:** §20 says the footer service list is "icon + label ×5" and the re-measure fixed the
+icon at 1.25rem and 0.5 opacity, but there is no icon set to transcribe — tonik drew their own
+line art and it is not ours to copy.
+
+**Impact:** The composition is right and the five rows read correctly, but the glyphs are five
+minimal geometric marks drawn to fill the slot, not a designed set.
+
+**Workaround:** `components/ui/ServiceIcon.tsx` — one file, five paths on a 20×20 grid at the
+same 1.5-unit stroke as the aperture. Replacing them is one edit and touches nothing else.
+
+**Needs:** Real icons. Phase 2 owns the brand and phase 10 owns assets; either could take it.
+Not blocking anything.
+
+---
+
+## I-015 · The contact form's options and its gif have no source  🟡
+
+**Found:** phase 01, 2026-08-25 · **Area:** `20-components-and-motion.md` §3
+
+**Problem:** Three gaps in one component.
+
+1. **"WHAT BUDGET DO YOU HAVE?"** — the spec gives the field, its type (select) and its styling,
+   but no bands.
+2. **"WHERE DID YOU FIND US?"** — "chip multi-select ×4", and names none of the four.
+3. **`.contact__gif`** — "bottom-left, translated y:100% at rest". There is no asset. tonik loops
+   a GIF there; ours has nothing to show until phase 10.
+
+**Impact:** Two fields ship with invented option lists, and the panel's bottom-left quarter is
+empty at desktop.
+
+**Workaround:** Budgets are `Under $5k · $5k–$15k · $15k–$50k · $50k+ · Not sure yet`; sources are
+`Search · Social · Referral · GitHub`. Both are single constants at the top of
+`components/chrome/ContactForm.tsx`. The gif element is **present but empty** — a real box that
+the open timeline moves, so the animation and its assertion are honest, with nothing invented
+inside it. It is hidden below 992 where tonik hides it too.
+
+There is also no endpoint: with no Tally ID, submit composes a `mailto:` to the business address.
+That is a working path, not a stub, but it is not the shipping one.
+
+**Needs:** Content decisions from the user for 1 and 2 — cheap, and they are non-technical, so
+they are theirs. A media asset for 3, from phase 10. A form endpoint or a Tally ID before launch,
+in phase 12.
+
+---
+
+## I-016 · `'1rem top'` / `'30rem top'` are pixels — ScrollTrigger has no rem  🟢
+
+**Found:** phase 01, 2026-08-25 · **Area:** `20-components-and-motion.md` §2 Mini toggle
+
+**Problem:** The navbar mini ScrollTrigger is specced — and transcribed from tonik's bundle
+verbatim — as `start: '1rem top', end: '30rem top'`. It reads like 30rem of scroll, which at a
+16.45px root would be 493.5px. It is not.
+
+**Evidence:** `node_modules/gsap/ScrollTrigger.js:310`, `_offsetToPx` handles `%` and the
+top/center/bottom keywords and then falls through to `parseFloat(value) || 0`. `parseFloat('30rem')`
+is `30`. There is no rem support anywhere in ScrollTrigger's position parser.
+
+Confirmed on the live site rather than inferred. tonik's own trigger instance reports:
+
+```
+vars: { start: '1rem top', end: '30rem top' }   →   start: 1, end: 30
+```
+
+and their bar is not mini at scrollY 20 and is mini at scrollY 40.
+
+**Resolution:** Nothing to change in the code — ours was already byte-identical and therefore
+already correct. The **harness assertion** was wrong: it tested 300px/700px around an assumed
+493.5px boundary and failed a correct implementation. Corrected to 20px/100px around 30px.
+
+**Do not "fix" the specced strings into computed rem.** That would move the threshold sixteen
+times further down the page than tonik's, and every phase that touches the navbar will be tempted
+to. The note now lives in `behaviour.config.ts` next to the assertion, in
+`20-components-and-motion.md` §2 next to the code, and here.

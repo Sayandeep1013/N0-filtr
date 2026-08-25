@@ -1,0 +1,148 @@
+/* docs/spec/20-components-and-motion.md §3, the form table.
+
+   Every field is `bg var(--grey-600)` with a mono uppercase placeholder. The
+   chips share the fill and invert to `--black` / `--white` when selected. The
+   submit is a full-width black bar with a circular arrow. */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.legend,
+.label {
+  color: var(--text-alternate);
+  opacity: 0.6;
+}
+
+.input,
+.select,
+.textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid transparent;
+  background-color: var(--grey-600);
+  color: var(--text-alternate);
+  font-family: var(--family-mono);
+  font-size: var(--t-label-size);
+  line-height: var(--t-label-lh);
+  letter-spacing: var(--t-label-track);
+  text-transform: uppercase;
+  transition: border-color var(--dur-fast) var(--ease-in-out);
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: var(--text-alternate);
+  opacity: 0.4;
+}
+
+.textarea {
+  min-height: 6rem;
+  resize: vertical;
+}
+
+/* The select needs its own chevron: appearance:none removes the native one. */
+.selectWrap {
+  position: relative;
+}
+
+.select {
+  appearance: none;
+  padding-right: 2rem;
+}
+
+.chevron {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  width: 0.75rem;
+  height: 0.75rem;
+  margin-top: -0.375rem;
+  pointer-events: none;
+  color: var(--text-alternate);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0;
+  border: 0;
+  margin: 0;
+}
+
+.chip {
+  padding: 0.5rem 0.75rem;
+  border-radius: 999px;
+  background-color: var(--grey-600);
+  color: var(--text-alternate);
+  font-family: var(--family-mono);
+  font-size: var(--t-label-size);
+  line-height: var(--t-label-lh);
+  letter-spacing: var(--t-label-track);
+  text-transform: uppercase;
+  transition:
+    background-color var(--dur-fast) var(--ease-in-out),
+    color var(--dur-fast) var(--ease-in-out);
+}
+
+.chipOn {
+  background-color: var(--black);
+  color: var(--white);
+}
+
+.submit {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem;
+  background-color: var(--black);
+  color: var(--white);
+  font-family: var(--family-mono);
+  font-size: var(--t-label-size);
+  line-height: var(--t-label-lh);
+  letter-spacing: var(--t-label-track);
+  text-transform: uppercase;
+}
+
+.tally {
+  width: 100%;
+  min-height: 30rem;
+  border: 0;
+}
+
+@media (min-width: 992px) {
+  /* §22 — `.form_input:hover { border-color: var(--grey-700) }`. */
+  .input:hover,
+  .select:hover,
+  .textarea:hover {
+    border-color: var(--grey-700);
+  }
+
+  /* §22 — `.check-box:hover { background-color: #00000026 }`. The chips are
+     this site's checkboxes. */
+  .chip:not(.chipOn):hover {
+    background-color: #00000026;
+  }
+}
+
+@media (max-width: 767px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+}

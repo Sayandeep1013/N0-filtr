@@ -11,6 +11,7 @@ import { MotionProvider } from '@/lib/motion/MotionProvider';
 import { Loader } from '@/components/chrome/Loader';
 import { Navbar } from '@/components/chrome/Navbar';
 import { Footer } from '@/components/chrome/Footer';
+import { ContactPanel } from '@/components/chrome/ContactPanel';
 
 export const metadata: Metadata = {
   title: {
@@ -40,6 +41,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <Navbar />
           <main id="main">{children}</main>
           <Footer />
+          <ContactPanel />
         </MotionProvider>
       </body>
     </html>
