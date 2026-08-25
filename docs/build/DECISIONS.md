@@ -364,3 +364,97 @@ Still placeholder art like the other four — I-014 stands, and phase 10 still o
 nothing; no Webflow/no-code work exists", which is the evidence trail that led to this decision.
 Research files are snapshots of what was found; rewriting them to match a later choice would
 destroy the reasoning.
+
+---
+
+## D-012 · The hero's material, and four places §2 could not be transcribed literally
+
+**Phase:** 2 · **Date:** 2026-08-26 · **Status:** active
+
+**Context:** `50-brand-and-3d.md` §2 is the only spec section on this build with **no reference
+to transcribe.** tonik's hero object is a Spline binary the brief deliberately does not copy, so
+§2's scene graph and its GLSL are *authored design intent*, not measurements — which is a
+different kind of document from §1's ratios or §20's IX2 curves, and has to be read differently.
+
+Four things in it do not survive literal transcription. Each was rendered, looked at against
+`docs/research/screens/tonik-hero-01.png`, and logged as its own issue. This decision records the
+reasoning they share.
+
+### 1. The lights had to actually light something
+
+§2 offers a choice: *"`MeshPhysicalMaterial` extended via `onBeforeCompile`, or a full
+`ShaderMaterial`"*. Its fragment sketch is the second shape — it builds `col` from the base
+colour, a fresnel term and the grain, with no light loop at all. But the scene graph specifies a
+key light at 2.4, a rim light at 1.8 and a hemisphere at 0.18, with exact positions.
+
+Taken together literally, those three lights are inert objects in the graph.
+
+**Decision: a full `ShaderMaterial`, with the specced lights as its uniforms.** The three lights
+are real objects in the scene as §2 draws them, and the material reads its directions and
+intensities *off those objects* rather than duplicating the numbers — change a light and the
+material follows. `MeshPhysicalMaterial` was rejected on weight: it pulls three's entire physical
+shader stack into a bundle that is already the subject of I-019.
+
+Every term §2 *does* give is verbatim: `#2a2a2a`, `pow(…, 2.8)`, `vec3(0.55) * fresnel * 0.85`,
+`mix(0.88, 1.06, grain)`, `uGrainScale 18.0`, `uGrainAmount 0.35`.
+
+**The normalisation took two attempts and the first one was wrong.** Dividing the lambert term by
+`ambient + key + rim` looks obviously right and is not: the two lights sit on **opposite sides**
+of the object, so no surface can ever face both, and the achievable maximum was about 0.59. The
+whole object rendered as a near-black silhouette. It now divides by `ambient + key`, so a
+key-facing surface lands exactly on `uBaseColor`, a rim-facing one at ~0.77, and a clamp holds the
+overlap. Only the fresnel goes above the base colour — which is precisely what §2 says the base
+colour is for.
+
+### 2. The output colour space (no issue — a local implementation choice)
+
+§2's numbers are written as values you see: `#2a2a2a` is described as *"a shade off the `#212121`
+ground"*, a statement about the screen. three's default colour management would convert the base
+colour into linear working space on the way in and back out on the way out — which round-trips the
+base correctly but silently triples the literal `vec3(0.55)` rim term, because that one is added
+in the middle.
+
+**Decision: `renderer.outputColorSpace = LinearSRGBColorSpace`, and the base colour passed as a
+raw `Vector3` rather than a `THREE.Color`.** The shader then writes display values and every
+specced number means what it says. Local to this renderer rather than a global
+`ColorManagement.enabled = false`, and nothing else on the site uses three.
+
+### 3. The grain had to reach the output — **I-021**
+
+§2's sketch computes a `roughness` from the grain and never reads it again, so the grain reaches
+the pixel through one ±9% albedo term and is invisible. The first render was a smooth dark torus,
+against a reference that is visibly speckled. §2's prose says the surface *"has a fine granular
+roughness that catches the rim light"*, so the sketch is missing the line that connects them. The
+roughness now drives the fresnel falloff and its brightness.
+
+### 4. The blades share the ring's tilt (no issue — reading the graph correctly)
+
+§2 hangs `rotation.x = -0.55, rotation.z = 0.30` off the **Ring** line, because that is where the
+ellipse presentation is described. Applied only to the torus it leaves six bars standing upright
+through a tipped hoop — which is exactly what the first render showed. Ring and blades are one
+mechanism and lie in one plane.
+
+The tilt therefore sits on an inner node of **both**, below each parallax group. The ordering
+matters: parallax stays on the outer groups so its axes remain the world X and Y the recovered
+IX2 curves were measured in, rather than rotating the axes those curves act on.
+
+### Also settled here
+
+**I-022 — the camera.** §2's `position (0, 0, 6.5)` and §2's composition target contradict each
+other; the composition is the half that can be checked against a capture, so `CAMERA_Z = 7.5` and
+the distance is fitted to the viewport below the desktop aspect.
+
+**I-023 — per-frame vs per-second.** §2's idle spin and parallax damp are stated as durations and
+written as per-frame increments. Both are now applied per second of elapsed time, evaluating to
+exactly the specced constants at 60fps.
+
+**Alternatives:** Transcribe §2 literally and ship it. That produces an object twice the intended
+size, with no visible grain, lit by nothing, whose blades stand in a different plane from its
+ring — and it would have passed a token check and a screenshot diff, because there is nothing to
+diff it against. This is the phase CLAUDE.md's model policy singles out as resting entirely on
+judgement, and this is what that meant in practice.
+
+**Consequence:** Thirteen behaviour assertions now hold the result in place — the triangle budget,
+both parallax sweeps, the 1.5× ratio, the counter-rotation, both suspend paths, the reduced-motion
+pose, the mobile blade count and the fitted camera. Four of the five deviations are still owed
+Sayandeep's eye at the phase-2 gate, which already required a hero recording.

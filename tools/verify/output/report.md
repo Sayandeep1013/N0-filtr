@@ -1,12 +1,12 @@
 # Verification report
-Run: 2026-08-25T20:15:35.283Z · Phase 02 · commit `7a40d82` · branch `phase/02-brand-3d`
+Run: 2026-08-25T20:55:32.493Z · Phase 02 · commit `29cb7fa` · branch `phase/02-brand-3d`
 
 ## Summary
 ```
 tokens  ✅ 136/136
-motion  ⚠️ 129/132  (3 pending, owed by later phases)
+motion  ⚠️ 142/145  (3 pending, owed by later phases)
 visual  ⚠️ reviewed by agent — see judgement
-budget  ✅ 4/4
+budget  ❌ 4/5
 ```
 
 ## tokens
@@ -282,6 +282,19 @@ budget  ✅ 4/4
 ✅ loader under reduced motion — a 200ms fade = 0.2s
 ✅ loader under reduced motion — no transform = opacity, duration, ease, parent, overwrite, delay
 ✅ loader under reduced motion — loader clears the page = display: none
+✅ hero 3D — triangle budget = 13064 / 40000
+✅ hero 3D — ring sweeps 0.4 rad across the viewport = 0.394
+✅ hero 3D — blades sweep 0.6 rad = 0.592
+✅ hero 3D — the blades outrun the ring = 1.50x
+✅ hero 3D — ring and blades counter-rotate on Y = ring 0.196, blades -0.196
+✅ hero 3D — loop suspends off-screen = running: false
+✅ hero 3D — loop resumes on-screen = running: true
+✅ hero 3D — suspended off the homepage = context kept, loop stopped
+✅ hero 3D — faded off the homepage = opacity 0
+✅ hero 3D — reduced motion renders one frame and stops = running: false
+✅ hero 3D — reduced-motion pose = rotation.y 0.4
+✅ hero 3D — 4 blades at 390 = 4
+✅ hero 3D — camera pulls back on a portrait viewport = z 13.56
 
 > Pending entries are timelines the spec names but no phase has built yet. The phase that builds one flips `pending: false` in motion.config.ts.
 > Behaviour checks drive the real interface — scroll, hover, click, Escape — rather than reading a registered timeline. They are the only instrument that catches an unwired handler, a matchMedia gate that leaks below 992, or a reverse running at the wrong timeScale. See behaviour.config.ts.
@@ -347,7 +360,6 @@ TYPE SCALE. Untouched this phase and re-read only to confirm that: the wordmark 
 face size and letter-spacing and does not inherit from the scale, so changing its casing could
 not have moved anything on the /probe surface. It did not.
 
-⏳ hero — owed by phase 3
 ⏳ stack-wall — owed by phase 3
 ⏳ works-a — owed by phase 4
 ⏳ services — owed by phase 5
@@ -355,10 +367,12 @@ not have moved anything on the /probe surface. It did not.
 ⏳ cs-hero — owed by phase 6
 ⏳ service — owed by phase 7
 ✅ type-scale @1512 = captured, no reference
+✅ hero @1512 = captured, reference paired
 ✅ footer @1512 = captured, reference paired
 ✅ contact-panel @1512 = captured, reference paired
 ✅ nav-menu @1512 = captured, no reference
 ✅ type-scale @390 = captured, no reference
+✅ hero @390 = captured, reference paired
 ✅ footer @390 = captured, reference paired
 ✅ contact-panel @390 = captured, reference paired
 ✅ nav-menu @390 = captured, no reference
@@ -367,14 +381,14 @@ not have moved anything on the /probe surface. It did not.
 ## budget
 
 ℹ️ matter-js absent from the eagerly-loaded bundle — vacuous: matter-js is not installed yet
-ℹ️ three absent from the eagerly-loaded bundle — vacuous: three is not installed yet
+✅ three absent from the eagerly-loaded bundle = absent
 ℹ️ plyr absent from the eagerly-loaded bundle — vacuous: plyr is not installed yet
-ℹ️ all built chunks, gzipped (not a per-route figure) = 307.8KB
-✅ JS on / (transferred) = 170.1KB / 190KB
-✅ home page total weight = 235.5KB / 1800KB
+ℹ️ all built chunks, gzipped (not a per-route figure) = 441.0KB
+❌ JS on / (transferred) — expected <= 190KB, got 303.5KB
+✅ home page total weight = 370.1KB / 1800KB
 ✅ zero network font requests = both faces self-hosted
 ✅ CLS (local, unthrottled) = 0.0027
-ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 80ms
+ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 72ms
 
 > Poster and reel budgets become binding in phase 10, when assets exist.
 > Lighthouse scores are a phase 12 deliverable via mcp__chrome-devtools__lighthouse_audit; the figures here are local and unthrottled.

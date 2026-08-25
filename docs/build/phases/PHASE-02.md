@@ -75,13 +75,13 @@ requires this and the phase-01 handoff supplies the number. Installing `three` a
 | id | task | status | evidence |
 |---|---|---|---|
 | T2.1 | Aperture mark — glyph at 16/32/48px + `NO FiLTER` wordmark | ✅ | approved 2026-08-26 (D-010); casing revised (D-011); nav box re-measured at 99.9% (I-018) |
-| T2.2 | Three.js scene — persistent mount outside `<main>` | ⬜ next | — |
-| T2.3 | Geometry — torus ring + 6 extruded bevelled blades | ⬜ next | — |
-| T2.4 | GLSL material — object-space simplex grain + fresnel rim | ⬜ next | — |
-| T2.5 | Mouse parallax — the exact tonik curves | ⬜ next | — |
-| T2.6 | Mobile — scroll-driven `rotationY −0.525 → −1.5` | ⬜ next | — |
-| T2.7 | Perf — DPR clamp, IntersectionObserver suspend, route fade | ⬜ next | — |
-| T2.8 | Reduced motion — one static frame; no-WebGL → WebP fallback | ⬜ next | — |
+| T2.2 | Three.js scene — persistent mount outside `<main>` | ✅ | context kept + loop stopped across a route change, asserted |
+| T2.3 | Geometry — torus ring + 6 extruded bevelled blades | ✅ | 13,064 / 40,000 triangles asserted |
+| T2.4 | GLSL material — object-space simplex grain + fresnel rim | ⚠️ | grain visible; §2 roughness rewired (I-021), lights made real (D-012) |
+| T2.5 | Mouse parallax — the exact tonik curves | ✅ | ring 0.394/0.4, blades 0.592/0.6, **1.50×**, counter-rotation ±0.196 |
+| T2.6 | Mobile — scroll-driven `rotationY −0.525 → −1.5` | ⚠️ | 4 blades asserted; anchors to `[data-hero]` in phase 3 (I-020) |
+| T2.7 | Perf — DPR clamp, IntersectionObserver suspend, route fade | ⚠️ | all three suspend paths asserted; **budget fails, I-019** |
+| T2.8 | Reduced motion — one static frame; no-WebGL → WebP fallback | ✅ | `running: false`, pose 0.4; `hero-aperture.webp` 2400×1600 28KB |
 | T2.9 | Mark applied to loader, nav, footer, favicon, OG | ✅ | four assets generated + `manifest.ts` + `metadataBase`; all four routes prerendered |
 
 ---
@@ -205,14 +205,142 @@ Verified by the build, which prerenders all four as routes: `/icon.svg`, `/apple
 
 ---
 
+---
+
+## T2.2–T2.8 — the 3D hero
+
+The only phase on this build with no reference to transcribe. §2's scene graph and its GLSL are
+authored design intent, not measurements — tonik's object is a Spline binary the brief
+deliberately does not copy — and that has to change how the section is read. **Four of its
+statements do not survive literal transcription**, and every one of them was found by rendering
+the thing and looking at it against `docs/research/screens/tonik-hero-01.png`. All four are in
+D-012 with an issue each.
+
+### Structure
+
+| File | What it is |
+|---|---|
+| `components/hero/Hero3D.tsx` | The mount, the gating, the lifecycle. **No `three` import.** |
+| `components/hero/apertureScene.ts` | The scene. The only place `three` is imported, reached through a dynamic `import()`. |
+| `components/hero/aperture.glsl.ts` | The material — Ashima simplex, object-space grain, fresnel rim. |
+| `lib/motion/loaderSignal.ts` | The latch §2's load-in hangs off. |
+| `scripts/hero-fallback.mjs` | Bakes the no-WebGL still. |
+
+The scene exports a factory rather than a component, and lives outside the React tree, because
+that is what lets one WebGL context survive every route change. `Hero3D` never imports it
+statically — `verify:budget`'s `FORBIDDEN_IN_INITIAL` check enforces that, and it is no longer
+vacuous.
+
+**One loop.** `tick()` is called from `gsap.ticker`. There is no `requestAnimationFrame` and no
+`setAnimationLoop` anywhere in the hero; either would be the second loop CLAUDE.md §7 forbids.
+
+**"Starting as the loader clears"** needed a real signal, not a guessed delay — the loader's enter
+timeline is 0.6s normally and 0.2s under reduced motion, so any hard-coded number is wrong in one
+of the two modes. `loaderSignal.ts` is a **latched** signal: a consumer that subscribes after the
+loader has already finished fires immediately rather than waiting for an event that has been and
+gone. Phase 3's hero copy has the same dependency and can use it.
+
+### What the renders found
+
+**The first render was wrong in three ways at once, and none of them were visible in the source.**
+
+1. **The blades stood upright through a tipped ring.** §2 hangs `rotation.x = -0.55, rotation.z =
+   0.30` off the *Ring* line, so applied literally it tilts the torus and leaves the six blades in
+   the untilted plane. They are one mechanism. The tilt now sits on an inner node of both, below
+   each parallax group, so parallax still acts on the world axes the IX2 curves were measured in.
+2. **The object rendered near-black.** The lambert term was normalised by `ambient + key + rim`,
+   which no surface can ever receive because the two lights sit on opposite sides — the achievable
+   maximum was about 0.59. It divides by `ambient + key` now.
+3. **It overflowed the viewport on all four sides.** §2's camera at `z 6.5` puts a 4-unit ring at
+   98% of the viewport height *before* perspective, and the tilt magnifies its near edge another
+   19%. §2's own composition target says the right ~55%, cropped by the right edge, and their
+   capture shows 51% fully contained. `CAMERA_Z = 7.5` measures 53%. **I-022.**
+
+**Then the material had no grain** — §2's snippet computes a `roughness` and never reads it, so
+the grain reached the pixel through one ±9% albedo term. Its prose says the surface "catches the
+rim light", so the roughness now drives the fresnel. **I-021.**
+
+**And mobile was unusable.** A distance chosen for a 1.68 aspect leaves the ring at 183% of the
+width at 390 — a bare arc with one blade on it. The camera distance is fitted to the viewport now:
+never closer than 7.5, pulled back as far as it takes to stay within 105% of the width. One rule,
+correct at every width, resolving to exactly 7.5 on any desktop aspect.
+
+### What the harness found that the renders could not
+
+Thirteen behaviour assertions, in `tools/verify/behaviour.hero.ts` — its own file because it is
+the largest check on the harness and needs three browser contexts where every other check needs
+one.
+
+**It found a real bug within minutes of existing.** The pointer sweep read **0.319 rad instead of
+0.4**. The curves were right; the convergence was not. §2 states its idle spin and its parallax
+damp as *durations* — "~7.5s per revolution", "Smoothing: 500ms" — and implements both as
+*per-frame* increments, which are only those durations at 60fps. Headless Chromium runs the ticker
+near 20fps. Both are applied per second of elapsed time now, evaluating to exactly the specced
+constants at 60fps. **I-023.** No screenshot would ever have shown this, and the site would have
+smoothed at half speed on any 30fps machine.
+
+It also caught **`running: true` being reported on every non-home route** — the build effect
+claimed the loop was attached before the loop effect had decided, and the loop effect then found
+its state already "correct" and never corrected the lie.
+
+Two false starts in the check itself are worth recording, because both looked like product bugs:
+the off-screen suspend appeared broken twice. First a spacer injected into `<main>` was reconciled
+away by React. Then growing `<html>` survived React but not Lenis, which caches its scroll limit
+from the content element and **silently clamped `scrollTo(2700)` to about a hundred pixels** — the
+page never moved. The check now grows `<body>`, calls `lenis.resize()`, and prints scroll position
+and hero rect on failure so the next reader is not sent hunting.
+
+### T2.8 — both degraded paths, from one source
+
+The no-WebGL still is rendered **through the reduced-motion path**. §2 asks for "the assembly at
+its load-in pose", but the load-in ends with the assembly still turning, so there is no single
+frame that is *the* pose — while §2 has already chosen one for a different reason: reduced motion
+renders exactly one frame at `rotation.y = 0.4` and stops.
+
+Emulating `prefers-reduced-motion` therefore gives a pose that is deterministic, specced and
+reproducible, and it means **the two degraded paths show the identical image** — which is the
+right answer anyway. A visitor with no WebGL and a visitor who asked for no motion should not see
+two different heroes. `npm run hero:fallback` drives the real page rather than re-implementing the
+scene, so the still cannot drift from what the scene renders, and it **throws** if the loop is
+running under reduced motion rather than quietly baking an arbitrary frame.
+
+2400×1600, 28KB. The first bake came back with the navbar and the wordmark painted over it —
+Playwright's element screenshot clips the *page* to the element's box rather than isolating the
+element, and the hero is `inset: 0`.
+
+### The budget — I-019, and why the phase is not green
+
+`/` measures **302.8KB against a specced 190KB**. It cannot be met.
+
+§5 itemises the 190 as "GSAP ~55, Three ~150 raw/~48 gz, Lenis ~4, app ~40" — 147, and it **omits
+React and Next entirely**, which measure ~92KB here. Three measures **141.3KB transferred**, not
+48: `WebGLRenderer` pulls the whole shader library and tree-shaking barely touches it.
+
+Everything available without deleting something the site uses was done. Three is dynamically
+imported. Flip and Observer were removed from `lib/motion/gsap.ts` — Flip has one consumer on the
+entire site (the showreel, phase 3) and Observer has none in any component spec; they were in the
+stack table only because they are in tonik's. That saved 8.6KB.
+
+**Deferring Three's import to idle was considered and rejected.** It would move the download
+outside the measurement window and turn the check green without saving the visitor a byte. That is
+gaming the instrument, not meeting the budget.
+
+The number is specced, so it has not been edited to fit. The check stays red and reports the true
+figure, and **I-019 is Sayandeep's to decide.**
+
+---
+
 ## Deviations from the phase brief
 
-*(none yet)*
+**T2.9 was taken first rather than last.** Favicon and OG needed no Three.js and are the cheapest
+confirmation that the approved glyph is the shipping glyph, so doing them before the 3D meant the
+brand was fully applied even if the hero slipped a session.
 
-## Self-review
+**Five §2 values were not transcribed literally**, each rendered, compared against the reference
+and logged: the camera distance (I-022), the roughness that reaches nothing (I-021), the per-frame
+motion constants (I-023), the tilt's placement and the lighting normalisation (both D-012). None
+was changed silently and none of §2's other numbers were touched.
 
-*(pending — protocol §6, at the end of the phase)*
-
-## Handed off to
-
-*(pending)*
+**`lib/motion/gsap.ts` lost two plugins** it had registered since phase 0. Out of scope for phase
+2 in the strict sense, and the right thing to do while making a budget argument — that argument is
+only honest once everything unused is gone.

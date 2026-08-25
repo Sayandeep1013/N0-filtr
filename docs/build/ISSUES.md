@@ -42,6 +42,11 @@ Newest last. **Owner** is the phase that should resolve it, not the phase that f
 | I-016 | `'1rem top'` / `'30rem top'` are pixels — ScrollTrigger has no rem | 🟢 resolved in 1 | — |
 | I-017 | `inOutQuad → power2.inOut` is wrong; GSAP's `power2` is cubic | 🟢 resolved in 1 | — |
 | I-018 | The wordmark's fit was measured against the *lowercase* form | 🟢 resolved in 2 | — |
+| I-019 | `/` is 302.8KB against a 190KB JS budget the spec under-counted | 🔴 open | **user / 12** |
+| I-020 | The mobile hero has no hero section to scrub against until phase 3 | 🟡 worked around | 3 |
+| I-021 | Section 2's fragment sketch computes a roughness it never uses | 🟡 worked around | 2 |
+| I-022 | Section 2's camera puts the assembly outside its own composition target | 🟡 worked around | **user** |
+| I-023 | Section 2's motion values are per-frame; its prose says per-second | 🟢 resolved in 2 | — |
 
 **Nothing open blocks phase 2.** I-009 and I-014 were both settled in the conversation that
 approved the mark, on 2026-08-26 — I-009 resolved, I-014 explicitly deferred to phase 10.
@@ -548,3 +553,174 @@ Phase 1 had set `font-size: 1rem` because that is what made the *lowercase* word
 it is the one that was fitted rather than measured.
 
 **This also moves I-013**, which is written against the old proportions — see the note there.
+
+
+---
+
+## I-019 · `/` is 302.8KB against a 190KB JS budget the spec under-counted  🔴
+
+**Found:** phase 02, 2026-08-26 · **Area:** `60-architecture-and-build.md` §5
+
+**Problem:** `verify:budget` measures **302.8KB** of JavaScript transferred on `/` against a
+specced ceiling of **190KB**. The check fails, and `npm run verify` fails with it.
+
+The budget cannot be met, and the reason is arithmetic in the spec rather than weight in the
+build. §5 itemises the 190KB as *"GSAP ~55, Three ~150 raw/~48 gz, Lenis ~4, app ~40"* — which
+sums to 147 and **omits React and Next entirely**. Measured here they are ~92KB gzipped on their
+own, so the framework eats half the ceiling before a line of ours is counted.
+
+The second error is Three. §5 estimates 48KB gzipped. Three 0.185 with a `WebGLRenderer`, a
+`TorusGeometry` and an `ExtrudeGeometry` builds to **558KB raw across two chunks and 141.3KB
+transferred** — nearly three times the estimate. Tree-shaking barely helps: `WebGLRenderer` pulls
+the whole shader library, and that is most of it.
+
+| | Measured on `/` |
+|---|---|
+| Before this phase (framework + GSAP + Lenis + app) | 170.1KB |
+| minus Flip and Observer, registered and never used | −8.6KB → **161.5KB** |
+| Three, dynamically imported but still fetched on `/` | **+141.3KB** |
+| **Total** | **302.8KB** / 190KB |
+
+**What was already done about it.** Three *is* dynamically imported — `verify:budget`'s
+`three absent from the eagerly-loaded bundle` check passes, and it is no longer vacuous. And Flip
+and Observer were removed from `lib/motion/gsap.ts`: Flip has exactly one consumer on the whole
+site (the showreel, phase 3) and Observer has none in any component spec. That is every byte
+available without removing something the site actually uses.
+
+**Impact:** `npm run verify` cannot go green. Phase 2 therefore cannot be handed off clean under
+protocol §5 — which is the gate working correctly, not a problem with the gate.
+
+**Workaround:** None. The number is specced, so it is **not** being edited to fit
+(CLAUDE.md non-negotiable §1). The check stays red and reports the true figure.
+
+Deferring Three's import to idle would move the download outside the measurement window and turn
+the check green **without saving the visitor a single byte**. It was considered and rejected: that
+is gaming the instrument, not meeting the budget.
+
+**Needs:** A decision from Sayandeep. Three honest options:
+
+1. **Re-budget to ~320KB** and keep the 3D hero. §5's line items were never a measurement;
+   Lighthouse (≥85 desktop / ≥70 mobile, §5) stays the real quality bar and is not a byte count.
+   Recommended.
+2. **Defer Three until idle or first interaction.** The hero appears a beat late; LCP and INP
+   genuinely improve, because the canvas is `aria-hidden` decoration and never the LCP element.
+   The bytes are unchanged, so the check would have to be redefined as *JS before interactive*
+   for it to mean anything.
+3. **Drop the 3D hero** and ship the baked WebP on every visit. Saves the full 141.3KB and ends
+   phase 2's reason to exist.
+
+§3 "Why not Spline" survives all of this: its numbers were wrong, its conclusion was not — Spline
+is ~380KB of runtime plus a ~200KB scene, so Three is still the smaller of the two.
+
+---
+
+## I-020 · The mobile hero has no hero section to scrub against until phase 3  🟡
+
+**Found:** phase 02, 2026-08-26 · **Area:** `50-brand-and-3d.md` §2 Mobile
+
+**Problem:** §2's mobile drive scrubs `rotationY −0.525 → −1.5` against "the hero section's
+ScrollTrigger". The hero section belongs to phase 3, so there is no element to anchor to yet.
+
+**Impact:** None visible — the range is identical either way.
+
+**Workaround:** `Hero3D.tsx` looks for `[data-hero]` and falls back to the first viewport of the
+document, which is the range the hero section will occupy. `HERO_TRIGGER_SELECTOR` is one constant.
+
+**Needs:** Phase 3 puts `data-hero` on the hero section. Nothing else: the trigger picks it up and
+its `end` switches from `+=innerHeight` to the element's own `bottom top`.
+
+---
+
+## I-021 · §2's fragment sketch computes a roughness it never uses  🟡
+
+**Found:** phase 02, 2026-08-26 · **Area:** `50-brand-and-3d.md` §2 Material
+
+**Problem:** The GLSL in §2 computes a `roughness` from the grain and then never reads it again.
+The grain reaches the output through exactly one term — `col *= mix(0.88, 1.06, grain)` — which is
+about 9% either way on a base of 0.165, and invisible.
+
+Transcribed literally the material has **no visible grain at all**, which is the one thing §2 says
+is "the whole character of the material". Confirmed by rendering it: the first pass was a smooth
+dark torus.
+
+§2's prose is unambiguous about the intent — the surface *"has a fine granular roughness that
+catches the rim light"* — so the sketch is missing the line that connects the two, not describing
+a material without grain.
+
+**Impact:** The difference between the specced object and the reference capture, which shows a
+strongly speckled surface along the lit arc.
+
+**Workaround:** `aperture.glsl.ts` wires the roughness into the fresnel term the prose names — a
+rougher patch both widens the rim falloff and brightens it — and the grain then reads as glitter
+along the lit edge. Every value §2 *does* give is untouched: `#2a2a2a`, `pow(…, 2.8)`,
+`vec3(0.55) * fresnel * 0.85`, `mix(0.88, 1.06, grain)`, `18.0`, `0.35`. See D-012.
+
+**Needs:** Sayandeep's eye on the rendered result, alongside the hero recording the phase-2
+acceptance criteria already require. If the grain is too strong or too weak, the two constants to
+move are named in the file.
+
+---
+
+## I-022 · §2's camera puts the assembly outside §2's own composition target  🟡
+
+**Found:** phase 02, 2026-08-26 · **Area:** `50-brand-and-3d.md` §2 Scene graph
+
+**Problem:** Two things in §2 cannot both be true.
+
+The scene graph says `PerspectiveCamera fov 35, position (0, 0, 6.5)` with a ring of radius 2.0.
+At that distance the visible height is `2 × 6.5 × tan(17.5°) = 4.10` units and the ring is 4.0 —
+98% of the viewport height before perspective. The specced tilt then brings the near edge 1.04
+units closer, magnifying it a further ~19%. **It overflows the viewport on every side.**
+
+The composition target three lines below says the assembly should occupy *"the right ~55% of the
+viewport, cropped by the right edge"*, and `docs/research/screens/tonik-hero-01.png` shows their
+ring at **51% of the width, fully contained top and bottom.**
+
+**Impact:** Following the numbers gives an object roughly twice the intended size. The first
+render is what caught it.
+
+**Workaround:** `CAMERA_Z = 7.5` in `apertureScene.ts`, which measures 53% of the width and sits
+where theirs sits. The composition is the half of §2 that can be held against a reference capture;
+the scene graph is the half §2 *authored* rather than recovered, since tonik's object is a Spline
+binary the brief deliberately does not copy. Every other scene-graph number is verbatim.
+
+A second problem at the same root: a distance chosen for a 1.68 aspect leaves the ring at **183%
+of the width at 390**, a bare arc with one blade on it, where tonik's mobile capture
+(`s17-mobile-hero.png`) still reads as a ring with the mark inside. The distance is therefore
+fitted to the viewport — never closer than 7.5, pulled back as far as it takes to keep the
+assembly within 105% of the width. One rule, correct at every width, resolving to exactly 7.5 on
+any desktop aspect. Asserted at both breakpoints by `verify:motion`.
+
+**Needs:** Sayandeep's sign-off, with the hero recording the phase-2 acceptance criteria already
+require. If he prefers the specced 6.5 and a full-bleed object it is one constant — but then §2's
+composition target should be rewritten to match rather than left contradicting it.
+
+---
+
+## I-023 · §2's motion values are per-frame; the spec's own prose says per-second  🟢
+
+**Found:** phase 02, 2026-08-26 · **Area:** `50-brand-and-3d.md` §2 Motion
+
+**Problem:** §2 states two motion quantities as **durations** and implements both as **per-frame
+increments**:
+
+| Prose | Snippet | True only at |
+|---|---|---|
+| "~7.5s per revolution" | `group.rotation.y += 0.0022` per frame | 60fps |
+| "Smoothing: **500ms** on every channel" | `+= (target − current) * 0.08` per frame | 60fps |
+
+A per-frame constant is a different duration on every machine: at 30fps the smoothing takes a
+second, and on a throttled background tab several.
+
+**Impact:** Found by the new behaviour check, not by eye. It read the pointer sweep at **0.319 rad
+instead of 0.4**, because headless Chromium runs the ticker near 20fps — the curves were right and
+the convergence was not.
+
+**Resolved:** phase 02. Both are applied per second of real elapsed time:
+`IDLE_SPIN_PER_SECOND = 0.0022 × 60` and `dampFactor(dt) = 1 − (1 − 0.08)^(dt × 60)`, which
+evaluates to **exactly** the specced 0.08 at 60fps and holds the specced durations everywhere
+else. The specced numbers are unchanged; only the unit they are applied in is. Re-measured: ring
+0.394 of 0.4, blades 0.592 of 0.6, ratio 1.50×.
+
+The lesson is worth carrying into phases 4, 5 and 11: **a per-frame constant in a spec is a
+duration wearing a disguise.** The block pit in phase 11 has exactly the same exposure.

@@ -12,6 +12,7 @@ import { Loader } from '@/components/chrome/Loader';
 import { Navbar } from '@/components/chrome/Navbar';
 import { Footer } from '@/components/chrome/Footer';
 import { ContactPanel } from '@/components/chrome/ContactPanel';
+import { Hero3D } from '@/components/hero/Hero3D';
 import { SITE } from '@/lib/content/site';
 
 /**
@@ -62,9 +63,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           </a>
           {/* Chrome lives outside <main> so it survives route changes — the
               loader in particular has to persist across the navigation it is
-              covering. Hero3D joins them in phase 2. */}
+              covering, and Hero3D so its WebGL context is created exactly once
+              per session rather than once per navigation. */}
           <Loader />
           <Navbar />
+          <Hero3D />
           <main id="main">{children}</main>
           <Footer />
           <ContactPanel />
