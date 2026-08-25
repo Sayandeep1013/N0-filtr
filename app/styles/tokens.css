@@ -101,7 +101,7 @@
    Sizes only. Label sizes are deliberately UNCHANGED at every breakpoint —
    that is what keeps the interface feeling technical on small screens.
    Tracking is likewise unchanged; the spec's step-down list names sizes and
-   line-heights only. See I-004. */
+   line-heights only. See I-006. */
 @media (max-width: 767px) {
   :root {
     --t-h1-size: 3rem;   --t-h1-lh: 3rem;
