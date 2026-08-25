@@ -1,0 +1,29 @@
+# deps / build
+node_modules/
+.next/
+out/
+dist/
+*.tsbuildinfo
+
+# env
+.env*
+!.env.example
+
+# os / editor
+.DS_Store
+Thumbs.db
+*.log
+
+# verification output (regenerated; evidence reports are committed explicitly)
+tools/verify/.cache/
+tools/verify/output/**/*.png
+!tools/verify/output/**/report.md
+
+# ── tonik-owned material ────────────────────────────────────────────────
+# Recovered from tonik.com for analysis. Kept LOCAL ONLY — this repo is
+# public and these are their assets, not ours. The extracted *values* live
+# in docs/spec/, which is our own work and is committed.
+docs/research/source/tonik-animations.js
+docs/research/source/tonik-ix2.json
+docs/research/source/tonik-hero-scene.splinecode
+docs/research/source/ix2-hover.txt
