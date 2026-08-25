@@ -1,5 +1,5 @@
 # Verification report
-Run: 2026-08-25T19:18:13.263Z · Phase 02 · commit `24e858c` · branch `fix/i-017-easing`
+Run: 2026-08-25T19:21:35.063Z · Phase 02 · commit `7fe2d24` · branch `main`
 
 ## Summary
 ```
@@ -373,10 +373,10 @@ to be broken by a careless mobile override later.
 ℹ️ plyr absent from the eagerly-loaded bundle — vacuous: plyr is not installed yet
 ℹ️ all built chunks, gzipped (not a per-route figure) = 307.6KB
 ✅ JS on / (transferred) = 170.1KB / 190KB
-✅ home page total weight = 234.8KB / 1800KB
+✅ home page total weight = 234.7KB / 1800KB
 ✅ zero network font requests = both faces self-hosted
 ✅ CLS (local, unthrottled) = 0.0019
-ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 76ms
+ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 80ms
 
 > Poster and reel budgets become binding in phase 10, when assets exist.
 > Lighthouse scores are a phase 12 deliverable via mcp__chrome-devtools__lighthouse_audit; the figures here are local and unthrottled.

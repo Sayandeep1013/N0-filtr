@@ -18,6 +18,35 @@ Open problems, deferred work, and spec values that look wrong.
 
 ---
 
+## Index
+
+Newest last. **Owner** is the phase that should resolve it, not the phase that found it.
+
+| # | Title | Status | Owner |
+|---|---|---|---|
+| I-001 | Blog and industry templates are under-specified | 🔴 open | 7, 9 |
+| I-002 | Culture collage composition is unspecified by design | 🟡 worked around | 5 |
+| I-003 | Physics feel values are unvalidated | 🟡 worked around | 11 |
+| I-004 | `normalizeWheel` no longer exists in Lenis 1.x | 🟢 resolved | — |
+| I-005 | At ≤767, `h1-sm` is larger than `h1` | 🟢 resolved in 1 | — |
+| I-006 | `h1` tracking is not stepped down with `h1` size | 🟢 resolved in 1 | — |
+| I-007 | The `small` (≤479) breakpoint has no values | 🟡 worked around | 3 |
+| I-008 | Next 15.5 pulls transitively vulnerable postcss and sharp | 🟡 worked around | 12 |
+| I-009 | The aperture mark's tick stroke weight is unspecified | 🟡 worked around | **2** |
+| I-010 | `loader.enter` was seeded at 1.0s; IX2 says 0.6s | 🟢 resolved in 1 | — |
+| I-011 | The mobile step-down for h3–h6 does not match tonik | 🔴 open | **3** |
+| I-012 | tonik's nav link padding is asymmetric | 🟡 worked around | any |
+| I-013 | The footer wordmark fills its column on tonik; ours is `14vw` | 🟡 worked around | 12 |
+| I-014 | The footer's five service icons are placeholder art | 🟡 worked around | 2 or 10 |
+| I-015 | The contact form's options and its gif have no source | 🟡 part-resolved | user, 10, 12 |
+| I-016 | `'1rem top'` / `'30rem top'` are pixels — ScrollTrigger has no rem | 🟢 resolved in 1 | — |
+| I-017 | `inOutQuad → power2.inOut` is wrong; GSAP's `power2` is cubic | 🟢 resolved in 1 | — |
+
+**Nothing open blocks phase 2.** I-009 and I-014 are both brand-shaped and cheapest to settle in
+the same conversation that approves the mark.
+
+---
+
 ## I-001 · Blog and industry templates are under-specified  🔴
 
 **Found:** spec phase, 2026-08-25 · **Area:** `30-page-specs.md` §/blog, §/industries
