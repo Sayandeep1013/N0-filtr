@@ -49,7 +49,59 @@ const TICK_STROKE = RING_STROKE / 2;
 
 const TICKS = Array.from({ length: 6 }, (_, i) => i * 60);
 
-export function ApertureMark({ className }: { className?: string }) {
+/* ── the tilt ────────────────────────────────────────────────────────────────
+   Sayandeep, 2026-08-26: *"add a logo — tilted wheel kinda."* The navbar had
+   only the `NO FiLTER` wordmark; the mark itself lived in the loader, the
+   favicon and the OG card and never appeared beside it.
+
+   So the mark is now drawn **tilted to the exact attitude of the 3D object**,
+   and the two stop being separate drawings of the same idea. The numbers are
+   not chosen here — they are read off `apertureScene.ts`, which measured them
+   against tonik's capture:
+
+       TILT_AXIS   = 0.892 rad off horizontal   → 51.1°
+       TILT_ANGLE  = 0.76 rad                   → cos = 0.7247
+
+   A circle tilted by φ about an in-plane axis projects to an ellipse: the
+   diameter **along** the axis is unchanged, everything perpendicular to it is
+   foreshortened by `cos φ`. So the transform is: rotate the geometry until the
+   tilt axis is horizontal, squash Y by 0.7247, rotate back.
+
+   SVG applies a transform list right to left, which is why it reads backwards
+   from that sentence. And `scale()` is about the origin rather than about a
+   point, so it is sandwiched between translates to keep it about the centre.
+
+   ⚠️ **The stroke squashes with the shape**, which is correct — a tilted ring
+   really is thinner across its minor axis. It is also why `vector-effect` is
+   deliberately NOT set here: `non-scaling-stroke` would hold the weight
+   constant and the ellipse would stop reading as a circle seen at an angle. */
+const TILT_AXIS_DEGREES = 51.1;
+const TILT_SQUASH = 0.7247;
+const TILT_TRANSFORM = [
+  `rotate(${TILT_AXIS_DEGREES} ${C} ${C})`,
+  `translate(${C} ${C})`,
+  `scale(1 ${TILT_SQUASH})`,
+  `translate(${-C} ${-C})`,
+  `rotate(${-TILT_AXIS_DEGREES} ${C} ${C})`,
+].join(' ');
+
+export function ApertureMark({
+  className,
+  /**
+   * Draw the mark flat-on instead of tilted.
+   *
+   * The tilt is the default because it is what the logo is now. This exists for
+   * the one place a foreshortened mark would be wrong: a favicon at 16px, where
+   * an ellipse squashed to 72% of its height loses the ring to rounding. Nothing
+   * in the app passes it yet — `scripts/brand-assets.mjs` draws its own copy of
+   * the geometry — but the option belongs with the geometry rather than in a
+   * comment somewhere.
+   */
+  flat = false,
+}: {
+  className?: string;
+  flat?: boolean;
+}) {
   return (
     <svg
       className={className}
@@ -61,30 +113,36 @@ export function ApertureMark({ className }: { className?: string }) {
       aria-hidden="true"
       focusable="false"
     >
-      {/* `data-mark-ring` and `data-mark-tick` are the loader's handles. The
+      {/* Everything sits inside the tilt, so the ring and its six blades are
+          foreshortened together and the blades stay on their own radial lines.
+          Tilting them separately would put them off the ellipse.
+
+          `data-mark-ring` and `data-mark-tick` are the loader's handles. The
           mark itself stays inert — it is used at 16px in a nav and at 14vw in a
           footer, and neither of those should ever animate. Only the loader
-          looks for them. See D-028. */}
-      <circle cx={C} cy={C} r={R} strokeWidth={RING_STROKE} data-mark-ring />
-      {/* Wrapped so the loader can turn all six as one mechanism. The group
-          has no transform of its own at rest, so the mark is unchanged
-          everywhere else it is used — 16px in the navbar, 14vw in the footer.
-          See D-030. */}
-      <g data-mark-blades>
-        {TICKS.map((angle) => (
-          <line
-            key={angle}
-            x1={C}
-            y1={C - INNER}
-            x2={C}
-            y2={C - INNER + TICK}
-            strokeWidth={TICK_STROKE}
-            data-mark-tick
-            /* Read right to left: the tick is first pivoted 8° about its own
-               anchor on the inner edge, then swung round to its 60° station. */
-            transform={`rotate(${angle} ${C} ${C}) rotate(${OFF_RADIAL} ${C} ${C - INNER})`}
-          />
-        ))}
+          looks for them. See D-028 and D-033. */}
+      <g transform={flat ? undefined : TILT_TRANSFORM}>
+        <circle cx={C} cy={C} r={R} strokeWidth={RING_STROKE} data-mark-ring />
+
+        {/* Wrapped so the loader can turn all six as one mechanism. The group
+            has no transform of its own at rest, so the mark is unchanged
+            everywhere else it is used. See D-030. */}
+        <g data-mark-blades>
+          {TICKS.map((angle) => (
+            <line
+              key={angle}
+              x1={C}
+              y1={C - INNER}
+              x2={C}
+              y2={C - INNER + TICK}
+              strokeWidth={TICK_STROKE}
+              data-mark-tick
+              /* Read right to left: the tick is first pivoted 8° about its own
+                 anchor on the inner edge, then swung round to its 60° station. */
+              transform={`rotate(${angle} ${C} ${C}) rotate(${OFF_RADIAL} ${C} ${C - INNER})`}
+            />
+          ))}
+        </g>
       </g>
     </svg>
   );

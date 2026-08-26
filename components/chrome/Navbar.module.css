@@ -43,14 +43,38 @@
    measured 4.59rem in the same box — an 8% overrun into the links group. 4.25 /
    4.59 = 0.926, so 0.925rem restores the fit. Verified at 1512 and 390: the
    wordmark lands at 4.24rem of the 4.25rem box at both. See D-011, I-018. */
+/* ── the mark joined the box on 2026-08-26 ──────────────────────────────────
+   The wordmark's own measurements above are untouched — it is still 0.925rem in
+   a 4.25rem slot, and `verify:visual`'s nav-wordmark crop still frames it. What
+   changed is that the box now also holds the mark and the gap between them:
+
+       1.25rem  the mark, square, matched to the box's own height
+     + 0.5rem   the gap
+     + 4.25rem  the wordmark, unchanged
+     = 6rem
+
+   Stated as a sum rather than as `6rem` because the wordmark's fit was arrived
+   at painfully (D-011, I-018) and the next person to touch this needs to see
+   that 4.25 is load-bearing rather than one third of a round number. */
 .logo {
   display: flex;
   flex: none;
   align-items: center;
-  width: 4.25rem;
+  gap: 0.5rem;
+  width: 6rem;
   height: 1.25rem;
   font-size: 0.925rem;
   color: var(--text-primary);
+}
+
+/* Square, and the height of the box it sits in. The mark is drawn tilted now
+   (D-033), so it does not fill its own square — the ellipse is 72% of the
+   width across its minor axis — and that empty margin is what stops it
+   crowding the wordmark. */
+.mark {
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 .menu {

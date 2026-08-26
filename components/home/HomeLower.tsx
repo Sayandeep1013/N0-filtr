@@ -33,6 +33,13 @@ export function HomeLower() {
     <>
       {/* ── services ─────────────────────────────────────────────────────── */}
       <section className={s.services} data-services>
+        {/* The right-hand half of the pair. Sayandeep asked for one on that side
+            too, and a mirrored instance is the answer rather than a second
+            figure: the two bracket the page and their draws run towards each
+            other. Absolutely positioned against the section rather than placed
+            in the grid — their `services_grid` is `1fr 10fr 1fr` and the third
+            track is one twelfth, far too narrow to put anything in. */}
+        <Schematic className={s.schematicRight} mirrored />
         <div className="padding-global">
           <div className="container-large">
             <div className={s.servicesGrid}>

@@ -170,32 +170,37 @@ export const TIMELINE_ASSERTIONS: TimelineAssertion[] = [
    * Everything else on the homepage is reactive: nothing moves until you move.
    * That is why a page full of choreography still read as static — stop
    * scrolling and it is a photograph. This draws itself once on arrival and
-   * then keeps turning forever.
+   * then keeps a band of light travelling down the field forever.
    *
-   * Three shapes, not the thirty of its first version: a circle, a square and a
-   * triangle, nested, on one hairline weight. Sayandeep on the first: *"way too
-   * convoluted — make it simple, line arts, shapes."*
+   * Third design, and the third is the brief Sayandeep actually gave: *"sharp
+   * straight lines that fade in background."* It was a technical instrument
+   * first (too convoluted), then three nested shapes (also not it). Twenty-two
+   * horizontal rules now, and nothing else — no arcs, no closed shapes, no
+   * glyph. Their right-hand ends are set by a sine, so twenty-two perfectly
+   * straight lines describe a curve none of them contains.
    *
-   * Only the **draw** is registered. The three idle rotations are infinite, and
-   * a timeline assertion on `repeat: -1` says nothing a duration can express;
-   * they are also plain `gsap.to` calls on the shared ticker rather than a
-   * second rAF, which is the property that actually matters and which the
-   * runtime rAF check already enforces.
+   * **One tween, not twenty-two.** `stagger: 0.022` across the whole set, so
+   * GSAP reports the tween's SPAN rather than its per-element duration:
+   * 0.7 + 21 × 0.022 = 1.162. Same arithmetic as `contact.open`'s tween[5] and
+   * the loader's ticks — the number in the source is per element, the number
+   * GSAP reports is for the tween.
    *
-   * Outermost first on a 0.12 stagger, so the figure assembles inward:
-   * 0.24 + 0.7 = 0.94.
+   * `scaleX` rather than a dash-offset, because these are straight lines with
+   * nothing to trace: one composited property per line, and the ends are the
+   * only thing that moves.
+   *
+   * The travelling band is not registered. It is infinite, and a timeline
+   * assertion on `repeat: -1` says nothing a duration can express; it is also a
+   * plain `gsap.to` on the shared ticker rather than a second rAF, which is the
+   * property that matters and which the runtime rAF check already enforces.
    */
   {
     id: 'schematic.draw',
     phase: 5,
     pending: false,
-    totalDuration: 0.94,
-    tweenCount: 3,
-    tweens: [
-      { duration: 0.7, ease: 'power3.out', props: ['strokeDashoffset'], startTime: 0 },
-      { duration: 0.7, ease: 'power3.out', props: ['strokeDashoffset'], startTime: 0.12 },
-      { duration: 0.7, ease: 'power3.out', props: ['strokeDashoffset'], startTime: 0.24 },
-    ],
+    totalDuration: 1.162,
+    tweenCount: 1,
+    tweens: [{ duration: 1.162, ease: 'power3.out', props: ['scaleX'], startTime: 0 }],
   },
   /**
    * Our one deliberate correction to tonik: they animate the exit panel

@@ -47,11 +47,25 @@ function Chips({
   selected: string[];
   onToggle: (value: string) => void;
 }) {
+  /* ── `role="group"`, not `<fieldset>` — and this is why ────────────────────
+       A `<legend>` is **not a flex item**. Every engine lifts it out of normal
+       flow and renders it in the fieldset's own legend slot, so `display: flex`
+       and `gap` on the fieldset apply to everything *except* the label. Which
+       meant the question sat at whatever distance the browser chose, the gap we
+       set governed only the chips, and raising it did nothing to the space
+       Sayandeep was actually pointing at. He reported it twice, correctly, and
+       the first fix changed a number that was never being read.
+
+     `role="group"` with `aria-labelledby` is the documented equivalent: the
+     same grouping for assistive technology, and a container that lays out like
+     any other. */
+  const groupId = `contact-group-${legend.replace(/[^a-z]+/gi, '-').toLowerCase()}`;
+
   return (
-    <fieldset className={s.field}>
-      <legend data-t="label" className={s.legend}>
+    <div role="group" aria-labelledby={groupId} className={s.field}>
+      <p id={groupId} data-t="label" className={s.legend}>
         {legend}
-      </legend>
+      </p>
       <div className={s.chips}>
         {options.map((option) => {
           const on = selected.includes(option);
@@ -68,7 +82,7 @@ function Chips({
           );
         })}
       </div>
-    </fieldset>
+    </div>
   );
 }
 

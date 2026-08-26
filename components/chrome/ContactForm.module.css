@@ -4,12 +4,27 @@
    chips share the fill and invert to `--black` / `--white` when selected. The
    submit is a full-width black bar with a circular arrow. */
 
+/* ── the spacing, and why it changed ──────────────────────────────────────
+   Sayandeep, on the contact panel: *"give proper spacing between questions and
+   options."*
+
+   The form ran at one rhythm — 1.5rem between fields, 0.5rem between a legend
+   and its chips — and at those numbers a question sits closer to the field
+   above it than to its own answers. The eye groups by proximity before it reads
+   anything, so the panel scanned as a list of unrelated controls rather than as
+   four questions.
+
+   Two changes, and they are the same change: **the gap inside a question is now
+   clearly smaller than the gap between questions.** 0.875rem binds a legend to
+   its chips; 2.25rem separates one question from the next. Roughly 1:2.5, which
+   is enough that the grouping is read rather than worked out. */
 .form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 2.25rem;
 }
 
+/* Two inputs side by side are one question, so they keep the tight gap. */
 .row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -21,7 +36,18 @@
 .field {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  /* Bound to its own answers — see the note on `.form`.
+
+     1.125rem against the 2.25rem between fields: exactly half, so a question
+     is unambiguously closer to its own options than to anything else. Measured
+     at 1512: 18.5px inside a group, 37px between them.
+
+     It was 0.875rem first and that was not the problem — see the `role="group"`
+     note in ContactForm.tsx. A `<legend>` is not a flex item, so this gap was
+     being applied to everything in the group EXCEPT the label, and raising it
+     changed nothing at all. Sayandeep reported the same spacing three times
+     before the cause turned out to be that the number was never read. */
+  gap: 1.125rem;
   padding: 0;
   border: 0;
   margin: 0;
@@ -30,9 +56,12 @@
 /* The chip groups are the only fields with a visible label. The text inputs
    carry theirs as the placeholder, the way tonik's do — §3's table says
    "mono uppercase placeholder", and their form has no label row at all. */
+/* The question reads as a question, not as another mono control in the stack.
+   It is the only text in the panel that is neither an answer nor a placeholder,
+   and at the chips' own weight it disappeared into them. */
 .legend {
   padding: 0;
-  color: var(--text-alternate);
+  color: var(--grey-700);
 }
 
 .input,
@@ -91,7 +120,7 @@
 .chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.625rem;
+  gap: 0.5rem;
 }
 
 .chip {

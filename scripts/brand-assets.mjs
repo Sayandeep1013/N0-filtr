@@ -41,6 +41,25 @@ const TICK = R / 6; // tick length: 1/6 of the radius
 const TICK_STROKE = RING / 2; // half the ring's weight — I-009
 const OFF = 8; // degrees off-radial
 
+/* ── the tilt ────────────────────────────────────────────────────────────────
+   The mark is drawn tilted now — Sayandeep, 2026-08-26: *"add a logo, tilted
+   wheel kinda"*, then *"add the logo to the url bar too."* The two numbers are
+   the same ones `components/brand/ApertureMark.tsx` uses, which are themselves
+   read off `apertureScene.ts`: a 51.1 degree axis and a 0.7247 foreshortening —
+   the exact attitude of the 3D object in the hero.
+
+   Keeping this file's copy of the geometry in step with the component's is the
+   whole reason both are written as ratios rather than as coordinates. A favicon
+   that is a different drawing from the on-page glyph is a brand with two marks.
+
+   ⚠️ At 16px a tilted ring loses its bore to rounding. That is a real cost and
+   it is accepted deliberately: browsers ask for the 32px and larger renderings
+   far more often than the 16, and the mark being the same object everywhere
+   matters more than one size being slightly denser. `ApertureMark` keeps a
+   `flat` prop for the day that stops being true. */
+const TILT_AXIS = 51.1;
+const TILT_SQUASH = 0.7247;
+
 const round = (n) => +n.toFixed(4);
 
 /** The mark's inner geometry, unpositioned. `stroke` is a literal colour. */
@@ -49,8 +68,20 @@ function apertureGroup(stroke) {
     const t = `rotate(${i * 60} ${C} ${C}) rotate(${OFF} ${C} ${round(C - INNER)})`;
     return `      <line x1="${C}" y1="${round(C - INNER)}" x2="${C}" y2="${round(C - INNER + TICK)}" transform="${t}"/>`;
   }).join('\n');
+  /* Rotate the geometry until the tilt axis is horizontal, squash Y, rotate
+     back. SVG applies a transform list right to left, which is why it reads in
+     the reverse of that sentence — and `scale()` is about the origin rather
+     than about a point, so it is sandwiched between translates. */
+  const tilt = [
+    `rotate(${TILT_AXIS} ${C} ${C})`,
+    `translate(${C} ${C})`,
+    `scale(1 ${TILT_SQUASH})`,
+    `translate(${-C} ${-C})`,
+    `rotate(${-TILT_AXIS} ${C} ${C})`,
+  ].join(' ');
+
   return [
-    `  <g fill="none" stroke="${stroke}">`,
+    `  <g fill="none" stroke="${stroke}" transform="${tilt}">`,
     `    <circle cx="${C}" cy="${C}" r="${R}" stroke-width="${RING}"/>`,
     `    <g stroke-width="${TICK_STROKE}">`,
     ticks,

@@ -143,9 +143,26 @@ void main() {
   vec3 N = normalize(vWorldNormal);
   vec3 V = normalize(vViewDir);
 
-  // fine granular roughness, sampled in object space so it sticks to the surface
-  float grain = snoise(vObjectPos * uGrainScale) * 0.5 + 0.5;
-  float roughness = mix(0.62, 0.95, grain * uGrainAmount + (1.0 - uGrainAmount));
+  /* Fine granular roughness, sampled in object space so it sticks to the
+     surface under rotation rather than swimming across it. Section 2.
+
+     ── uGrainAmount used to control one quarter of the grain ──────────────
+     It was folded into the roughness mix alone — and the grain sample is read
+     three more times below, for the fresnel, the specular sparkle and the
+     albedo. So setting the uniform to 0 left three of the four uses reading the
+     noise at full strength and the object stayed visibly textured. The name
+     said one thing and the shader did another.
+
+     (No backticks in this comment, deliberately. This is a JS template literal
+     and one would end the string — the phase-2 handoff records the same trap,
+     and it costs a build error whose message points nowhere useful.)
+
+     Fading the SAMPLE toward its own midpoint fixes all four at once: at 1 the
+     value is the noise exactly as before, at 0 it is a constant 0.5 and every
+     term downstream sees a uniform surface. */
+  float grainRaw = snoise(vObjectPos * uGrainScale) * 0.5 + 0.5;
+  float grain = mix(0.5, grainRaw, uGrainAmount);
+  float roughness = mix(0.62, 0.95, grain);
 
   /* Two directional lights, lambert, softened by the roughness — a matte
      surface spreads its terminator rather than breaking sharply.

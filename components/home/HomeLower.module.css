@@ -15,8 +15,32 @@
    is a different indent from the works heading's `4fr 7fr 1fr`. Both measured;
    see I-032. */
 .services {
+  position: relative;
   padding-top: 6rem;
   padding-bottom: 4rem;
+  /* The right-hand figure bleeds to the viewport edge, and nothing else in this
+     section may. */
+  overflow: hidden;
+}
+
+/* Against the right margin, vertically centred on the intro row. `pointer-events`
+   off because it sits over the section and must never intercept a click meant
+   for the accordion beneath it. */
+.schematicRight {
+  position: absolute;
+  top: 4rem;
+  right: 0;
+  width: 13rem;
+  max-width: 13rem;
+  pointer-events: none;
+}
+
+@media (max-width: 1279px) {
+  /* Below this the lead's measure reaches far enough right that the figure
+     starts sitting behind text rather than beside it. */
+  .schematicRight {
+    display: none;
+  }
 }
 
 .servicesGrid {

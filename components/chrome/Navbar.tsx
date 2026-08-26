@@ -7,6 +7,7 @@ import { gsap, ScrollTrigger, useGSAP } from '@/lib/motion/gsap';
 import { DUR } from '@/lib/motion/tokens';
 import { useMotion } from '@/lib/motion/MotionProvider';
 import { Wordmark } from '@/components/brand/Wordmark';
+import { ApertureMark } from '@/components/brand/ApertureMark';
 import { Button } from '@/components/ui/Button';
 import { NAV_LINKS } from '@/lib/content/site';
 import { cx } from '@/lib/cx';
@@ -92,7 +93,11 @@ export function Navbar() {
   return (
     <header ref={navRef} className={cx(s.nav, 'nav')}>
       <div className={cx('padding-global', s.inner)}>
+        {/* Mark then wordmark. The mark lived only in the loader, the favicon
+            and the OG card and never appeared next to the name — Sayandeep
+            asked for it in the bar, tilted. See D-033. */}
         <Link href="/" className={cx(s.logo, 'nav__logo')} aria-label="No Filter — home">
+          <ApertureMark className={s.mark} />
           <Wordmark />
         </Link>
 

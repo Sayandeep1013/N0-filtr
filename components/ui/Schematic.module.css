@@ -1,4 +1,4 @@
-/* Three shapes, turning. See the component for why it exists.
+/* A field of straight lines. See the component for why it exists.
 
    It lives in the empty left column of a section header — the 4/12 track that
    the works and culture grids leave open. That column is where the page felt
@@ -9,9 +9,12 @@
   color: var(--text-primary);
   /* Well under the copy beside it. It is a texture, not an illustration: at
      full strength it would read as a diagram the visitor is meant to parse. */
-  /* Three hairlines rather than thirty, so it can carry more presence without
-     becoming noise. The instrument version had to hide at 0.28. */
-  opacity: 0.4;
+  /* The figure's own gradient mask does the fading now, so this is the whole
+     field's ceiling rather than a way to make a busy drawing bearable. The
+     lines are sharp where they are visible and absent where they are not,
+     which is what "fades in background" asks for — grey lines everywhere would
+     be the opposite. */
+  opacity: 0.5;
   width: 100%;
   max-width: 15rem;
 }
@@ -20,10 +23,11 @@
   display: block;
   width: 100%;
   height: auto;
-  /* GSAP writes rotations into the groups inside. Without this the browser is
-     free to rasterise the whole SVG once and re-transform the bitmap, which
-     turns the hairlines to mush at the 0.4 stroke weights this figure uses. */
-  shape-rendering: geometricPrecision;
+  /* `crispEdges`, not `geometricPrecision`. Every stroke in this figure is
+     axis-aligned and horizontal, so there is no curve to smooth and antialiasing
+     buys nothing — it only softens a 1-unit rule across two device rows. Sharp
+     is the brief. */
+  shape-rendering: crispEdges;
 }
 
 /* Below 992 the column it lives in does not exist, and the idle rotation never
@@ -35,12 +39,20 @@
   }
 }
 
-/* Under reduced motion nothing draws and nothing turns, so the shapes must not
-   be left sitting at a dash-offset of their own length — which would be three
-   invisible shapes. They are simply there. */
+/* Under reduced motion nothing draws and nothing travels, so the lines must not
+   be left at `scaleX: 0` — which would be an empty box. The field is simply
+   there, at the resting opacity the travelling band lifts from. */
 @media (prefers-reduced-motion: reduce) {
-  .schematic [data-draw] {
-    stroke-dasharray: none !important;
-    stroke-dashoffset: 0 !important;
+  .schematic [data-line] {
+    transform: none !important;
+    opacity: 0.35 !important;
   }
+}
+
+/* The right-hand instance. A flip rather than a second set of coordinates —
+   see the `mirrored` prop. The draw runs left-to-right in the figure's own
+   space either way, so after the flip the two fields animate towards each
+   other rather than both sweeping the same way. */
+.mirrored svg {
+  transform: scaleX(-1);
 }

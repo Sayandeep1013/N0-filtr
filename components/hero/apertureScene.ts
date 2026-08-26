@@ -29,9 +29,12 @@
 import {
   DirectionalLight,
   DoubleSide,
+  EdgesGeometry,
   ExtrudeGeometry,
   Group,
   HemisphereLight,
+  LineBasicMaterial,
+  LineSegments,
   LinearSRGBColorSpace,
   Mesh,
   Path,
@@ -172,8 +175,52 @@ const SPECULAR = 2.4;
 
 /** `#2a2a2a`, as display-space components. See the note on outputColorSpace. */
 const BASE_COLOR: [number, number, number] = [0x2a / 255, 0x2a / 255, 0x2a / 255];
+/* ── the line-art edges ──────────────────────────────────────────────────────
+   Sayandeep, on the running hero: *"in the 3D object for the wheel give proper
+   border edges — line art edges."*
+
+   The barrel and the blades are shaded solids on a `#212121` ground, and the
+   grain and the fresnel both work *across* a surface rather than at its
+   boundary — so the object's silhouette and its internal creases were being
+   read entirely from a lighting gradient. On a dark ground that reads as soft,
+   which is the opposite of what the 2D mark is: a drawn ring with drawn ticks.
+
+   `EdgesGeometry` extracts only the edges where two faces meet at more than a
+   threshold angle, so the bevels and the 96-segment barrel curve contribute
+   nothing and the result is the object's actual creases — the outer rim, the
+   bore, the blade outlines — rather than a wireframe of every triangle.
+
+   The threshold matters. At 1° every bevel ring is an edge and the object
+   becomes a scribble; at 30° the blade's own outline drops out along its curved
+   back. 18° keeps the silhouette and the creases and discards the tessellation.
+
+   ⚠️ `LineBasicMaterial` ignores `linewidth` on every platform that matters —
+   the WebGL spec allows a driver to clamp it to 1, and they all do. These are
+   one device pixel wide, and that is the whole reason they read as line art
+   rather than as an outline: at any greater weight they would have to be built
+   from geometry, which is a different component and a different budget. */
+const EDGE_THRESHOLD_DEGREES = 18;
+/** Bright enough to draw the shape, dim enough not to become the object. */
+const EDGE_OPACITY = 0.55;
+
 const GRAIN_SCALE = 18.0;
-const GRAIN_AMOUNT = 0.35;
+/**
+ * **0 — the grain is off.** Sayandeep, 2026-08-26: *"let's get rid of texture
+ * too for now, just to see how it looks."*
+ *
+ * The value is not deleted, and neither is the shader path: `aperture.glsl`
+ * still computes the object-space simplex noise and still mixes it in, at
+ * strength zero. Deleting it would mean re-deriving it to try it again, and it
+ * was not cheap the first time — §2 specifies a grain that sticks to the
+ * surface under rotation rather than swimming across it, which is why it is
+ * sampled in object space and not in screen space.
+ *
+ * **0.35 is the value it was, and the value to restore.** With the line-art
+ * edges now drawing the object's creases (D-032), the shading has less work to
+ * do, so a lower grain than the original may be right rather than none — worth
+ * trying 0.15 before going back to 0.35.
+ */
+const GRAIN_AMOUNT = 0.0;
 
 /* ── motion ──────────────────────────────────────────────────────────────────
    §2 states its idle spin as "~7.5s per revolution" and its smoothing as
@@ -190,12 +237,18 @@ const GRAIN_AMOUNT = 0.35;
  * revolution in 7.5s needs 0.014 rad/frame, six times faster. §2 contradicts
  * itself and either reading is defensible. I-029.
  *
- * Neither is used. Sayandeep asked for it stopped or "wayy slower", so it is
- * 0.02 rad/s — about five minutes a revolution, which is imperceptible frame to
- * frame and means the object is never quite the same twice. **Set it to 0 for a
- * dead-still object**; nothing else depends on it.
+ * Neither is used. Sayandeep asked for it stopped or "wayy slower", so it was
+ * 0.02 rad/s — about five minutes a revolution.
+ *
+ * **0.1 now**, at his request on 2026-08-26: *"increase the wheel moving speed
+ * a bit."* That is a revolution a minute — slow enough to stay calm, fast
+ * enough that the object is visibly alive rather than a still that happens to
+ * be rendered. 0.02 was imperceptible frame to frame, which was the point at
+ * the time and is not any more.
+ *
+ * **Set it to 0 for a dead-still object**; nothing else depends on it.
  */
-const IDLE_SPIN_PER_SECOND = 0.02;
+const IDLE_SPIN_PER_SECOND = 0.1;
 const DAMP = 0.08;
 const dampFactor = (dt: number) => 1 - Math.pow(1 - DAMP, dt * 60);
 
@@ -413,6 +466,19 @@ export function createApertureScene(
   barrelGeometry.translate(0, 0, -BARREL_DEPTH / 2);
   spinner.add(new Mesh(barrelGeometry, material));
 
+  /* One material for every edge on the object. `transparent` with
+     `depthWrite: false` so a line behind the barrel does not punch a hole in
+     the depth buffer and take a bite out of whatever is drawn after it. */
+  const edgeMaterial = new LineBasicMaterial({
+    color: 0xefefef,
+    transparent: true,
+    opacity: EDGE_OPACITY,
+    depthWrite: false,
+  });
+
+  const barrelEdges = new EdgesGeometry(barrelGeometry, EDGE_THRESHOLD_DEGREES);
+  spinner.add(new LineSegments(barrelEdges, edgeMaterial));
+
   /* The blade: a plate with a curved outer edge that tucks under the bore and a
      straight inner edge, which is what makes six of them read as a polygonal
      opening rather than as spokes. The straight edge is swung 8° off-radial —
@@ -446,6 +512,9 @@ export function createApertureScene(
     curveSegments: 1,
   });
   bladeGeometry.translate(0, 0, -BLADE_DEPTH / 2);
+  /* Built once and shared by all six, like the geometry itself — six copies of
+     the same edge set is six times the memory for an identical picture. */
+  const bladeEdges = new EdgesGeometry(bladeGeometry, EDGE_THRESHOLD_DEGREES);
 
   /* One group for every blade, rotating about the bore axis. That single node is
      the iris actuation, and it is the only differential the pointer drives. */
@@ -455,7 +524,13 @@ export function createApertureScene(
   // §2: 4 blades on mobile instead of 6.
   const bladeCount = mobile ? 4 : 6;
   for (let i = 0; i < bladeCount; i += 1) {
-    const blade = new Mesh(bladeGeometry, material);
+    /* Mesh and edges in one group per blade, so the rotation that puts the
+       blade at its station carries its outline with it. Rotating them
+       separately would work and would be two places to get the same number
+       right. */
+    const blade = new Group();
+    blade.add(new Mesh(bladeGeometry, material));
+    blade.add(new LineSegments(bladeEdges, edgeMaterial));
     blade.rotation.z = (i / bladeCount) * Math.PI * 2;
     blades.add(blade);
   }
@@ -481,8 +556,28 @@ export function createApertureScene(
   function applyMobileScroll() {
     // §2's range, on the bore axis rather than world Y. Same sweep, and the
     // silhouette survives it. See I-026.
-    spinner.rotation.z = lerp(MOBILE_SCROLL.from, MOBILE_SCROLL.to, scrollProgress);
+    /* The scroll pose **plus** the idle spin, not instead of it.
+
+       This used to assign the scroll pose outright, which meant the idle
+       rotation existed on desktop and nowhere else — on a phone the object only
+       moved while you were scrolling and was frozen the moment you stopped.
+       Sayandeep: *"the wheel doesn't spin on mobile view."*
+
+       The two are independent rotations about the same axis, so they add. The
+       accumulator is what makes that possible: an idle spin written straight
+       into `rotation.z` would be overwritten by the next scroll update. */
+    spinner.rotation.z = lerp(MOBILE_SCROLL.from, MOBILE_SCROLL.to, scrollProgress) + idleSpin;
   }
+
+  /**
+   * Total idle rotation so far, in radians.
+   *
+   * Accumulated rather than added straight into `rotation.z`, because on mobile
+   * the scroll drive *assigns* that property every frame — anything written
+   * into it directly is gone by the next update. Keeping the spin as its own
+   * quantity lets both paths compose it with whatever else they are doing.
+   */
+  let idleSpin = 0;
 
   function render() {
     renderer.render(scene, camera);
@@ -498,10 +593,15 @@ export function createApertureScene(
 
   return {
     tick(dt) {
+      /* Advanced once, before either branch, so the two paths cannot drift
+         apart — the object turns at the same rate on a phone and on a desktop,
+         and only what is composed on top of it differs. */
+      idleSpin += IDLE_SPIN_PER_SECOND * dt;
+
       if (mobile) {
         applyMobileScroll();
       } else {
-        spinner.rotation.z += IDLE_SPIN_PER_SECOND * dt;
+        spinner.rotation.z = idleSpin;
 
         const k = dampFactor(dt);
         tipper.rotation.y += (target.tipX - tipper.rotation.y) * k;
@@ -582,6 +682,13 @@ export function createApertureScene(
     dispose() {
       barrelGeometry.dispose();
       bladeGeometry.dispose();
+      /* The edge geometries and their shared material too. `EdgesGeometry`
+         allocates its own buffers, and the barrel's is not small — leaking
+         them on a route change is a leak per navigation, which is the shape of
+         bug this scene's single-context design exists to avoid. */
+      bladeEdges.dispose();
+      barrelEdges.dispose();
+      edgeMaterial.dispose();
       material.dispose();
       renderer.dispose();
       /* Frees the GPU context rather than waiting for GC. Without it a hot
