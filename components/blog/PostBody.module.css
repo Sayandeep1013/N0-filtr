@@ -1,0 +1,73 @@
+/* The post body. 30-page-specs.md §`/blog/[slug]`. */
+
+.body {
+  display: flex;
+  flex-direction: column;
+}
+
+.prose {
+  color: var(--text-secondary);
+}
+
+.prose p {
+  margin: 0 0 1.25rem;
+}
+
+.h2 {
+  margin: 2.5rem 0 1.25rem;
+  color: var(--text-primary);
+  font-weight: 400;
+}
+
+.h3 {
+  margin: 2rem 0 1rem;
+  color: var(--text-primary);
+  font-weight: 400;
+}
+
+/* §: a 1px left rule. The accent is permitted at this width — D-036 keeps it
+   for single lines and small marks, and this is a single line. */
+.quote {
+  margin: 1.5rem 0 2rem;
+  padding-left: 2rem;
+  border-left: 1px solid var(--accent-ink);
+}
+
+.quote p {
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.list {
+  margin: 0 0 1.25rem;
+  padding: 0;
+  list-style: none;
+}
+
+/* An en dash rather than a bullet: the site has no round marks in its type, and
+   a disc among all these hairlines reads as a foreign object. */
+.listItem {
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.listItem::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--text-secondary);
+}
+
+.listItem .prose p:last-child {
+  margin-bottom: 0.5rem;
+}
+
+.code {
+  margin: 1.5rem 0 2rem;
+}
+
+/* The case study sizes its code block against the 12-column grid; inside a 7/12
+   prose column it should simply fill it. */
+.code > * {
+  width: 100%;
+}

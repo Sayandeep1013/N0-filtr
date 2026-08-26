@@ -162,29 +162,83 @@
 /* The top rail: the work's name on the left, the CASE STUDY chip on the right.
    `data-work-badge` moved onto this wrapper, so the existing reveal tween wipes
    both in together rather than needing a second one. */
+/* The chip, where tonik has it. `data-work-badge` stays on this wrapper so the
+   existing reveal tween keeps its target. */
 .rail {
   position: absolute;
   z-index: 5;
   top: 1rem;
   left: 1rem;
-  right: 1rem;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 1rem;
   opacity: 0;
   pointer-events: none;
 }
 
-/* Mono, uppercase, and on the plate rather than under it. The plates are
-   abstract, so this is the only thing that identifies a card at a glance. */
+/* ── the name ─────────────────────────────────────────────────────────────
+   Centred on the plate, faded at rest, and it comes up on hover.
+
+   `z-index: 4` puts it above the media (1) and the overlay (2) and *below* the
+   hover sheet (3 is the sheet, 5 the chip) — so when the sheet wipes up over
+   the foot of the card the name is not floating in front of the spec table.
+
+   The type is `--t-h4` and mono-cased rather than a mono label: at the centre
+   of a card this is the largest thing on the plate and it has to hold that
+   position. Uppercase and tracked out, so it reads as a stamp rather than as a
+   heading that wandered into the middle. */
 .name {
+  position: absolute;
+  z-index: 4;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  padding: 0 1.5rem;
+  text-align: center;
   color: var(--text-primary);
   font-family: var(--family-mono);
   text-transform: uppercase;
-  /* The plates are mid-grey in places. A hairline of shadow keeps the label
-     legible over the brightest tile without putting a panel behind it. */
-  text-shadow: 0 1px 6px rgb(0 0 0 / 60%);
+  letter-spacing: 0.08em;
+  /* Faded at rest — Sayandeep's word for it. Enough to read as a watermark on
+     the plate, not enough to compete with it. */
+  opacity: 0.28;
+  pointer-events: none;
+  /* The plates are mid-grey in places. A hairline of shadow keeps it legible
+     over the brightest tile without putting a panel behind it. */
+  text-shadow: 0 1px 8px rgb(0 0 0 / 70%);
+  transition:
+    opacity var(--dur-base) var(--ease-in-out),
+    top var(--dur-slower) var(--ease-in-out);
+}
+
+/* "u hover it pops up" — up, and to full strength.
+
+   It travels to 20% rather than nudging, and that is not decoration. The hover
+   sheet wipes up from the foot of the card and its top edge crosses the middle,
+   so a name that stayed centred would be **behind the drawer** at exactly the
+   moment it was meant to be legible. Rising clear of it is both the effect he
+   asked for and the only position where the effect is visible.
+
+   `top` rather than `transform`, because a percentage translate resolves
+   against the element's own height and the distance needed is a fraction of the
+   card's.
+
+   Gated to devices that actually hover: on a phone `:hover` sticks after a tap,
+   and there the name should simply be legible from the start (see below). */
+@media (hover: hover) and (min-width: 992px) {
+  .card:hover .name,
+  .link:focus-visible .name {
+    top: 20%;
+    opacity: 1;
+  }
+}
+
+/* No hover to give it, so it does not hide. */
+@media (max-width: 991px), (pointer: coarse) {
+  .name {
+    opacity: 0.55;
+  }
 }
 
 .badge {

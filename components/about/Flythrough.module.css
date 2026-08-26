@@ -1,0 +1,77 @@
+/* <Flythrough />. 20-components-and-motion.md §13.
+
+   §13 sets `--perspective: 1000px` on the wrapper from JavaScript. It is set
+   here instead: it never changes, and a constant written by a script is a
+   constant that is missing for one frame. */
+
+.flythrough {
+  --perspective: 1000px;
+  position: relative;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  height: 30rem;
+  perspective: var(--perspective);
+  overflow: hidden;
+}
+
+.list {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-style: preserve-3d;
+}
+
+/* Each item is absolutely positioned at the centre and thrown outward by the
+   timeline's xPercent — so the flex row above only decides where "the middle"
+   is, and every item starts from it. */
+.item {
+  position: absolute;
+  width: 18rem;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+}
+
+.art {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border: var(--hairline);
+  box-shadow: 0 1.5rem 3rem rgb(0 0 0 / 50%);
+}
+
+.art > * {
+  width: 100%;
+  height: 100%;
+}
+
+/* ── below the gate ───────────────────────────────────────────────────────
+   No perspective, no flythrough. The twelve become a scrolling strip, which is
+   an honest smaller version of the same idea rather than a broken large one. */
+@media (max-width: 991px), (prefers-reduced-motion: reduce) {
+  .flythrough {
+    height: auto;
+    perspective: none;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .flythrough::-webkit-scrollbar {
+    display: none;
+  }
+
+  .list {
+    position: static;
+    justify-content: flex-start;
+    gap: 1.25rem;
+    padding: 0 var(--gutter);
+  }
+
+  .item {
+    position: static;
+    flex: 0 0 14rem;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

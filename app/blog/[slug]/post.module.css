@@ -1,0 +1,141 @@
+/* `/blog/[slug]`. 30-page-specs.md §`/blog/[slug]`. */
+
+.hero {
+  padding-top: 10rem;
+  padding-bottom: 3rem;
+}
+
+/* §: the body is a 7/12 column. The hero shares it so the title, the standfirst
+   and the prose all sit on one measure. */
+.column {
+  width: calc(7 * var(--col) + 6 * var(--grid-gap));
+  max-width: 100%;
+}
+
+.back {
+  display: inline-block;
+  margin-bottom: 2.5rem;
+  color: var(--text-secondary);
+  font-family: var(--family-mono);
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-in-out);
+}
+
+.back:hover,
+.back:focus-visible {
+  color: var(--text-primary);
+}
+
+.category {
+  margin: 0 0 1rem;
+  color: var(--accent-ink);
+  font-family: var(--family-mono);
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  color: var(--text-primary);
+  font-weight: 400;
+}
+
+.standfirst {
+  margin: 1.5rem 0 0;
+  color: var(--text-secondary);
+}
+
+.meta {
+  margin: 2rem 0 0;
+  padding-top: 1.5rem;
+  border-top: var(--hairline);
+  color: var(--text-secondary);
+  font-family: var(--family-mono);
+  text-transform: uppercase;
+}
+
+.metaLink {
+  color: var(--text-primary);
+  text-decoration: none;
+  border-bottom: 1px solid var(--border-primary);
+}
+
+/* ── footer ─────────────────────────────────────────────────────────────── */
+
+.footer {
+  padding-top: var(--section-y);
+  padding-bottom: var(--section-y);
+}
+
+.pager {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--grid-gap);
+  padding-top: 2rem;
+  border-top: var(--hairline);
+}
+
+.pagerLink {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.5rem 0;
+  text-decoration: none;
+  color: var(--text-primary);
+  transition: padding-left var(--dur-base) var(--ease-in-out);
+}
+
+.pagerNext {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.pagerLink:hover,
+.pagerLink:focus-visible {
+  padding-left: 0.75rem;
+}
+
+.pagerNext:hover,
+.pagerNext:focus-visible {
+  padding-left: 0;
+  padding-right: 0.75rem;
+}
+
+.pagerLabel {
+  color: var(--text-secondary);
+  font-family: var(--family-mono);
+  text-transform: uppercase;
+}
+
+.pagerTitle {
+  font-weight: 400;
+}
+
+.pagerIcon {
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 767px) {
+  .hero {
+    padding-top: 7rem;
+    padding-bottom: 2rem;
+  }
+
+  .back {
+    margin-bottom: 1.5rem;
+  }
+
+  .footer {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+
+  .pager {
+    grid-template-columns: 1fr;
+  }
+
+  .pagerNext {
+    align-items: flex-start;
+    text-align: left;
+  }
+}

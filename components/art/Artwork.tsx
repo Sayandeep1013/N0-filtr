@@ -87,6 +87,7 @@ const n = (value: number) => Math.round(value * 100) / 100;
 export function Artwork({
   seed,
   motif,
+  compact = false,
   className,
 }: {
   /**
@@ -99,6 +100,14 @@ export function Artwork({
   seed: string;
   /** Force a motif. Overrides a prefix in `seed`. */
   motif?: Motif;
+  /**
+   * Fewer, larger elements. For plates drawn small and in quantity — `/about`
+   * puts **forty-five** of these in one pinned grid, and a mosaic at the full
+   * cell size is up to four hundred rects apiece. Compact roughly quarters the
+   * element count, which is the difference between a scrub that holds 60fps and
+   * one that does not.
+   */
+  compact?: boolean;
   className?: string;
 }) {
   const slash = seed.indexOf('/');
@@ -122,9 +131,9 @@ export function Artwork({
       preserveAspectRatio="xMidYMid slice"
     >
       <rect width={W} height={H} className={s.ground} />
-      {chosen === 'mosaic' ? <Mosaic seed={body} /> : null}
+      {chosen === 'mosaic' ? <Mosaic seed={body} compact={compact} /> : null}
       {chosen === 'iris' ? <Iris seed={body} /> : null}
-      {chosen === 'strata' ? <Strata seed={body} /> : null}
+      {chosen === 'strata' ? <Strata seed={body} compact={compact} /> : null}
       {chosen === 'orbit' ? <Orbit seed={body} /> : null}
       {/* The one hairline of colour a plate is allowed. D-036. */}
       <Rule seed={body} />
@@ -151,10 +160,11 @@ export function Artwork({
    sprinkled. The seed still moves the centre, the reach and the falloff, so
    twelve plates differ — they just differ as compositions rather than as
    different noise. */
-function Mosaic({ seed }: { seed: string }) {
+function Mosaic({ seed, compact = false }: { seed: string; compact?: boolean }) {
   const random = makeRandom(seedFrom(`${seed}:mosaic`));
-  /* Big enough to read as tiles rather than as grain. */
-  const cell = 64;
+  /* Big enough to read as tiles rather than as grain. Larger again when the
+     plate is drawn small and in quantity — see `compact` on `<Artwork>`. */
+  const cell = compact ? 128 : 64;
   const cols = Math.ceil(W / cell);
   const rows = Math.ceil(H / cell);
   const cx0 = between(random, 0.34, 0.66) * cols;
@@ -256,9 +266,9 @@ function Iris({ seed }: { seed: string }) {
    `<Schematic>`'s language at plate scale: a field of straight hairlines whose
    lengths fall away, stacked. The one motif that is pure rule-work, and the
    quietest of the four. */
-function Strata({ seed }: { seed: string }) {
+function Strata({ seed, compact = false }: { seed: string; compact?: boolean }) {
   const random = makeRandom(seedFrom(`${seed}:strata`));
-  const count = 26 + Math.floor(random() * 14);
+  const count = (compact ? 12 : 26) + Math.floor(random() * (compact ? 6 : 14));
   const gap = H / (count + 2);
   const left = between(random, 90, 200);
   const bias = between(random, 0.25, 0.75);

@@ -1,0 +1,154 @@
+/* `/about`. 30-page-specs.md §`/about`. */
+
+.hero {
+  padding-top: 10rem;
+  padding-bottom: var(--section-y);
+}
+
+.title {
+  margin: 0;
+  max-width: calc(9 * var(--col) + 8 * var(--grid-gap));
+  color: var(--text-primary);
+  font-weight: 400;
+}
+
+/* The flythrough is full-bleed and sits between the headline and the copy, which
+   is where §`/about` puts it — inside the hero rather than after it. */
+.fly {
+  margin: 4rem 0;
+}
+
+.heroCopy {
+  display: grid;
+  grid-template-columns: calc(5 * var(--col) + 4 * var(--grid-gap)) 1fr;
+  gap: calc(var(--col) + 2 * var(--grid-gap));
+}
+
+.lead {
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.body {
+  min-width: 0;
+}
+
+.paragraph {
+  margin: 0 0 1.25rem;
+  color: var(--text-secondary);
+}
+
+.paragraph:last-child {
+  margin-bottom: 0;
+}
+
+.label {
+  margin: 0 0 1.5rem;
+  color: var(--text-secondary);
+  font-family: var(--family-mono);
+  text-transform: uppercase;
+}
+
+/* ── vision ─────────────────────────────────────────────────────────────── */
+
+.vision {
+  padding-top: var(--section-y);
+  padding-bottom: var(--section-y);
+  border-top: var(--hairline);
+}
+
+.manifesto {
+  margin: 0;
+  max-width: calc(9 * var(--col) + 8 * var(--grid-gap));
+}
+
+/* ── meetup ─────────────────────────────────────────────────────────────── */
+
+.meetup {
+  padding-top: var(--section-y);
+  padding-bottom: var(--section-y);
+  border-top: var(--hairline);
+}
+
+.sectionTitle {
+  margin: 0 0 3rem;
+  max-width: calc(8 * var(--col) + 7 * var(--grid-gap));
+  color: var(--text-primary);
+  font-weight: 400;
+}
+
+/* ── people ─────────────────────────────────────────────────────────────── */
+
+.people {
+  padding-top: var(--section-y);
+  border-top: var(--hairline);
+}
+
+.peopleLead {
+  margin: 0 0 4rem;
+  max-width: calc(7 * var(--col) + 6 * var(--grid-gap));
+  color: var(--text-secondary);
+}
+
+/* ── open ───────────────────────────────────────────────────────────────── */
+
+.open {
+  padding-top: var(--section-y);
+  padding-bottom: var(--section-y);
+}
+
+.openGrid {
+  display: grid;
+  grid-template-columns: calc(6 * var(--col) + 5 * var(--grid-gap)) 1fr;
+  gap: calc(var(--col) + 2 * var(--grid-gap));
+  align-items: start;
+}
+
+.openTitle {
+  margin: 0;
+  color: var(--text-primary);
+  font-weight: 400;
+}
+
+.openCopy {
+  min-width: 0;
+}
+
+.openCta {
+  margin-top: 2rem;
+}
+
+@media (max-width: 991px) {
+  .heroCopy,
+  .openGrid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .hero {
+    padding-top: 7rem;
+    padding-bottom: 3rem;
+  }
+
+  .fly {
+    margin: 2.5rem 0;
+  }
+
+  .vision,
+  .meetup,
+  .people,
+  .open {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+
+  .sectionTitle {
+    margin-bottom: 2rem;
+  }
+
+  .peopleLead {
+    margin-bottom: 2.5rem;
+  }
+}
