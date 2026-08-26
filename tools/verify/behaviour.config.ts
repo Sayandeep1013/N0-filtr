@@ -157,6 +157,94 @@ export const BEHAVIOUR = {
     minMobileCameraZ: 8,
   },
 
+  /**
+   * The showreel, end to end. `20-components-and-motion.md` §15 — the only use
+   * of Flip on the site, and the one component whose correctness is a claim
+   * about *where a DOM node ended up*, not about a duration.
+   *
+   * What makes this worth driving rather than inspecting: the background layer
+   * is measured inside the headline, reparented into a full-screen player, and
+   * handed back on close. A timeline cannot express that, and a screenshot
+   * cannot tell a Flip that landed from one that teleported. So the assertion
+   * is the invariant — **the layer comes back to the box it left, exactly** —
+   * plus the two registered timelines' resolved shapes.
+   *
+   * The startTimes below are not guesses. `.to(player, {delay: .6})` puts the
+   * first tween at 0.6, so `'<'` on the second resolves to 0.6 + 0.2 = 0.8, and
+   * the third `'<'` is relative to the *second* and lands at 0.8 as well. Read
+   * back off the live timelines and matched to the spec, both directions.
+   */
+  showreel: {
+    id: 'showreel Flip open/close',
+    phase: 3,
+    page: '/',
+    trigger: 'h1 button',
+    flipTarget: '[data-flip-id="showreel"]',
+    /** The Flip destination's class fragment — CSS Modules hash the rest. */
+    destinationFragment: 'playerWrap',
+    openTimelineId: 'showreel.open',
+    closeTimelineId: 'showreel.close',
+    openTotal: 1.3,
+    closeTotal: 0.4,
+    openStarts: [0.6, 0.8, 0.8],
+    openDurations: [0.4, 0.5, 0.4],
+    closeStarts: [0, 0, 0.1],
+    closeDurations: [0.4, 0.4, 0.3],
+    /** §15's scrim: #21212180. */
+    scrimOpen: 'rgba(33, 33, 33, 0.5)',
+    /** The player must be at least this many times the button's width. */
+    minGrowth: 8,
+    /** Flip must return the layer to its exact origin, to the pixel. */
+    returnTolerance: 1,
+    viewport: { w: 1512, h: 900 },
+  },
+
+  /**
+   * The scrubbed word reveal. `20-components-and-motion.md` §4.
+   *
+   * `01-PHASES.md`'s acceptance for T3.3 is a *direction*, not a value:
+   * "scrolling back un-reveals". A one-shot reveal and a scrubbed one look
+   * identical on the way down and differ only on the way up, so the check
+   * scrolls past the block and then back, and asserts the words return to rest.
+   */
+  revealText: {
+    id: 'scrubbed word reveal',
+    phase: 3,
+    page: '/',
+    selector: 'h2[data-t] .word',
+    host: 'h2[data-t]',
+    restOpacity: 0.2,
+    tolerance: 0.03,
+    timelineId: 'reveal.works',
+    ease: 'power1.out',
+    /** Desktop only — below this the text renders whole and is never split. */
+    gatedOffAt: 991,
+    viewport: { w: 1512, h: 900 },
+    /** Where the block is fully lit. Past `top 10%` of a 900 viewport. */
+    revealedAt: 1600,
+  },
+
+  /**
+   * The stack wall's marquee. `20-components-and-motion.md` §11.
+   *
+   * Three states, and the two that are *absences* are the ones worth checking:
+   * the marquee must not exist above 767 (where the wall is a static wrapping
+   * grid) and must not exist under reduced motion at any width. A marquee is an
+   * infinite tween; if its gate leaks it never stops, on a device that asked
+   * for stillness.
+   */
+  stackWall: {
+    id: 'stack wall marquee',
+    phase: 3,
+    page: '/',
+    timelineId: 'stack-wall.marquee',
+    duration: 30,
+    /** The doubled track: xPercent −50 is exactly one set. */
+    xPercent: -50,
+    desktop: { w: 1512, h: 900 },
+    mobile: { w: 390, h: 844 },
+  },
+
   loaderReduced: {
     id: 'loader under reduced motion',
     phase: 1,

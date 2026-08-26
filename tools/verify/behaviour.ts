@@ -3,6 +3,7 @@ import { newPage } from './lib/browser';
 import { fail, pass, type CheckResult } from './lib/types';
 import { BEHAVIOUR } from './behaviour.config';
 import { checkHero3d } from './behaviour.hero';
+import { checkHomeUpper } from './behaviour.home';
 
 /**
  * Behaviour checks — what a timeline's *shape* cannot tell you.
@@ -436,5 +437,6 @@ export async function checkBehaviour(browser: Browser, baseUrl: string): Promise
     ...(await checkButtonIcon(browser, baseUrl)),
     ...(await checkLoaderReduced(browser, baseUrl)),
     ...(await checkHero3d(browser, baseUrl)),
+    ...(await checkHomeUpper(browser, baseUrl)),
   ];
 }

@@ -193,7 +193,6 @@ function harvest() {
     if (cs.display !== 'grid' && cs.display !== 'inline-grid') continue;
     const tracks = cs.gridTemplateColumns.split(' ').map(parseFloat).filter((n) => !Number.isNaN(n));
     if (tracks.length < 2) continue;
-    const colGap = parseFloat(cs.columnGap) || 0;
     const free = tracks.reduce((a, b) => a + b, 0);
     // twelfths, to one decimal — a clean integer here means the rule is a 12-unit grid
     const twelfths = tracks.map((t) => Math.round((t / free) * 12 * 10) / 10);

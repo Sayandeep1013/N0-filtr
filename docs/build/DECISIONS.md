@@ -688,3 +688,94 @@ a 700 wordmark, and "fixes" it. §3 now names the exception, points at this entr
 **Consequence:** The wordmark is wider at 700, which touches I-018's arithmetic again — the footer
 mark now ends around x=1100 at 1512 against ~1010 at 400. It still sits inside its column with
 room. Noted there rather than re-opened.
+
+---
+
+## D-018 · `<RevealText>` does not re-split on resize
+
+**Phase:** 3 · **Date:** 2026-08-26 · **Status:** active
+
+**Context:** `20-components-and-motion.md` §4 ends with an implementation note: *"Re-split on
+resize via `ScrollTrigger.addEventListener('refreshInit')`."*
+
+**Decision: we split once, after `document.fonts.ready`, and never again.**
+
+The note is correct advice for a **lines** split and unnecessary for a **words** split, which is
+what §4 actually specifies (`types: 'words'`).
+
+A line is a measurement — where a line breaks depends on the container's width, so a resize
+invalidates every line box and the split has to be redone. A word is not. `split-type` gives each
+`.word` `display: inline-block` and leaves it in the normal flow with the original whitespace
+intact between them, so the block re-wraps on resize exactly as it did before it was split, and
+the word *count* cannot change at any width.
+
+Re-splitting on `refreshInit` would also be actively harmful here: it destroys and recreates the
+very elements the live timeline is tweening, in the middle of a ScrollTrigger refresh. The tween
+would be left pointing at detached nodes.
+
+**Consequence:** If a future component needs a `lines` or `chars` split, this decision does not
+cover it — it will need the re-split, and it should rebuild the timeline as well.
+
+---
+
+## D-019 · The stack wall is set as type, and it has a label we invented
+
+**Phase:** 3 · **Date:** 2026-08-26 · **Status:** active · **Sayandeep to confirm the label**
+
+**Context:** `40-content-model.md` §6 calls for "monochrome wordmarks" of the 22 tools, replacing
+tonik's client-logo wall.
+
+**Two decisions, both mine.**
+
+**1. The marks are type, not logos.** A "wordmark" for React, Vercel or Supabase means that
+vendor's own lettering, and shipping twenty-two companies' trademarks to make a wall look busy is
+a different act from naming what we build with. tonik's marks are their *clients*, which are
+theirs to display; ours are tools, and we are not their customer in any way that grants a logo
+licence. Set in the display face at `--t-h5`, twenty-two names fill the 80rem measure at about the
+density §6 wants — "close to tonik's 28, so the wall reads at the same density."
+
+**2. There is a label above it, and the spec does not have one.** `30-page-specs.md` §1 gives the
+wall no label; tonik's has none either. Twenty-two bare product names under a headline read as
+debris rather than as a statement, and every other section on this site opens with a mono label.
+It says `THE STACK`.
+
+**Consequence:** The label is content, and content is Sayandeep's. Flagged in the handoff. Changing
+it is one constant — `STACK_LABEL` in `lib/content/site.ts`.
+
+---
+
+## D-020 · The showreel ships with a labelled placeholder reel
+
+**Phase:** 3 · **Date:** 2026-08-26 · **Status:** temporary — T10.2 closes it
+
+**Context:** T3.6 builds §15's Flip choreography. `01-PHASES.md` T10.2 captures the actual reel, in
+phase 10. Built in that order, phase 3 would ship a transition that has never once run.
+
+**The options, and why the third one wins.**
+
+*Leave `SHOWREEL.src` empty and keep the button inert.* Honest, and the component's evidence would
+have been the word "implemented" — which protocol §6 explicitly does not accept. §15 is the only
+use of Flip on the site and its correctness is a claim about where a DOM node ends up; that is not
+checkable by reading.
+
+*Point at a file that does not exist.* A live-looking button that opens a broken player.
+
+*Bake a real one and say what it is.* `npm run showreel:placeholder` records eight seconds of our
+own hero with the pointer moving across it, using Playwright's own video recorder — there is no
+ffmpeg on this machine and Playwright writes webm natively. The panel renders
+`PLACEHOLDER REEL — REAL FOOTAGE LANDS WITH THE CASE STUDIES` next to the title, on screen, not in
+a comment.
+
+**What this bought.** Driving the real thing found two defects a reading pass would not have: Plyr's
+stylesheet was never imported, so its SVG control icons rendered at intrinsic size — enormous black
+arrows across the hero — and the reparented layer is appended last, so with no stacking order it
+covered the video and the player read as a flat grey rectangle.
+
+**The switch stays honest in both directions.** `<PlaySquare>` renders a `<span>` with `aria-hidden`
+and no handler whenever `SHOWREEL.src` and `.srcWebm` are both empty, and the behaviour check
+reports that state as a pass rather than a failure. Emptying the constant is all it takes to go
+back.
+
+**Consequence:** `public/media/showreel-placeholder.webm` is 2.27MB in the repo. It is
+`preload="none"`, so it costs nothing until someone opens the panel and does not enter
+`verify:budget`'s page-weight figure. T10.2 replaces the file and touches no code.

@@ -262,30 +262,28 @@ async function desktopChecks(browser: Browser, baseUrl: string): Promise<CheckRe
 
     /* §2 performance: the render loop is suspended when the hero is off-screen.
 
-       The homepage has no height of its own until phase 3 fills it, so there is
-       nothing to scroll and the hero can never leave the viewport. A spacer is
-       injected to give the document somewhere to go. This is a fixture, not a
-       workaround: the IntersectionObserver, the scroll and the suspend are all
-       the real ones, and phase 3 can delete these two lines once the hero
-       section has height. */
-    await page.evaluate((h) => {
-      /* On <body>, and Lenis is told to re-measure.
+       **Phase 3 deleted the fixture this used to need.** Until the stack wall
+       and the works heading gave the homepage height, there was nothing to
+       scroll: the check grew `<body>` by five viewports and called
+       `lenis.resize()` so the hero could leave the screen at all. Two earlier
+       attempts are worth keeping on the record, because both failed silently —
+       a spacer appended into `<main>` is reconciled away by React's next
+       render, and growing `<html>` survives React but not Lenis, which caches
+       its scroll limit from the CONTENT element and clamps `scrollTo` to the
+       stale one without erroring.
 
-         Two false starts worth recording. Appending a spacer into <main> works
-         until React re-renders and reconciles the injected node away. Growing
-         <html> instead survives React but not Lenis: Lenis caches its scroll
-         limit from the CONTENT element, so `scrollTo(2700)` clamped silently to
-         a limit of about a hundred pixels and the page never moved — which is
-         what the diagnostic in this check now says out loud.
+       None of that is needed now. We scroll past the hero's own bottom edge,
+       read off the element rather than guessed from a viewport multiple, so
+       this keeps working when the section's height changes again. */
+    const heroBottom = await page.evaluate(() => {
+      const hero = document.querySelector('[data-hero]');
+      return hero ? Math.round(hero.getBoundingClientRect().bottom + window.scrollY) : 0;
+    });
+    if (heroBottom === 0) {
+      out.push(fail(`${c.id} — hero section has height to scroll past`, '[data-hero] present', 'not found'));
+    }
 
-         Body is not given an inline style by React, and `lenis.resize()` makes
-         the new limit real. */
-      document.body.style.minHeight = `${h}px`;
-      (window as unknown as { lenis?: { resize(): void } }).lenis?.resize();
-    }, c.desktop.h * 5);
-    await page.waitForTimeout(300);
-
-    await scrollTo(page, c.desktop.h * 3);
+    await scrollTo(page, heroBottom + 300);
     const suspended = await waitForRunning(page, false);
     out.push(
       suspended

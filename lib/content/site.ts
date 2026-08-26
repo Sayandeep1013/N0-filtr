@@ -231,3 +231,37 @@ export const STACK_LABEL = 'The stack';
    at a 16.45 root, and there is no 5rem step anywhere on their site. See I-031. */
 export const WORKS_INTRO =
   'A studio that defines, designs, and builds products and other digital machinery.';
+
+/* ── the showreel ──────────────────────────────────────────────────────────
+   `20-components-and-motion.md` §15. The hero's play control *becomes* the
+   full-screen player, via the only use of GSAP Flip on the site.
+
+   **An empty `src` makes the control inert**, on purpose: `<PlaySquare>` then
+   renders as it did in phase 2 — a `<span>`, `aria-hidden`, no handler. A
+   control that opens a player with nothing in it is a worse promise than a
+   shape that never claimed to be a control.
+
+   What is in it today is **a placeholder, and it says so**: eight seconds of
+   our own hero with the pointer moving across it, baked by
+   `npm run showreel:placeholder`. It is here because §15's choreography is the
+   only use of Flip on the site and cannot be checked by reading — a background
+   layer is measured, reparented across two components and flown into a player,
+   and with no file none of that ever runs. Protocol §6 does not accept
+   "implemented" as evidence.
+
+   **`01-PHASES.md` T10.2 replaces the file**, with scripted 6–10s interaction
+   footage of the eight live deploys, encoded to mp4 *and* webm. Nothing in the
+   component changes when it does. See I-033. */
+export const SHOWREEL = {
+  /** mp4, for anything that cannot take webm. T10.2 produces it. */
+  src: '',
+  /** Offered first. Placeholder until T10.2 — see the note above. */
+  srcWebm: '/media/showreel-placeholder.webm',
+  poster: '/hero-aperture.webp',
+  /** The mono label above the player. */
+  label: 'Showreel',
+  /** The heading that fades in beside the player. */
+  title: 'Twelve things, built end to end.',
+  /** Rendered next to the title while `srcWebm` is still the baked stand-in. */
+  isPlaceholder: true,
+} as const;

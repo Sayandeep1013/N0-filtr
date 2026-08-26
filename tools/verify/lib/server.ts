@@ -35,6 +35,26 @@ async function waitForReady(url: string, timeoutMs: number, proc: ChildProcess):
 export async function startServer(mode: 'dev' | 'prod', port = 3000): Promise<Server> {
   const url = `http://localhost:${port}`;
 
+  /* Refuse to run against a server we did not start.
+     `next dev` on an occupied port quietly moves to 3001 and says so in output
+     nobody reads, so without this check the harness happily drives whatever is
+     already on 3000 — your own `npm run dev`, with your uncommitted edits in it
+     — reports green, and then fails at teardown because the process it tries to
+     kill is not the one holding the port. That is the run this check was
+     written after. Better to stop with an instruction than to verify the wrong
+     build. */
+  const occupied = await fetch(url, { signal: AbortSignal.timeout(1500) })
+    .then(() => true)
+    .catch(() => false);
+  if (occupied) {
+    throw new Error(
+      `something is already serving ${url}.\n` +
+        'verify must own its server — a dev server you started has your unsaved state in it,\n' +
+        'and the teardown cannot kill a process it did not spawn. Stop it first:\n' +
+        `  Get-NetTCPConnection -LocalPort ${port} -State Listen | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }`,
+    );
+  }
+
   const proc = spawn(
     isWindows ? 'npm.cmd' : 'npm',
     ['run', mode === 'dev' ? 'dev' : 'start', '--', '-p', String(port)],

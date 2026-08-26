@@ -1,5 +1,6 @@
 import { Hero } from '@/components/hero/Hero';
 import { WorksSection } from '@/components/works/WorksSection';
+import { ShowreelProvider } from '@/components/motion/Showreel';
 
 /**
  * The homepage.
@@ -17,10 +18,13 @@ import { WorksSection } from '@/components/works/WorksSection';
  * blog row below.
  */
 export default function Home() {
+  /* The provider wraps the page rather than the hero, because Flip moves the
+     button's background out of the headline and into a full-screen panel that
+     has to be a sibling of everything, not a child of the hero. */
   return (
-    <>
+    <ShowreelProvider>
       <Hero />
       <WorksSection />
-    </>
+    </ShowreelProvider>
   );
 }
