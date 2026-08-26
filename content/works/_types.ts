@@ -10,6 +10,15 @@ export interface Media {
   alt: string;
   caption?: string;
   /**
+   * A generated plate instead of a file. The value is the seed —
+   * `<slug>-<nn>` by convention — and `src` is ignored when it is set.
+   *
+   * See `components/art/Artwork.tsx` and D-038. Case studies use these where a
+   * screenshot would be a picture of somebody else's interface; the screenshots
+   * that remain are the ones that are *evidence*.
+   */
+  art?: string;
+  /**
    * The aspect box, as a CSS `aspect-ratio` value. Defaults to `16 / 10`,
    * which is what `scripts/capture.mjs` shoots and therefore what most of these
    * are.
@@ -24,7 +33,7 @@ export interface Media {
 }
 
 export type Block =
-  | { type: 'prose'; heading?: string; body: string }
+  | { type: "prose"; heading?: string; body: string }
   /**
    * The board. `30-page-specs.md` §2 listed three separate visual blocks —
    * `visual-full`, `visual-2up` and `visual-bleed` — and all three are now this
@@ -37,11 +46,11 @@ export type Block =
    * a layout, which is the property that keeps twelve case studies looking like
    * one site.
    */
-  | { type: 'board'; items: Media[]; caption?: string }
-  | { type: 'slider'; items: Media[] }
-  | { type: 'quote'; text: string; attribution?: string }
-  | { type: 'spec'; rows: { key: string; value: string[] }[] }
-  | { type: 'code'; lang: string; source: string; caption?: string };
+  | { type: "board"; items: Media[]; caption?: string }
+  | { type: "slider"; items: Media[] }
+  | { type: "quote"; text: string; attribution?: string }
+  | { type: "spec"; rows: { key: string; value: string[] }[] }
+  | { type: "code"; lang: string; source: string; caption?: string };
 
 /**
  * How wide the card sits in the twelve-column works grid.
@@ -51,7 +60,7 @@ export type Block =
  * full is 12/12. Where each one *sits* is authored separately — see
  * `lib/content/works.ts`, `WORKS_LAYOUT`.
  */
-export type CardWidth = 'half' | 'wide' | 'full';
+export type CardWidth = "half" | "wide" | "full";
 
 export interface Work {
   slug: string;
@@ -67,7 +76,7 @@ export interface Work {
   industries: string[];
   year: number;
   /** Replaces tonik's LOCATION row in the spec table. */
-  status: 'live' | 'archived' | 'in-progress';
+  status: "live" | "archived" | "in-progress";
   links: { live?: string; repo: string; package?: string };
   /** Sampled from the project, contrast-corrected. */
   accent: { light: string; dark: string };
@@ -87,6 +96,11 @@ export interface Work {
      * them, and nothing would report it.
      */
     poster: string;
+    /**
+     * A generated plate for the card and the case-study hero, in place of the
+     * poster. Set it and `poster` is ignored. See D-038.
+     */
+    art?: string;
     reel?: string;
   };
   /** The case-study body. Phase 6 builds the renderer; phase 10 writes eleven. */

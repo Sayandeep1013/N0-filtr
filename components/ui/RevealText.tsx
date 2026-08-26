@@ -144,7 +144,12 @@ export function RevealText({
          reverting is what walks a list with a killed entry in it. The
          `mm.revert()` above already kills this component's trigger, which is
          the whole of what a cleanup owes. See lib/motion/scrollRefresh.ts. */
-      return () => mm.revert();
+      /* No cleanup returned. `useGSAP` reverts its context, and the matchMedia
+         created inside it reverts with it — running every `mm.add()` cleanup
+         exactly once. An explicit `mm.revert()` here ran them twice, and a
+         second kill on an already-removed ScrollTrigger splices `_triggers` a
+         second time. That array is what `ScrollTrigger.create()` walks, and a
+         hole in it is `curTrigger is undefined`. See I-051. */
     },
     { scope: ref },
   );

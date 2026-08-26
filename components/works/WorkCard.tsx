@@ -7,6 +7,7 @@ import { DUR, EASE, MQ } from '@/lib/motion/tokens';
 import { registerTimeline, unregisterTimeline } from '@/lib/motion/registry';
 import { SpecTable } from '@/components/ui/SpecTable';
 import type { Work } from '@/content/works/_types';
+import { Artwork } from '@/components/art/Artwork';
 import { WorkCover } from './WorkCover';
 import s from './WorkCard.module.css';
 
@@ -259,21 +260,10 @@ export function WorkCard({ work, className }: { work: Work; className?: string }
          that ratio is a design decision that belongs next to the other ones. */
       style={{ '--work-accent': work.accent.dark } as React.CSSProperties}
     >
-      {/* `data-no-loader`, and it is not an oversight: this link opens the
-          **lightbox** (`app/@modal/(.)works/[slug]`), which slides a drawer over
-          the grid without a full navigation — §16's whole point. Sweeping the
-          loader over the page first would announce a page change that is not
-          happening.
-
-          `data-accent` is still declared, because the same card is a real
-          navigation from anywhere the interception does not apply, and T6.7
-          reads it there. */}
-      <Link
-        href={`/works/${work.slug}`}
-        className={s.link}
-        data-accent={work.accent.dark}
-        data-no-loader
-      >
+      {/* A real navigation to a real page — the lightbox that used to intercept
+          this is gone (D-037). `data-accent-ink` tints the loader's glyph on the
+          way out, so the work's colour arrives with the transition (T6.7). */}
+      <Link href={`/works/${work.slug}`} className={s.link} data-accent-ink={work.accent.light}>
         {/* The positioning context for the sheet, and the reason it exists.
 
             The sheet was `position: absolute; bottom: 0` with no relative
@@ -289,7 +279,11 @@ export function WorkCard({ work, className }: { work: Work; className?: string }
         <div className={s.frame}>
           <div className={s.media} data-work-media>
           <div className={s.still} data-work-still>
-            {work.card.poster ? (
+            {work.card.art ? (
+              /* A generated plate. D-038 — the card shows what the case study
+                 shows, and neither is a screenshot of somebody else's chrome. */
+              <Artwork seed={work.card.art} />
+            ) : work.card.poster ? (
               /* `srcSet` derived from the 1× name rather than stored — see the
                  note on `poster` in `_types.ts`.
 

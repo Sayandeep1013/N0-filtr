@@ -130,7 +130,7 @@ export function WorksGrid({ works }: { works: Work[] }) {
           }
         };
 
-        const st = ScrollTrigger.create({
+        ScrollTrigger.create({
           trigger: grid,
           start: 'top bottom',
           end: 'bottom top',
@@ -141,10 +141,10 @@ export function WorksGrid({ works }: { works: Work[] }) {
           onUpdate: apply,
         });
 
+        /* The trigger is the context's to kill. What is left here is the one
+           thing it cannot take back: `quickSetter` writes transforms straight to
+           the element, outside anything GSAP is recording. */
         return () => {
-          st.kill();
-          /* Hand the transforms back. `quickSetter` writes straight to the
-             element and leaves nothing for the context to revert. */
           gsap.set(
             setters.map((m) => m.el),
             { clearProps: 'transform' },
@@ -152,11 +152,21 @@ export function WorksGrid({ works }: { works: Work[] }) {
         };
       });
 
-      /* No refresh here. A cleanup has nothing left to measure — the component
-         is going away — and refreshing while sibling contexts are still
-         reverting is what threw `can't access property "end", curTrigger is
-         undefined` from this exact line. */
-      return () => mm.revert();
+      /* No refresh here, and no revert either.
+
+         The refresh went first: a cleanup has nothing left to measure, and
+         refreshing while sibling contexts were still reverting threw
+         `can't access property "end", curTrigger is undefined` from this exact
+         line. That was the right diagnosis of the wrong half.
+
+         The revert was the other half and the actual cause. `useGSAP` reverts
+         its context, the matchMedia created inside it reverts with it, and the
+         `mm.add()` cleanup below therefore runs **once** — calling it here as
+         well ran it twice, and the second `st.kill()` spliced `_triggers` for a
+         trigger already taken out of it. The next component to call
+         `ScrollTrigger.create()` then walked an array with a hole in it, which
+         is why this line kept being named by a bug it did not cause. See
+         I-051. */
     },
     { scope: root, dependencies: [works.length] },
   );

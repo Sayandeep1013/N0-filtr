@@ -42,10 +42,13 @@ type PlyrInstance = { destroy: () => void };
 export function CaseReel({
   reel,
   poster,
+  art,
   alt,
 }: {
   reel?: string;
   poster: string;
+  /** A generated plate in place of the poster. See D-038. */
+  art?: string;
   alt: string;
 }) {
   const { reducedMotion } = useMotion();
@@ -86,6 +89,7 @@ export function CaseReel({
         <Plate size="lg" bleed>
           <CaseImage
             src={poster}
+            art={art}
             alt={alt}
             sizes={SIZES_BLEED}
             ratio="21 / 9"

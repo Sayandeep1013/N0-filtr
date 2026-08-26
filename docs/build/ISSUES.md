@@ -1508,3 +1508,119 @@ the drawer, case-study mini-nav, browser back, and an external link left alone.
 that anything plays it.* Four of this harness's sections read registered
 timelines; only `behaviour.*` drives the interface. This is the second time that
 distinction has paid for itself.
+
+
+---
+
+## I-049 · The favicon was invalid XML for four phases  🟢
+
+**Raised:** phase 06 · **Resolved:** phase 06
+
+`app/icon.svg` opened with a generated banner comment containing the literal text `--black`.
+
+**An XML comment may not contain a double hyphen.** The specification is unambiguous and the
+consequence is total: a strict parser rejects the entire document, and every SVG parser is strict.
+Browsers were not drawing a broken icon — they were drawing **no** icon, because the file never
+parsed.
+
+Sayandeep reported the favicon missing three times across phases 5 and 6. The first two fixes were
+real and necessary — the tilt-as-transform squashed the stroke into a broken "C" at 16px, and the
+spec's ratios are sub-pixel at that size — and both were improvements to a file nothing was reading.
+
+Found by accident: rendering `icon.svg` through sharp to check the tilt direction, which failed with
+`XML parse error: Comment must not contain '--'`.
+
+**Resolved** in `scripts/brand-assets.mjs`. The banner is built through a `banner()` helper that
+replaces any double hyphen in the comment *body* with an en dash — the delimiters are added outside
+the substitution, which the first attempt at the guard got wrong and turned `<!--` into `<–`.
+
+**The durable lesson:** *a generated file needs a check that it parses.* Three rounds of visual
+fixes were applied to a document that no parser had ever accepted.
+
+---
+
+## I-050 · Lenis kept its scroll position across route changes  🟢
+
+**Raised:** phase 06 · **Resolved:** phase 06
+
+Sayandeep: *"whenever i visit a project it takes me to the no filter footer."*
+
+Reproduced exactly. Scrolled to the bottom of `/works/tessera`, clicked "next project", landed on
+`/works/co-canvas` at **scrollY 6573 of 7766** — the footer.
+
+Next's App Router scrolls to the top on a push and restores the offset on back and forward. Neither
+survives Lenis, which holds its own `animatedScroll` and writes it to the window on every tick of the
+GSAP ticker — so whatever the router sets is overwritten on the next frame by a number left over from
+the previous page, clamped to the new page's height.
+
+**Resolved** by `components/chrome/ScrollReset.tsx`, and the fix is one rule rather than two.
+Whatever the router just did is right — 0 for a push, the remembered offset for a pop — so the
+component reads `window.scrollY` back one frame later and tells Lenis to go there. It never needs to
+know which kind of navigation it was.
+
+Asserted both directions in `behaviour.case.ts`: leaving the grid at 1618px lands at **0px** on the
+case study, and going back restores **1618px**.
+
+---
+
+## I-051 · `curTrigger is undefined`, and this time the cause  🟢
+
+**Raised:** phases 05 and 06 · **Resolved:** phase 06
+
+Reported three times, always naming `WorksGrid.tsx` and the line where it calls
+`ScrollTrigger.create()`. Phase 5 removed four `ScrollTrigger.refresh()` calls from cleanups and
+consolidated eleven triggers into one, which reduced it to a Fast-Refresh-only symptom and was
+recorded as such. It came back.
+
+**The cause is a double free, and it was in almost every animated component on the site.**
+
+The pattern was: create `gsap.matchMedia()` inside `useGSAP`, return a cleanup from `mm.add()` that
+kills what it made, and then *also* `return () => mm.revert()` from the `useGSAP` callback.
+
+`useGSAP` reverts its own context on unmount, and a matchMedia created inside that context is
+reverted **with** it — running every `mm.add()` cleanup exactly once. The explicit `mm.revert()`
+made it happen twice. A second `ScrollTrigger.kill()` on an instance already removed from
+`_triggers` splices the array a second time, taking out a *different* trigger and leaving a hole.
+
+`_triggers` is what `ScrollTrigger.create()` walks. So the throw surfaced in whichever component
+happened to be constructing a trigger at that moment — which is why `WorksGrid` kept being named by
+a bug it did not cause.
+
+**Resolved** by deleting every explicit `mm.revert()` inside a `useGSAP` callback, and every
+`kill()` of an object the context already owns, across `WorksGrid`, `CaseBoard`, `CustomCursor`,
+`Hero3D`, `StackWall`, `CultureCollage`, `RevealText`, `Schematic` and `ServicesAccordion`.
+
+What stayed: `gsap.set(..., { clearProps: 'transform' })` for `quickSetter` writes, which GSAP is
+not recording; `document.removeEventListener` and `gsap.ticker.remove`; and one `refresh.kill()` on
+a `delayedCall`, because a delayed refresh that outlives its component fires at nothing — and killing
+a tween twice is harmless where killing a ScrollTrigger twice is not.
+
+**Verified by the harness rather than by hope:** `ScrollTrigger count returns to baseline after route
+changes` still passes at 22, so the context genuinely owns them and this is not a leak traded for a
+crash.
+
+**The durable lesson:** *inside `useGSAP`, cleaning up is the default, not your job.* Every manual
+revert of something the context owns is a double free waiting for a component to be unmounted at the
+wrong moment.
+
+---
+
+## I-052 · A seeded generator passed as a prop is not deterministic  🟢
+
+**Raised:** phase 06 · **Resolved:** phase 06
+
+`<Artwork>` was built to be deterministic precisely so it could be server-rendered — and its first
+render produced a hydration mismatch: **177 rects on the server, 271 in the browser.**
+
+The seeding was fine. The mistake was creating one `random` closure in the parent and passing it to
+`<Mosaic>` and then to `<Rule>`. A generator created during render is **mutable state in a render
+function**, React renders components twice in development, and it does not guarantee that a parent
+and its children re-render together — so the second call to a child continued the sequence instead
+of restarting it.
+
+**Resolved** by deriving a seed per motif — `${seed}:mosaic` — and building the generator inside the
+component that consumes it. One hash each, and a motif rendered any number of times in any order
+draws the same picture.
+
+**The durable lesson:** *deterministic seeding does not survive a shared, stateful consumer.* If it
+can be called twice, it must not remember.

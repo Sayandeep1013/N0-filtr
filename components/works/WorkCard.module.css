@@ -225,14 +225,19 @@
   bottom: 0;
   z-index: 3;
   opacity: 0;
-  /* The page ground with a little of the work's accent in it. `--work-accent`
-     is set per card in WorkCard.tsx; the fallback keeps the panel legible if a
-     work ever ships without one. */
-  background-color: color-mix(in srgb, var(--work-accent, var(--grey-900)) 14%, var(--black));
+  /* Grey and white. It was `color-mix(--work-accent 14%, --black)` with an
+     accent hairline, chosen deliberately in phase 4 — and then D-035 graded
+     every screenshot on the site, which left this drawer as the last coloured
+     surface anywhere. Sayandeep: *"those are coloured .. initially that was
+     intentional .. now when everything is greyscaled .. keep it white."*
+
+     `--grey-900` rather than `--black`: the drawer sits over a screenshot and
+     needs to separate from it, and one step up the same greyscale does that
+     without introducing a hue. See D-036. */
+  background-color: var(--grey-900);
   color: var(--text-primary);
-  /* A hairline of the accent at full strength along the top edge. It is the
-     one place the accent is allowed to be itself, and it is what stops the
-     panel reading as a slightly-off-black rectangle. */
+  /* The accent survives here, and only here on this component: one hairline
+     along the top edge. It is what still tells twelve cards apart. */
   border-top: 1px solid var(--work-accent, var(--grey-700));
   padding: 1.25rem 1.5rem 0.75rem;
   /* The media clips at 16:10 and this sits inside that box, so a drawer taller

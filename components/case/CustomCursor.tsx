@@ -176,7 +176,23 @@ export function CustomCursor() {
         };
       });
 
-      return () => mm.revert();
+      /* No cleanup returned, and that is the fix rather than an omission.
+
+         `useGSAP` reverts its own context on unmount, and a `gsap.matchMedia()`
+         created inside that context is reverted **with** it — which runs every
+         `mm.add()` cleanup exactly once. An explicit `mm.revert()` here made
+         that happen twice, and a second `ScrollTrigger.kill()` on an instance
+         already removed from `_triggers` splices the array a second time.
+
+         That array is what `ScrollTrigger.create()` walks. A hole in it is
+         `can't access property "end", curTrigger is undefined` — thrown from
+         whichever component happened to be constructing a trigger at that
+         moment, which is why it kept surfacing in `WorksGrid` and never in the
+         component that actually caused it. See I-051.
+
+         The listener cleanup inside `mm.add()` stays: `document.addEventListener`
+         and `gsap.ticker.add` are not GSAP objects in a context and nothing else
+         will take them back. */
     },
     { dependencies: [reducedMotion] },
   );

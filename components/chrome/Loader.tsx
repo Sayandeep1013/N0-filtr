@@ -72,21 +72,34 @@ const REDUCED_FADE = 0.2;
  * First visit only. On a route change the mark has already introduced itself.
  */
 /* ── the accent tint on the way out ─────────────────────────────────────────
-   `01-PHASES.md` T6.7, and `10-design-system.md` §2: *"the outgoing loader tints
-   to `darken(accent, 10%)` before navigating, so the colour lands before the
-   page does."*
+   `01-PHASES.md` T6.7. Two specs describe this and they do not describe the same
+   thing. `10-design-system.md` §2: *"the outgoing loader tints to
+   `darken(accent, 10%)` before navigating."* `50-brand-and-3d.md` §4's table,
+   one line: *"Case-study loader — **glyph** tinted to the incoming work's
+   accent."*
 
-   The effect is small and the reason is not: a case study sets `--accent` on
-   mount, which is *after* the loader has already swept up in the page's default
-   grey. Tinting the panel on the way out means the visitor sees the work's
-   colour during the transition rather than a beat after it, and the case-study
-   page appears to have been the colour it is all along.
+   It was built as the panel, which is the first reading, and D-036 then pulled
+   the accent back to hairlines and small marks — a full-screen colour fill being
+   neither. Rather than delete the task, it moved to the **glyph**, which is what
+   the brand doc says and is a small mark by construction. Both specs are now
+   satisfied and the effect survives the colour rule. See D-036.
 
-   Which links carry it: any anchor with `data-accent`. The work cards and
-   `<NextWork>` set it; nothing else on the site has an accent to declare, and
-   an anchor without one gets the default panel. */
+   The reason it exists is unchanged: a case study sets `--accent` on mount,
+   which is *after* the loader has swept. Tinting on the way out means the work's
+   colour arrives during the transition rather than a beat after it.
 
-/** `#125C91` → `#105283`. Multiplies each channel by 0.9, per §2's darken(10%). */
+   Which links carry it: any anchor with `data-accent-ink`. The work cards and
+   `<NextWork>` set it; nothing else on the site has an accent to declare, and an
+   anchor without one gets the default glyph. */
+
+/**
+ * `#125C91` → `#105283`. Each channel × 0.9, per §2's darken(10%).
+ *
+ * Applied to the **light** member of the accent pair, which is what the link
+ * carries in `data-accent-ink`: the dark accent as a glyph on the loader's
+ * `#3b3b3b` ground is a shape you have to look for. Darkening the light one
+ * lands it where §2 was pointing.
+ */
 function darken(hex: string, amount = 0.1): string {
   const match = /^#([0-9a-f]{6})$/i.exec(hex.trim());
   if (!match) return hex;
@@ -310,9 +323,9 @@ export function Loader() {
        than in the exit's onComplete because the exit completes *before* the
        route resolves, and clearing it there would show the grey panel again for
        the length of a navigation. */
-    const panel = panelRef.current;
+    const mark = markRef.current;
     return () => {
-      if (panel) panel.style.backgroundColor = '';
+      if (mark) mark.style.color = '';
     };
   }, [pathname]);
 
@@ -365,10 +378,12 @@ export function Loader() {
          colour on its first frame rather than crossfading into it. Cleared on
          arrival by the effect below — a tint left behind would make the *next*
          navigation, to anywhere, sweep up in the last work's blue. */
-      const panel = panelRef.current;
-      if (panel) {
-        const accent = anchor.dataset.accent;
-        panel.style.backgroundColor = accent ? darken(accent) : '';
+      const mark = markRef.current;
+      if (mark) {
+        const ink = anchor.dataset.accentInk;
+        /* `<ApertureMark>` draws in `currentColor`, so one property on the
+           wrapper tints the whole glyph — ring and blades together. */
+        mark.style.color = ink ? darken(ink) : '';
       }
 
       exitRef.current?.restart();
