@@ -306,10 +306,15 @@ function ServiceRow({
          walk the trigger list five times while React is still committing. */
       const refresh = gsap.delayedCall(DUR.slower + 0.1, refreshScrollTriggers);
 
-      return () => {
-        refresh.kill();
-        mm.revert();
-      };
+      /* The matchMedia is the context's to revert — calling it here as well ran
+         every `mm.add()` cleanup twice and spliced `_triggers` for a trigger
+         already removed from it, which is I-051.
+
+         `refresh.kill()` stays, and the asymmetry is deliberate: a
+         `delayedCall` that survives unmount fires `refreshScrollTriggers` at a
+         component that no longer exists, and killing a tween twice is harmless
+         where killing a ScrollTrigger twice is not. */
+      return () => refresh.kill();
     },
     { scope: row, dependencies: [isOpen] },
   );

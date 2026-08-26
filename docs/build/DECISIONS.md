@@ -1298,3 +1298,116 @@ grey out the one colour the system permits.
 
 **Consequence:** `visual-full`, `visual-2up` and `visual-bleed` no longer exist in `Block`. Phase 10
 authors boards.
+
+
+---
+
+## D-036 · One tilt, and the accent narrows to hairlines
+
+**Phase:** 6 · **Date:** 2026-08-27 · **Status:** active
+
+Two corrections from the same review, both about consistency.
+
+### The tilt
+
+Sayandeep: *"the 3d is right tilted the logos and loaders are left tilted .. align them .. either all right or all left."*
+
+`apertureScene.ts` and `ApertureMark.tsx` both carried the axis as **0.892 rad / 51.1 degrees**, read
+off the same measurement — and for five phases they tilted in opposite directions. Nothing was
+mistyped: **Three's y axis points up and SVG's points down**, so the identical angle about the
+identical axis mirrors between them.
+
+The magnitude is the measurement and the sign is the coordinate system, so **the sign is what
+changed**. The 3D object keeps the number the spec measured; the mark — which is ours — turns to
+meet it. `TILT_AXIS_DEGREES` is now `-51.1` in the component and in `scripts/brand-assets.mjs`, and
+the brand assets were regenerated.
+
+### The accent
+
+D-035 graded every product screenshot to grey, which left the work card's hover sheet as the last
+coloured surface on the site. Sayandeep: *"those are coloured .. initially that was intentional ..
+now when everything is greyscaled .. keep it white."*
+
+**The accent now appears only where it is a single line or a small mark.** It survives on:
+
+- the hairline under the case-study hero (the `.7s` crossfade target)
+- the pull quote's left rule
+- code strings and inline code (`--accent-ink`)
+- the custom cursor's disc
+- the work card's top hairline
+- one rule per generated plate
+
+It is gone from the hover sheet, which is now `--grey-900`, and from `<NextWork>`'s wash, which is
+now a neutral scrim with an accent hairline down the picture's inside edge.
+
+**The loader tint moved rather than being deleted.** `10-design-system.md` §2 says the loader "tints
+to `darken(accent, 10%)`"; `50-brand-and-3d.md` §4 says the **glyph** is tinted. It was built as the
+panel — the first reading — and a full-screen colour fill is exactly what this decision removes. It
+now tints the glyph, which is what the brand doc always said, and T6.7 survives intact.
+
+---
+
+## D-037 · The case-study lightbox is deleted
+
+**Phase:** 6 · **Date:** 2026-08-27 · **Status:** active · **supersedes T6.6**
+
+**Context:** Sayandeep, on the drawer built for T6.6: *"whenever i click on a work case study .. it
+opens up .. but the content there isnt clear .. first of all why taking me to a new page and opening
+a side panel for that page itself .. if u are taking me to a new page for something i clicked that
+page should be for it u do not need to show me that in a sideview."*
+
+He is right, and the incoherence was in the design rather than the implementation. An intercepted
+parallel route changes the URL to `/works/tessera` **and** renders a drawer over the previous page —
+so the address bar says you have arrived somewhere and the screen says you have not.
+
+**Decision: a work card navigates. `app/@modal/`, `WorkLightbox`, the `modal` slot and the
+intercepting route are all removed.**
+
+`20-components-and-motion.md` §16 describes tonik's Ajax lightbox and its own adaptation note offers
+the parallel route as *our* substitution — it is not a measured behaviour of theirs that we owe
+fidelity to. The case study is a page. It has a URL, it can be shared, the back button returns you
+to the grid at the card you left from, and there is one way in.
+
+**Consequence:** `<WorkCard>`'s link lost `data-no-loader`, so the loader's exit sweep is now the
+transition into a case study — which is the moment T6.7's glyph tint was designed for.
+`behaviour.case.ts` keeps a check that no visible dialog appears over a case study, because a
+parallel route is nearly invisible in a diff and easy to reintroduce.
+
+---
+
+## D-038 · Case-study imagery is generated in code
+
+**Phase:** 6 · **Date:** 2026-08-27 · **Status:** active
+
+**Context:** Sayandeep: *"change the tessera's case study image .. use a artsy generated image which
+suits the theme .. may not be related to tessera if needed be"*, then *"like the tessera thumbnail ..
+do the similar thing for the rest too."*
+
+Three options were put to him: generated in code, offline renders of the 3D aperture, or an image
+model. **He chose code.**
+
+`components/art/Artwork.tsx` draws a plate from four motifs — `mosaic`, `iris`, `strata`, `orbit` —
+every one built from something already on the page: the aperture's tilted ellipse and six blades,
+`<Schematic>`'s fields of straight hairlines, the twelve-column grid, the 1px rule. Nothing here
+introduces a shape the site does not already use, which is the difference between generated art and
+generated wallpaper.
+
+The motif is chosen by the seed unless the content names one. Tessera names `mosaic`, because a
+*tessera* is a single tile in a mosaic and leaving that to a coin toss would waste the one joke the
+naming affords.
+
+**Two things this got wrong first, both worth keeping written down.**
+
+It read as **noise** — an even field of speckle with no subject. The fix was to couple two values
+that were independent: density falls off from a seeded centre on a curve, and brightness is a
+function of that same distance. Twelve plates still differ; they differ as compositions rather than
+as different noise.
+
+And it produced a **hydration mismatch** — 177 tiles on the server, 271 in the browser — from a
+single `random` closure passed as a prop to `<Mosaic>` and then `<Rule>`. A generator created during
+render is mutable state in a render function, and React does not guarantee a parent and its children
+re-render together. Every motif now derives its own generator from its own seed and none is ever
+passed across a component boundary. See I-052.
+
+**Consequence:** all twelve works carry `card.art`. The screenshots that remain in Tessera's board
+are the ones that are *evidence* — the sprite, the document, the ASCII — rather than decoration.

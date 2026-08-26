@@ -84,7 +84,7 @@ export function CaseSlider({ items, label }: { items: Media[]; label: string }) 
               aria-label={`${i + 1} of ${items.length}`}
             >
               <Plate size="md">
-                <CaseImage src={item.src} alt={item.alt} sizes={SIZES_CONTENT} ratio={item.ratio} />
+                <CaseImage src={item.src} art={item.art} alt={item.alt} sizes={SIZES_CONTENT} ratio={item.ratio} />
               </Plate>
               {item.caption ? (
                 <figcaption data-t="label" className={s.caption}>

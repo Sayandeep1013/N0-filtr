@@ -8,7 +8,7 @@
 
   Two differences from the component, both forced by the medium. The colours are
   literal, because a standalone SVG has nothing to inherit `currentColor` from.
-  And it sits on a filled --black tile rather than on transparency: a white mark
+  And it sits on a filled black tile rather than on transparency: a white mark
   on a transparent ground disappears against a light browser tab and a black one
   disappears against a dark tab, so the tile is what makes it survive both.
 
@@ -19,14 +19,14 @@
   <rect width="64" height="64" fill="#212121"/>
   <g transform="translate(8 8)">
     <g fill="none" stroke="#efefef">
-      <ellipse cx="24" cy="24" rx="21" ry="15.2187" stroke-width="6" transform="rotate(51.1 24 24)"/>
+      <ellipse cx="24" cy="24" rx="21" ry="15.2187" stroke-width="6" transform="rotate(-51.1 24 24)"/>
       <g stroke-width="3.4" stroke-linecap="round">
-        <line x1="21.5783" y1="7.9541" x2="21.6542" y2="11.7559"/>
-        <line x1="35.7784" y1="18.0743" x2="32.6008" y2="18.9948"/>
-        <line x1="38.2001" y1="34.1202" x2="34.9465" y2="31.2389"/>
-        <line x1="26.4217" y1="40.0459" x2="26.3458" y2="36.2441"/>
-        <line x1="12.2216" y1="29.9257" x2="15.3992" y2="29.0052"/>
-        <line x1="9.7999" y1="13.8798" x2="13.0535" y2="16.7611"/>
+        <line x1="26.4217" y1="7.9541" x2="25.3253" y2="11.9206"/>
+        <line x1="38.2001" y1="13.8798" x2="34.579" y2="15.898"/>
+        <line x1="35.7784" y1="29.9257" x2="33.2537" y2="27.9773"/>
+        <line x1="21.5783" y1="40.0459" x2="22.6747" y2="36.0794"/>
+        <line x1="9.7999" y1="34.1202" x2="13.421" y2="32.102"/>
+        <line x1="12.2216" y1="18.0743" x2="14.7463" y2="20.0227"/>
       </g>
     </g>
   </g>

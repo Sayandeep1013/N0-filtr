@@ -475,18 +475,22 @@ export const CASE = {
     settle: 1400,
   },
 
-  lightbox: {
-    id: 'work lightbox',
+  navigation: {
+    id: 'case study navigation',
     phase: 6,
     viewport: { w: 1512, h: 900 },
     href: '/works/tessera',
     cardSelector: 'a[href="/works/tessera"]',
-    dialogSelector: '[aria-label$="case study"]',
-    /** Left of the panel, which is `min(72rem, 92vw)` wide and right-aligned. */
-    scrimPoint: { x: 60, y: 450 },
-    settle: 2200,
-    /** Generous, because it covers a dev-server compile. See behaviour.case.ts. */
-    openTimeout: 30000,
+    /**
+     * The loader sweep is `DUR.mid`, the route resolves behind it, and
+     * `ScrollReset` corrects Lenis a frame after that. Generous because it also
+     * covers a dev-server compile of the case-study route.
+     */
+    settle: 4000,
+    /** "The top" allows a scrubbed reveal settling, not a screenful. */
+    topTolerance: 40,
+    /** Back-restoration belongs to the browser, and it rounds. */
+    restoreTolerance: 120,
   },
 
   loaderTint: {

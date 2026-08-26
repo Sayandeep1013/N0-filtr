@@ -85,18 +85,30 @@
   background-color: var(--grey-800);
 }
 
-/* The accent wash. This is the element NextWork's crossfade is visible on — it
-   reads `--accent` from the section, which the ScrollTrigger tweens toward the
-   next work's colour. `mix-blend-mode: multiply` rather than an alpha fill:
-   multiply keeps the screenshot's structure and takes only its colour. */
+/* A neutral scrim, not an accent wash. D-036 pulled the accent back to hairlines
+   and small marks; a full-panel colour wash is neither, and it was the largest
+   coloured surface left on the site.
+
+   The picture underneath is already `grayscale(1)`, so this only has to hold it
+   back far enough for the copy beside it to lead. */
 .tint {
   position: absolute;
   inset: 0;
-  background-color: var(--accent);
-  mix-blend-mode: multiply;
+  background-color: var(--black);
   opacity: 0.55;
   pointer-events: none;
   transition: opacity var(--dur-slower) var(--ease-in-out);
+}
+
+/* The accent, at the width it is now allowed: one hairline down the inside edge
+   of the picture, which is where the crossfade toward the next work lands. */
+.media::after {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 1px;
+  background-color: var(--accent);
+  pointer-events: none;
 }
 
 /* ── hover ────────────────────────────────────────────────────────────────

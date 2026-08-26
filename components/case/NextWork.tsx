@@ -72,7 +72,7 @@ export function NextWork({ next, from }: { next: Work; from: string }) {
   return (
     <section ref={root} className={s.next} aria-labelledby="next-work-title">
       {/* The loader sweeps up in the *next* work's colour — T6.7. */}
-      <Link href={`/works/${next.slug}`} className={s.link} data-accent={next.accent.dark}>
+      <Link href={`/works/${next.slug}`} className={s.link} data-accent-ink={next.accent.light}>
         {/* Copy beside the picture, not over it. D-034: the first version laid
             the title across a full-bleed screenshot, which is the same collision
             the plate exists to stop — and it made the title's legibility depend

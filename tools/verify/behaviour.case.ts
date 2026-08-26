@@ -21,13 +21,13 @@ import { CASE } from './behaviour.config';
  * Everything here drives the real page: it navigates, hovers, moves a pointer
  * across the viewport and presses Escape, then reads the DOM back.
  *
- * ── Why the lightbox check needs a soft navigation ────────────────────────
+* ── Why the navigation check clicks rather than navigates ────────────────
  *
- * `app/@modal/(.)works/[slug]` intercepts **soft** navigations only, and that is
- * the entire point of it: a pasted URL or a refresh must fall through to the
- * real page. So the check clicks a card on `/` rather than calling `page.goto`,
- * and then asserts the other half separately by loading the URL directly and
- * requiring that no dialog appears.
+ * `page.goto` exercises a cold load, which is not what a visitor does and not
+ * where the bug was. I-050 only appears on a **soft** navigation, because it is
+ * Lenis writing a stale scroll position over the one the router just set — and a
+ * fresh document has no stale position to write. So the check scrolls to a card,
+ * clicks it, and reads where it landed.
  */
 
 const near = (a: number, b: number, tol: number) => Math.abs(a - b) <= tol;
@@ -239,10 +239,10 @@ async function checkCursorGate(browser: Browser, baseUrl: string): Promise<Check
   return out;
 }
 
-/* ── 4. the lightbox ─────────────────────────────────────────────────────── */
+/* ── 4. a card goes to the page, and lands at the top of it ─────────────── */
 
-async function checkLightbox(browser: Browser, baseUrl: string): Promise<CheckResult[]> {
-  const c = CASE.lightbox;
+async function checkNavigation(browser: Browser, baseUrl: string): Promise<CheckResult[]> {
+  const c = CASE.navigation;
   const out: CheckResult[] = [];
   const { context, page } = await newPage(browser, { viewport: c.viewport });
 
@@ -250,116 +250,71 @@ async function checkLightbox(browser: Browser, baseUrl: string): Promise<CheckRe
     await page.goto(`${baseUrl}/`, { waitUntil: 'networkidle' });
     await waitForLoaderGone(page);
     await scrollToSelector(page, c.cardSelector);
-    await page.click(c.cardSelector);
+    const from = await page.evaluate(() => Math.round(window.scrollY));
 
-    /* Wait for the dialog rather than sleeping at it. `verify` runs against a
-       dev server and an intercepting route is compiled **on its first soft
-       navigation** — a `goto` to the same URL warms the real page and not this
-       one, which is why an earlier attempt to pre-warm it did nothing. The
-       compile is seconds, the animation is under one, and a fixed sleep long
-       enough for the first is absurd for every run after it.
-
-       If it genuinely never opens this still fails, just later. */
-    const appeared = await page
-      .waitForSelector(c.dialogSelector, { timeout: c.openTimeout })
-      .then(() => true)
-      .catch(() => false);
-    if (!appeared) {
-      out.push(fail('lightbox: intercepts a soft navigation from /', 'dialog present', 'none'));
-      return out;
-    }
-    await page.waitForTimeout(c.settle);
-
-    const open = await page.evaluate((sel) => {
-      const d = document.querySelector(sel);
-      if (!d) return null;
-      const cs = getComputedStyle(d);
-      const wrap = d.querySelector('div');
-      const r = wrap?.getBoundingClientRect();
-      return {
-        url: location.pathname,
-        display: cs.display,
-        opacity: Number(cs.opacity),
-        wrapRight: r ? Math.round(r.right) : null,
-        viewport: window.innerWidth,
-        overflow: document.body.style.overflow,
-      };
-    }, c.dialogSelector);
-
-    if (!open) {
-      out.push(fail('lightbox: dialog readable after opening', 'measurable', 'none'));
-      return out;
-    }
-
-    out.push(
-      open.url === c.href
-        ? pass(`lightbox: the URL is really ${c.href}`, open.url)
-        : fail('lightbox: URL', c.href, open.url),
-    );
-    out.push(
-      open.display === 'flex' && open.opacity > 0.9
-        ? pass('lightbox: opens over the grid [§16]', `display ${open.display}`)
-        : fail('lightbox: opens', 'display flex, opacity 1', `${open.display}, ${open.opacity}`),
-    );
-    /* `x: 120% → 0%`. The panel has arrived when its right edge is at the
-       viewport's, and 120% off-screen would put it well past it. */
-    out.push(
-      open.wrapRight !== null && near(open.wrapRight, open.viewport, 2)
-        ? pass('lightbox: the panel has slid home (x 120% → 0%)', `right ${open.wrapRight}`)
-        : fail('lightbox: panel at x 0%', `right ≈ ${open.viewport}`, String(open.wrapRight)),
-    );
-    out.push(
-      open.overflow === 'hidden'
-        ? pass('lightbox: the page beneath is scroll-locked')
-        : fail('lightbox: scroll lock', 'hidden', open.overflow || '(unset)'),
-    );
-
-    /* Escape. */
-    await page.keyboard.press('Escape');
-    await page.waitForTimeout(c.settle);
-    const afterEscape = await page.evaluate((sel) => ({
-      url: location.pathname,
-      open: !!document.querySelector(sel),
-      overflow: document.body.style.overflow,
-    }), c.dialogSelector);
-    out.push(
-      !afterEscape.open && afterEscape.url === '/'
-        ? pass('lightbox: Escape closes it and unwinds the history entry')
-        : fail('lightbox: Escape closes', 'gone, back at /', `open ${afterEscape.open}, url ${afterEscape.url}`),
-    );
-    out.push(
-      afterEscape.overflow === ''
-        ? pass('lightbox: the scroll lock is released')
-        : fail('lightbox: scroll lock released', '(unset)', afterEscape.overflow),
-    );
-
-    /* The scrim, which is also the outside click. */
-    await scrollToSelector(page, c.cardSelector);
     await page.click(c.cardSelector);
     await page.waitForTimeout(c.settle);
-    await page.mouse.click(c.scrimPoint.x, c.scrimPoint.y);
-    await page.waitForTimeout(c.settle);
-    const afterScrim = await page.evaluate((sel) => ({
-      url: location.pathname,
-      open: !!document.querySelector(sel),
-    }), c.dialogSelector);
-    out.push(
-      !afterScrim.open && afterScrim.url === '/'
-        ? pass('lightbox: a click outside the panel closes it')
-        : fail('lightbox: outside click closes', 'gone, back at /', `open ${afterScrim.open}, url ${afterScrim.url}`),
-    );
 
-    /* And the half that makes a pasted URL work: a hard load is NOT intercepted. */
-    await page.goto(`${baseUrl}${c.href}`, { waitUntil: 'networkidle' });
-    await waitForLoaderGone(page);
-    const hard = await page.evaluate((sel) => ({
-      dialog: !!document.querySelector(sel),
+    const landed = await page.evaluate(() => ({
+      url: location.pathname,
+      /* **Visible** dialogs. The contact panel and the showreel are both
+         `role="dialog"` and both live in the root layout at `display: none`
+         whether or not they are open — counting them found one on a page with
+         no drawer on it, which is a check reporting on the wrong thing. */
+      dialog: [...document.querySelectorAll('[role="dialog"]')].filter(
+        (d) => getComputedStyle(d).display !== 'none',
+      ).length,
       h1: document.querySelector('h1')?.textContent ?? '',
-    }), c.dialogSelector);
+      scrollY: Math.round(window.scrollY),
+    }));
+
     out.push(
-      !hard.dialog && hard.h1.length > 0
-        ? pass(`lightbox: a hard load falls through to the full page ("${hard.h1}")`)
-        : fail('lightbox: hard load is not intercepted', 'no dialog, an h1', `dialog ${hard.dialog}, h1 "${hard.h1}"`),
+      landed.url === c.href
+        ? pass(`case nav: a card goes to ${c.href}`, landed.url)
+        : fail('case nav: a card navigates', c.href, landed.url),
+    );
+    /* D-037 deleted the drawer. This stays as a guard: the parallel route was
+       almost invisible in a diff and is very easy to reintroduce by accident. */
+    out.push(
+      landed.dialog === 0
+        ? pass('case nav: no drawer over the page it just navigated to (D-037)')
+        : fail('case nav: no modal drawer', '0 dialogs', String(landed.dialog)),
+    );
+    out.push(
+      landed.h1.length > 0
+        ? pass(`case nav: the page renders its own title ("${landed.h1}")`)
+        : fail('case nav: the case study renders', 'an h1', '(none)'),
+    );
+    /* I-050. Lenis holds its own scroll and writes it back over whatever the
+       router set, so leaving a scrolled page used to land you at the same
+       offset on the next one — the footer, in practice. */
+    out.push(
+      landed.scrollY <= c.topTolerance
+        ? pass(
+            `case nav: lands at the top, not where you left (I-050) — ${landed.scrollY}px, left from ${from}px`,
+          )
+        : fail(
+            'case nav: lands at the top of the new page',
+            `<= ${c.topTolerance}px`,
+            `${landed.scrollY}px (left the previous page at ${from}px)`,
+          ),
+    );
+
+    /* And the other direction: back must restore, not reset. */
+    await page.goBack();
+    await page.waitForTimeout(c.settle);
+    const back = await page.evaluate(() => ({
+      url: location.pathname,
+      scrollY: Math.round(window.scrollY),
+    }));
+    out.push(
+      back.url === '/' && Math.abs(back.scrollY - from) <= c.restoreTolerance
+        ? pass(`case nav: back restores the grid position — ${back.scrollY}px against ${from}px`)
+        : fail(
+            'case nav: back restores the scroll position',
+            `/ at ~${from}px`,
+            `${back.url} at ${back.scrollY}px`,
+          ),
     );
   } finally {
     await context.close();
@@ -389,17 +344,17 @@ async function checkLoaderTint(browser: Browser, baseUrl: string): Promise<Check
        was about *event phases*, and only a trusted click exercises those the way
        a visitor does. */
     await page.evaluate(() => {
-      const panel = document.querySelector('.loader') as HTMLElement | null;
+      const mark = document.querySelector('.loader__mark') as HTMLElement | null;
       const seen: string[] = [];
       (window as unknown as { __tints: string[] }).__tints = seen;
-      if (!panel) return;
+      if (!mark) return;
       new MutationObserver(() => {
-        if (panel.style.backgroundColor) seen.push(panel.style.backgroundColor);
-      }).observe(panel, { attributes: true, attributeFilter: ['style'] });
+        if (mark.style.color) seen.push(mark.style.color);
+      }).observe(mark, { attributes: true, attributeFilter: ['style'] });
     });
 
     const accent = await page.evaluate(
-      (sel) => (document.querySelector(sel) as HTMLAnchorElement | null)?.dataset.accent ?? '',
+      (sel) => (document.querySelector(sel) as HTMLAnchorElement | null)?.dataset.accentInk ?? '',
       c.linkSelector,
     );
     await page.click(c.linkSelector);
@@ -414,13 +369,13 @@ async function checkLoaderTint(browser: Browser, baseUrl: string): Promise<Check
 
     out.push(
       tint.accent !== ''
-        ? pass(`loader tint: the link declares data-accent (${tint.accent})`)
-        : fail('loader tint: data-accent on the link', 'a hex', '(absent)'),
+        ? pass(`loader tint: the link declares data-accent-ink (${tint.accent})`)
+        : fail('loader tint: data-accent-ink on the link', 'a hex', '(absent)'),
     );
     out.push(
       tint.background !== ''
-        ? pass(`loader tint: the panel tints before navigating [T6.7] (${tint.background})`)
-        : fail('loader tint: panel background set on click', 'darken(accent, 10%)', '(unset)'),
+        ? pass(`loader tint: the glyph tints before navigating [T6.7] (${tint.background})`)
+        : fail('loader tint: glyph colour set on click', 'darken(accent-ink, 10%)', '(unset)'),
     );
   } finally {
     await context.close();
@@ -457,7 +412,7 @@ export async function checkCaseStudy(browser: Browser, baseUrl: string): Promise
     ...(await checkAccent(browser, baseUrl)),
     ...(await checkCursor(browser, baseUrl)),
     ...(await checkCursorGate(browser, baseUrl)),
-    ...(await checkLightbox(browser, baseUrl)),
+    ...(await checkNavigation(browser, baseUrl)),
     ...(await checkLoaderTint(browser, baseUrl)),
   ];
 }

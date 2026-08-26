@@ -92,6 +92,7 @@ export function CaseHero({
         <CaseReel
           reel={work.card.reel}
           poster={work.card.poster}
+          art={work.card.art}
           alt={`${work.title} — ${work.summary}`}
         />
         {/* The accent's arrival. `10-design-system.md` §2 crossfades the

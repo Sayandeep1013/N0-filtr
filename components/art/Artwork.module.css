@@ -1,0 +1,72 @@
+/* <Artwork />. D-038.
+
+   Grey and white, with one hairline of accent. Every value is a token — the
+   plates have to sit beside the graded screenshots without looking like they
+   came from somewhere else, and the only way to guarantee that is to draw them
+   out of the same palette.
+
+   Stroke widths are in the SVG's own 1600×1000 space, so they scale with the
+   plate. At the ~700px a board tile is actually drawn, a width of 2 lands near
+   one device pixel — which is the hairline this whole site is made of. */
+
+.art {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.ground {
+  fill: var(--grey-900);
+}
+
+/* ── the mosaic ─────────────────────────────────────────────────────────── */
+
+.tileDim {
+  fill: var(--grey-800);
+}
+
+.tileMid {
+  fill: var(--grey-700);
+  opacity: 0.55;
+}
+
+.tileBright {
+  fill: var(--white);
+  opacity: 0.85;
+}
+
+/* ── line work ──────────────────────────────────────────────────────────── */
+
+.strokeDim,
+.strokeMid,
+.strokeBright {
+  fill: none;
+  stroke-linecap: round;
+}
+
+.strokeDim {
+  stroke: var(--white);
+  stroke-width: 2;
+  opacity: 0.16;
+}
+
+.strokeMid {
+  stroke: var(--white);
+  stroke-width: 2;
+  opacity: 0.38;
+}
+
+.strokeBright {
+  stroke: var(--white);
+  stroke-width: 3;
+  opacity: 0.9;
+}
+
+/* The one hairline of colour a plate is allowed. `--accent` is set per case
+   study on <html>; on the works grid the card sets `--work-accent`, so the
+   fallback chain reaches whichever is in scope. */
+.rule {
+  stroke: var(--accent, var(--work-accent, var(--white)));
+  stroke-width: 3;
+  opacity: 0.9;
+}

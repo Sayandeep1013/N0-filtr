@@ -179,7 +179,12 @@ export function CultureCollage() {
       });
 
       /* No refresh from a cleanup — see lib/motion/scrollRefresh.ts. */
-      return () => mm.revert();
+      /* No cleanup returned. `useGSAP` reverts its context, and the matchMedia
+         created inside it reverts with it — running every `mm.add()` cleanup
+         exactly once. An explicit `mm.revert()` here ran them twice, and a
+         second kill on an already-removed ScrollTrigger splices `_triggers` a
+         second time. That array is what `ScrollTrigger.create()` walks, and a
+         hole in it is `curTrigger is undefined`. See I-051. */
     },
     { scope: root },
   );

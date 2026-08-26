@@ -6,6 +6,7 @@ import { DUR, EASE, MQ } from '@/lib/motion/tokens';
 import { useMotion } from '@/lib/motion/MotionProvider';
 import type { Media } from '@/content/works/_types';
 import { posterSrcSet } from '@/lib/media';
+import { Artwork } from '@/components/art/Artwork';
 import { Plate } from '@/components/ui/Plate';
 import s from './CaseBoard.module.css';
 
@@ -114,7 +115,7 @@ export function CaseBoard({ items, caption }: { items: Media[]; caption?: string
       /* The reveal runs at every width — it is an arrival, not a hover — and
          only the parallax is gated. Below 992 the tiles stack, and a stacked
          column drifting at four different rates reads as a rendering fault. */
-      const reveal = gsap.from(figures, {
+      gsap.from(figures, {
         y: 48,
         opacity: 0,
         duration: DUR.slower,
@@ -127,7 +128,7 @@ export function CaseBoard({ items, caption }: { items: Media[]; caption?: string
         const setters = figures.map((figure) => gsap.quickSetter(figure, 'yPercent'));
         const rates = figures.map((_, i) => tiles[i]?.rate ?? -8);
 
-        const trigger = ScrollTrigger.create({
+        ScrollTrigger.create({
           trigger: el,
           start: 'top bottom',
           end: 'bottom top',
@@ -142,14 +143,21 @@ export function CaseBoard({ items, caption }: { items: Media[]; caption?: string
           },
         });
 
-        return () => trigger.kill();
       });
 
-      return () => {
-        reveal.scrollTrigger?.kill();
-        reveal.kill();
-        mm.revert();
-      };
+      /* No cleanup returned, and that is the fix rather than an omission.
+
+         `useGSAP` reverts its own context on unmount, and a `gsap.matchMedia()`
+         created inside that context is reverted **with** it — which runs every
+         `mm.add()` cleanup exactly once. An explicit `mm.revert()` here made
+         that happen twice, and a second `ScrollTrigger.kill()` on an instance
+         already removed from `_triggers` splices the array a second time.
+
+         That array is what `ScrollTrigger.create()` walks. A hole in it is
+         `can't access property "end", curTrigger is undefined` — thrown from
+         whichever component happened to be constructing a trigger at that
+         moment, which is why it kept surfacing in `WorksGrid` and never in the
+         component that actually caused it. See I-051. */
     },
     { scope: root, dependencies: [reducedMotion, items.length] },
   );
@@ -168,16 +176,22 @@ export function CaseBoard({ items, caption }: { items: Media[]; caption?: string
                 style={{ gridColumn: tile.col, gridRow: tile.row }}
               >
                 <span className={s.frame} data-cursor="View">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={item.src}
-                    srcSet={posterSrcSet(item.src)}
-                    sizes="(max-width: 991px) 100vw, 50vw"
-                    alt={item.alt}
-                    className={s.img}
-                    loading="lazy"
-                    decoding="async"
-                  />
+                  {item.art ? (
+                    /* Drawn, not fetched — and already grey and white by
+                       construction, so no grade and no srcSet. D-038. */
+                    <Artwork seed={item.art} />
+                  ) : (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={item.src}
+                      srcSet={posterSrcSet(item.src)}
+                      sizes="(max-width: 991px) 100vw, 50vw"
+                      alt={item.alt}
+                      className={s.img}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  )}
                 </span>
                 {item.caption ? (
                   <figcaption data-t="label" className={s.tileCaption}>

@@ -1,6 +1,7 @@
-import { cx } from '@/lib/cx';
-import { posterSrcSet } from '@/lib/media';
-import s from './CaseImage.module.css';
+import { Artwork } from "@/components/art/Artwork";
+import { cx } from "@/lib/cx";
+import { posterSrcSet } from "@/lib/media";
+import s from "./CaseImage.module.css";
 
 /**
  * One image inside a case study, at the right density for its slot.
@@ -19,6 +20,7 @@ import s from './CaseImage.module.css';
  */
 export function CaseImage({
   src,
+  art,
   alt,
   sizes,
   ratio,
@@ -26,6 +28,8 @@ export function CaseImage({
   className,
 }: {
   src: string;
+  /** A generated plate instead of a file. See `components/art/Artwork.tsx`. */
+  art?: string;
   alt: string;
   sizes: string;
   /** A CSS `aspect-ratio`. Defaults to the capture script's 16:10. */
@@ -35,18 +39,26 @@ export function CaseImage({
   className?: string;
 }) {
   return (
-    <span className={cx(s.box, className)} style={{ aspectRatio: ratio ?? '16 / 10' }}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={src}
-        srcSet={posterSrcSet(src)}
-        sizes={sizes}
-        alt={alt}
-        className={s.img}
-        loading={priority ? 'eager' : 'lazy'}
-        fetchPriority={priority ? 'high' : 'auto'}
-        decoding="async"
-      />
+    <span
+      className={cx(s.box, className)}
+      style={{ aspectRatio: ratio ?? "16 / 10" }}
+    >
+      {/* A plate is drawn, not fetched: no `srcSet`, no `sizes`, no grade —
+          it is already grey and white by construction. */}
+      {art ? <Artwork seed={art} /> : null}
+      {art ? null : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={src}
+          srcSet={posterSrcSet(src)}
+          sizes={sizes}
+          alt={alt}
+          className={s.img}
+          loading={priority ? "eager" : "lazy"}
+          fetchPriority={priority ? "high" : "auto"}
+          decoding="async"
+        />
+      )}
     </span>
   );
 }

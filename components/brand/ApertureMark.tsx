@@ -89,7 +89,19 @@ const TICKS = Array.from({ length: 6 }, (_, i) => i * 60);
    is not: `scripts/brand-assets.mjs` renders this same geometry to PNG for the
    apple icon, the 512 tile and the OG card, and support for that property
    outside a browser is not something to rely on. */
-const TILT_AXIS_DEGREES = 51.1;
+/* The sign is negative, and that is the whole of the alignment fix.
+
+   `apertureScene.ts` and this file both carry the axis as 0.892 rad / 51.1
+   degrees, read off the same measurement — and for five phases they tilted in
+   **opposite directions**. Sayandeep: *"the 3d is right tilted the logos and
+   loaders are left tilted .. align them."*
+
+   Nothing was mistyped. Three's y axis points **up** and SVG's points **down**,
+   so the identical angle about the identical axis mirrors between them. The
+   magnitude is the measurement and the sign is the coordinate system, so the
+   sign is what changes here: the 3D object keeps the number the spec measured,
+   and the mark — which is ours — turns to meet it. See D-036. */
+const TILT_AXIS_DEGREES = -51.1;
 const TILT_SQUASH = 0.7247;
 
 /**

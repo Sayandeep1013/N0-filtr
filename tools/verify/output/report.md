@@ -1,10 +1,10 @@
 # Verification report
-Run: 2026-08-26T18:07:56.162Z · Phase 06 · commit `755ec50` · branch `main`
+Run: 2026-08-26T19:14:58.038Z · Phase 06 · commit `8ec4dd6` · branch `main`
 
 ## Summary
 ```
 tokens  ✅ 138/138
-motion  ✅ 269/269
+motion  ✅ 266/266
 visual  ⚠️ reviewed by agent — see judgement
 budget  ✅ 6/6
 ```
@@ -367,8 +367,8 @@ budget  ✅ 6/6
 ✅ works grid: the sheet opens to 1 and returns to 0
 ✅ works grid: the sheet is a drawer, not a curtain — it does not fill the media = 63% of the media's height
 ✅ works grid ≤767: the sheet is permanent content, not a hover state = position static, opacity 1
-✅ works grid: the sheet is never a bright surface (luminance ≤ 0.1) = color(srgb 0.121176 0.161804 0.190902) → 0.0211
-✅ works grid: the sheet is still distinguishable from the page ground = sheet 0.0211 vs page 0.0152
+✅ works grid: the sheet is never a bright surface (luminance ≤ 0.1) = rgb(46, 46, 46) → 0.0273
+✅ works grid: the sheet is still distinguishable from the page ground = sheet 0.0273 vs page 0.0152
 ✅ works grid ≤767: one column, every card the full measure = 350px
 ✅ works grid ≤767: no parallax — every cell untransformed
 ✅ works grid ≤767: no reel playback = no reels yet
@@ -411,16 +411,13 @@ budget  ✅ 6/6
 ✅ case cursor: drifts, does not follow [a-14] — moved 30×42px while the pointer moved 458px
 ✅ case cursor: is tracking at all = 73px combined
 ✅ case cursor: off at 390 (none)
-✅ lightbox: the URL is really /works/tessera = /works/tessera
-✅ lightbox: opens over the grid [§16] = display flex
-✅ lightbox: the panel has slid home (x 120% → 0%) = right 1512
-✅ lightbox: the page beneath is scroll-locked
-✅ lightbox: Escape closes it and unwinds the history entry
-✅ lightbox: the scroll lock is released
-✅ lightbox: a click outside the panel closes it
-✅ lightbox: a hard load falls through to the full page ("Tessera")
-✅ loader tint: the link declares data-accent (#973911)
-✅ loader tint: the panel tints before navigating [T6.7] (rgb(136, 51, 15))
+✅ case nav: a card goes to /works/tessera = /works/tessera
+✅ case nav: no drawer over the page it just navigated to (D-037)
+✅ case nav: the page renders its own title ("Tessera")
+✅ case nav: lands at the top, not where you left (I-050) — 0px, left from 1618px
+✅ case nav: back restores the grid position — 1618px against 1618px
+✅ loader tint: the link declares data-accent-ink (#E75D23)
+✅ loader tint: the glyph tints before navigating [T6.7] (rgb(208, 84, 32))
 
 > Pending entries are timelines the spec names but no phase has built yet. The phase that builds one flips `pending: false` in motion.config.ts.
 > Behaviour checks drive the real interface — scroll, hover, click, Escape — rather than reading a registered timeline. They are the only instrument that catches an unwired handler, a matchMedia gate that leaks below 992, or a reverse running at the wrong timeScale. See behaviour.config.ts.
@@ -562,12 +559,12 @@ lists are authored to fill the accordion and T10.8 writes the real ones. The blo
 ℹ️ matter-js absent from the eagerly-loaded bundle — vacuous: matter-js is not installed yet
 ✅ three absent from the eagerly-loaded bundle = absent
 ✅ plyr absent from the eagerly-loaded bundle = absent
-ℹ️ all built chunks, gzipped (not a per-route figure) = 524.8KB
-✅ JS on / (transferred) = 327.5KB / 360KB
-✅ home page total weight = 694.4KB / 1800KB
+ℹ️ all built chunks, gzipped (not a per-route figure) = 523.3KB
+✅ JS on / (transferred) = 329.4KB / 360KB
+✅ home page total weight = 487.3KB / 1800KB
 ✅ zero network font requests = both faces self-hosted
 ✅ CLS (local, unthrottled) = 0.0025
-ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 132ms
+ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 388ms
 
 > Poster and reel budgets become binding in phase 10, when assets exist.
 > Lighthouse scores are a phase 12 deliverable via mcp__chrome-devtools__lighthouse_audit; the figures here are local and unthrottled.

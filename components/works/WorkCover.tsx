@@ -1,3 +1,4 @@
+import { makeRandom, seedFrom } from '@/lib/art/seed';
 import s from './WorkCover.module.css';
 
 /**
@@ -23,25 +24,6 @@ import s from './WorkCover.module.css';
  *
  * T10.5 replaces this by setting `card.poster`. See I-035.
  */
-
-/** FNV-1a. Stable across runtimes, which `String.hashCode`-style loops are not. */
-function seedFrom(slug: string): number {
-  let h = 2166136261;
-  for (let i = 0; i < slug.length; i += 1) {
-    h ^= slug.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return h >>> 0;
-}
-
-/** Lehmer LCG. Same seed, same picture, on the server and in the browser. */
-function makeRandom(seed: number): () => number {
-  let state = seed || 1;
-  return () => {
-    state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
-    return state / 4294967296;
-  };
-}
 
 /**
  * `aria-hidden`, and it stays that way when T10.5 supplies a real image. The

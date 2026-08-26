@@ -198,10 +198,10 @@ Branch `phase/06-case-study`. One work end to end: **Tessera**. Eleven more inhe
 |---|---|---|
 | T6.1 | Route + accent theming, `.7s` crossfade from `#212121` | ✅ `app/works/[slug]` · `--accent` / `--accent-ink` / `--accent-ground` on `<html>`, removed on unmount |
 | T6.2 | CS hero — mini-nav, title, reel, spec table | ✅ Plyr behind a reel that no work has yet (T10.2); poster is the supported fallback |
-| T6.3 | The block set | ✅ **six types, not eight** — see D-035 |
+| T6.3 | The block set | ✅ **six types, not eight** — see D-035, and D-038 for the imagery |
 | T6.4 | Custom cursor, `a-10`–`a-14` | ✅ ±50px drift, 500/400ms, click toggles the label |
 | T6.5 | `<NextWork>` — accent crossfades to the next | ✅ recomposed by D-034: copy beside the picture |
-| T6.6 | Lightbox — intercepted parallel route | ✅ `app/@modal/(.)works/[slug]` · Escape, scrim and outside click all close it |
+| T6.6 | Lightbox — intercepted parallel route | ⛔ **removed** — D-037. A card navigates; the drawer contradicted the URL |
 | T6.7 | Loader accent tint on case-study links | ✅ `data-accent` on work links; `darken(accent, 10%)` before the sweep |
 
 **Two design decisions taken with Sayandeep mid-phase, and they changed the block set.**
@@ -209,9 +209,10 @@ D-034 puts every product screenshot on a plate; D-035 replaces `visual-full` / `
 `visual-bleed` with one `board` block and grades every product image to grey. Read both before
 authoring a case-study body — the `Block` union is smaller than `30-page-specs.md` §2 describes.
 
-**Evidence:** `npm run verify` green — tokens 138/138, motion **269/269**, budget 6/6. The 20 new
-assertions are `tools/verify/behaviour.case.ts`, and one of them found I-048: the loader's exit
-sweep had never run in five phases. Page is 7,766px
+**Evidence:** `npm run verify` green — tokens 138/138, motion **266/266**, budget 6/6. The new
+assertions are `tools/verify/behaviour.case.ts`, and they found three bugs nothing else would have:
+I-048 (the loader's exit sweep had never run, in five phases), I-050 (Lenis kept its scroll across
+routes) and, indirectly, I-051 — the double free behind `curTrigger is undefined`. Page is 8,134px
 at 1512 against the spec's 7,700–9,300 target, reviewed at 1512 and 390.
 
 **What the gate still needs:** Sayandeep to see the finished page and say so.

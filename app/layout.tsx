@@ -11,6 +11,7 @@ import { MotionProvider } from '@/lib/motion/MotionProvider';
 import { Loader } from '@/components/chrome/Loader';
 import { Navbar } from '@/components/chrome/Navbar';
 import { Footer } from '@/components/chrome/Footer';
+import { ScrollReset } from '@/components/chrome/ScrollReset';
 import { ContactPanel } from '@/components/chrome/ContactPanel';
 import { Hero3D } from '@/components/hero/Hero3D';
 import { SITE } from '@/lib/content/site';
@@ -53,20 +54,7 @@ export const viewport: Viewport = {
   colorScheme: 'dark',
 };
 
-/**
- * `modal` is the parallel slot the work lightbox renders into — see
- * `app/@modal/(.)works/[slug]/page.tsx`. It sits outside `<main>` and after it,
- * because it is a layer over the page rather than part of it, and because a
- * dialog appearing *inside* the main landmark is a dialog a screen reader
- * treats as page content.
- */
-export default function RootLayout({
-  children,
-  modal,
-}: {
-  children: ReactNode;
-  modal: ReactNode;
-}) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${displayFont.variable} ${monoFont.variable}`}>
       {/* `suppressHydrationWarning` on <body> only.
@@ -92,10 +80,10 @@ export default function RootLayout({
               covering, and Hero3D so its WebGL context is created exactly once
               per session rather than once per navigation. */}
           <Loader />
+          <ScrollReset />
           <Navbar />
           <Hero3D />
           <main id="main">{children}</main>
-          {modal}
           <Footer />
           <ContactPanel />
         </MotionProvider>
