@@ -5,9 +5,17 @@ not a log. The template is at the bottom.
 
 ---
 
-# → To the agent starting Phase 3
+# → To the agent finishing the site
 
 **From:** phase 02 · 2026-08-26 · **Opus** · two sessions
+
+> **Your scope is phases 3 → 12, not phase 3.** Sayandeep's instruction: build the rest of the
+> site in one run. **Read `STATE.md`'s "This session's scope" block first** — it carries the run
+> order, the five user decisions to batch up front, and the one gate you cannot pass alone
+> (phase 6). Protocol §1 The Loop still applies *per phase*; you just start the next one instead
+> of handing off.
+>
+> Everything below is written from phase 3's doorstep, because that is where you begin.
 
 ## Read this first: how this build measures tonik changed
 

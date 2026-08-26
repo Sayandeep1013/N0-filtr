@@ -7,6 +7,58 @@ Last updated: **2026-08-26** · by: **phase 2 session (Opus)** · tag: `phase-02
 
 ---
 
+## ⇢ This session's scope — read before anything else
+
+**Sayandeep's instruction, 2026-08-26: build the rest of the site.** Phases **3 → 12**, in one
+run, not one phase and a handoff.
+
+That is a change of *scope*, not of method. **Protocol §1 The Loop still applies per phase** —
+claim it, plan it, build it, verify it, self-review it, document it, commit it — and then you
+**start the next one instead of stopping.** The Loop is what keeps quality; skipping it to go
+faster is how this build acquires the debt it has so far avoided.
+
+Order and dependencies are in the ledger below. `3 → 4 → 5 → 6 → 7`, with **8, 9, 10, 11
+parallel-safe** once their dependency is met, and **12 last**.
+
+### Ask these five things FIRST, in one message
+
+They are the only user-owned decisions left, they are scattered across the specs, and each one
+blocks a different phase. **Batch them up front** — do not stop five separate times over ten
+phases. Each has a working placeholder, so nothing is blocked while you wait.
+
+| Needed | For | Placeholder in place |
+|---|---|---|
+| **Domain** | phase 12, `SITE.url`, OG tags | `nofilter.studio` / `NEXT_PUBLIC_SITE_URL` |
+| **Social handles** — Instagram / LinkedIn / X | phase 1 footer, phase 12 | GitHub only; the rest omitted |
+| **Tally form ID** | contact form, phases 10 / 12 | styled native `mailto:` fallback |
+| **Footer tagline** | footer, phase 12 | `NO FILTER BETWEEN THE IDEA AND THE THING` |
+| **Contact form budget bands + referral chips** | I-015, phase 10 | invented — two constants in `ContactForm.tsx` |
+
+`docs/spec/00-brief-and-decisions.md` "Open items" is the source; keep it in sync as they land.
+
+### The one gate you cannot pass alone
+
+**Phase 6 is a 🚦 GATE.** It builds the first case study, and eleven more inherit its pattern —
+`01-PHASES.md` requires presenting it before phase 7. Phase 2's gate is already cleared, so this
+is the only one left. **Plan for it**: get phase 6 to a presentable state, show it, and use the
+wait to run phases 8–11, which do not depend on it.
+
+### Prove each phase, do not eyeball it
+
+Two tools exist because phase 2 learned this the hard way, and they are the difference between
+"looks right" and "matches":
+
+```bash
+npm run extract:tonik      # their design system from the live DOM  → docs/research/03-tonik-extract.md
+npm run compare:hero       # head-to-head vs tonik at four viewports — currently 92/92
+```
+
+**Extend both before building each section, not after.** `compare-hero.mjs` takes a `STRUCTURAL`
+field list; adding the works grid's fields costs a line and then the tool tells you whether you
+got it right. Protocol §2.9 is the rule.
+
+---
+
 ## Where we are
 
 > *Phase 1 was independently re-confirmed before this phase started: `npm run verify` re-run at

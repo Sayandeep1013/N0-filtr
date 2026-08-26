@@ -1,5 +1,5 @@
 # Verification report
-Run: 2026-08-26T07:27:14.131Z · Phase 03 · commit `4a23445` · branch `main`
+Run: 2026-08-26T07:47:34.251Z · Phase 03 · commit `4b72094` · branch `main`
 
 ## Summary
 ```
@@ -410,6 +410,31 @@ brief deliberately does not copy it. That half stays judgement, and it is the ha
 the iterations — thin barrel against thick, where the specular sits, how wide the blades are.
 The layout half should not have.
 
+THE HEAD-TO-HEAD, and the thing it caught. tools/extract/compare-hero.mjs reads the same
+structural values out of both DOMs at four viewports and diffs them. Only 1512 was ever tuned;
+the other three are the test of whether rules were copied or positions were.
+
+First run: 91 of 92. The one failure was canvasH at 1920 - theirs 1188 against our 1080 - and it
+was real. Swept across widths in both engines, their canvas wrapper holds at 100vh through 1800
+and switches to 110vh at exactly 1920, which is Webflow's largest default breakpoint. It is not
+decoration: the object is framed off viewport HEIGHT, so ten per cent more of it is ten per cent
+less crop, which is why their hero still reads on a wide monitor. Implemented, and both engines
+now pass 92/92.
+
+That failure is the more useful result than the pass. A clean sweep on the first run would have
+meant the comparison was not looking hard enough.
+
+THE WORDMARK IS 700 NOW. Sayandeep asked for the logo bold, which contradicts CLAUDE.md's
+non-negotiable that the display face is never bolded. The rule is about type and a wordmark is
+not type - it is a logo drawn with the face - so the change is in and section 3 has been amended
+to name the exception rather than left to be quietly violated. Every heading, label and
+paragraph is still 400 and verify:tokens still asserts it, because the wordmark carries no
+data-t attribute. At 14vw the difference is real: 400 reads as a headline that happens to say
+the studio's name, 700 reads as a mark. D-017.
+
+It widens the footer mark a third time, to about x=1100 at 1512 from ~1010. Still inside its
+column, still no overflow, 14vw untouched. Noted on I-018 rather than reopening it.
+
 ⏳ stack-wall — owed by phase 3
 ⏳ works-a — owed by phase 4
 ⏳ services — owed by phase 5
@@ -435,10 +460,10 @@ The layout half should not have.
 ℹ️ plyr absent from the eagerly-loaded bundle — vacuous: plyr is not installed yet
 ℹ️ all built chunks, gzipped (not a per-route figure) = 441.5KB
 ✅ JS on / (transferred) = 303.7KB / 320KB
-✅ home page total weight = 371.9KB / 1800KB
+✅ home page total weight = 372.0KB / 1800KB
 ✅ zero network font requests = both faces self-hosted
 ✅ CLS (local, unthrottled) = 0.0025
-ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 156ms
+ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 192ms
 
 > Poster and reel budgets become binding in phase 10, when assets exist.
 > Lighthouse scores are a phase 12 deliverable via mcp__chrome-devtools__lighthouse_audit; the figures here are local and unthrottled.

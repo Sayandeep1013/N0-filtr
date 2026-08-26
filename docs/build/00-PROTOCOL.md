@@ -23,6 +23,12 @@ Every session, without exception:
 **You may stop at any point** — mid-task, mid-phase. What you may not do is stop without
 completing step 7. A session that ends with stale docs has actively damaged the build.
 
+**A session may run several phases.** The Loop is *per phase*, not per session: finish step 8 for
+one phase and begin step 1 of the next. `STATE.md`'s scope block says how many phases the current
+session is expected to cover. Running four phases does not license running one Loop across four
+phases — the per-phase verify and self-review are exactly what stops a long run accumulating
+debt, and they get *more* important as the run gets longer, not less.
+
 ---
 
 ## §2 Orientation — context derivation
