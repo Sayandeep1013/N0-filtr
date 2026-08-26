@@ -1750,3 +1750,81 @@ preference set on node does nothing.
 **The durable lesson:** *a script that opens a browser owns closing it on every
 path out, not just the happy one* — and on a site with a render loop, a leaked
 browser costs power rather than memory.
+
+
+---
+
+## I-058 · Navigating home from a scrolled page left the homepage with no ScrollTriggers  🟢
+
+**Raised:** phase 09 · **Resolved:** phase 09
+
+Sayandeep: *"getting error while trying go back to home page from work pages."*
+
+```
+TypeError: Cannot read properties of undefined (reading 'end')
+    at ScrollTrigger.refresh  (x8, recursing)
+    at ScrollTrigger.create   <- WorksGrid, mounting the homepage
+```
+
+The same message as I-051 and **a different cause**, which is worth saying
+plainly: fixing the double free did not fix this, and the shared symptom sent
+the first investigation to the wrong place twice.
+
+**What was actually happening.** Instrumenting `ScrollTrigger.create` showed
+every homepage trigger being constructed at `scrollY = 6551` — the *outgoing*
+page's scroll position. `<ScrollReset>` corrected it in a `useEffect` plus a
+`requestAnimationFrame`; the page's own triggers are built in a **layout**
+effect, before paint, and therefore before that rAF ever ran.
+
+At that scroll, every `once: true` reveal on the homepage evaluates as already
+passed. Creating one trigger makes ScrollTrigger recursively refresh the others
+(`ScrollTrigger.js:1372`), and each `once` trigger that fires during the cascade
+**kills itself** — splicing `_triggers` while an outer loop walks it by index.
+The next read is a hole.
+
+**The damage was not the console line.** The exception aborted `WorksGrid`'s
+`useGSAP`, so the homepage ended up with **zero** ScrollTriggers: no parallax, no
+reveals, until a reload. Measured before and after — 0, then 22.
+
+**Resolved** by moving the correction into a layout effect that runs
+synchronously, before any page component builds a trigger. `<ScrollReset>` is
+rendered in the root layout ahead of `<main>`, and React runs sibling layout
+effects in order.
+
+That costs the trick the first version was proud of — reading `window.scrollY`
+back and letting the router's own decision stand for both push and pop. Running
+earlier means the router has not decided yet, so it now tracks `popstate` and
+branches: **push** goes to the top immediately, **pop** lets the browser restore
+and only syncs Lenis a frame later. Back-navigation never hit the crash anyway,
+because the position it restores is the one the page was built for.
+
+**The durable lesson:** *a correction that runs after the thing it corrects for
+is not a fix, it is a repaint.* The first version made the symptom Sayandeep
+reported go away and left a worse one behind it.
+
+---
+
+## I-059 · The native pointer stays visible under the custom cursor  🟢
+
+**Raised:** phase 09 · **Resolved:** phase 09
+
+Sayandeep: *"when the mouse is on those cards the cursor should disappear and
+that circle becomes the new cursor .. u leave the card the cursor comes back."*
+
+`<CustomCursor>` drew its disc over the arrow rather than instead of it, which
+is the difference between a decoration and a cursor.
+
+**Resolved** with `cursor: none` on `[data-cursor]` and its descendants, scoped
+to the target rather than set on the document — so the pointer returns the
+instant it leaves, and nothing can strand a visitor whose pointer ends up
+somewhere the component is not running.
+
+It lives in `app/styles/global.css`, not in `CustomCursor.module.css`, and the
+build insisted: a CSS Module refuses a selector with no local class in it
+(*"pure selectors must contain at least one local class or id"*). That refusal
+is correct — a rule matching `[data-cursor]` anywhere on the site should be
+visible in the global sheet rather than hidden inside one component's.
+
+Gated to desktop width, a fine pointer, and no reduced-motion preference — the
+same three gates as the disc. Hiding the pointer where the replacement is
+switched off would leave no cursor at all.

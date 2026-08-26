@@ -1,67 +1,109 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { useMotion } from '@/lib/motion/MotionProvider';
 
 /**
  * Puts a new page at the top, and puts a page you came *back* to where you left
- * it. `01-PHASES.md` has no task for this; it is I-050.
+ * it. I-050, and then I-058.
  *
- * ── The bug ──────────────────────────────────────────────────────────────
+ * ── The first bug: the footer ────────────────────────────────────────────
  *
- * Sayandeep: *"whenever i visit a project it takes me to the no filter footer."*
- * Reproduced exactly — scrolled to the bottom of Tessera, clicked "next
- * project", landed on CanVas at **scrollY 6573 of 7766**. The footer.
+ * Sayandeep: *"whenever i visit a project it takes me to the no filter
+ * footer."* Reproduced — leaving the bottom of Tessera landed on CanVas at
+ * scrollY 6573 of 7766.
  *
- * Next's App Router does scroll to the top on a push navigation, and it does
- * restore the offset on back and forward. Neither survives Lenis. Lenis holds
- * its own `animatedScroll` and `targetScroll` and writes them to the window on
- * every tick of the GSAP ticker, so whatever the router sets is overwritten on
- * the very next frame by a number left over from the previous page — clamped to
- * the new page's height, which is why it lands *near* the bottom rather than at
- * the same offset.
+ * Next's App Router scrolls to the top on a push and restores the offset on
+ * back and forward. Neither survives Lenis, which holds its own
+ * `animatedScroll` and writes it to the window on every tick of the GSAP
+ * ticker — so whatever the router sets is overwritten on the next frame by a
+ * number left over from the previous page.
  *
- * ── The fix is one rule, not two ─────────────────────────────────────────
+ * ── The second bug: it was one frame too late ────────────────────────────
  *
- * The obvious version branches: scroll to 0 on a push, restore on a pop, and
- * then needs to know which it was and what the offset used to be. It does not
- * have to.
+ * The first version corrected the scroll in a `useEffect` + `requestAnimationFrame`,
+ * which fixed the position and left something worse behind:
  *
- * **Whatever the router just did is right.** It puts the window at 0 for a push
- * and at the remembered offset for a pop, and it has already done so by the time
- * this effect runs. So the only thing missing is telling Lenis — and reading
- * `window.scrollY` back gets the correct answer in both cases from one line.
+ * ```
+ * TypeError: Cannot read properties of undefined (reading 'end')
+ *     at ScrollTrigger.refresh  (×8, recursing)
+ *     at ScrollTrigger.create   ← WorksGrid, mounting the homepage
+ * ```
  *
- * The read happens in a `requestAnimationFrame`, after paint, for a reason that
- * is easy to get wrong: on the frame the effect runs, Lenis may already have
- * written its stale value over the router's. One frame later the router's
- * scroll has settled and Lenis has not yet had a chance to fight it, because
- * `force: true` overrules the animation it is in the middle of.
+ * The homepage's triggers are built in a **layout** effect, before paint — and
+ * therefore before that rAF. Instrumenting `ScrollTrigger.create` showed all of
+ * them being constructed at `scrollY = 6551`, the *outgoing* page's position.
  *
- * ── Why not `lenis.stop()` during the transition ─────────────────────────
+ * At that scroll every `once: true` reveal on the homepage evaluates as already
+ * passed. Creating one trigger makes ScrollTrigger recursively refresh the
+ * others; each `once` trigger that fires during the cascade **kills itself**,
+ * splicing `_triggers` while an outer loop is walking it by index. The next read
+ * is a hole, and `curTrigger.end` throws.
  *
- * Because the loader is over the page for exactly that window and a stopped
- * Lenis would swallow a wheel event from someone scrolling before the sweep
- * finishes. Correcting the position is cheaper and does not take the scroll
- * away from anyone.
+ * The damage was not the console line. The exception aborted `WorksGrid`'s
+ * `useGSAP`, so the homepage ended up with **zero** ScrollTriggers — no
+ * parallax, no reveals, until a reload.
+ *
+ * ── The fix is ordering, not timing ──────────────────────────────────────
+ *
+ * The correction now happens in a **layout effect**, synchronously, before any
+ * page component builds a trigger. `<ScrollReset />` is rendered in the root
+ * layout ahead of `<main>`, and React runs sibling layout effects in order, so
+ * this one lands first.
+ *
+ * Which costs the trick the first version was proud of. It could read
+ * `window.scrollY` back and let the router's own decision stand for both push
+ * and pop; running earlier means the router has not decided yet, so this has to
+ * know which kind of navigation it is:
+ *
+ *   · **push** — go to the top, now, before anything measures anything.
+ *   · **pop**  — the browser restores asynchronously, so let it, and sync Lenis
+ *     a frame later. Back-navigation does not hit the crash because the position
+ *     it restores *is* the one the page was built for.
  */
+
+/** `useLayoutEffect` warns during SSR, and this component renders on the server. */
+const useIsomorphicLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect;
+
 export function ScrollReset() {
   const pathname = usePathname();
   const { lenis } = useMotion();
-  /* The first render is a load, not a navigation. The browser has its own
-     restoration for that and it does not need help. */
+  /** The first render is a load, not a navigation. The browser owns that one. */
   const first = useRef(true);
+  /** Set by `popstate`, read and cleared by the next pathname change. */
+  const wasPop = useRef(false);
 
   useEffect(() => {
+    const onPop = () => {
+      wasPop.current = true;
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+
+  useIsomorphicLayoutEffect(() => {
     if (first.current) {
       first.current = false;
       return;
     }
-    if (!lenis) return;
 
+    const pop = wasPop.current;
+    wasPop.current = false;
+
+    if (!pop) {
+      /* Both, and in this order. The window is what ScrollTrigger measures
+         against; Lenis is what would otherwise write the old value back over it
+         on the next tick. */
+      window.scrollTo(0, 0);
+      lenis?.scrollTo(0, { immediate: true, force: true });
+      return;
+    }
+
+    /* Back or forward. The browser restores on its own schedule, so the only
+       job here is to stop Lenis fighting it once it has. */
     const id = requestAnimationFrame(() => {
-      lenis.scrollTo(window.scrollY, { immediate: true, force: true });
+      lenis?.scrollTo(window.scrollY, { immediate: true, force: true });
     });
     return () => cancelAnimationFrame(id);
   }, [pathname, lenis]);

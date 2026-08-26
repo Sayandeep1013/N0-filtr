@@ -153,3 +153,30 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* ── the native pointer, over a custom-cursor target ────────────────────────
+   Sayandeep: *"when the mouse is on those cards the cursor should disappear and
+   that circle becomes the new cursor .. u leave the card the cursor comes back
+   where u left the card."*
+
+   `cursor: none` on the target and everything inside it. Scoped to the target
+   rather than set on the document, so the pointer returns the instant it leaves
+   — which is the behaviour asked for, and also the one that cannot strand
+   anyone whose pointer ends up somewhere `<CustomCursor>` is not running.
+
+   It lives here rather than in `CustomCursor.module.css` because it is a
+   genuinely global rule — it matches `[data-cursor]` anywhere — and a CSS
+   Module refuses a selector with no local class in it. That refusal is correct:
+   a rule this broad should be visible in the global sheet rather than hidden in
+   a component's.
+
+   The same three gates as the disc itself: desktop width, a fine pointer, and
+   no reduced-motion preference. Hiding the pointer on a touch device hides
+   nothing; hiding it where the replacement is switched off would leave no
+   cursor at all, which is the one genuinely bad outcome available here. */
+@media (min-width: 992px) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  [data-cursor],
+  [data-cursor] * {
+    cursor: none;
+  }
+}
