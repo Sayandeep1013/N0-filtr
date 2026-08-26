@@ -158,7 +158,19 @@ export function Loader() {
            rather than duplicated here. `ApertureMark` owns the geometry, and a
            second copy of it in this file is a copy that can drift. */
         const centre = svg.viewBox.baseVal.width / 2;
-        const rest = ticks.map((tick) => Number(tick.getAttribute('y2')));
+        /* Both coordinates, not just `y2`.
+
+           The blades used to be drawn straight up from the ring and swung into
+           place by a `transform`, so "retracted to the bore" was a change in
+           `y2` alone. The mark is tilted now and each blade's endpoints are
+           computed as points (D-033), so every one of the six lies at its own
+           angle — moving only `y2` would drag the far ends vertically towards a
+           line rather than inwards towards the bore, and the iris would close
+           into a slot. */
+        const rest = ticks.map((tick) => ({
+          x2: Number(tick.getAttribute('x2')),
+          y2: Number(tick.getAttribute('y2')),
+        }));
 
         draw
           .set(mark, { opacity: 1, scale: 1 })
@@ -184,9 +196,12 @@ export function Loader() {
              it eases out of the closed position and eases into the open one. */
           .fromTo(
             ticks,
-            { attr: { y2: centre } },
+            { attr: { x2: centre, y2: centre } },
             {
-              attr: { y2: (i: number) => rest[i] ?? centre },
+              attr: {
+                x2: (i: number) => rest[i]?.x2 ?? centre,
+                y2: (i: number) => rest[i]?.y2 ?? centre,
+              },
               duration: IRIS_RETRACT,
               ease: 'power2.inOut',
             },

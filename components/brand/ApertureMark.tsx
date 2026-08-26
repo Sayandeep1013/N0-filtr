@@ -50,40 +50,74 @@ const TICK_STROKE = RING_STROKE / 2;
 const TICKS = Array.from({ length: 6 }, (_, i) => i * 60);
 
 /* ── the tilt ────────────────────────────────────────────────────────────────
-   Sayandeep, 2026-08-26: *"add a logo — tilted wheel kinda."* The navbar had
-   only the `NO FiLTER` wordmark; the mark itself lived in the loader, the
-   favicon and the OG card and never appeared beside it.
+   Sayandeep, 2026-08-26: *"add a logo — tilted wheel kinda"*, and then *"the
+   logo at the tab bar still isn't visible."*
 
-   So the mark is now drawn **tilted to the exact attitude of the 3D object**,
-   and the two stop being separate drawings of the same idea. The numbers are
-   not chosen here — they are read off `apertureScene.ts`, which measured them
-   against tonik's capture:
+   The mark is drawn at the exact attitude of the 3D object, so the two stop
+   being separate drawings of the same idea. The numbers are not chosen here —
+   they are read off `apertureScene.ts`, which measured them against tonik's
+   capture:
 
        TILT_AXIS   = 0.892 rad off horizontal   → 51.1°
        TILT_ANGLE  = 0.76 rad                   → cos = 0.7247
 
-   A circle tilted by φ about an in-plane axis projects to an ellipse: the
-   diameter **along** the axis is unchanged, everything perpendicular to it is
-   foreshortened by `cos φ`. So the transform is: rotate the geometry until the
-   tilt axis is horizontal, squash Y by 0.7247, rotate back.
+   ── Why the tilt is baked into the geometry rather than applied as a
+      transform ───────────────────────────────────────────────────────────────
 
-   SVG applies a transform list right to left, which is why it reads backwards
-   from that sentence. And `scale()` is about the origin rather than about a
-   point, so it is sandwiched between translates to keep it about the centre.
+   It *was* a transform — `rotate(A) scale(1, k) rotate(-A)` around the centre —
+   and that is the obvious way to do it. It also **squashes the stroke**, which
+   is correct for a photograph of a tilted ring and wrong for a drawing of one.
 
-   ⚠️ **The stroke squashes with the shape**, which is correct — a tilted ring
-   really is thinner across its minor axis. It is also why `vector-effect` is
-   deliberately NOT set here: `non-scaling-stroke` would hold the weight
-   constant and the ellipse would stop reading as a circle seen at an angle. */
+   At 64px nobody notices. At the 16px a browser tab actually asks for, the two
+   thin sides of the ellipse fall below a pixel and drop out: the ring renders
+   as a broken **C**. Which is exactly what Sayandeep was looking at when he
+   said the logo was not visible in the tab — it was there, and it was not a
+   ring.
+
+   So the ellipse is computed instead. A circle tilted by φ about an in-plane
+   axis projects to an ellipse with semi-axes `R` along the axis and `R·cos φ`
+   across it — so it can be drawn as an `<ellipse>` rotated to the axis, with a
+   normal stroke width that never scales. The blades are pushed through the same
+   matrix by hand, two endpoints each.
+
+   The uniform weight is not a compromise. Line art is what this brand is, and
+   the 3D object's own edges (D-032) are drawn one device pixel wide for the
+   same reason — a technical drawing of a tilted wheel does not thin its lines
+   at the far side.
+
+   It is also **rasteriser-independent**, which `vector-effect: non-scaling-stroke`
+   is not: `scripts/brand-assets.mjs` renders this same geometry to PNG for the
+   apple icon, the 512 tile and the OG card, and support for that property
+   outside a browser is not something to rely on. */
 const TILT_AXIS_DEGREES = 51.1;
 const TILT_SQUASH = 0.7247;
-const TILT_TRANSFORM = [
-  `rotate(${TILT_AXIS_DEGREES} ${C} ${C})`,
-  `translate(${C} ${C})`,
-  `scale(1 ${TILT_SQUASH})`,
-  `translate(${-C} ${-C})`,
-  `rotate(${-TILT_AXIS_DEGREES} ${C} ${C})`,
-].join(' ');
+
+/**
+ * A point pushed through the tilt: `rotate(A) ∘ scale(1, k) ∘ rotate(−A)`,
+ * about the mark's centre.
+ *
+ * SVG's y axis points down, so `rotate(a)` is clockwise and its matrix is
+ * `[cos a, −sin a; sin a, cos a]`. Getting that sign wrong tilts the mark the
+ * other way, which looks deliberate and is not.
+ */
+function tilt(x: number, y: number): [number, number] {
+  const a = (TILT_AXIS_DEGREES * Math.PI) / 180;
+  const cos = Math.cos(a);
+  const sin = Math.sin(a);
+
+  const dx = x - C;
+  const dy = y - C;
+
+  // rotate(−A)
+  const rx = dx * cos + dy * sin;
+  const ry = -dx * sin + dy * cos;
+  // scale(1, k)
+  const sy = ry * TILT_SQUASH;
+  // rotate(A)
+  return [C + rx * cos - sy * sin, C + rx * sin + sy * cos];
+}
+
+const round = (n: number) => +n.toFixed(3);
 
 export function ApertureMark({
   className,
@@ -113,36 +147,84 @@ export function ApertureMark({
       aria-hidden="true"
       focusable="false"
     >
-      {/* Everything sits inside the tilt, so the ring and its six blades are
-          foreshortened together and the blades stay on their own radial lines.
-          Tilting them separately would put them off the ellipse.
-
-          `data-mark-ring` and `data-mark-tick` are the loader's handles. The
-          mark itself stays inert — it is used at 16px in a nav and at 14vw in a
-          footer, and neither of those should ever animate. Only the loader
-          looks for them. See D-028 and D-033. */}
-      <g transform={flat ? undefined : TILT_TRANSFORM}>
+      {/* The ring. A tilted circle IS an ellipse — semi-axis `R` along the tilt
+          axis, `R × 0.7247` across it — so it is drawn as one rather than as a
+          circle inside a squashing transform. The stroke then stays the weight
+          it is declared at, at every size. See the note above. */}
+      {flat ? (
         <circle cx={C} cy={C} r={R} strokeWidth={RING_STROKE} data-mark-ring />
+      ) : (
+        <ellipse
+          cx={C}
+          cy={C}
+          rx={R}
+          ry={round(R * TILT_SQUASH)}
+          strokeWidth={RING_STROKE}
+          transform={`rotate(${TILT_AXIS_DEGREES} ${C} ${C})`}
+          data-mark-ring
+        />
+      )}
 
-        {/* Wrapped so the loader can turn all six as one mechanism. The group
-            has no transform of its own at rest, so the mark is unchanged
-            everywhere else it is used. See D-030. */}
-        <g data-mark-blades>
-          {TICKS.map((angle) => (
+      {/* Wrapped so the loader can turn all six as one mechanism. The group has
+          no transform of its own at rest, so the mark is unchanged everywhere
+          else it is used. See D-030. */}
+      <g data-mark-blades>
+        {TICKS.map((angle) => {
+          /* Each blade's own two rotations, resolved here rather than left as a
+             `transform` attribute: its endpoints have to go through the tilt
+             matrix as points, and a transform would put the squash back on the
+             stroke. Read right to left as before — pivoted 8° about its own
+             anchor on the inner edge, then swung to its 60° station. */
+          const station = (angle * Math.PI) / 180;
+          const lean = (OFF_RADIAL * Math.PI) / 180;
+
+          /**
+           * A point `radius` along the blade, from its anchor on the ring's
+           * inner edge, resolved through both of the blade's own rotations and
+           * then through the tilt.
+           *
+           * The blade's untransformed points are `(C, C − INNER + r)` — it
+           * starts on the inner edge and runs inward. From there:
+           *
+           *   1. rotate by 8° about its OWN anchor, which is what gives six
+           *      ticks a mechanism's lean rather than a compass rose's symmetry
+           *   2. rotate to its 60° station about the mark's centre
+           *   3. tilt
+           *
+           * SVG rotation is clockwise, so a point at `(0, r)` from the pivot
+           * lands at `(−r sin, r cos)`.
+           */
+          const place = (radius: number): [number, number] => {
+            // 1 — about the anchor at (C, C − INNER)
+            const px = C - Math.sin(lean) * radius;
+            const py = C - INNER + Math.cos(lean) * radius;
+
+            // 2 — about the centre
+            const dx = px - C;
+            const dy = py - C;
+            const rx = C + dx * Math.cos(station) - dy * Math.sin(station);
+            const ry = C + dx * Math.sin(station) + dy * Math.cos(station);
+
+            // 3
+            return flat ? [rx, ry] : tilt(rx, ry);
+          };
+
+          const [x1, y1] = place(0);
+          const [x2, y2] = place(TICK);
+
+          return (
             <line
               key={angle}
-              x1={C}
-              y1={C - INNER}
-              x2={C}
-              y2={C - INNER + TICK}
+              x1={round(x1)}
+              y1={round(y1)}
+              x2={round(x2)}
+              y2={round(y2)}
               strokeWidth={TICK_STROKE}
+              strokeLinecap="round"
               data-mark-tick
-              /* Read right to left: the tick is first pivoted 8° about its own
-                 anchor on the inner edge, then swung round to its 60° station. */
-              transform={`rotate(${angle} ${C} ${C}) rotate(${OFF_RADIAL} ${C} ${C - INNER})`}
             />
-          ))}
-        </g>
+          );
+        })}
       </g>
     </svg>
   );
