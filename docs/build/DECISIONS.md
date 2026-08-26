@@ -1161,3 +1161,140 @@ handled by the global reset, which flattens every animation to 0.01ms.
 
 **Consequence:** T12.1 is done. Phase 12 should re-check it against the finished site rather than
 rebuild it.
+
+
+---
+
+## D-032 · The 3D object gets line-art edges
+
+**Phase:** 5 · **Date:** 2026-08-26 · **Status:** active
+
+**Context:** Sayandeep, on the running hero: *"in the 3d object for the wheel give proper border
+edges .. line art edges"*, and then *"lets get rid of texture too for now."*
+
+**Decision: the aperture assembly carries `EdgesGeometry` contours at one device pixel.**
+
+`THREE.EdgesGeometry` extracts only the edges where two faces meet above a threshold angle, which is
+the difference between a wireframe (every triangle, a mesh) and a contour (the silhouette and the
+creases, a drawing). At one device pixel the lines read as ink rather than as geometry, which is the
+register the rest of the site is in.
+
+The texture came off at the same time and stayed off. The object is now form and line.
+
+**Consequence:** the mark's own geometry is drawn to the same rule — see D-033.
+
+---
+
+## D-033 · The wordmark carries a tilted aperture, and so does the tab
+
+**Phase:** 5 · **Date:** 2026-08-26 · **Status:** active
+
+**Context:** Sayandeep: *"add a logo ... tilted wheel kinda"*, then twice more that the favicon was
+still not visible in the tab.
+
+**Decision: one mark, tilted to match the 3D hero, with the tilt baked into the geometry.**
+
+The tilt is `51.1` degrees about its own axis with a `0.7247` squash, **computed** rather than
+applied as a CSS or SVG `transform`. A transform squashes the *stroke* along with the shape, and at
+16px that broke the ring into a "C" — the reason the first two attempts at the favicon failed.
+
+`icon.svg` additionally takes a heavier optical cut (`BOLD_RING 1.5`, `BOLD_TICK 1.7`,
+`BOLD_TICK_LENGTH 1.2`). The shape is identical and only the stroke weights differ, which is
+ordinary practice for a mark that has to survive a 16px raster and a 512px tile. Tuned by rendering
+at 16 / 24 / 32 / 64: at 1.9x / 2.3x the bore closes and it reads as a cog; at 1.5x / 1.7x the bore
+stays at about 57% of the radius.
+
+**Consequence:** `scripts/brand-assets.mjs` is the single source for every rendering of the mark.
+
+---
+
+## D-034 · Every product screenshot sits on a plate
+
+**Phase:** 6 · **Date:** 2026-08-26 · **Status:** active
+
+**Context:** Sayandeep, on the first build of the case study: *"i really really dont like the project
+images there it breaks the immersion that we had throughout the site before the project images came
+... idk what to do to keep the symmetry and immersion alive."*
+
+**The diagnosis is not the obvious one.** The problem was never that the screenshots are colourful.
+It is that they were **whole application screenshots bleeding to the container edge** — toolbars,
+side rails, tiny UI text — butted straight against a page built from hairlines and 400-weight type.
+
+Looking at tonik's own screens settled it. Their work cards are not screenshots at all: they are
+single art-directed key images — a 3D render on a flat ground, a rendered landscape — one subject,
+one dominant colour, a great deal of empty space (`docs/research/screens/s03-projects.png`). The one
+genuine UI screenshot on their Supabase case study sits **inset on a lighter plate with heavy
+padding**, floating, never touching an edge (`s20-cs-content.png`).
+
+**Decision: `components/ui/Plate.tsx`. Every work image floats inset on a `--grey-900` plate with a
+hairline and real padding, and full-bleed is retired for screenshots.**
+
+`bleed` widens the *plate* to the viewport while the picture inside stays inset — so the bleed kept
+its meaning and lost the thing that made it loud. Padding scales with the slot: `lg` 3.5rem for the
+hero and the boards, `md` 2rem for slider slides, `sm` 1.25rem for grid cards, all collapsing below
+992 where 3.5rem of plate would leave 280px of picture on a phone.
+
+Four treatments were rendered on the real page before choosing —
+`docs/research/screens/ours/image-treatments.png`. The plate was chosen over a desaturating grade
+because a grade misrepresents the product. That last reasoning was overtaken a few minutes later by
+D-035, which adopts the grade anyway on Sayandeep's explicit instruction; the plate stands
+regardless, because it fixes composition rather than colour.
+
+`<NextWork>` was recomposed at the same time. Its title used to lie across a full-bleed screenshot,
+which is the same collision plus one of its own: a title over a screenshot is a title whose
+legibility depends on what happens to be in that corner of someone else's interface. Copy now sits
+beside the picture.
+
+**Consequence:** `<WorkCover>`, the generated accent plate standing in for the four works with no
+deploy, is not plated. It is already our own material.
+
+---
+
+## D-035 · The board replaces the three visual blocks, and product images are grey
+
+**Phase:** 6 · **Date:** 2026-08-26 · **Status:** active
+
+**Context:** Sayandeep, after the plate landed: *"for the case studies .. instead of using one image
+.. use multiple images on a board type one with animations and the coloured info do it grey and
+white too."*
+
+Two decisions, taken together.
+
+### The board
+
+`30-page-specs.md` §2 lists `visual-full`, `visual-2up` and `visual-bleed` as three block types.
+They are one instruction at three widths, and all three are now **`board`** —
+`components/case/CaseBoard.tsx`, two to five images composed onto a twelve-column plate.
+
+**The author supplies pictures, not a layout.** Twelve case studies get written by hand in phase 10,
+and a block that accepts a layout produces twelve different-looking pages, so the arrangement is
+chosen by **count**: each of 2, 3, 4 and 5 has one composition, authored the way `WORKS_LAYOUT` is —
+explicit `grid-column` and `grid-row` on a fixed row unit. Auto-placement was tried and cannot make
+the shape: a board's character is tiles that overlap each other's rows, and auto-placement will not
+overlap.
+
+Two animations, and they are different things. A **reveal** that runs once as the board enters —
+each tile rises 48px and fades, staggered 90ms — and a scrubbed **parallax** at §5's own
+-6 / -10 / -14 spread, which is what stops four pictures reading as one slab sliding past. One
+ScrollTrigger each, never one per tile: phase 5 paid for that lesson twice with `curTrigger is
+undefined`.
+
+### Grey and white
+
+`--media-grade: grayscale(1) contrast(1.03)`, applied to every product screenshot on the site — grid
+cards, case-study boards, the hero reel, `<NextWork>`.
+
+This makes a rule out of what was nearly true already: **the page has exactly one colour, the work's
+accent**, and that is now the only colour a product image can carry — through the accent wash on
+`<NextWork>`, and nowhere else.
+
+The cost is real and was put to Sayandeep before he chose: a visitor never sees what the products
+actually look like without opening the live link. A grey-until-hover variant was offered as the
+recommendation and **declined in favour of permanent grey.** Recorded here so a later agent does not
+quietly "fix" it back.
+
+One exception: `<WorkCover>` is drawn *in* the accent rather than photographed, so grading it would
+grey out the one colour the system permits.
+
+**Consequence:** `visual-full`, `visual-2up` and `visual-bleed` no longer exist in `Block`. Phase 10
+authors boards.

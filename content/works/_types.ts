@@ -9,13 +9,35 @@ export interface Media {
   src: string;
   alt: string;
   caption?: string;
+  /**
+   * The aspect box, as a CSS `aspect-ratio` value. Defaults to `16 / 10`,
+   * which is what `scripts/capture.mjs` shoots and therefore what most of these
+   * are.
+   *
+   * It exists because a **crop** is not a capture: a detail lifted out of a UI
+   * panel has whatever shape the panel had, and forcing it into 16:10 either
+   * cuts the content or floats it in dead space. Authored per image rather than
+   * derived, so the box is reserved before the file lands and the page does not
+   * relayout as it arrives.
+   */
+  ratio?: string;
 }
 
 export type Block =
   | { type: 'prose'; heading?: string; body: string }
-  | { type: 'visual-full'; src: string; alt: string; caption?: string }
-  | { type: 'visual-2up'; items: [Media, Media] }
-  | { type: 'visual-bleed'; src: string; alt: string }
+  /**
+   * The board. `30-page-specs.md` §2 listed three separate visual blocks —
+   * `visual-full`, `visual-2up` and `visual-bleed` — and all three are now this
+   * one, because all three were the same instruction with a different width and
+   * because Sayandeep asked for the case studies to show *several* pictures
+   * arranged together rather than one at a time. See D-035.
+   *
+   * Two to five images. `components/case/CaseBoard.tsx` composes them onto a
+   * twelve-column plate and animates them in; the author supplies pictures, not
+   * a layout, which is the property that keeps twelve case studies looking like
+   * one site.
+   */
+  | { type: 'board'; items: Media[]; caption?: string }
   | { type: 'slider'; items: Media[] }
   | { type: 'quote'; text: string; attribution?: string }
   | { type: 'spec'; rows: { key: string; value: string[] }[] }

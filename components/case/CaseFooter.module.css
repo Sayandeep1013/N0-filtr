@@ -1,0 +1,88 @@
+/* The case-study footer. 30-page-specs.md §`/works/[slug]` section 3. */
+
+.footer {
+  padding-top: var(--section-y);
+}
+
+.heading {
+  margin: 0 0 2rem;
+  color: var(--text-secondary);
+  font-family: var(--family-mono);
+  text-transform: uppercase;
+  font-weight: 400;
+}
+
+.rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: var(--hairline);
+}
+
+.row {
+  border-bottom: var(--hairline);
+}
+
+/* The whole row is the target. A link that is only as big as its text, in a row
+   that is 80rem wide, is a row that mostly does not respond to being clicked. */
+.link {
+  display: grid;
+  grid-template-columns: calc(2 * var(--col) + var(--grid-gap)) 1fr auto;
+  align-items: center;
+  gap: var(--grid-gap);
+  padding: 2rem 0;
+  text-decoration: none;
+  color: var(--text-primary);
+  transition: padding-left var(--dur-base) var(--ease-in-out);
+}
+
+/* The row steps right on hover — the same nudge the nav links make, at the
+   scale this row is drawn. `padding-left` rather than `transform` so the
+   hairline underneath stays put: a translated row drags its own border and the
+   whole stack looks loose. */
+.link:hover,
+.link:focus-visible {
+  padding-left: 1.25rem;
+}
+
+.rowLabel {
+  color: var(--text-secondary);
+  font-family: var(--family-mono);
+  text-transform: uppercase;
+}
+
+.rowDetail {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-weight: 400;
+}
+
+.icon {
+  justify-self: end;
+  transition: background-color var(--dur-fast) var(--ease-in-out);
+}
+
+/* The work's colour arrives on hover, on the one element small enough to carry
+   it without lighting up the row. */
+.link:hover .icon,
+.link:focus-visible .icon {
+  background-color: var(--accent-ink);
+}
+
+/* The arrow turns to point out of the page. IconCircle draws a right arrow and
+   a twin for the swap; both rotate, so the swap still reads. */
+.icon :global(.button-icon) {
+  transform: rotate(-45deg);
+}
+
+@media (max-width: 767px) {
+  .link {
+    grid-template-columns: 1fr auto;
+    gap: 0.5rem 1rem;
+    padding: 1.5rem 0;
+  }
+
+  .rowLabel {
+    grid-column: 1 / -1;
+  }
+}

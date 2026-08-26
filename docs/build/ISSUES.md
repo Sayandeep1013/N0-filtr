@@ -1420,3 +1420,44 @@ here: *a dev-only global is a production bug waiting for a truthiness check.*
   now checks `typeof raw.scrollTo === 'function'` rather than truthiness. They
   run in dev where the global is right, but they would have hit the same trap on
   any page whose provider had not mounted yet.
+
+
+---
+
+## I-046 · `--accent` is a fill, and the spec uses it as ink  🟢
+
+**Raised:** phase 06 · **Resolved:** phase 06
+
+`10-design-system.md` §2 sets `--accent` to the work's **dark** accent, and the code-highlighting
+spec then tunes strings to take `--accent`. Both are right on their own and wrong together:
+Tessera's dark accent is `#125C91`, which is a fine tint for a panel and close to unreadable as text
+on a `#212121` ground.
+
+**Resolved** by adding a third token rather than redefining the first. `--accent-ink` is the light
+member of the same pair, used wherever the accent has to be *read* — code strings, inline code, the
+pull quote's rule. `--accent` stays the fill it was designed as and is still correct everywhere it is
+used as one. Both, plus `--accent-ground`, are set on `<html>` by `<CaseStudy>` and removed on
+unmount.
+
+---
+
+## I-047 · Tessera's deploy runs out of agent after two requests  🟡
+
+**Raised:** phase 06 · **Owner:** content · **Status:** open, and disclosed in the case study
+
+The case study's argument is that an AI agent edits the drawing as a document, and the obvious
+screenshot is the agent doing exactly that. The live deploy allows **two free requests** and then
+answers *"The AI agent is not configured for this deployment"* — it wants the visitor's own API key.
+
+Both free requests were spent confirming this. The first was screenshotted mid-run at "Step 1 of 16"
+because the wait loop watched a clock instead of the step counter; the second hit the limit.
+
+**What was done instead:** the sprite on the case study was drawn by driving the real editor with
+Playwright — picking a palette colour from the popover, dragging rows of cells — and the code and
+ASCII panels were opened and captured the same way. The body **says so** rather than leaving a
+reader to notice: *"the deploy linked below runs two free requests and then asks for your own API
+key, which is the correct trade for a side project and the reason the screenshots on this page were
+drawn by hand."*
+
+**To close:** either configure a key on the deploy, or record the agent working locally and use that
+as this work's case-study reel — T10.2 owes it one anyway.

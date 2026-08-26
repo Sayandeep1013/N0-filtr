@@ -1,0 +1,105 @@
+/* <CaseBoard />. D-035.
+
+   A twelve-column grid on a fixed row unit, so a tile can be placed and sized
+   in both axes and tiles can overlap each other's rows. That overlap is the
+   board's whole character — see CaseBoard.tsx on why auto-placement cannot do
+   it. */
+
+.board {
+  margin: 0;
+}
+
+/* The plate reaches the viewport edges; every tile inside stays well inside it.
+   The plate's own shadow rule targets its direct child, which here is the grid
+   rather than a picture — cancelled, because the tiles carry their own. */
+.plate > * {
+  box-shadow: none;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  /* The row unit. Tile heights are row spans against it, so the compositions in
+     CaseBoard.tsx are readable as shapes rather than as aspect ratios. */
+  --board-row: 4.5rem;
+  grid-auto-rows: var(--board-row);
+  gap: var(--grid-gap);
+  width: 100%;
+  max-width: var(--container-large);
+  margin-inline: auto;
+}
+
+.tile {
+  position: relative;
+  margin: 0;
+  min-width: 0;
+  /* The parallax writes yPercent here. Its own layer, so a scrubbed drift on
+     four tiles at once stays off the paint path. */
+  will-change: transform;
+}
+
+.frame {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--grey-800);
+  box-shadow: 0 1.5rem 3rem rgb(0 0 0 / 45%);
+}
+
+.img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Grey and white, always — D-035. */
+  filter: var(--media-grade);
+}
+
+/* Under the tile, not over it. The captions on the work cards taught this in
+   phase 4: Sayandeep, on the hover sheet covering them, "i dont want that
+   getting covered". */
+.tileCaption {
+  display: block;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  padding-top: 0.5rem;
+  color: var(--text-secondary);
+  font-family: var(--family-mono);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.caption {
+  display: block;
+  margin-top: 1.5rem;
+  color: var(--text-secondary);
+  font-family: var(--family-mono);
+  text-transform: uppercase;
+}
+
+/* ── below the desktop gate ───────────────────────────────────────────────
+   The composition stops being a composition: tiles stack in reading order at a
+   consistent shape, because a five-tile overlap on a 390px screen is five
+   pictures on top of each other. The parallax is off here too (CaseBoard.tsx
+   gates it), so nothing moves out from under its caption. */
+@media (max-width: 991px) {
+  .grid {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+  }
+
+  .tile {
+    /* Placement is inline-styled by the component, and `grid-column` /
+       `grid-row` are inert on a flex child — so the stack needs no override,
+       only a shape. */
+    aspect-ratio: 4 / 3;
+  }
+
+  .tileCaption {
+    white-space: normal;
+  }
+}

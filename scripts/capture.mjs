@@ -48,7 +48,13 @@ const OUT = resolve(ROOT, 'public/media/works');
 
 /** Every work with something a browser can open. `40-content-model.md` §2. */
 const TARGETS = [
+  /* Three widths, because the case study has something to say about them: a
+     code-native editor whose canvas is a document has to reflow its chrome
+     without reflowing the document, and showing that is the point. The extra
+     two are real screens of the real app, not crops of the first. */
   { slug: 'tessera', url: 'https://tessera-brown-pi.vercel.app', settle: 6000 },
+  { slug: 'tessera-wide', url: 'https://tessera-brown-pi.vercel.app', settle: 6000, viewport: { width: 1920, height: 900 } },
+  { slug: 'tessera-narrow', url: 'https://tessera-brown-pi.vercel.app', settle: 6000, viewport: { width: 900, height: 900 } },
   { slug: 'co-canvas', url: 'https://co-canvas-web.vercel.app' },
   /* Render's free tier cold-starts, and the first paint after one is a spinner
      or an error page. */
@@ -87,7 +93,7 @@ const results = [];
 
 for (const target of targets) {
   const context = await browser.newContext({
-    viewport: SHOT,
+    viewport: target.viewport ?? SHOT,
     deviceScaleFactor: SCALE,
     /* Several of these are games and dashboards that ask. Refusing quietly is
        better than a permission dialog in the middle of the screenshot. */

@@ -1,0 +1,181 @@
+/* The case-study block stack. 30-page-specs.md §`/works/[slug]` section 2.
+
+   The stack owns the vertical rhythm and the blocks own nothing but their own
+   internals. That is what lets a body be reordered in the content file without
+   anybody touching CSS: no block carries a margin that assumes what follows it.
+
+   The spacing is one value — the section gap — with a bleed getting a larger
+   one on both sides, because an edge-to-edge image needs air or it reads as a
+   band across the page rather than as a picture in it. */
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 6rem;
+}
+
+@media (max-width: 767px) {
+  .stack {
+    gap: 3.5rem;
+  }
+}
+
+/* ── prose ────────────────────────────────────────────────────────────────
+   7/12 of the container. Expressed against --col so it stays on the same grid
+   as everything else on the site rather than being a percentage that happens to
+   look similar. */
+.prose {
+  width: calc(7 * var(--col) + 6 * var(--grid-gap));
+  max-width: 100%;
+}
+
+.heading {
+  margin: 0 0 1.5rem;
+  color: var(--text-primary);
+  font-weight: 400;
+}
+
+.body {
+  color: var(--text-secondary);
+}
+
+.paragraph {
+  margin: 0;
+}
+
+.paragraph + .paragraph {
+  margin-top: 1.25rem;
+}
+
+/* Emphasis moves up the palette, never up the weight scale. See RichText.tsx —
+   this is CLAUDE.md non-negotiable 3 and it is the rule most likely to be
+   broken by accident, because every markdown default in existence bolds. */
+.strong {
+  font-weight: 400;
+  color: var(--text-primary);
+}
+
+.inlineCode {
+  font-family: var(--family-mono);
+  font-size: 0.875em;
+  color: var(--accent-ink);
+}
+
+/* ── captions ─────────────────────────────────────────────────────────────
+   Mono, muted, below the figure and never over it. The work cards learned this
+   the hard way in phase 4: Sayandeep, on the hover sheet covering the caption —
+   "i dont want that getting covered". */
+.caption {
+  display: block;
+  margin-top: 0.75rem;
+  color: var(--text-secondary);
+  font-family: var(--family-mono);
+  text-transform: uppercase;
+}
+
+/* ── visuals ──────────────────────────────────────────────────────────── */
+
+.full,
+.twoUp,
+.quote,
+.codeFigure,
+.specBlock {
+  margin: 0;
+}
+
+.twoUp {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  /* §2's measured gap. A third gap value, and it is theirs. */
+  gap: 1.5rem;
+}
+
+.twoUpItem {
+  margin: 0;
+  min-width: 0;
+}
+
+@media (max-width: 767px) {
+  .twoUp {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+/* The bleed's escape now lives on the plate itself (`Plate.module.css`), since
+   the plate is the thing that reaches the edges. What is left here is the air:
+   a full-width band needs room above and below or it reads as a stripe across
+   the page rather than as a picture in it. */
+.bleed {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+/* ── quote ────────────────────────────────────────────────────────────────
+   §2: "large pull quote (--t-p-big), 1px left rule". The rule is a hairline in
+   the accent rather than in the border token — it is the one place on the page
+   where the work's colour touches the type, and at 1px it tints the paragraph
+   without competing with it. */
+.quote {
+  width: calc(8 * var(--col) + 7 * var(--grid-gap));
+  max-width: 100%;
+  padding-left: 2rem;
+  border-left: 1px solid var(--accent-ink);
+}
+
+.quoteBody {
+  margin: 0;
+}
+
+.quoteBody p {
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.quoteAttribution {
+  display: block;
+  margin-top: 1rem;
+  color: var(--text-secondary);
+  font-family: var(--family-mono);
+  text-transform: uppercase;
+}
+
+/* ── spec ─────────────────────────────────────────────────────────────────
+   Mid-article detail, half width so it reads as an aside rather than as a
+   second hero table. */
+.specBlock {
+  width: calc(6 * var(--col) + 5 * var(--grid-gap));
+  max-width: 100%;
+}
+
+/* ── code ─────────────────────────────────────────────────────────────────
+   Shiki emits `<pre class="shiki"><code>…`. Its own background is overridden
+   here: the theme names #212121 so an unstyled fallback is still on-brand, but
+   the block on the page sits on the tertiary ground so it reads as a specimen
+   rather than as a hole. */
+.codeFigure {
+  width: calc(8 * var(--col) + 7 * var(--grid-gap));
+  max-width: 100%;
+}
+
+.code {
+  border: var(--hairline);
+  background-color: var(--grey-900);
+}
+
+.code :global(pre.shiki) {
+  margin: 0;
+  padding: 1.5rem;
+  overflow-x: auto;
+  background-color: transparent !important;
+  font-family: var(--family-mono);
+  font-size: var(--t-p-size);
+  line-height: 1.6;
+  /* Tabs in a specimen are a hazard: the default 8 pushes a nested JSON value
+     off the right edge on a phone. */
+  tab-size: 2;
+}
+
+.code :global(pre.shiki code) {
+  font-family: inherit;
+}

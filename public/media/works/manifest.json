@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-08-26T15:59:00.560Z",
+  "capturedAt": "2026-08-26T16:04:04.470Z",
   "viewport": {
     "width": 1440,
     "height": 900
@@ -13,7 +13,9 @@
     "valobot": "/media/works/valobot.png",
     "termtypo": "/media/works/termtypo.png",
     "ftc": "/media/works/ftc.png",
-    "notetakerxx": "/media/works/notetakerxx.png"
+    "notetakerxx": "/media/works/notetakerxx.png",
+    "tessera-wide": "/media/works/tessera-wide.png",
+    "tessera-narrow": "/media/works/tessera-narrow.png"
   },
   "failed": []
 }

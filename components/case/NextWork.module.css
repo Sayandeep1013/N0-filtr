@@ -1,0 +1,145 @@
+/* <NextWork />. 30-page-specs.md §`/works/[slug]` section 3, and D-034.
+
+   Full-bleed, and the last thing on the page before the site footer. The whole
+   panel is one link: copy, plate and picture are all inside the anchor, because
+   a "next project" card you have to aim at is a card that does not get clicked.
+
+   The composition changed in D-034. It was a screenshot running edge to edge
+   with the title laid over it; it is now a plate with the copy beside the
+   picture. Same reasoning as `components/ui/Plate.tsx`, plus one of its own: a
+   title over a screenshot is a title whose legibility depends on what happens
+   to be in that corner of somebody else's interface. */
+
+.next {
+  position: relative;
+  width: 100%;
+  margin-top: var(--section-y);
+  /* The plate. Reaches the viewport edges; the picture inside does not. */
+  background-color: var(--grey-900);
+  border-top: var(--hairline);
+  border-bottom: var(--hairline);
+}
+
+.link {
+  display: grid;
+  grid-template-columns: calc(4 * var(--col) + 3 * var(--grid-gap)) 1fr;
+  align-items: center;
+  gap: calc(var(--col) + var(--grid-gap));
+  width: 100%;
+  max-width: var(--container-large);
+  margin-inline: auto;
+  padding: 3.5rem var(--gutter);
+  text-decoration: none;
+  color: var(--text-primary);
+}
+
+/* ── copy ─────────────────────────────────────────────────────────────── */
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.label {
+  color: var(--text-secondary);
+  font-family: var(--family-mono);
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  font-weight: 400;
+}
+
+.thesis {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.icon {
+  margin-top: 1rem;
+}
+
+/* ── the picture ──────────────────────────────────────────────────────── */
+
+.media {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  box-shadow: 0 1.5rem 3rem rgb(0 0 0 / 45%);
+}
+
+.image {
+  transition:
+    opacity var(--dur-slower) var(--ease-in-out),
+    transform var(--dur-slower) var(--ease-in-out);
+}
+
+.blank {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  background-color: var(--grey-800);
+}
+
+/* The accent wash. This is the element NextWork's crossfade is visible on — it
+   reads `--accent` from the section, which the ScrollTrigger tweens toward the
+   next work's colour. `mix-blend-mode: multiply` rather than an alpha fill:
+   multiply keeps the screenshot's structure and takes only its colour. */
+.tint {
+  position: absolute;
+  inset: 0;
+  background-color: var(--accent);
+  mix-blend-mode: multiply;
+  opacity: 0.55;
+  pointer-events: none;
+  transition: opacity var(--dur-slower) var(--ease-in-out);
+}
+
+/* ── hover ────────────────────────────────────────────────────────────────
+   The wash lifts and the picture pushes in. Gated to devices that actually
+   hover — on a phone `:hover` sticks after a tap and the card would stay lit
+   for the rest of the visit. */
+@media (hover: hover) and (min-width: 992px) {
+  .link:hover .tint,
+  .link:focus-visible .tint {
+    opacity: 0.25;
+  }
+
+  .link:hover .image,
+  .link:focus-visible .image {
+    transform: scale(1.03);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link:hover .image,
+  .link:focus-visible .image {
+    transform: none;
+  }
+}
+
+@media (max-width: 991px) {
+  .link {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 2.5rem var(--gutter);
+  }
+}
+
+@media (max-width: 767px) {
+  .link {
+    padding: 2rem var(--gutter);
+  }
+
+  .thesis {
+    display: none;
+  }
+
+  .icon {
+    margin-top: 0.5rem;
+  }
+}

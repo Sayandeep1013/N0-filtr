@@ -1,0 +1,159 @@
+/* The case-study hero. 30-page-specs.md §`/works/[slug]` section 1.
+
+   Target ~1550px at 1512. It is not padded to that number — the number is what
+   the parts come to when the reel is 21:9 and the info row clears it. A hero
+   padded to hit a measurement is a hero that breaks the moment a title wraps. */
+
+.hero {
+  padding-top: 8rem;
+  padding-bottom: var(--section-y);
+}
+
+/* ── mini-nav ─────────────────────────────────────────────────────────────
+   Three cells on one hairline. The slug sits centred and muted: it is the
+   page's own address written out, which is a small piece of the technical
+   register the whole site is in, and it is the reason the row does not read as
+   a pair of buttons. */
+.miniNav {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: var(--grid-gap);
+  padding-bottom: 1rem;
+  border-bottom: var(--hairline);
+}
+
+.miniLink {
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  font-family: var(--family-mono);
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-in-out);
+}
+
+.miniLink:hover,
+.miniLink:focus-visible {
+  color: var(--text-primary);
+}
+
+.miniNav > .miniLink:last-of-type {
+  justify-self: end;
+  text-align: right;
+}
+
+.slug {
+  color: var(--text-secondary);
+  font-family: var(--family-mono);
+  /* Not uppercased: it is a URL segment and a URL segment is lower case. */
+}
+
+@media (max-width: 767px) {
+  .miniNav {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* The slug is the thing to drop first — it is the least useful of the three
+     and the only one that is not a link. */
+  .slug {
+    display: none;
+  }
+
+  .miniNav > .miniLink:last-of-type {
+    grid-column: 2;
+  }
+}
+
+/* ── title ────────────────────────────────────────────────────────────────
+   --t-h1, weight 400 like every other heading on the site. */
+.title {
+  margin: 2.5rem 0 0;
+  color: var(--text-primary);
+  font-weight: 400;
+}
+
+/* ── reel ─────────────────────────────────────────────────────────────────
+   Full-bleed: out of the container, out of the gutter, edge to edge. Same
+   escape as `.bleed` in CaseBlocks — this one is not inside the container in
+   the first place, so it only needs its own width. */
+/* The reel's own box is now just a wrapper — the plate inside it supplies the
+   ground, the hairline and the bleed. `overflow: hidden` is gone with it: a
+   plate that clips its own shadow has no shadow. */
+.reel {
+  width: 100%;
+}
+
+/* The reel and its rule. The rule is an element rather than a border because a
+   border cannot be crossfaded from the page ground independently of the box it
+   belongs to — and the crossfade is the point. See CaseStudy.tsx. */
+.reelWrap {
+  position: relative;
+  margin-top: 3rem;
+}
+
+.rule {
+  display: block;
+  width: 100%;
+  height: 1px;
+  background-color: var(--accent);
+}
+
+.video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 21 / 9;
+  object-fit: cover;
+  filter: var(--media-grade);
+}
+
+/* Plyr wraps the video in its own div. With no controls there is nothing to
+   style, but its wrapper still needs to fill the box rather than shrink to the
+   video's intrinsic size. */
+.reel :global(.plyr) {
+  width: 100%;
+  --plyr-video-background: transparent;
+}
+
+/* ── info ─────────────────────────────────────────────────────────────────
+   2-up. 6/12 for the lead and 4/12 for the table, with the remaining 2 columns
+   as the space between them — theirs is not a 50/50 split and a lead paragraph
+   running the full half of an 80rem container is well past a readable measure. */
+.info {
+  display: grid;
+  grid-template-columns: calc(6 * var(--col) + 5 * var(--grid-gap)) 1fr;
+  gap: calc(2 * var(--col) + 2 * var(--grid-gap));
+  margin-top: 4rem;
+}
+
+.lead {
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.table {
+  align-self: start;
+}
+
+@media (max-width: 991px) {
+  .info {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .hero {
+    padding-top: 6rem;
+  }
+
+  .title {
+    margin-top: 1.5rem;
+  }
+
+  .reelWrap {
+    margin-top: 2rem;
+  }
+
+  .info {
+    margin-top: 2.5rem;
+  }
+}

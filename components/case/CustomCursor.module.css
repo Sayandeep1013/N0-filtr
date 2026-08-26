@@ -1,0 +1,64 @@
+/* <CustomCursor />. 20-components-and-motion.md §18, §21.5.
+
+   Fixed, centred on its own origin, and never a click target. The outer element
+   is the one GSAP translates by the ±50px drift; the inner wrapper is the one
+   that scales in and out, so the two transforms never fight over one matrix. */
+
+.cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 60;
+  pointer-events: none;
+  /* Its own layer. The drift runs on every ticker frame while a pointer is over
+     an image, and promoting it keeps that off the paint path. */
+  will-change: transform;
+}
+
+.wrap {
+  display: grid;
+  place-items: center;
+  width: 6rem;
+  height: 6rem;
+  margin-left: -3rem;
+  margin-top: -3rem;
+  border-radius: 50%;
+  background-color: var(--accent);
+  color: var(--text-primary);
+  /* GSAP sets these on mount too, but they are declared here so the very first
+     frame — before the timeline is built — is not a full-size circle sitting in
+     the top-left corner. */
+  transform: scale(0);
+  opacity: 0;
+}
+
+/* The two stacked captions. The window is one line tall and the pair slides
+   -100% inside it, which is why the height is fixed rather than auto. */
+.labels {
+  height: var(--t-label-sm-lh);
+  overflow: hidden;
+  text-align: center;
+}
+
+.label {
+  display: block;
+  height: var(--t-label-sm-lh);
+  font-family: var(--family-mono);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Nothing at all under the preference. The component returns early in JS as
+   well; this is the belt to that braces. */
+@media (prefers-reduced-motion: reduce) {
+  .cursor {
+    display: none;
+  }
+}
+
+/* Never on touch, and never below the desktop gate. */
+@media (max-width: 991px), (pointer: coarse) {
+  .cursor {
+    display: none;
+  }
+}

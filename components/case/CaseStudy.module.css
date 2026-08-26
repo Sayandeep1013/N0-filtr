@@ -1,0 +1,36 @@
+/* The case-study shell. 10-design-system.md §2 "Accent theming".
+
+   The page itself has almost no styling: it is a stack of sections that each
+   own their own. What lives here is the inversion, which is a property of the
+   whole page and cannot live anywhere else. */
+
+.page {
+  position: relative;
+}
+
+/* ── inversion ────────────────────────────────────────────────────────────
+   §2: the ground becomes the work's light accent and all text flips to
+   --text-alternate. Done by re-pointing the semantic tokens on this subtree
+   rather than by overriding colours element by element — which is the whole
+   reason the inversion pair exists, and it means every component inside is
+   inverted without knowing that it is.
+
+   Unused today. See the note in CaseStudy.tsx: no work's light accent is a
+   page ground, and that is a fact about our palette rather than a gap. */
+.inverted {
+  background-color: var(--accent-ground);
+
+  --bg-primary: var(--accent-ground);
+  --bg-secondary: var(--accent-ground);
+  --text-primary: var(--text-alternate);
+  --text-secondary: var(--grey-800);
+  --border-primary: var(--border-alternate);
+  --hairline: var(--hairline-alt);
+}
+
+/* The block stack's own band. The hero pads its own bottom and the footer pads
+   its own top, so this only owns the space between the last hero element and
+   the first block. */
+.content {
+  padding-top: var(--section-y);
+}

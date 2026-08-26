@@ -259,7 +259,9 @@ export function WorkCard({ work, className }: { work: Work; className?: string }
          that ratio is a design decision that belongs next to the other ones. */
       style={{ '--work-accent': work.accent.dark } as React.CSSProperties}
     >
-      <Link href={`/works/${work.slug}`} className={s.link}>
+      {/* `data-accent` is read by the loader on the way out — T6.7. See
+          `darken()` in `components/chrome/Loader.tsx`. */}
+      <Link href={`/works/${work.slug}`} className={s.link} data-accent={work.accent.dark}>
         {/* The positioning context for the sheet, and the reason it exists.
 
             The sheet was `position: absolute; bottom: 0` with no relative
