@@ -1,4 +1,6 @@
 import { Hero } from '@/components/hero/Hero';
+import { WorksSection } from '@/components/works/WorksSection';
+import { ShowreelProvider } from '@/components/motion/Showreel';
 
 /**
  * The homepage.
@@ -6,10 +8,23 @@ import { Hero } from '@/components/hero/Hero';
  * The hero arrived in phase 2 rather than phase 3 — its composition against the
  * 3D assembly could not be judged without it. See D-015.
  *
- * Still owed by phase 3: the stack wall (T3.4, T3.5), the scrubbed word reveal
- * (T3.3) and the showreel Flip choreography (T3.6). Phases 4 and 5 add the works
- * grid and everything below it.
+ * Phase 3 added the stack wall (inside the hero section, where §1 puts it), the
+ * scrubbed word reveal, and the showreel. `<WorksSection>` is here for its
+ * heading only — §2's heading is in phase 3's Reading Map because it is the
+ * site's first `<RevealText>`, and a scrubbed reveal cannot be verified without
+ * a page tall enough to scroll it past.
+ *
+ * Phase 4 fills the grid inside it; phase 5 adds services, CTA, culture and the
+ * blog row below.
  */
 export default function Home() {
-  return <Hero />;
+  /* The provider wraps the page rather than the hero, because Flip moves the
+     button's background out of the headline and into a full-screen panel that
+     has to be a sibling of everything, not a child of the hero. */
+  return (
+    <ShowreelProvider>
+      <Hero />
+      <WorksSection />
+    </ShowreelProvider>
+  );
 }

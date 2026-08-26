@@ -216,18 +216,29 @@ export const TOKEN_ASSERTIONS: Assertion[] = [
   { kind: 'length', at: 1512, selector: '[data-probe="gutter"]', prop: 'padding-left', rem: 2.5, tolerance: 0.05 },
   { kind: 'length', at: 1512, selector: '[data-probe="gutter"]', prop: 'padding-right', rem: 2.5, tolerance: 0.05 },
   { kind: 'length', at: 390, selector: '[data-probe="gutter"]', prop: 'padding-left', rem: 1.25, tolerance: 0.05 },
-  { kind: 'length', at: 1512, selector: '[data-probe-length="grid-gap"]', prop: 'width', rem: 1.5, tolerance: 0.05 },
+  /* 1.25rem, not the 1.5 this file asserted until phase 3. Every section grid
+     on tonik's homepage computes to a 20.5625px column gap at a 16.45 root,
+     which is 1.25rem exactly, and the tight two-up rows inside cards and table
+     rows use 0.75rem. See I-032 and the grid block in tokens.css. */
+  { kind: 'length', at: 1512, selector: '[data-probe-length="grid-gap"]', prop: 'width', rem: 1.25, tolerance: 0.05 },
+  { kind: 'length', at: 1512, selector: '[data-probe-length="grid-gap-tight"]', prop: 'width', rem: 0.75, tolerance: 0.05 },
   { kind: 'length', at: 1512, selector: '[data-probe-length="section-y"]', prop: 'width', rem: 8, tolerance: 0.05 },
   { kind: 'length', at: 390, selector: '[data-probe-length="section-y"]', prop: 'width', rem: 4, tolerance: 0.05 },
   // --content = 100vw - 2 × gutter. At 1512: 1512 - 2×41.125 = 1429.75px.
   { kind: 'px', at: 1512, selector: '[data-probe-length="content"]', prop: 'width', px: 1512 - 2 * 2.5 * rootSizeAt(1512), tolerance: 0.6 },
-  // --col = (content - 11 × 1.5rem) / 12.
+  /* --col = (container-large - 11 × grid-gap) / 12 = (80rem - 11 × 1.25rem)/12.
+     A twelfth of the CONTAINER, not of --content: tonik's grids are children of
+     `.container-large`, so a column is a twelfth of 80rem and never of the
+     viewport-minus-gutters. Their `home-projects_grid` is 1316px wide at 1512
+     with a 20.5625px gap, giving a 90.8px column — which is what this asserts.
+     Measuring it off --content instead put every column 9.4px wide of the
+     truth at 1512 and further out at 1920. Same class of error as I-030. */
   {
     kind: 'px',
     at: 1512,
     selector: '[data-probe-length="col"]',
     prop: 'width',
-    px: (1512 - 2 * 2.5 * rootSizeAt(1512) - 11 * 1.5 * rootSizeAt(1512)) / 12,
+    px: (80 * rootSizeAt(1512) - 11 * 1.25 * rootSizeAt(1512)) / 12,
     tolerance: 0.6,
   },
 

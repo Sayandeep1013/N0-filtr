@@ -114,6 +114,18 @@ function probe() {
 /** Fields whose values are properties of the layout, so they must agree. */
 const STRUCTURAL = [
   ['root', 0],
+  /* The hero SECTION's height, added in phase 3 when the stack wall gave it one.
+     §1 of 30-page-specs.md gives theirs 1361px at a 900 viewport — the viewport
+     plus the wall below the fold — and ours is built to the same rule, so the
+     figure is a property of the layout and belongs here.
+
+     The tolerance is one row of the wall, deliberately. Our wall holds 22 marks
+     and theirs holds 28 client logos; both wrap, and a viewport that puts one
+     more mark on a row changes the height by a whole row and neither of us
+     controls where the other's row breaks. What a 80px tolerance still catches
+     is the failure that matters: a wall that is missing (−461), collapsed, or
+     twice the height it should be. */
+  ['heroHeight', 80],
   ['columnX', 1],
   ['columnW', 1],
   ['h1X', 1],

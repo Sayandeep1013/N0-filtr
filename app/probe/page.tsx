@@ -58,7 +58,7 @@ const COLOUR_TOKENS = [
   'accent',
 ] as const;
 
-const LAYOUT_TOKENS = ['gutter', 'content', 'col', 'grid-gap', 'section-y'] as const;
+const LAYOUT_TOKENS = ['gutter', 'content', 'col', 'grid-gap', 'grid-gap-tight', 'section-y'] as const;
 
 export default function ProbePage() {
   if (process.env.NODE_ENV === 'production') notFound();

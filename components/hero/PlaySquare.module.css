@@ -13,6 +13,14 @@
 
 .square {
   position: relative;
+  /* It is a <button> when a reel exists, so the UA's own chrome has to go —
+     the box is the design and a border or padding would move it off the
+     measured 4rem. */
+  border: 0;
+  padding: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
   display: inline-grid;
   place-items: center;
   flex: none;
@@ -51,6 +59,12 @@
   height: auto;
   /* The optical centre of a play mark sits right of its geometric one. */
   transform: translateX(0.06rem);
+}
+
+/* Only the live variant takes a pointer. The inert span must not suggest it
+   can be clicked. */
+.live {
+  cursor: pointer;
 }
 
 @media (min-width: 992px) {

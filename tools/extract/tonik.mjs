@@ -172,6 +172,76 @@ function harvest() {
     };
   }
 
+  /* ── 7. the section grids, resolved to twelfths ───────────────────────────
+     Added in phase 3. tonik have no `.grid-12` class and no visible grid
+     system, so every phase up to now has read their column offsets off a
+     screenshot and guessed at the rule. There is a rule, and it is uniform:
+     every section grid is a **three-track fr grid whose tracks are twelfths**,
+     with a 1.25rem gap.
+
+         home-projects_title-part   4fr 7fr 1fr
+         services_grid              1fr 10fr 1fr
+
+     `getComputedStyle` resolves `grid-template-columns` to used pixel widths,
+     which look like arbitrary numbers — 424.95px 743.675px 106.25px. Divide by
+     the space left after the gaps and they are exactly 4/12, 7/12 and 1/12.
+     That division is the whole point of this block: it turns a measurement back
+     into the rule that produced it. */
+  const grids = [];
+  for (const el of Array.from(document.querySelectorAll('*'))) {
+    const cs = getComputedStyle(el);
+    if (cs.display !== 'grid' && cs.display !== 'inline-grid') continue;
+    const tracks = cs.gridTemplateColumns.split(' ').map(parseFloat).filter((n) => !Number.isNaN(n));
+    if (tracks.length < 2) continue;
+    const free = tracks.reduce((a, b) => a + b, 0);
+    // twelfths, to one decimal — a clean integer here means the rule is a 12-unit grid
+    const twelfths = tracks.map((t) => Math.round((t / free) * 12 * 10) / 10);
+    grids.push({
+      cls: String(el.className).slice(0, 60),
+      width: Math.round(el.getBoundingClientRect().width * 100) / 100,
+      tracksPx: tracks.map((t) => Math.round(t * 100) / 100),
+      twelfths,
+      isTwelfthGrid: twelfths.every((t) => Math.abs(t - Math.round(t)) < 0.15),
+      columnGap: cs.columnGap,
+      rowGap: cs.rowGap,
+      children: el.children.length,
+    });
+  }
+
+  /* ── 8. the scrubbed word reveal, as rendered ─────────────────────────────
+     Added in phase 3, which builds `<RevealText>`. Their split leaves `.word`
+     spans in the DOM, so the component announces itself and its resting opacity
+     can simply be read.
+
+     The finding that made this worth collecting: the reveal is set in
+     **`t-heading-3-rg` — 2rem / 2.5rem** — at every one of its uses, not in
+     anything like our 5rem `--t-h2`. There is no 5rem step anywhere on their
+     site. See I-031. */
+  const reveals = [];
+  for (const el of Array.from(document.querySelectorAll('*'))) {
+    const words = el.querySelectorAll(':scope > .word, :scope > [class*=word]');
+    if (words.length < 2) continue;
+    const cs = getComputedStyle(el);
+    const r = el.getBoundingClientRect();
+    const parent = el.parentElement;
+    reveals.push({
+      tag: el.tagName,
+      cls: String(el.className).slice(0, 60),
+      fontSize: cs.fontSize,
+      lineHeight: cs.lineHeight,
+      letterSpacing: cs.letterSpacing,
+      fontWeight: cs.fontWeight,
+      colour: cs.color,
+      wordCount: words.length,
+      restOpacity: getComputedStyle(words[0]).opacity,
+      wordDisplay: getComputedStyle(words[0]).display,
+      box: { x: Math.round(r.x * 100) / 100, w: Math.round(r.width * 100) / 100 },
+      gridColumn: cs.gridColumn,
+      parentCls: parent ? String(parent.className).slice(0, 60) : null,
+      parentTracks: parent ? getComputedStyle(parent).gridTemplateColumns : null,
+    });
+  }
+
   return {
     url: location.href,
     viewport: { w: window.innerWidth, h: window.innerHeight },
@@ -189,6 +259,8 @@ function harvest() {
     borders: Array.from(borderSeen, ([k, v]) => ({ border: k, count: v })).sort((a, b) => b.count - a.count),
     motion: Array.from(motionSeen, ([k, v]) => ({ transition: k, count: v })).sort((a, b) => b.count - a.count),
     sections,
+    grids: grids.filter((g) => g.isTwelfthGrid || g.children > 1),
+    reveals,
     note: px(null),
   };
 }

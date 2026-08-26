@@ -10,20 +10,23 @@
 
 .hero {
   position: relative;
-  /* The 3D canvas is 100dvh and this section has to cover the same range, or the
-     mobile scroll drive scrubs against a different height than the object it is
-     turning. tonik's own canvas wrapper is `position: absolute; inset: 0;
-     height: 900px` at a 900 viewport — the same thing. */
-  min-height: 100vh;
-  min-height: 100dvh;
-  display: flex;
   /* Nothing here is a background — it all sits over the canvas. */
   z-index: 1;
+  /* No height of its own. §1 gives the section 1361px at a 900 viewport and it
+     gets there by addition: 100dvh of copy, then the stack wall. Setting
+     `min-height: 100vh` here as well would be a floor the sum has already
+     cleared, and it would lie to anything measuring the section. */
 }
 
-.gutter {
+/* The first viewport. The 3D canvas is 100dvh and this block has to cover the
+   same range, or the copy drifts off the object it is composed against.
+   tonik's own canvas wrapper is `position: absolute; inset: 0; height: 900px`
+   at a 900 viewport — the same thing. */
+.viewport {
   display: flex;
   width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .inner {

@@ -128,6 +128,18 @@ export async function checkVisual(browser: Browser, baseUrl: string): Promise<Se
               await burger.click();
               await page.waitForTimeout(800);
             }
+          } else if (shot.prepare === 'showreel-open') {
+            /* The trigger only exists when a reel file does — `<PlaySquare>` is
+               a plain span otherwise, deliberately (I-033). No trigger means the
+               shot is of the resting hero, which is the honest picture of that
+               state rather than a failure. */
+            const trigger = page.locator('h1 button').first();
+            if ((await trigger.count()) > 0) {
+              await trigger.click();
+              // Flip is 1s and the open timeline runs to 1.3s; let it settle,
+              // and give the video a moment to paint its first frame.
+              await page.waitForTimeout(2600);
+            }
           }
 
           const ourPath = join(SHOT_DIR, `${shot.name}-${viewport.w}.png`);

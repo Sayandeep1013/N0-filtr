@@ -3,7 +3,7 @@
 **The first file every agent reads. It must always be true.**
 If you change the build, change this file in the same session — not later.
 
-Last updated: **2026-08-26** · by: **phase 2 session (Opus)** · tag: `phase-02-complete`
+Last updated: **2026-08-26** · by: **phases 3-12 session (Opus)** · tag: `phase-02-complete`
 
 ---
 
@@ -94,11 +94,11 @@ got it right. Protocol §2.9 is the rule.
 
 | | |
 |---|---|
-| Current phase | **3 — Homepage upper** *(unclaimed)* |
+| Current phase | **4 — Works grid** |
 | Status | ⬜ not started |
-| Branch | *(create `phase/03-home-upper`)* |
+| Branch | *(create `phase/04-works-grid`)* |
 | Blocked | no |
-| Verify report | `tools/verify/output/report.md` — tokens 136/136, motion **144/147** (3 pending), visual judged, budget 5/5 |
+| Verify report | `tools/verify/output/report.md` — tokens 137/137, motion **165/168** (3 pending), visual judged, budget 6/6 |
 
 ---
 
@@ -109,8 +109,8 @@ got it right. Protocol §2.9 is the rule.
 | 0 | Foundation & harness | ✅ | `phase/00-foundation` | `phase-00-complete` | harness proven by break-test |
 | 1 | Global chrome | ✅ | `phase/01-chrome` | `phase-01-complete` | + a behaviour layer in the harness |
 | 2 | Brand & 3D hero 🚦 | ✅ | `phase/02-brand-3d` | `phase-02-complete` | mark approved · 13 hero assertions · budget re-based |
-| 3 | Homepage upper | ⬜ | `phase/03-home-upper` | — | **next** · T3.1/T3.2 already shipped in phase 2 (D-015) |
-| 4 | Works grid | ⬜ | `phase/04-works-grid` | — | needs 3 |
+| 3 | Homepage upper | ✅ | `phase/03-home-upper` | `phase-03-complete` | + the grid system (I-032) · 21 new assertions |
+| 4 | Works grid | ⬜ | `phase/04-works-grid` | — | **next** · the grid is `12 × 1fr` on 1.25rem — I-032 |
 | 5 | Homepage lower | ⬜ | `phase/05-home-lower` | — | needs 4 |
 | 6 | Case study 🚦 | ⬜ | `phase/06-case-study` | — | **GATE** · needs 4 |
 | 7 | Service & industry | ⬜ | `phase/07-service-pages` | — | needs 6 |
@@ -120,7 +120,7 @@ got it right. Protocol §2.9 is the rule.
 | 11 | Block pit | ⬜ | `phase/11-block-pit` | — | needs 1 · parallel-safe |
 | 12 | Polish & launch | ⬜ | `phase/12-polish` | — | needs all |
 
-**Progress: 3 / 13 phases.**
+**Progress: 4 / 13 phases.**
 
 ---
 
@@ -188,9 +188,29 @@ Full record: `docs/build/phases/PHASE-02.md`.
 7. **I-021** — the grain is right as built.
 8. **I-019** — the JS budget is **320KB**, raised from a 190 that was never a measurement. (D-013)
 
-### Phase 3 — Homepage: hero, stack wall, reveal ⬜ not started
+### Phase 3 — Homepage: hero, stack wall, reveal ✅ complete
 
-Copy the task table from `01-PHASES.md` when you claim it.
+Full record: `docs/build/phases/PHASE-03.md`
+
+| id | task | status | evidence |
+|---|---|---|---|
+| T3.1 | Hero copy — `--t-h1` two lines, inline play control | ✅ | shipped in phase 2 (D-015); `compare:hero` 92/92 |
+| T3.2 | Hero bottom rail — two mono labels above a hairline | ✅ | shipped in phase 2 (D-015) |
+| T3.3 | `<RevealText>` — SplitType words, scrubbed `top 90%`→`top 10%` | ✅ | behaviour: 0.2 → 1 → **0.2 on the way back**; box x 543.51 / w 743.67 = theirs |
+| T3.4 | Stack wall ≥768 — static flex-wrap grid, `.7` opacity | ✅ | `shots/stack-wall-1512.png`; `heroHeight` 1360.6 vs their 1360.63 |
+| T3.5 | Stack wall ≤767 — GSAP infinite marquee, no library | ✅ | behaviour: 30s / `none` / `repeat -1` at 390, **absent** at 1512 and under reduce |
+| T3.6 | Showreel — Flip open/close choreography, Plyr | ⚠️ | behaviour: 66px → 1234px → **back to 66px exact**; reel is a placeholder (I-033) |
+| — | Works section header (§2 heading, in phase 3's Reading Map) | ✅ | the site's first `<RevealText>`; grid is phase 4's |
+
+**The five user decisions were answered on 2026-08-26, up front, in one message:**
+
+| Decision | Answer |
+|---|---|
+| Domain | **`nofilter.studio`** — open item 5 closed |
+| Socials | **GitHub real; Instagram / LinkedIn / X as provisional slots**, hrefs swapped later |
+| Tally form id | **none — the mailto fallback is the shipped answer**; open item 7 closed |
+| Footer tagline | **"No filter between the idea and the thing"** — open item 6 closed |
+| Contact budget bands + referral chips | *not asked* — the invented constants stand; see I-015 |
 
 ---
 

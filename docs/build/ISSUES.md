@@ -929,3 +929,124 @@ object and nothing else depends on it.
 
 **Needs:** Nothing blocking. If the hero is ever re-specced, resolve which of the two §2 meant and
 write one of them down.
+
+---
+
+## I-031 · `--t-h2` at 5rem may not exist on tonik  🟡
+
+**Found:** phase 03, 2026-08-26 · **Area:** `10-design-system.md` §3, `app/styles/tokens.css`
+
+**Problem:** Our type scale has `--t-h2: 5rem / 5rem`. The extractor's type pass finds no 5rem step
+anywhere on tonik's homepage. Their rendered scale is 6.25rem (one use, the CTA heading), 6rem
+(h1), 2rem, 1.5rem, 1rem, 0.75rem, 0.625rem and 0.5rem — **nothing at all between 2 and 6.**
+
+The case phase 3 hit: `30-page-specs.md` §2's scrubbed section heading. Their equivalent is
+`t-heading-3-rg` — 32.9px on 41.125px leading at a 16.45 root, which is 2rem / 2.5rem, our
+`--t-h3`. Not an h2.
+
+Same shape of finding as the note in `03-tonik-extract.md` about `--t-label-big` at 0.875rem, which
+is also absent from their site.
+
+**Impact:** Anything set in `--t-h2` is set in a step tonik does not use. `<RevealText>` takes an
+explicit `scale` prop and phase 3 passes `h3`, so the homepage is right — but `30-page-specs.md` §5
+specifies `--t-h2` for the culture heading, and §4's CTA heading is separately specced at 6rem.
+
+**Workaround:** None needed yet. Phase 3 used the measured value and did not touch the token.
+
+**Needs:** **Phase 5.** It builds the culture section and the CTA block, which are the two places
+`--t-h2` is actually called for. Measure both against tonik before using the token; if neither
+wants 5rem, the step is an invention and should be removed rather than left as a trap.
+
+---
+
+## I-032 · `--grid-gap` and `--col` were both wrong — fixed  🟢
+
+**Found:** phase 03, 2026-08-26 · **Area:** `app/styles/tokens.css` · **Resolved:** phase 03
+
+**Problem:** Two errors in the layout tokens, found together while measuring the reveal's box.
+
+`tokens.css` described the grid as *"Ours, not theirs — tonik has no formal grid class, but every
+one of their layouts resolves to twelfths of `--content`."* Half right, and wrong in the half that
+matters. They have no grid *class*; they have a grid *system*, and it is uniform:
+
+| their element | tracks | column gap |
+|---|---|---|
+| `home-projects_title-part` | `4fr 7fr 1fr` | 1.25rem |
+| `home-projects_grid` | `12 x 1fr` | 1.25rem |
+| `services_grid` | `1fr 10fr 1fr` | 1.25rem |
+| `culture_grid` | `12 x 1fr` | 1.25rem |
+| `blogs_cms-list` | `4fr 4fr 4fr` | 1.25rem |
+| `footer_content-grid` | `6fr 4fr 2fr` | 1.25rem |
+| `project-item_table-item` | `6fr 6fr` | **0.75rem** |
+| `service-item_body-content` | `8fr 4fr` | 0 |
+
+1. **`--grid-gap` was `1.5rem`.** Theirs is `1.25rem` — 20.5625px at a 16.45 root, in every section
+   grid on the page. There is a second, tighter gap of `0.75rem` used inside card and table rows,
+   which we had no token for at all.
+2. **`--col` was a twelfth of `--content`** (the viewport minus gutters). Their grids are children
+   of `.container-large`, so a column is a twelfth of **80rem**. This is I-030 again, in a
+   different variable, one phase later: the container caps the measure and the gutter does not.
+
+**Impact:** Every multi-column layout from phase 4 onward would have been built on a gap 20% too
+wide and a column about 9px too narrow at 1512, widening with the viewport.
+
+**Resolved:** phase 03. `--grid-gap: 1.25rem`, `--grid-gap-tight: 0.75rem` added, `--col` computed
+off `--container-large`. `verify:tokens` asserts all three (137/137). `tools/extract/tonik.mjs`
+grew a section 7 pass that resolves every grid's used track widths back into twelfths, so the rule
+is recorded rather than re-derived — and a section 8 pass that reads their scrubbed reveals.
+
+**One trap worth carrying into phase 4.** `4fr 7fr 1fr` is **not** the same as a 12-column grid
+with `grid-column: 5 / 12`. Both put the element's left edge on x=543.5 at 1512; the spanning
+version is 759px wide against their 743.67, because seven spanned columns swallow six internal gaps
+that a single 7fr track does not have. Same left edge, wrong measure.
+
+---
+
+## I-033 · The showreel's reel is a placeholder  🟡
+
+**Found:** phase 03, 2026-08-26 · **Area:** `lib/content/site.ts`, `public/media/`
+
+**Problem:** `SHOWREEL.srcWebm` points at `/media/showreel-placeholder.webm` — eight seconds of our
+own hero with the pointer moving across it, baked by `npm run showreel:placeholder`. It is not a
+showreel of our work, because none of our work has been captured yet.
+
+**Impact:** Anyone who opens the panel sees the site they are already on. The panel says so on
+screen — `PLACEHOLDER REEL — REAL FOOTAGE LANDS WITH THE CASE STUDIES` — so it is disclosed rather
+than passed off, but it is still a placeholder on a public surface.
+
+**Why it is there rather than absent:** see D-020. Short version: section 15's Flip is the only one
+on the site, its correctness is a claim about where a DOM node lands, and with no file the
+choreography never runs and cannot be verified. Building it blind and calling it done is what
+protocol section 6 exists to prevent — and driving it against a real file immediately found two
+defects.
+
+**Workaround:** The honest branch is one constant away. With `SHOWREEL.src` and `.srcWebm` both
+empty, `<PlaySquare>` renders a `<span>` with `aria-hidden` and no handler, exactly as it did in
+phase 2, and the behaviour check reports that state as a pass.
+
+**Needs:** **Phase 10, T10.2.** Replace the file with real interaction footage, in mp4 *and* webm,
+and set `SHOWREEL.isPlaceholder` to `false`. No component changes.
+
+---
+
+## I-034 · The JS budget has 7.7KB left  🟠
+
+**Found:** phase 03, 2026-08-26 · **Area:** `tools/verify/budget.config.ts`, D-013
+
+**Problem:** `/` measures **312.3KB of 320KB** transferred JS after phase 3, up from 303.7KB. Phase
+3 spent 8.6KB on `split-type`, the stack wall, the works section and the showreel's own code. The
+dynamic imports worked as intended: `verify:budget` confirms `plyr` and `three` are both absent
+from the eagerly-loaded bundle.
+
+**Impact:** Phases 4, 5 and 7 all add code to routes that share this ceiling, and phase 7 wants
+**Embla** (about 10KB), which does not fit. Phase 11's Matter is dynamic and behind an
+IntersectionObserver, so it should not count.
+
+**Workaround:** None yet. The rule that protects what is left still holds: a library used by one
+interaction loads when that interaction first happens, not at import time.
+
+**Needs:** **Phase 7, and possibly earlier.** D-013 raised this ceiling once, from a 190 that was
+never a measurement, and the standard it set is the standard for raising it again: **measure, then
+put it to Sayandeep — do not edit the number.** Before asking, check whether Embla is needed at
+all: section 17's mobile ServiceNav carousel is a horizontal snap list, and `scroll-snap-type: x
+mandatory` is CSS.

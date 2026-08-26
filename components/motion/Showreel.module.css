@@ -1,0 +1,104 @@
+/* The showreel. 20-components-and-motion.md §15.
+
+   The section is a full-screen dialog that starts `display: none` and is
+   switched to `flex` by the open handler — not by a class, because the same
+   handler also owns the Flip state and the two have to happen in one frame. */
+
+.section {
+  display: none;
+  position: fixed;
+  inset: 0;
+  /* Above the navbar (10) and the skip link (1000); below the contact panel
+     (9000) and the loader (9999). A route change must be able to cover this,
+     and the contact panel is the one surface that can legitimately sit over
+     everything the visitor was doing. */
+  z-index: 8000;
+  align-items: center;
+  justify-content: center;
+  /* #21212100 — the transparent end of the scrim the open timeline tweens.
+     Declared here so the very first frame is not an opaque flash before GSAP
+     takes the property over. */
+  background-color: #21212100;
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: var(--container-large);
+  padding-inline: var(--gutter);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  pointer-events: none;
+}
+
+.heading {
+  opacity: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  color: var(--text-primary);
+}
+
+.label {
+  color: var(--text-secondary);
+}
+
+/* The Flip destination. The button's background layer is appended here, so its
+   box has to be the box the square is flying to. `position: relative` gives the
+   appended child something to be absolute inside, which is what it already is
+   in the button. */
+.playerWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  pointer-events: auto;
+}
+
+/* Above the layer Flip flies in here. The button's background is appended to
+   `.playerWrap` on open, and being appended it is the last child — so without
+   a stacking order it lands on top of the video and the player renders as a
+   flat grey rectangle. It is not decoration: it is the player's ground while
+   the file is still loading, which is exactly what tonik use theirs for. It
+   belongs behind. */
+.player {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0;
+  background-color: var(--bg-tertiary);
+}
+
+.player video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Plyr paints its own chrome; these are the two places it has to be told about
+   our palette rather than its default indigo. Scoped to this module so nothing
+   else on the site inherits a third-party theme. */
+.player :global(.plyr) {
+  --plyr-color-main: var(--white);
+  --plyr-video-background: var(--bg-tertiary);
+  --plyr-video-control-color: var(--black);
+  --plyr-range-thumb-background: var(--white);
+  height: 100%;
+}
+
+@media (max-width: 767px) {
+  .inner {
+    gap: 1rem;
+  }
+}

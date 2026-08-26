@@ -84,17 +84,16 @@ export const HERO = {
 
 /* ── identity ──────────────────────────────────────────────────────────────
    The canonical origin, used for `metadataBase`, the OG card's absolute URLs
-   and the manifest. **The domain is still a placeholder** — open item 5 in
-   00-brief-and-decisions.md — so it reads from an env var and falls back to a
-   name that is obviously provisional rather than to something that looks real.
-   Set NEXT_PUBLIC_SITE_URL on the deploy and this stops mattering. */
+   and the manifest. **Chosen by Sayandeep on 2026-08-26**: `nofilter.studio`.
+   Open item 5 is closed. It still reads from an env var first so a preview
+   deploy can point at its own origin without a code change. */
 
 export const SITE = {
   name: 'No Filter',
   /** The wordmark's own casing. Used where the brand is set, not where it is read aloud. */
   wordmark: 'NO FiLTER',
   description: 'A studio for work that does not need softening.',
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? 'https://nofilter.example',
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? 'https://nofilter.studio',
 } as const;
 
 /* ── contact details ───────────────────────────────────────────────────────
@@ -103,8 +102,9 @@ export const SITE = {
    offset instead of an address block. 00-brief-and-decisions.md open items 1
    and 3 are closed.
 
-   Still placeholders below: the domain, the social handles beyond GitHub, the
-   footer tagline, and the Tally form id. */
+   Closed on 2026-08-26: the domain, the footer tagline, and the Tally form id
+   (there is none — the mailto fallback is the shipped answer). The social hrefs
+   beyond GitHub are deliberately provisional; see SOCIALS. */
 
 export const CONTACT = {
   email: 'sayandeepmondal1013@gmail.com',
@@ -125,19 +125,143 @@ export const CONTACT = {
 export interface SocialLink {
   label: string;
   href: string;
+  /** The href is a stand-in for a profile that does not exist yet. */
+  provisional?: boolean;
 }
 
-/** Placeholder — open item 4. GitHub is the one real handle we have. */
+/**
+ * The footer's social row and the `sameAs` array in the site's structured data.
+ *
+ * **GitHub is the only real one.** Sayandeep asked on 2026-08-26 for the other
+ * three slots to exist so the row's composition is final, with the hrefs to be
+ * swapped for real profiles later — so the three placeholders carry
+ * `provisional: true` and route to each platform's bare origin rather than to a
+ * fabricated handle. A link to `instagram.com/nofilterstudio` that nobody owns
+ * is a broken promise in the footer of a studio site; a link to `instagram.com`
+ * is merely a slot that has not been filled.
+ *
+ * `provisional` is not decoration: `verify` and phase 12's metadata pass both
+ * read it, and the flag is what stops an unfilled slot being emitted into
+ * `sameAs`, where a search engine would treat it as a claim of identity.
+ */
 export const SOCIALS: SocialLink[] = [
   { label: 'GitHub', href: 'https://github.com/Sayandeep1013' },
+  { label: 'Instagram', href: 'https://instagram.com', provisional: true },
+  { label: 'LinkedIn', href: 'https://linkedin.com', provisional: true },
+  { label: 'X', href: 'https://x.com', provisional: true },
 ];
 
-/** Placeholder — open item 6. tonik's is "DESIGNING A VISION OF BIG THINKING FOUNDERS". */
+/** Every social slot whose href is a real destination. Metadata uses this one. */
+export const SOCIALS_CONFIRMED: SocialLink[] = SOCIALS.filter((s) => !s.provisional);
+
+/**
+ * The 14vw line under the footer wordmark. **Chosen by Sayandeep on
+ * 2026-08-26** over two alternates; open item 6 is closed. tonik's is
+ * "DESIGNING A VISION OF BIG THINKING FOUNDERS".
+ */
 export const FOOTER_TAGLINE = 'No filter between the idea and the thing';
 
 /**
  * Tally form id for the contact panel. Empty means the styled native fallback
  * renders instead — 20-components-and-motion.md §3, and the acceptance
  * criterion for T1.8 is that it renders without one.
+ *
+ * **It is empty, and that is the decision, not an omission.** Sayandeep chose
+ * the mailto fallback on 2026-08-26: it works today, needs no third party and
+ * costs no bundle. The env var stays so wiring Tally later is a deploy setting
+ * rather than a code change. Open item 7 is closed.
  */
 export const TALLY_FORM_ID = process.env.NEXT_PUBLIC_TALLY_FORM_ID ?? '';
+
+/* ── the stack wall ────────────────────────────────────────────────────────
+   `40-content-model.md` §6, verbatim and in its order. Twenty-two marks,
+   "all drawn from the works' actual tools" — this list is a claim about what
+   the twelve works are built with, so it is not a place to add something
+   aspirational. Phase 4 brings `lib/content/works.ts`; when it does, this list
+   should be checked against the union of every work's `tools`.
+
+   They are set as **type, not logos.** tonik's equivalent wall is client
+   logos, which are theirs to show because those are their clients. Ours are
+   tools, and shipping twenty-two vendors' trademarks to make a wall look busy
+   is a different thing from naming what we build with. The display face at one
+   size gives the same density §6 is after — "coincidentally close to tonik's
+   28, so the wall reads at the same density" — without borrowing anyone's
+   lettering. See D-019. */
+export const STACK: readonly string[] = [
+  'React',
+  'Next.js',
+  'TypeScript',
+  'Three.js',
+  'GLSL',
+  'GSAP',
+  'Lenis',
+  'Supabase',
+  'PostgreSQL',
+  'Cloudflare Workers',
+  'Yjs',
+  'Expo',
+  'React Native',
+  'Kotlin',
+  'Go',
+  'Python',
+  'Node',
+  'FFmpeg',
+  'Vercel',
+  'Groq',
+  'Excalidraw',
+  'WebSockets',
+] as const;
+
+/**
+ * The label above the wall. **Authored, not specified** — `30-page-specs.md` §1
+ * gives the wall no label at all, and twenty-two bare product names under a
+ * headline read as debris rather than as a statement. Every other section on
+ * this site opens with a mono label; this one now does too. Flagged for
+ * Sayandeep. See D-019.
+ */
+export const STACK_LABEL = 'The stack';
+
+/* ── the works section ─────────────────────────────────────────────────────
+   `30-page-specs.md` §2 gives this heading verbatim. It is the site's first
+   `<RevealText>` and the reason phase 3's Reading Map includes §2's heading
+   even though the grid under it belongs to phase 4.
+
+   Set in `--t-h3` (2rem / 2.5rem), not `--t-h2`. That is measured, not chosen:
+   tonik's equivalent heading is `t-heading-3-rg`, 32.9px on a 41.125px leading
+   at a 16.45 root, and there is no 5rem step anywhere on their site. See I-031. */
+export const WORKS_INTRO =
+  'A studio that defines, designs, and builds products and other digital machinery.';
+
+/* ── the showreel ──────────────────────────────────────────────────────────
+   `20-components-and-motion.md` §15. The hero's play control *becomes* the
+   full-screen player, via the only use of GSAP Flip on the site.
+
+   **An empty `src` makes the control inert**, on purpose: `<PlaySquare>` then
+   renders as it did in phase 2 — a `<span>`, `aria-hidden`, no handler. A
+   control that opens a player with nothing in it is a worse promise than a
+   shape that never claimed to be a control.
+
+   What is in it today is **a placeholder, and it says so**: eight seconds of
+   our own hero with the pointer moving across it, baked by
+   `npm run showreel:placeholder`. It is here because §15's choreography is the
+   only use of Flip on the site and cannot be checked by reading — a background
+   layer is measured, reparented across two components and flown into a player,
+   and with no file none of that ever runs. Protocol §6 does not accept
+   "implemented" as evidence.
+
+   **`01-PHASES.md` T10.2 replaces the file**, with scripted 6–10s interaction
+   footage of the eight live deploys, encoded to mp4 *and* webm. Nothing in the
+   component changes when it does. See I-033. */
+export const SHOWREEL = {
+  /** mp4, for anything that cannot take webm. T10.2 produces it. */
+  src: '',
+  /** Offered first. Placeholder until T10.2 — see the note above. */
+  srcWebm: '/media/showreel-placeholder.webm',
+  poster: '/hero-aperture.webp',
+  /** The mono label above the player. */
+  label: 'Showreel',
+  /** The heading that fades in beside the player. */
+  title: 'Twelve things, built end to end.',
+  /** Rendered next to the title while `srcWebm` is still the baked stand-in. */
+  isPlaceholder: true,
+} as const;

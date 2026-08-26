@@ -79,10 +79,32 @@
   --content: calc(100vw - (2 * var(--gutter)));
   --hairline: 1px solid var(--border-primary);
 
-  /* The 12-column reference grid. Ours, not theirs — tonik has no formal grid
-     class, but every one of their layouts resolves to twelfths of --content. */
-  --grid-gap: 1.5rem;
-  --col: calc((var(--content) - (11 * var(--grid-gap))) / 12);
+  /* ── the 12-unit grid ────────────────────────────────────────────────────
+     **Theirs, measured, not ours invented.** Until phase 3 this was described
+     as "ours, not theirs — tonik has no formal grid class". They have no grid
+     *class*; they have a grid *system*, and every section on their homepage
+     obeys it. Read off their live DOM by `tools/extract/tonik.mjs` §7, which
+     resolves each used track width back into twelfths:
+
+         home-projects_title-part    4fr 7fr 1fr      the scrubbed reveal
+         home-projects_grid          12 × 1fr         the works grid
+         services_grid               1fr 10fr 1fr
+         culture_grid                12 × 1fr
+         blogs_cms-list              4fr 4fr 4fr      three blog cards
+         footer_content-grid         6fr 4fr 2fr
+         home-hero_bottom-bar        8.9fr 3.1fr      (the one that isn't integral)
+         project-item_table-item     6fr 6fr          the spec-table row
+         service-item_body-content   8fr 4fr
+
+     Two gaps, not one. Section grids use 1.25rem; the two-up rows *inside* a
+     card or a table row use 0.75rem. Our single 1.5rem was neither. See I-032.
+
+     The grid lives inside `.container-large` (80rem), not inside the gutter —
+     which is why `--col` is a twelfth of the container and not of --content.
+     Getting that backwards is the same mistake as I-030. */
+  --grid-gap: 1.25rem;
+  --grid-gap-tight: 0.75rem;
+  --col: calc((var(--container-large) - (11 * var(--grid-gap))) / 12);
 
   --section-y: 8rem; /* standard vertical section padding */
 
