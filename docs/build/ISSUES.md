@@ -1680,3 +1680,23 @@ browser until the visitor sends it.
 **That page is a claim, and it is only worth making because it is checkable.** Adding a form
 provider, an analytics tag, an embedded player or a session cookie makes it false. Anyone doing that
 changes `app/privacy/page.tsx` in the same commit.
+
+
+---
+
+## I-056 · The blog has no dates, deliberately  🟡
+
+**Raised:** phase 09 · **Owner:** content
+
+`30-page-specs.md` §`/blog/[slug]` asks the post hero for a date. `40-content-model.md` §5 does not
+carry one, and the posts were written this week.
+
+**No date is shown.** Inventing publication dates is the one kind of lie this site cannot afford —
+everything else on it is checkable, and a fabricated timeline would be the first thing to fall over
+if anyone looked.
+
+The **reading time is real**: derived from the body's own word count at two hundred words a minute,
+not the `readingTime` field in the metadata, which was an estimate typed by hand.
+
+**To close:** add a real `publishedAt` when the posts are actually published, and put it back in the
+hero. Until then the absence is correct.

@@ -327,23 +327,26 @@ export function WorkCard({ work, className }: { work: Work; className?: string }
               covers the media until the card has arrived. */}
           <div className={s.wipe} data-work-wipe aria-hidden="true" />
 
-            {/* ── the top rail ─────────────────────────────────────────
-                Sayandeep: *"show the name of the projects on top of the card
-                like tonik does."*
+            {/* ── the name, and the chip ───────────────────────────────
+                Sayandeep, twice. First: *"show the name of the projects on top
+                of the card like tonik does."* Then, on the top-left version:
+                *"not at top left corner .. at the centre .. initially faded and
+                u hover it pops up."*
 
-                It matters more here than it does for them. Their cards are key
+                It matters more here than it does for tonik. Their cards are key
                 images of recognisable clients; ours are **generated plates**
-                (D-038), so without a name on the picture there is no way to
-                tell one card from another until you read the caption under it.
+                (D-038), so without a name on the picture there is no way to tell
+                one card from another until you read the caption under it.
 
-                The name takes the strong position — top left, where the eye
-                lands — and the CASE STUDY chip moves opposite it. Both share
-                one wrapper so they wipe in together on the same tween the badge
-                already had. */}
+                Centred and faded is the better answer for exactly that reason:
+                at rest it is a watermark that tells you which work this is
+                without competing with the plate, and on hover it becomes the
+                label. The CASE STUDY chip stays where tonik has it. */}
+            <span className={s.name} data-t="h4" data-work-name>
+              {work.title}
+            </span>
+
             <span className={s.rail} data-work-badge>
-              <span className={s.name} data-t="label">
-                {work.title}
-              </span>
               <span className={s.badge} data-t="label-sm">
                 Case study
               </span>

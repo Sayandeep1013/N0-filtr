@@ -1,0 +1,96 @@
+/* `/blog`. 30-page-specs.md §`/blog`. */
+
+.hero {
+  padding-top: 10rem;
+  padding-bottom: 3rem;
+}
+
+.title {
+  margin: 0;
+  color: var(--text-primary);
+  font-weight: 400;
+}
+
+.lead {
+  margin: 2rem 0 0;
+  max-width: calc(7 * var(--col) + 6 * var(--grid-gap));
+  color: var(--text-secondary);
+}
+
+/* ── the filters ────────────────────────────────────────────────────────── */
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding-bottom: 3rem;
+}
+
+.pill {
+  padding: 0.625rem 1.25rem;
+  border: var(--hairline);
+  border-radius: 2rem;
+  background: none;
+  color: var(--text-secondary);
+  font-family: var(--family-mono);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    color var(--dur-fast) var(--ease-in-out),
+    background-color var(--dur-fast) var(--ease-in-out),
+    border-color var(--dur-fast) var(--ease-in-out);
+}
+
+.pill:hover,
+.pill:focus-visible {
+  color: var(--text-primary);
+  border-color: var(--border-primary);
+}
+
+/* §'s filled pill. The one place a small element on this site goes fully
+   inverted, and it is theirs. */
+.pillActive {
+  background-color: var(--bg-alternate);
+  border-color: var(--bg-alternate);
+  color: var(--text-alternate);
+}
+
+.pillActive:hover,
+.pillActive:focus-visible {
+  color: var(--text-alternate);
+}
+
+/* ── the grid ───────────────────────────────────────────────────────────── */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--grid-gap) var(--grid-gap);
+  row-gap: 3rem;
+  padding-bottom: var(--section-y);
+}
+
+.empty {
+  padding-bottom: var(--section-y);
+  color: var(--text-secondary);
+}
+
+@media (max-width: 991px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* §: 1-col ≤767. */
+@media (max-width: 767px) {
+  .hero {
+    padding-top: 7rem;
+    padding-bottom: 2rem;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    row-gap: 2.5rem;
+    padding-bottom: 4rem;
+  }
+}

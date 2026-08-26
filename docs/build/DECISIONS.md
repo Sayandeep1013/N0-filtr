@@ -1480,3 +1480,68 @@ supplies real footage it should return as a labelled control in the actions row 
 square in the headline.
 
 Hidden above 767 deliberately — the desktop composition is approved and has no room for a button row.
+
+
+---
+
+## D-042 · Post bodies are typed blocks, not MDX
+
+**Phase:** 9 · **Date:** 2026-08-27 · **Status:** active
+
+`30-page-specs.md` §`/blog/[slug]` specifies MDX with Shiki at build time.
+
+**It gets the Shiki half and not the MDX half.** `components/case/CodeBlock.tsx` already runs Shiki
+at build time for the case studies, so the spec's stated benefit — *"same visual result, correct
+tokenisation, zero runtime cost"* — is delivered by the component that already did it.
+
+MDX buys two things: authoring in markdown, and components inside prose. Neither is worth a second
+content mechanism here. The same people who write the code write the posts; the site already has a
+typed block union that twelve case studies use; and the union is what makes a body **checkable** — a
+missing `alt`, an unknown language or a heading level out of order become type errors rather than
+things a reader finds.
+
+The rendered result is what §`/blog/[slug]` describes: `h2` at `--t-h3`, `h3` at `--t-h5`,
+paragraphs at `--t-p`, a blockquote with a 1px left rule, and syntax-highlighted `<pre>`.
+
+**Consequence:** no `@next/mdx`, no MDX loader, no second highlighting path. If a post ever needs a
+live component in the middle of it, that is the moment to revisit this.
+
+---
+
+## D-043 · Only written posts are routes
+
+**Phase:** 9 · **Date:** 2026-08-27 · **Status:** active
+
+`lib/content/posts.ts` carries metadata for **twelve** articles. **Three** have bodies.
+
+`generateStaticParams` reads the bodies rather than the metadata, so the other nine are not routes
+and `/blog` lists only what exists. The alternative was twelve stubs — a blog that looks finished
+and is not, on a site whose entire argument is that the work behind it is real. Nine empty articles
+would be the most expensive thing on it.
+
+The three written are the ones the homepage's blog row already featured, so nothing that linked
+somewhere now links nowhere.
+
+**Consequence:** the remaining nine are a content task, not a code task. Adding one is a file in
+`content/posts/` and a line in its index.
+
+---
+
+## D-044 · The card name is centred, faded, and rises on hover
+
+**Phase:** 7 · **Date:** 2026-08-27 · **Status:** active · **supersedes the top-left version in D-040**
+
+Sayandeep, on the first placement: *"not at top left corner .. at the centre .. initially faded and u
+hover it pops up."*
+
+Centred and faded is the better answer for the reason D-040 gave in the first place: our cards are
+generated plates, so at rest the name should be a **watermark** that says which work this is without
+competing with the artwork, and on hover it should become the label.
+
+It travels to **20% from the top**, not a nudge, and that is not decoration. The hover sheet wipes up
+from the foot of the card and its top edge crosses the middle — a name that stayed centred would be
+*behind the drawer* at exactly the moment it was meant to be legible. Rising clear of it is both the
+effect asked for and the only position where the effect is visible.
+
+Animated on `top` rather than `transform`: a percentage translate resolves against the element's own
+height, and the distance needed is a fraction of the card's.

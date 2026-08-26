@@ -1,0 +1,89 @@
+/* <PinnedRise />. 20-components-and-motion.md §14. */
+
+.rise {
+  position: relative;
+  width: 100%;
+}
+
+.wrapper {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 4rem var(--gutter);
+  overflow: hidden;
+}
+
+/* §14: the headline sits BEHIND the cards. Both are grid children in the same
+   cell, and the stacking is by z-index rather than by order so the markup can
+   keep the heading first — which is what a screen reader reads. */
+.headline {
+  grid-area: 1 / 1;
+  z-index: 0;
+  margin: 0;
+  color: var(--text-primary);
+  font-weight: 400;
+  text-align: center;
+  text-transform: lowercase;
+  pointer-events: none;
+}
+
+.list {
+  grid-area: 1 / 1;
+  z-index: 1;
+  display: grid;
+  /* §14's stagger is `grid: [4, 9]` — four across, nine down. The animation is
+     tuned on that shape, so the layout has to be that shape. */
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  gap: 0.75rem;
+  width: 100%;
+  max-width: var(--container-large);
+  transform-style: preserve-3d;
+}
+
+.item {
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border: var(--hairline);
+  background-color: var(--grey-900);
+  will-change: transform;
+}
+
+.item > * {
+  width: 100%;
+  height: 100%;
+}
+
+/* ── below the gate ───────────────────────────────────────────────────────
+   No pin, no rise, no 100vh. A plain grid of artefacts under the heading, which
+   is what the section is for once the motion is gone. */
+@media (max-width: 991px), (prefers-reduced-motion: reduce) {
+  .wrapper {
+    display: block;
+    min-height: 0;
+    padding: 0 var(--gutter);
+  }
+
+  .headline {
+    position: static;
+    margin-bottom: 2.5rem;
+    text-align: left;
+    opacity: 1 !important;
+  }
+
+  .list {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    transform-style: flat;
+  }
+
+  .item {
+    transform: none !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+}

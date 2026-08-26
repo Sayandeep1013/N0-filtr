@@ -116,6 +116,8 @@ got it right. Protocol §2.9 is the rule.
 | 5 | Homepage lower | ✅ | `phase/05-home-lower` | `phase-05-complete` | **the homepage is complete** · 41 assertions · motion 241/241 |
 | 6 | Case study 🚦 | 🟡 | `phase/06-case-study` | — | **built, awaiting the gate** · T6.1–T6.5, T6.7 · T6.6 removed (D-037) |
 | 7 | Works index, services, industries | 🟡 | `phase/07-service-pages` | — | T7.1, T7.3–T7.8 done · T7.2 (Embla nav carousel) still open |
+| 8 | About | 🟡 | `phase/08-about` | — | all five sections · §13 and §14 transcribed · imagery is generated (D-038) |
+| 9 | Blog | 🟡 | `phase/09-blog` | — | index + post template · **3 of 12** written (D-043) · typed blocks, not MDX (D-042) |
 | 7 | Service & industry | ⬜ | `phase/07-service-pages` | — | needs 6 |
 | 8 | About | ⬜ | `phase/08-about` | — | needs 5 |
 | 9 | Blog | ⬜ | `phase/09-blog` | — | needs 5 · parallel-safe |
