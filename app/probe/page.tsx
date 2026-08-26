@@ -37,6 +37,7 @@ const COLOUR_TOKENS = [
   'grey-700',
   'grey-600',
   'white-30',
+  'grey-800-30',
   'white-10',
   'white-50',
   'black-50',

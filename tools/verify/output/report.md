@@ -1,10 +1,10 @@
 # Verification report
-Run: 2026-08-26T08:57:24.372Z · Phase 03 · commit `f2592b1` · branch `phase/03-home-upper`
+Run: 2026-08-26T09:52:57.953Z · Phase 04 · commit `dcda1b3` · branch `phase/04-works-grid`
 
 ## Summary
 ```
-tokens  ✅ 137/137
-motion  ⚠️ 165/168  (3 pending, owed by later phases)
+tokens  ✅ 138/138
+motion  ⚠️ 200/202  (2 pending, owed by later phases)
 visual  ⚠️ reviewed by agent — see judgement
 budget  ✅ 6/6
 ```
@@ -114,6 +114,7 @@ budget  ✅ 6/6
 ✅ [data-probe-colour="grey-700"] @1512 background-color = rgb(115, 115, 115)
 ✅ [data-probe-colour="grey-600"] @1512 background-color = rgb(224, 224, 224)
 ✅ [data-probe-colour="white-30"] @1512 background-color = rgba(255, 255, 255, 0.3)
+✅ [data-probe-colour="grey-800-30"] @1512 background-color = rgba(59, 59, 59, 0.3)
 ✅ [data-probe-colour="white-10"] @1512 background-color = rgba(255, 255, 255, 0.1)
 ✅ [data-probe-colour="white-50"] @1512 background-color = rgba(239, 239, 239, 0.5)
 ✅ [data-probe-colour="black-50"] @1512 background-color = rgba(33, 33, 33, 0.5)
@@ -127,7 +128,7 @@ budget  ✅ 6/6
 ✅ [data-probe-colour="text-secondary"] @1512 background-color = rgb(115, 115, 115)
 ✅ [data-probe-colour="text-alternate"] @1512 background-color = rgb(33, 33, 33)
 ✅ [data-probe-colour="border-primary"] @1512 background-color = rgba(255, 255, 255, 0.3)
-✅ [data-probe-colour="border-alternate"] @1512 background-color = rgb(33, 33, 33)
+✅ [data-probe-colour="border-alternate"] @1512 background-color = rgba(59, 59, 59, 0.3)
 ✅ [data-probe-colour="success"] @1512 background-color = rgb(2, 122, 72)
 ✅ [data-probe-colour="success-bg"] @1512 background-color = rgb(236, 253, 243)
 ✅ [data-probe-colour="error"] @1512 background-color = rgb(180, 35, 24)
@@ -185,8 +186,7 @@ budget  ✅ 6/6
 ✅ prefers-reduced-motion detected = true
 ✅ Lenis destroyed under reduced motion = native scroll
 ✅ no rAF loop outside the GSAP ticker, under reduced motion = 0 unsanctioned
-✅ ScrollTrigger count returns to baseline after route changes = 2
-⏳ work-card.hover — owed by phase 4
+✅ ScrollTrigger count returns to baseline after route changes = 25
 ⏳ accordion.open — owed by phase 5
 ⏳ accordion.close — owed by phase 5
 ✅ loader.enter totalDuration = 0.6s
@@ -259,6 +259,24 @@ budget  ✅ 6/6
 ✅ contact.open tween[6] target = div.ContactPanel_gif__T7RsE.contact__gif
 ✅ contact.open tween[6] props = y, parent
 ✅ contact.open tween[6] startTime (<+0.2) = 0.7s
+✅ work-card.hover totalDuration = 0.25s
+✅ work-card.hover tween count = 1
+✅ work-card.hover tween[0] duration = 0.25s
+✅ work-card.hover tween[0] ease = power1.inOut
+✅ work-card.hover tween[0] props = yPercent, parent, immediateRender, startAt
+✅ work-card.hover tween[0] startTime = 0s
+✅ work-card.reveal totalDuration = 1.05s
+✅ work-card.reveal tween count = 3
+✅ work-card.reveal tween[0] duration = 0.75s
+✅ work-card.reveal tween[0] ease = power3.out
+✅ work-card.reveal tween[0] props = width, parent
+✅ work-card.reveal tween[0] startTime = 0s
+✅ work-card.reveal tween[1] duration = 0.5s
+✅ work-card.reveal tween[1] props = opacity, parent
+✅ work-card.reveal tween[1] startTime (>-0.2) = 0.55s
+✅ work-card.reveal tween[2] duration = 0.5s
+✅ work-card.reveal tween[2] props = opacity, parent
+✅ work-card.reveal tween[2] startTime (<) = 0.55s
 ✅ nav.is-mini threshold — off at 20px = no is-mini
 ✅ nav.is-mini threshold — on at 100px = is-mini
 ✅ nav.is-mini threshold — background = rgb(33, 33, 33)
@@ -287,7 +305,7 @@ budget  ✅ 6/6
 ✅ hero 3D — the blades never leave the barrel = reach 1.930 of 2, invariant
 ✅ hero 3D — the housing tips across the viewport = 0.258
 ✅ hero 3D — the housing tips top to bottom = 0.317
-✅ hero 3D — the iris actuates = 0.318 rad about the bore
+✅ hero 3D — the iris actuates = 0.317 rad about the bore
 ✅ hero 3D — the blades lead the housing = 1.23x
 ✅ hero 3D — the response stays subtle = max 0.159 rad
 ✅ hero 3D — loop suspends off-screen = running: false
@@ -319,6 +337,23 @@ budget  ✅ 6/6
 ✅ stack wall: marquee ease is 'none' = none
 ✅ stack wall: no marquee at 1512px — the wall is a static grid
 ✅ stack wall: no marquee under prefers-reduced-motion
+✅ works grid: twelve equal tracks = 12 × equal
+✅ works grid: 1.25rem column gap — theirs, not our old 1.5 = 20.563px
+✅ works grid: card mix is half ×8, wide ×3, full ×1 = {"full":1,"half":8,"wide":3}
+✅ works grid: reveal wipes to 0% and sets its one-shot guard = width 0px
+✅ works grid: 12 cards = 12
+✅ works grid: hovering one card dims all 11 others to exactly 0.3 = every other card at 0.3
+✅ works grid: the hovered card is not dimmed = 1
+✅ works grid: leaving restores every card to 1 = 1
+✅ works grid: overlay reaches 0.55 = 0.55
+✅ works grid: overlay in is 0.5s = 0.5s
+✅ works grid: overlay OUT is 0.4s — faster than in, §21.2's inverted asymmetry = 0.4s
+✅ works grid: overlay returns to 0 = 0
+✅ works grid ≤767: the sheet is permanent content, not a hover state = position static, opacity 1
+✅ works grid ≤767: the sheet is the #EFEFEF panel = rgb(239, 239, 239)
+✅ works grid ≤767: one column, every card the full measure = 350px
+✅ works grid ≤767: no parallax — every cell untransformed
+✅ works grid ≤767: no reel playback = no reels yet
 
 > Pending entries are timelines the spec names but no phase has built yet. The phase that builds one flips `pending: false` in motion.config.ts.
 > Behaviour checks drive the real interface — scroll, hover, click, Escape — rather than reading a registered timeline. They are the only instrument that catches an unwired handler, a matchMedia gate that leaks below 992, or a reverse running at the wrong timeScale. See behaviour.config.ts.
@@ -406,7 +441,6 @@ no CTA, no culture, no blog row. The footer sits under a heading with nothing be
 is phases 4 and 5, and it is why the footer shot is still taken at 'bottom' rather than at
 tonik's 11,984.
 
-⏳ works-a — owed by phase 4
 ⏳ services — owed by phase 5
 ⏳ cta — owed by phase 5
 ⏳ cs-hero — owed by phase 6
@@ -415,6 +449,8 @@ tonik's 11,984.
 ✅ hero @1512 = captured, reference paired
 ✅ stack-wall @1512 = captured, reference paired
 ✅ showreel @1512 = captured, no reference
+✅ works-a @1512 = captured, reference paired
+✅ works-b @1512 = captured, no reference
 ✅ footer @1512 = captured, reference paired
 ✅ contact-panel @1512 = captured, reference paired
 ✅ nav-menu @1512 = captured, no reference
@@ -422,6 +458,8 @@ tonik's 11,984.
 ✅ hero @390 = captured, reference paired
 ✅ stack-wall @390 = captured, reference paired
 ✅ showreel @390 = captured, no reference
+✅ works-a @390 = captured, reference paired
+✅ works-b @390 = captured, no reference
 ✅ footer @390 = captured, reference paired
 ✅ contact-panel @390 = captured, reference paired
 ✅ nav-menu @390 = captured, no reference
@@ -432,12 +470,12 @@ tonik's 11,984.
 ℹ️ matter-js absent from the eagerly-loaded bundle — vacuous: matter-js is not installed yet
 ✅ three absent from the eagerly-loaded bundle = absent
 ✅ plyr absent from the eagerly-loaded bundle = absent
-ℹ️ all built chunks, gzipped (not a per-route figure) = 491.1KB
-✅ JS on / (transferred) = 312.3KB / 320KB
-✅ home page total weight = 441.5KB / 1800KB
+ℹ️ all built chunks, gzipped (not a per-route figure) = 495.9KB
+✅ JS on / (transferred) = 317.2KB / 320KB
+✅ home page total weight = 455.5KB / 1800KB
 ✅ zero network font requests = both faces self-hosted
 ✅ CLS (local, unthrottled) = 0.0025
-ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 148ms
+ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 128ms
 
 > Poster and reel budgets become binding in phase 10, when assets exist.
 > Lighthouse scores are a phase 12 deliverable via mcp__chrome-devtools__lighthouse_audit; the figures here are local and unthrottled.

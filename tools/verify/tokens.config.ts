@@ -165,6 +165,10 @@ const COLOURS: Record<string, string> = {
   'grey-700': '#737373',
   'grey-600': '#e0e0e0',
   'white-30': '#ffffff4d',
+  /* The hairline on LIGHT surfaces. Added in phase 4, which built the first
+     inverted surface on the site — the work card's hover sheet. It is tonik's
+     most-used border by a distance: 71 uses to white-30's 13. See I-032. */
+  'grey-800-30': '#3b3b3b4d',
   'white-10': '#ffffff1a',
   'white-50': '#efefef80',
   'black-50': '#21212180',
@@ -178,7 +182,10 @@ const COLOURS: Record<string, string> = {
   'text-secondary': '#737373',
   'text-alternate': '#212121',
   'border-primary': '#ffffff4d',
-  'border-alternate': '#212121',
+  /* Was solid #212121 until phase 4. Theirs is --grey-800 at 30%, and the
+     difference is not subtle at 1px: solid black on #EFEFEF reads as a rule,
+     theirs reads as a hairline. Measured on their live DOM. See I-032. */
+  'border-alternate': '#3b3b3b4d',
   success: '#027a48',
   'success-bg': '#ecfdf3',
   error: '#b42318',
