@@ -6,6 +6,7 @@ import { checkHero3d } from './behaviour.hero';
 import { checkHomeUpper } from './behaviour.home';
 import { checkWorksGrid } from './behaviour.works';
 import { checkHomeLower } from './behaviour.services';
+import { checkCaseStudy } from './behaviour.case';
 
 /**
  * Behaviour checks — what a timeline's *shape* cannot tell you.
@@ -456,5 +457,6 @@ export async function checkBehaviour(browser: Browser, baseUrl: string): Promise
     ...(await checkHomeUpper(browser, baseUrl)),
     ...(await checkWorksGrid(browser, baseUrl)),
     ...(await checkHomeLower(browser, baseUrl)),
+    ...(await checkCaseStudy(browser, baseUrl)),
   ];
 }

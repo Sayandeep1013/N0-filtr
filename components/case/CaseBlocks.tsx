@@ -84,21 +84,3 @@ function BlockView({ block, index }: { block: Block; index: number }) {
       return <CodeBlock source={block.source} lang={block.lang} caption={block.caption} />;
   }
 }
-
-/**
- * Reports the spec's rhythm rule rather than enforcing it: the longest run of
- * consecutive prose blocks. Three or more breaks §2.
- *
- * Used by `tools/verify/behaviour.case.ts`, which is where a content rule
- * belongs — a check that runs over all twelve bodies at once and names the ones
- * that drift, instead of twelve authors each remembering.
- */
-export function longestProseRun(blocks: Block[]): number {
-  let run = 0;
-  let worst = 0;
-  for (const block of blocks) {
-    run = block.type === 'prose' ? run + 1 : 0;
-    if (run > worst) worst = run;
-  }
-  return worst;
-}

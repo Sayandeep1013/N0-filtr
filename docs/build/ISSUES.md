@@ -1461,3 +1461,50 @@ drawn by hand."*
 
 **To close:** either configure a key on the deploy, or record the agent working locally and use that
 as this work's case-study reel — T10.2 owes it one anyway.
+
+
+---
+
+## I-048 · The loader's exit sweep never ran, for five phases  🟢
+
+**Raised:** phase 06 · **Resolved:** phase 06
+
+The loader has three timelines. `enter` sweeps the panel off the incoming page,
+`exit` sweeps it on over the outgoing one before the router moves, and `mark`
+draws the aperture on first paint. **`exit` had never run.**
+
+`components/chrome/Loader.tsx` delegates link clicks at the document, and it did
+so in the **bubble** phase. React attaches its own listeners to the root
+container, which is a descendant of `document`, so on the way up React sees a
+click first — and `next/link`'s handler calls `preventDefault()` and routes
+immediately. By the time the loader's listener ran, `event.defaultPrevented` was
+already `true`, and its first guard sent it home. Every internal navigation on
+the site was a plain `<Link>` navigation with no sweep.
+
+**Nothing looked wrong**, which is why it survived phases 1 through 5: `enter`
+fires on every pathname change, so a loader still swept *on arrival*. What was
+missing was the half that happens before you leave — and `verify:motion`
+asserts the shape of `loader.exit`, not that anything ever plays it.
+
+**Found by** T6.7. The accent tint is set on the panel in that same handler, and
+`behaviour.case.ts` asserts the panel's background changes when a case-study
+link is clicked. It came back unset, and the tint turned out to be the first
+thing that had ever depended on the handler running at all.
+
+**Resolved** by listening in the **capture** phase and adding
+`event.stopPropagation()` for anchors the loader is taking over. Capture runs
+before React, so `preventDefault()` now actually suppresses the navigation —
+`preventDefault` alone never could, because it stops the browser's navigation and
+not React's.
+
+`<WorkCard>`'s link gained `data-no-loader` in the same change, deliberately: it
+opens the lightbox, and sweeping a full-page loader over a drawer that slides in
+over the same page announces a navigation that is not happening.
+
+**Checked in production**, not just dev: navbar link, wordmark, work card into
+the drawer, case-study mini-nav, browser back, and an external link left alone.
+
+**The durable lesson:** *a check that asserts a timeline's shape does not assert
+that anything plays it.* Four of this harness's sections read registered
+timelines; only `behaviour.*` drives the interface. This is the second time that
+distinction has paid for itself.

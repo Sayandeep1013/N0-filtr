@@ -1,10 +1,10 @@
 # Verification report
-Run: 2026-08-26T17:32:34.547Z · Phase 06 · commit `ad9a6ff` · branch `phase/06-case-study`
+Run: 2026-08-26T18:07:56.162Z · Phase 06 · commit `755ec50` · branch `main`
 
 ## Summary
 ```
 tokens  ✅ 138/138
-motion  ✅ 249/249
+motion  ✅ 269/269
 visual  ⚠️ reviewed by agent — see judgement
 budget  ✅ 6/6
 ```
@@ -317,7 +317,7 @@ budget  ✅ 6/6
 ✅ hero 3D — the blades never leave the barrel = reach 1.930 of 2, invariant
 ✅ hero 3D — the housing tips across the viewport = 0.258
 ✅ hero 3D — the housing tips top to bottom = 0.317
-✅ hero 3D — the iris actuates = 0.317 rad about the bore
+✅ hero 3D — the iris actuates = 0.318 rad about the bore
 ✅ hero 3D — the blades lead the housing = 1.23x
 ✅ hero 3D — the response stays subtle = max 0.159 rad
 ✅ hero 3D — loop suspends off-screen = running: false
@@ -401,6 +401,26 @@ budget  ✅ 6/6
 ✅ blog row: three cards in three tracks
 ✅ blog row: all three cards share a top and a bottom edge
 ✅ blog row: #3b3b3b card ground = rgb(59, 59, 59)
+✅ case rhythm: no work runs more than 2 prose blocks without a visual (§2)
+✅ case accent: --accent is #125C91 = #125C91
+✅ case accent: --accent-ink is #2595E4 (I-046) = #2595E4
+✅ case accent: --accent-ground is #2595E4 = #2595E4
+✅ case accent: 1 [data-accent-fill] target(s) for the .7s crossfade
+✅ case accent: removed from <html> on leaving the page
+✅ case cursor: scales in over media [a-10] = scale 1.00
+✅ case cursor: drifts, does not follow [a-14] — moved 30×42px while the pointer moved 458px
+✅ case cursor: is tracking at all = 73px combined
+✅ case cursor: off at 390 (none)
+✅ lightbox: the URL is really /works/tessera = /works/tessera
+✅ lightbox: opens over the grid [§16] = display flex
+✅ lightbox: the panel has slid home (x 120% → 0%) = right 1512
+✅ lightbox: the page beneath is scroll-locked
+✅ lightbox: Escape closes it and unwinds the history entry
+✅ lightbox: the scroll lock is released
+✅ lightbox: a click outside the panel closes it
+✅ lightbox: a hard load falls through to the full page ("Tessera")
+✅ loader tint: the link declares data-accent (#973911)
+✅ loader tint: the panel tints before navigating [T6.7] (rgb(136, 51, 15))
 
 > Pending entries are timelines the spec names but no phase has built yet. The phase that builds one flips `pending: false` in motion.config.ts.
 > Behaviour checks drive the real interface — scroll, hover, click, Escape — rather than reading a registered timeline. They are the only instrument that catches an unwired handler, a matchMedia gate that leaks below 992, or a reverse running at the wrong timeScale. See behaviour.config.ts.
@@ -542,12 +562,12 @@ lists are authored to fill the accordion and T10.8 writes the real ones. The blo
 ℹ️ matter-js absent from the eagerly-loaded bundle — vacuous: matter-js is not installed yet
 ✅ three absent from the eagerly-loaded bundle = absent
 ✅ plyr absent from the eagerly-loaded bundle = absent
-ℹ️ all built chunks, gzipped (not a per-route figure) = 524.7KB
+ℹ️ all built chunks, gzipped (not a per-route figure) = 524.8KB
 ✅ JS on / (transferred) = 327.5KB / 360KB
-✅ home page total weight = 694.3KB / 1800KB
+✅ home page total weight = 694.4KB / 1800KB
 ✅ zero network font requests = both faces self-hosted
 ✅ CLS (local, unthrottled) = 0.0025
-ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 180ms
+ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 132ms
 
 > Poster and reel budgets become binding in phase 10, when assets exist.
 > Lighthouse scores are a phase 12 deliverable via mcp__chrome-devtools__lighthouse_audit; the figures here are local and unthrottled.
