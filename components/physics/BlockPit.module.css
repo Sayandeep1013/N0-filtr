@@ -1,0 +1,164 @@
+/* The block pit. docs/spec/70-physics-footer.md §8.
+
+   The LAST thing on the page, below the footer — the site's punchline rather
+   than a section. Nothing follows it. */
+
+.pit {
+  position: relative;
+  height: 60vh;
+  min-height: 26rem;
+  max-height: 42rem;
+  background-color: var(--bg-primary);
+  border-top: var(--hairline);
+  overflow: hidden;
+  /* §8: so trackpad momentum inside the pit does not bounce the page. */
+  overscroll-behavior: none;
+  cursor: grab;
+}
+
+.grabbing {
+  cursor: grabbing;
+}
+
+/* ── the head ───────────────────────────────────────────────────────────── */
+
+.head {
+  position: absolute;
+  z-index: 2;
+  top: 1.5rem;
+  left: var(--gutter);
+  right: var(--gutter);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.label {
+  margin: 0;
+  color: var(--text-secondary);
+  font-family: var(--family-mono);
+  text-transform: uppercase;
+}
+
+.reset {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-secondary);
+  font-family: var(--family-mono);
+  text-transform: uppercase;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: color var(--dur-fast) var(--ease-in-out);
+}
+
+.reset:hover {
+  color: var(--text-primary);
+}
+
+/* ── the stage ──────────────────────────────────────────────────────────── */
+
+.stage {
+  position: absolute;
+  inset: 0;
+}
+
+/* ── the tiles ──────────────────────────────────────────────────────────────
+   Positioned at the origin and moved entirely by transform — §6's DOM sync
+   writes one `translate3d` + `rotate` per body per frame, and a tile that also
+   had `top`/`left` to resolve would cost a layout pass to do it.
+
+   `will-change` and `contain` are §6's, and they are what make forty-four of
+   these cheap: the browser promotes each tile once and never has to ask whether
+   moving one affects anything else. */
+.tile {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+  padding: 0 0.75rem;
+  border: 1px solid var(--white-30);
+  /* §2: 22% of the tile, matching Matter's chamfer radius exactly — so the
+     rounded corner you see is the one the collision uses. */
+  border-radius: 22%;
+  will-change: transform;
+  contain: layout paint;
+  user-select: none;
+}
+
+.square,
+.pill {
+  border-radius: 22%;
+}
+
+/* A disc is a disc, not a very rounded square. */
+.disc {
+  border-radius: 50%;
+}
+
+.tileLabel {
+  font-family: var(--family-mono);
+  font-size: var(--t-label-size);
+  line-height: var(--t-label-lh);
+  letter-spacing: var(--t-label-track);
+  text-transform: uppercase;
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* ── tones ────────────────────────────────────────────────────────────────
+   §2's mix. The accent fill is inline — it comes from a work — and the text on
+   it flips to the alternate, which is the same inversion pair the rest of the
+   site uses rather than a colour chosen here. */
+
+.grey800 {
+  background-color: var(--grey-800);
+  color: var(--text-primary);
+}
+
+.grey900 {
+  background-color: var(--grey-900);
+  color: var(--text-primary);
+}
+
+.white {
+  background-color: var(--bg-alternate);
+  border-color: var(--bg-alternate);
+  color: var(--text-alternate);
+}
+
+.accent {
+  border-color: transparent;
+  color: var(--text-alternate);
+}
+
+/* ── ≤767 ─────────────────────────────────────────────────────────────────
+   §9: 24 tiles, smaller sizes, 45vh. The count and the sizes are decided in
+   `pitLayout.ts`; the height is here. */
+@media (max-width: 767px) {
+  .pit {
+    height: 45vh;
+    min-height: 20rem;
+  }
+
+  .head {
+    top: 1rem;
+  }
+}
+
+/* ── reduced motion ───────────────────────────────────────────────────────
+   §9: "no simulation at all. Tiles render once in a pre-computed settled
+   arrangement and never move." The component never imports Matter on this path;
+   this removes the affordances that would imply otherwise. */
+@media (prefers-reduced-motion: reduce) {
+  .pit {
+    cursor: default;
+  }
+
+  .tile {
+    will-change: auto;
+  }
+}

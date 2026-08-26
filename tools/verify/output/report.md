@@ -1,12 +1,12 @@
 # Verification report
-Run: 2026-08-26T21:30:50.732Z · Phase 06 · commit `b33473d` · branch `main`
+Run: 2026-08-26T21:49:46.751Z · Phase 06 · commit `ac3e76b` · branch `main`
 
 ## Summary
 ```
 tokens  ✅ 138/138
 motion  ✅ 266/266
 visual  ⚠️ reviewed by agent — see judgement
-budget  ✅ 6/6
+budget  ✅ 7/7
 ```
 
 ## tokens
@@ -555,15 +555,15 @@ lists are authored to fill the accordion and T10.8 writes the real ones. The blo
 
 ## budget
 
-ℹ️ matter-js absent from the eagerly-loaded bundle — vacuous: matter-js is not installed yet
+✅ matter-js absent from the eagerly-loaded bundle = absent
 ✅ three absent from the eagerly-loaded bundle = absent
 ✅ plyr absent from the eagerly-loaded bundle = absent
-ℹ️ all built chunks, gzipped (not a per-route figure) = 546.6KB
-✅ JS on / (transferred) = 348.1KB / 360KB
-✅ home page total weight = 544.0KB / 1800KB
+ℹ️ all built chunks, gzipped (not a per-route figure) = 574.4KB
+✅ JS on / (transferred) = 350.7KB / 360KB
+✅ home page total weight = 550.3KB / 1800KB
 ✅ zero network font requests = both faces self-hosted
 ✅ CLS (local, unthrottled) = 0.0025
-ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 136ms
+ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 144ms
 
 > Poster and reel budgets become binding in phase 10, when assets exist.
 > Lighthouse scores are a phase 12 deliverable via mcp__chrome-devtools__lighthouse_audit; the figures here are local and unthrottled.

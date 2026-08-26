@@ -11,6 +11,7 @@ import { MotionProvider } from '@/lib/motion/MotionProvider';
 import { Loader } from '@/components/chrome/Loader';
 import { Navbar } from '@/components/chrome/Navbar';
 import { Footer } from '@/components/chrome/Footer';
+import { BlockPit } from '@/components/physics/BlockPit';
 import { ScrollReset } from '@/components/chrome/ScrollReset';
 import { CustomCursor } from '@/components/case/CustomCursor';
 import { ContactPanel } from '@/components/chrome/ContactPanel';
@@ -91,6 +92,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               and saves five templates from each mounting their own. D-046. */}
           <CustomCursor />
           <Footer />
+          {/* The last thing on the page — `70-physics-footer.md` §8 calls it the
+              site's punchline rather than a section, and nothing follows it.
+              Below the footer, on every route, because the stack it is made of
+              is a claim about the studio rather than about a page. */}
+          <BlockPit />
           <ContactPanel />
         </MotionProvider>
       </body>
