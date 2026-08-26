@@ -38,3 +38,22 @@
     grid-column: 1 / -1;
   }
 }
+
+/* The grid sits below the header with a rest between them. Their
+   `home-projects_title-part` ends at 1525 and the first grid begins there, so
+   the separation is the title block's own height plus this. */
+.grid {
+  margin-top: 5rem;
+}
+
+.more {
+  margin-top: 6rem;
+  display: flex;
+  justify-content: center;
+}
+
+@media (max-width: 767px) {
+  .more {
+    margin-top: 4rem;
+  }
+}

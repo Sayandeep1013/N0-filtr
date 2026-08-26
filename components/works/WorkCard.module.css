@@ -1,0 +1,196 @@
+/* One works-grid card. 20-components-and-motion.md §5.
+
+   The anatomy §5 gives, and this file follows exactly:
+
+     .card                       position: relative
+       .media                    16:10, overflow hidden
+         .still  /  .video       poster, then the muted loop over it
+         .overlay                §21.2's fade-away layer, opacity 0
+         .wipe                   absolute, --black, width 100% until revealed
+         .badge                  CASE STUDY chip, opacity 0
+       .sheet                    the inverted hover panel, opacity 0
+       .infoClip > .info         mono title (left) + summary (right)
+*/
+
+.card {
+  position: relative;
+  /* GSAP owns this on hover, dimming every OTHER card to .3. Declared so the
+     value exists before the first tween writes it. */
+  opacity: 1;
+}
+
+.link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ── the media ────────────────────────────────────────────────────────────── */
+
+.media {
+  position: relative;
+  /* A stacking context, and the reason is the badge. The badge is `z-index: 5`
+     inside the media; the sheet is `z-index: 3` and a SIBLING of it. With the
+     media at `z-index: auto` those two numbers compete directly, so the white
+     CASE STUDY chip painted on top of the white hover sheet and read as its
+     first row. Giving the media a z-index of its own contains the badge, and
+     the sheet then covers the whole thing. */
+  z-index: 1;
+  /* §5. Not 16:9 — the cards are shallower than video, which is what lets two
+     of them sit beside a column of air without the row becoming a band. */
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background-color: var(--bg-tertiary);
+}
+
+.still,
+.video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.video {
+  object-fit: cover;
+  /* §5: "muted loop reel, opacity 0 at rest". The still fades out over it
+     rather than the reel fading in — one property, one layer. */
+  opacity: 1;
+  display: block;
+}
+
+.still {
+  /* Above the reel, and taken to 0 on hover so the reel shows through. */
+  z-index: 1;
+}
+
+/* §21.2 [ix2 a-29/a-30]. Its own layer and its own asymmetric timing — in over
+   500ms, out over 400ms, the inverse of the site's usual rule. */
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  opacity: 0;
+  background-color: var(--black);
+  pointer-events: none;
+}
+
+/* The reveal. Full width at rest, wiped to 0% as the card enters. It is a
+   width tween rather than a transform because it has to uncover from one edge:
+   a scaled or translated panel leaves the far edge behind. */
+.wipe {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  width: 100%;
+  background-color: var(--bg-primary);
+  pointer-events: none;
+}
+
+.badge {
+  position: absolute;
+  z-index: 5;
+  top: 1rem;
+  left: 1rem;
+  opacity: 0;
+  padding: 0.375rem 0.625rem;
+  background-color: var(--bg-alternate);
+  color: var(--text-alternate);
+}
+
+/* ── the hover sheet ──────────────────────────────────────────────────────── */
+
+.sheet {
+  /* ≥768: absolutely over the media's box. The aspect-ratio is repeated here
+     rather than inherited because the sheet is a SIBLING of the media, not a
+     child — §5's anatomy, and what lets ≤767 drop it into the flow. */
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  aspect-ratio: 16 / 10;
+  z-index: 3;
+  opacity: 0;
+  background-color: var(--bg-alternate);
+  color: var(--text-alternate);
+  padding: 1.5rem;
+  overflow: hidden;
+}
+
+.sheetTable {
+  height: 100%;
+}
+
+/* ── the caption ──────────────────────────────────────────────────────────── */
+
+.infoClip {
+  overflow: hidden;
+  margin-top: 1rem;
+}
+
+.info {
+  opacity: 0;
+  display: grid;
+  /* 4fr 8fr: the mono name is a label and the summary is the sentence. This is
+     the one place §8's written ratio is right — it is a caption, not a spec
+     table, and the key here really is narrow. */
+  grid-template-columns: 4fr 8fr;
+  gap: var(--grid-gap-tight);
+  align-items: start;
+}
+
+.client {
+  color: var(--text-primary);
+}
+
+.summary {
+  color: var(--text-secondary);
+}
+
+/* ── ≤767: the sheet stops being a hover state ────────────────────────────────
+   §5, and the responsive behaviour most likely to be got wrong: the sheet is
+   NOT hidden on mobile, it becomes permanent content. Single column: media,
+   then the light panel, then the caption. No hover, no dimming, no video —
+   the JS never attaches below 992, so this is the whole of it. */
+@media (max-width: 767px) {
+  .sheet {
+    position: static;
+    aspect-ratio: auto;
+    opacity: 1;
+    padding: 1.25rem;
+  }
+
+  .video {
+    display: none;
+  }
+
+  /* The caption rise has nothing to reveal here, so the caption simply is. */
+  .info {
+    opacity: 1;
+    grid-template-columns: 1fr;
+    gap: 0.375rem;
+  }
+
+  .infoClip {
+    margin-top: 0.875rem;
+  }
+}
+
+/* Between 768 and 991 the sheet is over the media again but nothing can hover:
+   §5's layout breakpoint is 767 and CLAUDE.md gates every hover at 992, so this
+   band gets the desktop layout with no way to open the sheet. The panel is
+   given a resting opacity so the information is not simply lost. */
+@media (min-width: 768px) and (max-width: 991px) {
+  .sheet {
+    position: static;
+    aspect-ratio: auto;
+    opacity: 1;
+  }
+}

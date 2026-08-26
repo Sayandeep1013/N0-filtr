@@ -1,0 +1,19 @@
+/* The generated cover. See the component for why it exists.
+
+   It fills its media box entirely; the card owns the aspect ratio and the
+   overflow, exactly as it will when a real poster replaces this. */
+
+.cover {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.numeral {
+  font-family: var(--family-mono);
+  /* Not a token: this is inside an SVG viewBox, so the unit is user-space, not
+     rem, and it must not scale with the root or it would resize twice. 9 of a
+     100-high box is about the same optical weight as --t-label on the card. */
+  font-size: 9px;
+  letter-spacing: -0.1px;
+}

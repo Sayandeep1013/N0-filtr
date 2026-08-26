@@ -245,6 +245,43 @@ export const BEHAVIOUR = {
     mobile: { w: 390, h: 844 },
   },
 
+  /**
+   * The works grid. `20-components-and-motion.md` §5, §21.1, §21.2.
+   *
+   * Phase 4's acceptance criteria are almost entirely things a timeline's shape
+   * cannot express, which is why so much of this phase's verification lives
+   * here rather than in `motion.config.ts`:
+   *
+   *   · "hovering one card dims all eleven others to exactly 0.3" is a fact
+   *     about eleven elements
+   *   · §21.2's overlay is asymmetric **in the opposite direction to the rest of
+   *     the site** — 500ms in, 400ms out — and 500/1.2 is 417, close enough to
+   *     400 to look right if it were ever folded into the reversing timeline
+   *   · at ≤767 the sheet does not hide, it becomes content
+   */
+  worksGrid: {
+    id: 'works grid',
+    phase: 4,
+    page: '/',
+    cardCount: 12,
+    /** Which card the checks hover. Index 1 is a `half` in a two-card row. */
+    hoverIndex: 1,
+    dimmed: 0.3,
+    tolerance: 0.02,
+    /** §21.2 [ix2 a-29/a-30]. */
+    overlayOpacity: 0.55,
+    overlayIn: 0.5,
+    overlayOut: 0.4,
+    /** 1.25rem at the 16.45 root — I-032's corrected gap. */
+    columnGapPx: 20.5625,
+    /** `30-page-specs.md` §2: half ×8, wide ×3, full ×1. */
+    mix: { half: 8, wide: 3, full: 1 },
+    /** §5: the mobile panel is `#EFEFEF`. */
+    sheetBackground: 'rgb(239, 239, 239)',
+    desktop: { w: 1512, h: 900 },
+    mobile: { w: 390, h: 844 },
+  },
+
   loaderReduced: {
     id: 'loader under reduced motion',
     phase: 1,

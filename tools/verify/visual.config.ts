@@ -78,7 +78,15 @@ export const SHOTS: Shot[] = [
     prepare: 'showreel-open',
     phase: 3,
   },
-  { name: 'works-a', ours: '/', reference: 's03-projects.png', scroll: 1900, phase: 4, pending: true },
+  /* Their s03 is taken at 1900 in a 12,884px document. Ours is a different
+     height and will be until phase 5, so `ourScroll` is resolved from the grid's
+     own position at capture time rather than from a number that means nothing
+     on our side. */
+  { name: 'works-a', ours: '/', reference: 's03-projects.png', scroll: 1900, ourScroll: 2000, phase: 4 },
+  /* A second look further down, where the parallax has had room to separate the
+     rows. The first shot cannot show drift — at the top of the section every
+     cell is still near its untransformed position. */
+  { name: 'works-b', ours: '/', scroll: 4200, ourScroll: 4200, phase: 4 },
   { name: 'services', ours: '/', reference: 's07-services-open.png', scroll: 8250, phase: 5, pending: true },
   { name: 'cta', ours: '/', reference: 's08-cta-culture.png', scroll: 9320, phase: 5, pending: true },
   {

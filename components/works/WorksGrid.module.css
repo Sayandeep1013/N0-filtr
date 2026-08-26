@@ -1,0 +1,46 @@
+/* The works grid. 20-components-and-motion.md §5.
+
+   A real twelve-column grid, which is what tonik's is — read off their live
+   DOM as `repeat(12, 90.8125px)` with a `20.5625px` gap at 1512. Both figures
+   fall out of our tokens: 80rem of container, eleven 1.25rem gaps, twelve
+   equal tracks. See I-032 and I-036.
+
+   `grid-auto-rows: auto` and explicit `grid-row` on every cell: rows size to
+   their tallest card, and the placement map decides which cards share one. */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--grid-gap);
+  /* Rows are further apart than columns. Theirs are too, and it is what stops
+     a two-card row reading as a band: the horizontal gap is a seam and the
+     vertical one is a rest. */
+  row-gap: 6rem;
+}
+
+.cell {
+  grid-column: var(--cell-column, auto);
+  grid-row: var(--cell-row, auto);
+  /* The parallax writes `transform` here. `will-change` is deliberately absent:
+     twelve promoted layers cost more than the composites they save, and the
+     tween is scrubbed rather than continuous. */
+}
+
+/* ── ≤991: one column, no parallax, no hover ───────────────────────────────
+   The placement map stops applying. Every card takes the full measure in
+   content order, which is the order the map never changed. */
+@media (max-width: 991px) {
+  .cell {
+    grid-column: 1 / -1 !important;
+    grid-row: auto !important;
+    /* The parallax never runs below 992, but a card that was mid-tween when
+       the viewport crossed the breakpoint would keep its transform. matchMedia
+       reverts it; this is the belt to that braces. */
+    transform: none !important;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    row-gap: 4rem;
+  }
+}

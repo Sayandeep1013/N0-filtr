@@ -180,15 +180,54 @@ export const TIMELINE_ASSERTIONS: TimelineAssertion[] = [
       { target: '.contact__gif', duration: 0.5, props: ['y'], position: '<+0.2', startTime: 0.7 },
     ],
   },
+  /**
+   * §5's [src] builds this with two children — the caption rise and the
+   * sibling-dim, on one paused timeline. **Ours has one**, and the missing
+   * tween is not missing.
+   *
+   * §21.1 is explicit that the dim is one shared primitive across three
+   * components and not three implementations, and phase 4 is where that
+   * instruction pays: twelve cards each owning a tween over the other eleven
+   * means sliding the pointer between two cards has one timeline reversing
+   * every sibling to 1 while the next drives every sibling to .3, on the same
+   * ten elements, for 400ms. The dim lives once, on the grid, in
+   * `useSiblingDim`, and the behaviour check drives it there — that is the
+   * assertion that actually matches phase 4's acceptance criterion, because
+   * "dims all eleven others to exactly 0.3" is a fact about eleven elements
+   * and not about a tween's duration. See I-039.
+   *
+   * `yPercent`, not §5's `y: '-110%'`: identical in effect — GSAP resolves the
+   * percentage against the element's own height either way — and the name says
+   * which it is.
+   */
   {
     id: 'work-card.hover',
     phase: 4,
-    pending: true,
+    pending: false,
+    totalDuration: 0.25,
+    tweenCount: 1,
+    tweens: [{ duration: 0.25, ease: 'power1.inOut', props: ['yPercent'], startTime: 0 }],
+  },
+  /**
+   * The reveal. §5, one-shot and guarded.
+   *
+   * The `'>-0.2'` and `'<'` positions are why this is asserted by resolved
+   * `startTime` rather than by the strings: the wipe runs 0 → 0.75, the badge
+   * starts 0.2 before the wipe ends, and the info starts with the badge. So
+   * 0.55 and 0.55, and the total is 1.05 rather than the 1.75 that three
+   * sequential tweens would give.
+   */
+  {
+    id: 'work-card.reveal',
+    phase: 4,
+    pending: false,
+    totalDuration: 1.05,
+    tweenCount: 3,
     tweens: [
-      { duration: 0.25, ease: 'power1.inOut', props: ['y'] },
-      { duration: 0.4, ease: 'power1.inOut', props: ['opacity'] },
+      { duration: 0.75, ease: 'power3.out', props: ['width'], startTime: 0 },
+      { duration: 0.5, props: ['opacity'], position: '>-0.2', startTime: 0.55 },
+      { duration: 0.5, props: ['opacity'], position: '<', startTime: 0.55 },
     ],
-    reverseTimeScale: 1.2,
   },
   {
     id: 'accordion.open',
