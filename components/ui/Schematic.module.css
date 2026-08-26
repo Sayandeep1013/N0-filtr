@@ -1,4 +1,4 @@
-/* The animated schematic. See the component for why it exists.
+/* Three shapes, turning. See the component for why it exists.
 
    It lives in the empty left column of a section header — the 4/12 track that
    the works and culture grids leave open. That column is where the page felt
@@ -9,7 +9,9 @@
   color: var(--text-primary);
   /* Well under the copy beside it. It is a texture, not an illustration: at
      full strength it would read as a diagram the visitor is meant to parse. */
-  opacity: 0.28;
+  /* Three hairlines rather than thirty, so it can carry more presence without
+     becoming noise. The instrument version had to hide at 0.28. */
+  opacity: 0.4;
   width: 100%;
   max-width: 15rem;
 }
@@ -33,9 +35,9 @@
   }
 }
 
-/* Under reduced motion it draws nothing and turns nothing, so it must not be
-   left sitting at a dash-offset of its own length — which would be invisible.
-   The figure simply is. */
+/* Under reduced motion nothing draws and nothing turns, so the shapes must not
+   be left sitting at a dash-offset of their own length — which would be three
+   invisible shapes. They are simply there. */
 @media (prefers-reduced-motion: reduce) {
   .schematic [data-draw] {
     stroke-dasharray: none !important;

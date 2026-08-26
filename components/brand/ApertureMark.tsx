@@ -66,20 +66,26 @@ export function ApertureMark({ className }: { className?: string }) {
           footer, and neither of those should ever animate. Only the loader
           looks for them. See D-028. */}
       <circle cx={C} cy={C} r={R} strokeWidth={RING_STROKE} data-mark-ring />
-      {TICKS.map((angle) => (
-        <line
-          key={angle}
-          x1={C}
-          y1={C - INNER}
-          x2={C}
-          y2={C - INNER + TICK}
-          strokeWidth={TICK_STROKE}
-          data-mark-tick
-          /* Read right to left: the tick is first pivoted 8° about its own
-             anchor on the inner edge, then swung round to its 60° station. */
-          transform={`rotate(${angle} ${C} ${C}) rotate(${OFF_RADIAL} ${C} ${C - INNER})`}
-        />
-      ))}
+      {/* Wrapped so the loader can turn all six as one mechanism. The group
+          has no transform of its own at rest, so the mark is unchanged
+          everywhere else it is used — 16px in the navbar, 14vw in the footer.
+          See D-030. */}
+      <g data-mark-blades>
+        {TICKS.map((angle) => (
+          <line
+            key={angle}
+            x1={C}
+            y1={C - INNER}
+            x2={C}
+            y2={C - INNER + TICK}
+            strokeWidth={TICK_STROKE}
+            data-mark-tick
+            /* Read right to left: the tick is first pivoted 8° about its own
+               anchor on the inner edge, then swung round to its 60° station. */
+            transform={`rotate(${angle} ${C} ${C}) rotate(${OFF_RADIAL} ${C} ${C - INNER})`}
+          />
+        ))}
+      </g>
     </svg>
   );
 }

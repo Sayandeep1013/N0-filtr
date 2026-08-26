@@ -1,0 +1,109 @@
+/* The 404. 01-PHASES.md T12.1, brought forward — see the component.
+
+   The blur reveal is CSS rather than GSAP: this route has no other motion, and
+   pulling the animation runtime onto a page whose only job is to apologise
+   would be a strange way to spend the JS budget. `prefers-reduced-motion` is
+   handled by the global reset, which flattens every animation to 0.01ms. */
+
+.page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  /* Clear of the fixed navbar. */
+  padding-top: 8rem;
+  padding-bottom: 6rem;
+}
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.5rem;
+  max-width: 48rem;
+
+  /* T12.1: blur(24px) → 0, after a 0.5s hold. The hold matters — arriving
+     already-sharp wastes the effect, and arriving blurred for half a second
+     reads as the page focusing rather than as a filter being removed. */
+  animation: focus-in 0.75s var(--ease-in-out) 0.5s both;
+}
+
+@keyframes focus-in {
+  from {
+    filter: blur(24px);
+    opacity: 0;
+  }
+  to {
+    filter: blur(0);
+    opacity: 1;
+  }
+}
+
+.code {
+  color: var(--text-secondary);
+}
+
+.heading {
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.lead {
+  color: var(--text-secondary);
+  max-width: 34rem;
+}
+
+/* The honest part: which routes are pending, read from NAV_LINKS so this list
+   cannot go stale as sections ship. */
+.routes {
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+  width: 100%;
+  max-width: 26rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.route {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.625rem 0;
+  border-bottom: var(--hairline);
+}
+
+.routePath {
+  color: var(--text-primary);
+  font-family: var(--family-mono);
+}
+
+.routeState {
+  color: var(--text-secondary);
+}
+
+.home {
+  margin-top: 1rem;
+  color: var(--text-primary);
+  text-decoration: none;
+  border-bottom: 1px solid var(--border-primary);
+  padding-bottom: 0.25rem;
+  transition: border-color var(--dur-base) var(--ease-in-out);
+}
+
+@media (min-width: 992px) {
+  .home:hover {
+    border-bottom-color: var(--text-primary);
+  }
+}
+
+@media (max-width: 767px) {
+  .page {
+    padding-top: 6rem;
+  }
+
+  .inner {
+    gap: 1.25rem;
+  }
+}

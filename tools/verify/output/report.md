@@ -1,10 +1,10 @@
 # Verification report
-Run: 2026-08-26T13:45:42.303Z · Phase 06 · commit `4f3ab85` · branch `main`
+Run: 2026-08-26T14:22:26.188Z · Phase 06 · commit `b9f8759` · branch `main`
 
 ## Summary
 ```
 tokens  ✅ 138/138
-motion  ✅ 277/277
+motion  ✅ 257/257
 visual  ⚠️ reviewed by agent — see judgement
 budget  ✅ 6/6
 ```
@@ -211,54 +211,34 @@ budget  ✅ 6/6
 ✅ loader.enter tween[4] target = div.Loader_mark__6dBzw.loader__mark
 ✅ loader.enter tween[4] props = opacity, scale, parent, repeat, immediateRender
 ✅ loader.enter tween[4] startTime = 0.6s
-✅ loader.mark totalDuration = 1.055s
-✅ loader.mark tween count = 7
+✅ loader.mark totalDuration = 0.9s
+✅ loader.mark tween count = 5
 ✅ loader.mark tween[0] duration = 0s
 ✅ loader.mark tween[0] target = div.Loader_mark__6dBzw.loader__mark
 ✅ loader.mark tween[0] props = opacity, scale, parent, repeat, immediateRender
 ✅ loader.mark tween[0] startTime = 0s
-✅ loader.mark tween[1] duration = 1.05s
-✅ loader.mark tween[1] ease = back.out(1.4)
+✅ loader.mark tween[1] duration = 0.9s
+✅ loader.mark tween[1] ease = power3.out
 ✅ loader.mark tween[1] props = rotate, parent, immediateRender, startAt
 ✅ loader.mark tween[1] startTime = 0s
-✅ loader.mark tween[2] duration = 0.85s
+✅ loader.mark tween[2] duration = 0.75s
 ✅ loader.mark tween[2] ease = power2.inOut
-✅ loader.mark tween[2] props = strokeDashoffset, parent, immediateRender, startAt
+✅ loader.mark tween[2] props = attr, parent, immediateRender, startAt
 ✅ loader.mark tween[2] startTime = 0s
-✅ loader.mark tween[3] duration = 0.8s
-✅ loader.mark tween[3] ease = power3.out
-✅ loader.mark tween[3] props = rotate, opacity, parent, immediateRender, startAt
-✅ loader.mark tween[3] startTime = 0.255s
-✅ schematic.draw totalDuration = 0.926s
-✅ schematic.draw tween count = 7
-✅ schematic.draw tween[0] duration = 0.75s
+✅ schematic.draw totalDuration = 0.94s
+✅ schematic.draw tween count = 3
+✅ schematic.draw tween[0] duration = 0.7s
 ✅ schematic.draw tween[0] ease = power3.out
 ✅ schematic.draw tween[0] props = strokeDashoffset, parent, immediateRender, startAt
 ✅ schematic.draw tween[0] startTime = 0s
-✅ schematic.draw tween[1] duration = 0.75s
+✅ schematic.draw tween[1] duration = 0.7s
 ✅ schematic.draw tween[1] ease = power3.out
 ✅ schematic.draw tween[1] props = strokeDashoffset, parent, immediateRender, startAt
-✅ schematic.draw tween[1] startTime = 0s
-✅ schematic.draw tween[2] duration = 0.75s
+✅ schematic.draw tween[1] startTime = 0.12s
+✅ schematic.draw tween[2] duration = 0.7s
 ✅ schematic.draw tween[2] ease = power3.out
 ✅ schematic.draw tween[2] props = strokeDashoffset, parent, immediateRender, startAt
-✅ schematic.draw tween[2] startTime = 0s
-✅ schematic.draw tween[3] duration = 0.75s
-✅ schematic.draw tween[3] ease = power3.out
-✅ schematic.draw tween[3] props = strokeDashoffset, parent, immediateRender, startAt
-✅ schematic.draw tween[3] startTime = 0s
-✅ schematic.draw tween[4] duration = 0.75s
-✅ schematic.draw tween[4] ease = power3.out
-✅ schematic.draw tween[4] props = strokeDashoffset, parent, immediateRender, startAt
-✅ schematic.draw tween[4] startTime = 0s
-✅ schematic.draw tween[5] duration = 0.75s
-✅ schematic.draw tween[5] ease = power3.out
-✅ schematic.draw tween[5] props = strokeDashoffset, parent, immediateRender, startAt
-✅ schematic.draw tween[5] startTime = 0s
-✅ schematic.draw tween[6] duration = 0.776s
-✅ schematic.draw tween[6] ease = power3.out
-✅ schematic.draw tween[6] props = opacity, scale, parent, immediateRender, startAt
-✅ schematic.draw tween[6] startTime = 0.15s
+✅ schematic.draw tween[2] startTime = 0.24s
 ✅ loader.exit totalDuration = 0.5s
 ✅ loader.exit tween count = 3
 ✅ loader.exit tween[0] duration = 0s
@@ -570,12 +550,12 @@ lists are authored to fill the accordion and T10.8 writes the real ones. The blo
 ℹ️ matter-js absent from the eagerly-loaded bundle — vacuous: matter-js is not installed yet
 ✅ three absent from the eagerly-loaded bundle = absent
 ✅ plyr absent from the eagerly-loaded bundle = absent
-ℹ️ all built chunks, gzipped (not a per-route figure) = 502.0KB
-✅ JS on / (transferred) = 323.2KB / 360KB
-✅ home page total weight = 469.8KB / 1800KB
+ℹ️ all built chunks, gzipped (not a per-route figure) = 501.6KB
+✅ JS on / (transferred) = 323.1KB / 360KB
+✅ home page total weight = 469.1KB / 1800KB
 ✅ zero network font requests = both faces self-hosted
 ✅ CLS (local, unthrottled) = 0.0025
-ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 132ms
+ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 188ms
 
 > Poster and reel budgets become binding in phase 10, when assets exist.
 > Lighthouse scores are a phase 12 deliverable via mcp__chrome-devtools__lighthouse_audit; the figures here are local and unthrottled.

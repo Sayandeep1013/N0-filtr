@@ -37,47 +37,46 @@ import s from './Loader.module.css';
 const REDUCED_FADE = 0.2;
 
 /**
- * [new] — the aperture **operating**, on the first paint only.
+ * [new] — **the iris opens.** First paint only.
  *
- * Sayandeep asked for the logo and the loader animated, then for this to be
- * *"more fluid and animatory"* than its first version. The first version drew
- * the ring by dash-offset and then popped the six blades in by scale — two
- * discrete events with a seam between them, which is exactly what it looked
- * like.
+ * The mark drew itself here, twice: a dash-offset stroke, then a rotating
+ * version of the same. Sayandeep called both, and he was right — dash-drawing a
+ * hairline on a 5rem mark is scratchy, and "the logo appears" is a thing done
+ * *to* a logo rather than something the logo does.
  *
- * This one is a **shutter spinning up**, which is what the glyph already is.
- * `50-brand-and-3d.md` §1 draws the aperture with its blades **retracted**: a
- * ring with six short radial ticks at its inner edge. So:
+ * `50-brand-and-3d.md` §1 draws the aperture **with its blades retracted**: a
+ * ring, and six short blades sitting at its inner edge. The mark is a shutter
+ * that has already opened. So the loader is simply that mechanism arriving at
+ * the pose the mark is drawn in — the blades start closed over the bore and
+ * retract to their stations, turning as they go.
  *
- *   · the whole mark **rotates** through the sequence and eases to rest, so
- *     every part of it is moving at once and nothing waits its turn
- *   · the ring draws *while* it turns, so the stroke appears to be laid down by
- *     the rotation rather than by a separate animation
- *   · the blades **swing in rotationally** from a third of a turn back, on a
- *     stagger, overlapping the ring's tail — an iris opening, not six ticks
- *     appearing
- *   · a light **overshoot** at the end (`back.out`) so it settles like a
- *     mechanism rather than stopping like a keyframe
+ * Nothing is drawn. The ring is present from the first frame, because it is
+ * present in the mark; only the blades move, and they move the one way a real
+ * iris moves. A visitor who watches it once knows what the logo is.
+ *
+ * ── Two motions, both starting at zero ────────────────────────────────────
+ *
+ *   · the blade group **turns** −40° → 0 over 0.9s (`power3.out`)
+ *   · each blade **retracts**, its far end travelling from the bore's centre
+ *     out to its rest length, over 0.75s (`power2.inOut`)
+ *
+ * In unison, not staggered. Six blades opening one after another is a fan; six
+ * opening together is a shutter, and the turn is what keeps it from reading as
+ * a simple scale.
  *
  * It is a **separate timeline** from `loader.enter`, deliberately. `enter` is a
- * transcription of IX2 `a-23` and `verify:motion` asserts its exact shape —
- * five children, 0.6s, both tweens at `startTime 0`. Adding tweens to it would
- * mean either breaking that assertion or loosening it, and a loosened assertion
- * is how a transcription quietly stops being one. Ours runs first, then hands
- * over. See D-028.
+ * transcription of IX2 `a-23` and `verify:motion` asserts its exact shape.
+ * Adding to it would mean either breaking that assertion or loosening it, and a
+ * loosened assertion is how a transcription quietly stops being one. See D-030.
  *
- * First visit only. On a route change the mark has already introduced itself
- * and a second of it again is a toll, not a flourish.
+ * First visit only. On a route change the mark has already introduced itself.
  */
-/** The whole mark's rotation, and the spine everything else overlaps. */
-const MARK_SPIN = 1.05;
-/** How far back it starts, in degrees. Two blade stations plus a little. */
-const MARK_SPIN_FROM = -140;
-/** The ring's stroke, laid down while the mark turns. */
-const MARK_DRAW = 0.85;
-/** Each blade swinging into its station. */
-const MARK_TICKS = 0.5;
-const TICK_STAGGER = 0.06;
+/** The blade group's turn, and the spine of the sequence. */
+const IRIS_TURN = 0.9;
+/** How far back the blades start, in degrees. */
+const IRIS_TURN_FROM = -40;
+/** The retraction. Shorter than the turn, so the mechanism settles into it. */
+const IRIS_RETRACT = 0.75;
 
 export function Loader() {
   const panelRef = useRef<HTMLDivElement>(null);
@@ -148,66 +147,58 @@ export function Loader() {
          tick in user units because each one is already carrying two rotations
          from the mark's own markup — a percentage origin would resolve against
          the rotated box and send them wandering. */
-      const ring = mark.querySelector<SVGCircleElement>('[data-mark-ring]');
       const ticks = [...mark.querySelectorAll<SVGLineElement>('[data-mark-tick]')];
 
       const draw = gsap.timeline({ paused: true });
       const svg = mark.querySelector<SVGSVGElement>('svg');
-      if (!reducedMotion && ring && svg && ticks.length > 0) {
-        const circumference = ring.getTotalLength();
+      const blades = mark.querySelector<SVGGElement>('[data-mark-blades]');
+
+      if (!reducedMotion && svg && blades && ticks.length > 0) {
+        /* The bore's centre and each blade's rest length, read off the elements
+           rather than duplicated here. `ApertureMark` owns the geometry, and a
+           second copy of it in this file is a copy that can drift. */
+        const centre = svg.viewBox.baseVal.width / 2;
+        const rest = ticks.map((tick) => Number(tick.getAttribute('y2')));
 
         draw
           .set(mark, { opacity: 1, scale: 1 })
 
-          /* The spine. Everything else happens inside this turn, which is what
-             makes the sequence read as one mechanism rather than as a list.
-             `back.out` gives the settle a little overshoot — a shutter coming
-             to rest against its stop. */
+          /* The turn. `power3.out` so it arrives quickly and settles slowly,
+             which is what a sprung mechanism does. */
           .fromTo(
-            svg,
-            { rotate: MARK_SPIN_FROM, transformOrigin: '50% 50%' },
-            { rotate: 0, duration: MARK_SPIN, ease: 'back.out(1.4)' },
+            blades,
+            { rotate: IRIS_TURN_FROM, transformOrigin: '50% 50%', svgOrigin: `${centre} ${centre}` },
+            { rotate: 0, duration: IRIS_TURN, ease: 'power3.out' },
             0,
           )
 
-          /* The stroke is laid down BY the rotation: same start, and a shorter
-             duration so the ring completes while the mark is still turning. */
-          .fromTo(
-            ring,
-            { strokeDasharray: circumference, strokeDashoffset: circumference },
-            { strokeDashoffset: 0, duration: MARK_DRAW, ease: 'power2.inOut' },
-            0,
-          )
+          /* The retraction. Each blade's far end travels from the centre of the
+             bore out to its own rest length. `y2` is animated as an ATTRIBUTE
+             rather than as a transform: the blades already carry two rotations
+             from the mark's own markup, and a scale composed on top of those
+             would shear them off their radial line. Moving the endpoint keeps
+             every blade exactly on its own axis, which is the whole point of
+             the geometry §1 specifies.
 
-          /* The blades swing into their stations rather than growing into
-             them. Each tick already carries two rotations from the mark's own
-             markup, so this one is added about the SVG's centre and GSAP
-             composes it — which is why the origin is the box centre and not the
-             tick's own anchor.
-
-             They start a third of the way into the ring's draw. Waiting for the
-             ring to finish is what made the first version feel like two
-             animations. */
+             `power2.inOut` rather than an out-ease: an iris does not snap open,
+             it eases out of the closed position and eases into the open one. */
           .fromTo(
             ticks,
-            { rotate: -55, opacity: 0, transformOrigin: '50% 50%', svgOrigin: '32 32' },
+            { attr: { y2: centre } },
             {
-              rotate: 0,
-              opacity: 1,
-              duration: MARK_TICKS,
-              ease: 'power3.out',
-              stagger: TICK_STAGGER,
+              attr: { y2: (i: number) => rest[i] ?? centre },
+              duration: IRIS_RETRACT,
+              ease: 'power2.inOut',
             },
-            MARK_DRAW * 0.3,
+            0,
           )
 
-          /* Hand back everything we borrowed. This element is mounted once in
-             the root layout and never rebuilt, so a stroke left dashed stays
-             dashed for every route change afterwards — and a rotation left on
-             the svg would tilt the mark in the nav and the footer too. */
-          .set(ring, { clearProps: 'strokeDasharray,strokeDashoffset' })
-          .set(ticks, { clearProps: 'rotate,transformOrigin,svgOrigin' })
-          .set(svg, { clearProps: 'rotate,transformOrigin' });
+          /* Hand everything back. The loader is mounted once in the root layout
+             and never rebuilt, so a rotation left on the blade group would tilt
+             the same mark in the navbar and the footer, and a `y2` left short
+             would leave the logo's blades the wrong length for the session. */
+          .set(blades, { clearProps: 'rotate,transformOrigin,svgOrigin' })
+          .set(ticks, { clearProps: 'attr' });
       }
 
       /* ── exit ────────────────────────────────────────────────────────────

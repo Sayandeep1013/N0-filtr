@@ -126,87 +126,75 @@ export const TIMELINE_ASSERTIONS: TimelineAssertion[] = [
     ],
   },
   /**
-   * [new] — the aperture **operating**. Phase 5, rebuilt the same day.
+   * [new] — **the iris opens.** Phase 5, and the third version of this.
    *
-   * Not IX2 and not tonik: their loader shows a static logo. Its first version
-   * drew the ring and then popped the blades in by scale, which Sayandeep
-   * called correctly — two discrete events with a seam between them. This one
-   * is a shutter spinning up: the whole mark turns through the sequence on a
-   * `back.out` overshoot, the ring's stroke is laid down *while* it turns, and
-   * the six blades swing into their stations from a third of a turn back.
+   * Not IX2 and not tonik: their loader shows a static logo. The first two
+   * versions drew the mark — a dash-offset stroke, then a rotating one — and
+   * Sayandeep called both. Dash-drawing a hairline on a 5rem mark is scratchy,
+   * and "the logo appears" is something done *to* a logo rather than something
+   * the logo does.
    *
-   * Everything overlaps deliberately. All three motions start inside the first
-   * 0.26s, which is what makes it read as one mechanism rather than a list.
+   * `50-brand-and-3d.md` §1 draws the aperture **with its blades retracted**.
+   * So the loader is that mechanism arriving at the pose the mark is drawn in:
+   * the blades start closed over the bore and retract to their stations,
+   * turning as they go. Nothing is drawn — the ring is present from the first
+   * frame because it is present in the mark.
    *
-   * It is a **separate timeline from `loader.enter` on purpose.** `enter` is a
-   * transcription of IX2 `a-23` and this file asserts its exact shape; adding
-   * to it would mean either breaking that assertion or loosening it, and a
-   * loosened assertion is how a transcription quietly stops being one.
+   * Five children: the mark's reset, the turn, the retraction, and two
+   * `clearProps` sets. Those last two are not tidiness. The loader is mounted
+   * once in the root layout and never rebuilt, so a rotation left on the blade
+   * group would tilt the same mark in the navbar and the footer, and a `y2`
+   * left short would leave the logo's blades the wrong length for the session.
    *
-   * Seven children: the mark's reset, the three motions, and three `clearProps`
-   * sets. Those last three are not tidiness — the loader is mounted once in the
-   * root layout and never rebuilt, so a stroke left dashed stays dashed for
-   * every route change afterwards, and a rotation left on the `<svg>` would
-   * tilt the same mark in the navbar and the footer.
-   *
-   * **The ticks' 0.8s is 0.5 with the stagger folded in** — GSAP reports a
-   * staggered tween's span, not its per-element duration. 0.5 + 5 × 0.06. Same
-   * arithmetic as `contact.open`'s tween[5]. See D-028.
+   * **The retraction is an `attr` tween, not a transform**, and that is the one
+   * piece of craft in it: the blades already carry two rotations from the
+   * mark's own markup, and a scale composed on top of those would shear them
+   * off their radial line. Moving the endpoint keeps every blade exactly on its
+   * own axis, which is what §1's geometry is. See D-030.
    */
   {
     id: 'loader.mark',
     phase: 5,
     pending: false,
-    totalDuration: 1.055,
-    tweenCount: 7,
+    totalDuration: 0.9,
+    tweenCount: 5,
     tweens: [
       { target: '.loader__mark', duration: 0, props: ['opacity', 'scale'], startTime: 0 },
-      /* `rotate` only. `transformOrigin` lives in the `fromTo`'s FROM vars,
-         and this checker reads the TO vars — which is the right half to read,
-         because the from vars are a starting pose rather than an animation. */
-      { duration: 1.05, ease: 'back.out(1.4)', props: ['rotate'], startTime: 0 },
-      { duration: 0.85, ease: 'power2.inOut', props: ['strokeDashoffset'], startTime: 0 },
-      { duration: 0.8, ease: 'power3.out', props: ['rotate', 'opacity'], startTime: 0.255 },
+      { duration: 0.9, ease: 'power3.out', props: ['rotate'], startTime: 0 },
+      { duration: 0.75, ease: 'power2.inOut', props: ['attr'], startTime: 0 },
     ],
   },
   /**
    * [new] — the schematic. The only motion on this site that **never stops**.
    *
    * Everything else on the homepage is reactive: nothing moves until you move.
-   * That is why a page full of choreography still read as static when Sayandeep
-   * looked at it — stop scrolling and it is a photograph. This one draws itself
-   * once on arrival and then keeps a slow rotation and a sweeping indicator
-   * going forever.
+   * That is why a page full of choreography still read as static — stop
+   * scrolling and it is a photograph. This draws itself once on arrival and
+   * then keeps turning forever.
    *
-   * Only the **draw** is registered here. The two idle tweens are infinite and
+   * Three shapes, not the thirty of its first version: a circle, a square and a
+   * triangle, nested, on one hairline weight. Sayandeep on the first: *"way too
+   * convoluted — make it simple, line arts, shapes."*
+   *
+   * Only the **draw** is registered. The three idle rotations are infinite, and
    * a timeline assertion on `repeat: -1` says nothing a duration can express;
    * they are also plain `gsap.to` calls on the shared ticker rather than a
    * second rAF, which is the property that actually matters and which the
    * runtime rAF check already enforces.
    *
-   * Six arcs start together at 0 and differ only in path length, so the longer
-   * ones simply take longer — the figure resolves outward without anything
-   * waiting. The ticks' 0.776s is 0.5 with a 0.012 stagger across 24 folded in.
+   * Outermost first on a 0.12 stagger, so the figure assembles inward:
+   * 0.24 + 0.7 = 0.94.
    */
   {
     id: 'schematic.draw',
     phase: 5,
     pending: false,
-    totalDuration: 0.926,
-    tweenCount: 7,
-    /* All seven, in order, because `tweens` is positional and the six arcs come
-       first: GSAP sorts children by start time and every arc begins at 0. An
-       assertion on "tween[1]" that meant the ticks would silently be checking
-       the second arc. */
+    totalDuration: 0.94,
+    tweenCount: 3,
     tweens: [
-      { duration: 0.75, ease: 'power3.out', props: ['strokeDashoffset'], startTime: 0 },
-      { duration: 0.75, ease: 'power3.out', props: ['strokeDashoffset'], startTime: 0 },
-      { duration: 0.75, ease: 'power3.out', props: ['strokeDashoffset'], startTime: 0 },
-      { duration: 0.75, ease: 'power3.out', props: ['strokeDashoffset'], startTime: 0 },
-      { duration: 0.75, ease: 'power3.out', props: ['strokeDashoffset'], startTime: 0 },
-      { duration: 0.75, ease: 'power3.out', props: ['strokeDashoffset'], startTime: 0 },
-      /* The ticks. 0.776 is 0.5 with a 0.012 stagger across 24 folded in. */
-      { duration: 0.776, ease: 'power3.out', props: ['opacity', 'scale'], startTime: 0.15 },
+      { duration: 0.7, ease: 'power3.out', props: ['strokeDashoffset'], startTime: 0 },
+      { duration: 0.7, ease: 'power3.out', props: ['strokeDashoffset'], startTime: 0.12 },
+      { duration: 0.7, ease: 'power3.out', props: ['strokeDashoffset'], startTime: 0.24 },
     ],
   },
   /**
