@@ -16,6 +16,6 @@ export const termtypo: Work = {
   links: { live: 'https://termtypo.vercel.app', repo: 'https://github.com/Sayandeep1013/TermTypo' },
   accent: { light: '#5C9C32', dark: '#39631D' },
   invertsPage: false,
-  card: { width: 'half', poster: '' },
+  card: { width: 'half', poster: '/media/works/termtypo.webp' },
   blocks: [],
 };

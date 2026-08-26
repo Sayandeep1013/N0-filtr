@@ -16,6 +16,6 @@ export const discvault: Work = {
   links: { live: 'https://discvault.onrender.com', repo: 'https://github.com/Sayandeep1013/DiscVault' },
   accent: { light: '#747EF1', dark: '#1627DF' },
   invertsPage: false,
-  card: { width: 'wide', poster: '' },
+  card: { width: 'wide', poster: '/media/works/discvault.webp' },
   blocks: [],
 };

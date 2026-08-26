@@ -15,6 +15,6 @@ export const ftc: Work = {
   links: { live: 'https://ftc-game.vercel.app', repo: 'https://github.com/Sayandeep1013/FTC' },
   accent: { light: '#C67A10', dark: '#7F4F0A' },
   invertsPage: false,
-  card: { width: 'half', poster: '' },
+  card: { width: 'half', poster: '/media/works/ftc.webp' },
   blocks: [],
 };

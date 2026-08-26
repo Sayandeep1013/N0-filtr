@@ -276,8 +276,24 @@ export function WorkCard({ work, className }: { work: Work; className?: string }
           <div className={s.media} data-work-media>
           <div className={s.still} data-work-still>
             {work.card.poster ? (
+              /* `srcSet` derived from the 1× name rather than stored — see the
+                 note on `poster` in `_types.ts`.
+
+                 `sizes` matters here and is easy to leave off: without it the
+                 browser assumes the image fills the viewport and picks the 2×
+                 for every card, which is 249KB of ReIN Bot to fill a 536px box.
+                 A `half` card is about 40% of the viewport at 1512 and the full
+                 width below 992. */
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={work.card.poster} alt="" className={s.image} loading="lazy" />
+              <img
+                src={work.card.poster}
+                srcSet={`${work.card.poster} 1440w, ${work.card.poster.replace('.webp', '@2x.webp')} 2880w`}
+                sizes="(max-width: 991px) 100vw, 45vw"
+                alt=""
+                className={s.image}
+                loading="lazy"
+                decoding="async"
+              />
             ) : (
               <WorkCover slug={work.slug} accent={work.accent} order={work.order} />
             )}

@@ -1,0 +1,19 @@
+{
+  "capturedAt": "2026-08-26T15:59:00.560Z",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "scale": 2,
+  "works": {
+    "tessera": "/media/works/tessera.png",
+    "co-canvas": "/media/works/co-canvas.png",
+    "discvault": "/media/works/discvault.png",
+    "rein-bot": "/media/works/rein-bot.png",
+    "valobot": "/media/works/valobot.png",
+    "termtypo": "/media/works/termtypo.png",
+    "ftc": "/media/works/ftc.png",
+    "notetakerxx": "/media/works/notetakerxx.png"
+  },
+  "failed": []
+}

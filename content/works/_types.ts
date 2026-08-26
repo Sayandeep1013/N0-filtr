@@ -54,9 +54,15 @@ export interface Work {
   card: {
     width: CardWidth;
     /**
-     * Phase 10 (T10.1/T10.5) fills these. While `poster` is empty the card
-     * draws a deterministic accent cover instead of a broken image — see
-     * `components/works/WorkCover.tsx` and I-035.
+     * The 1× poster, 1440 wide. Empty for the four works with no live deploy,
+     * and the card then draws a deterministic accent cover rather than a broken
+     * image — see `components/works/WorkCover.tsx` and I-035.
+     *
+     * `npm run capture && npm run optimise` produces these. The 2× is derived
+     * from the same name (`<slug>@2x.webp`) rather than stored, because a
+     * second field is a second thing to forget: a poster without its retina
+     * pair would silently serve a 1× on every retina screen, which is most of
+     * them, and nothing would report it.
      */
     poster: string;
     reel?: string;

@@ -16,6 +16,6 @@ export const tessera: Work = {
   links: { live: 'https://tessera-brown-pi.vercel.app', repo: 'https://github.com/Sayandeep1013/Tessera' },
   accent: { light: '#2595E4', dark: '#125C91' },
   invertsPage: false,
-  card: { width: 'full', poster: '' },
+  card: { width: 'full', poster: '/media/works/tessera.webp' },
   blocks: [],
 };

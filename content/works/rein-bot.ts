@@ -21,6 +21,6 @@ export const reinBot: Work = {
   links: { live: 'https://sayandeep1013.github.io/Rein-Bot', repo: 'https://github.com/Sayandeep1013/Rein-Bot' },
   accent: { light: '#DE54AB', dark: '#A31F72' },
   invertsPage: false,
-  card: { width: 'half', poster: '' },
+  card: { width: 'half', poster: '/media/works/rein-bot.webp' },
   blocks: [],
 };

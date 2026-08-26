@@ -16,6 +16,6 @@ export const coCanvas: Work = {
   links: { live: 'https://co-canvas-web.vercel.app', repo: 'https://github.com/Sayandeep1013/co-canvas' },
   accent: { light: '#E75D23', dark: '#973911' },
   invertsPage: false,
-  card: { width: 'half', poster: '' },
+  card: { width: 'half', poster: '/media/works/co-canvas.webp' },
   blocks: [],
 };

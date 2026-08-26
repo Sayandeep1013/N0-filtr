@@ -16,6 +16,6 @@ export const valobot: Work = {
   links: { live: 'https://valobot.vercel.app', repo: 'https://github.com/Sayandeep1013/ValoBot' },
   accent: { light: '#E4587B', dark: '#AB1C40' },
   invertsPage: false,
-  card: { width: 'half', poster: '' },
+  card: { width: 'half', poster: '/media/works/valobot.webp' },
   blocks: [],
 };
