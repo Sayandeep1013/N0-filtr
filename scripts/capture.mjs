@@ -38,7 +38,7 @@
  * our own site's placeholder problem and would have been a very confusing
  * screenshot to debug later.
  */
-import { chromium } from 'playwright';
+import { launchGuarded } from './lib/browser.mjs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -88,7 +88,7 @@ if (targets.length === 0) {
 
 await mkdir(OUT, { recursive: true });
 
-const browser = await chromium.launch();
+const browser = await launchGuarded();
 const results = [];
 
 for (const target of targets) {

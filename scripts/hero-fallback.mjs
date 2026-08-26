@@ -23,7 +23,7 @@
  * It drives the real page rather than re-implementing the scene, so the fallback
  * cannot drift from what the scene actually renders.
  */
-import { chromium } from 'playwright';
+import { launchGuarded } from './lib/browser.mjs';
 import sharp from 'sharp';
 import { mkdir } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
@@ -38,7 +38,7 @@ const WIDTH = 1200;
 const HEIGHT = 800;
 const SCALE = 2;
 
-const browser = await chromium.launch({
+const browser = await launchGuarded({
   // Headless Chromium has no GPU; SwiftShader gives it a real WebGL context so
   // the still is rendered by the actual scene rather than by a stub.
   args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'],

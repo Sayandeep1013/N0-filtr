@@ -37,7 +37,7 @@
  * back to the mp4 source when a browser cannot take it, and every browser that
  * cannot take webm is one this site's WebGL hero has already lost.
  */
-import { chromium } from 'playwright';
+import { launchGuarded } from './lib/browser.mjs';
 import { mkdir, rm, rename, readdir } from 'node:fs/promises';
 import { dirname, resolve, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -57,7 +57,7 @@ await mkdir(dirname(OUT), { recursive: true });
 
 console.log(`▸ recording ${SECONDS}s of ${URL_} at ${W}x${H}`);
 
-const browser = await chromium.launch();
+const browser = await launchGuarded();
 const context = await browser.newContext({
   viewport: { width: W, height: H },
   recordVideo: { dir: TMP, size: { width: W, height: H } },

@@ -1700,3 +1700,53 @@ not the `readingTime` field in the metadata, which was an estimate typed by hand
 
 **To close:** add a real `publishedAt` when the posts are actually published, and put it back in the
 hero. Until then the absence is correct.
+
+
+---
+
+## I-057 · Thirteen headless browsers, one pinned GPU  🟢
+
+**Raised:** phase 09 · **Resolved:** phase 09
+
+Sayandeep: *"why is node.exe using 100% of my gpu1 .. gpu 1 is getting fried."*
+
+**It was not node.** Node has no renderer and never touches a GPU. It was
+thirteen leaked Playwright Chromium processes, and Task Manager attributes a
+child's GPU time upward to the parent that spawned it.
+
+They leaked from the capture scripts. Every one followed the same shape —
+`chromium.launch()` at the top, `browser.close()` at the bottom, and a hundred
+lines that can throw in between. When one did (a dead deploy, a moved selector,
+a bad crop region), the script died and the browser did not.
+
+**On this project that is not a tidy-up issue.** The pages these scripts open run
+a Three.js hero with a `requestAnimationFrame` loop, so a leaked headless
+Chromium is not an idle process — it is a process rendering WebGL forever.
+Thirteen of them saturated a discrete GPU.
+
+**Resolved** by `scripts/lib/browser.mjs`. `launchGuarded()` registers handlers
+for the three ways these scripts actually end badly — an unhandled rejection
+(top-level `await` with no `try`), an uncaught exception, and Ctrl-C — and closes
+the browser before exiting on any of them. Playwright cleans up after a
+*graceful* exit on its own; these are the paths where it never gets the chance.
+
+`tools/verify/run.ts` already had `finally { await browser.close() }` and was
+never the source.
+
+**For the record**, since it will be asked again: the binaries that do the GPU
+work are
+
+```
+G:\CDriveOffload\ms-playwrightranded\chrome\win64-152.0.7977.42\chrome-win64\chrome.exe
+G:\CDriveOffload\ms-playwright\chromium-1223\chrome-win64\chrome.exe
+G:\CDriveOffload\ms-playwright\chromium-1234\chrome-win64\chrome.exe
+```
+
+and `node.exe` (`D:
+odejs
+ode.exe`) is not one of them. A Windows graphics
+preference set on node does nothing.
+
+**The durable lesson:** *a script that opens a browser owns closing it on every
+path out, not just the happy one* — and on a site with a render loop, a leaked
+browser costs power rather than memory.

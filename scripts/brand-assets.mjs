@@ -24,7 +24,7 @@
  * The aperture below is the same four ratios as components/brand/ApertureMark.tsx.
  * If those ever diverge, this comment is the bug report.
  */
-import { chromium } from 'playwright';
+import { launchGuarded } from './lib/browser.mjs';
 import { mkdir, writeFile, readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -253,7 +253,7 @@ async function main() {
   await writeFile(resolve(ROOT, 'app/icon.svg'), tileSvg(64, true, true) + '\n');
   console.log('  ./app/icon.svg  64×64');
 
-  const browser = await chromium.launch();
+  const browser = await launchGuarded();
   const page = await browser.newPage({ deviceScaleFactor: 1 });
 
   // 2 & 3. the raster tiles

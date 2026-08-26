@@ -19,7 +19,7 @@
  * swatches sit on a 6-wide grid at 31px pitch, and the canvas is 32×32 cells at
  * 23× zoom with its top-left at (352, 105).
  */
-import { chromium } from 'playwright';
+import { launchGuarded } from './lib/browser.mjs';
 import { writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
@@ -44,7 +44,7 @@ const CELL = 23;
 const ORIGIN = { x: 352, y: 105 };
 const at = (c, r) => [ORIGIN.x + c * CELL + CELL / 2, ORIGIN.y + r * CELL + CELL / 2];
 
-const browser = await chromium.launch();
+const browser = await launchGuarded();
 const context = await browser.newContext({
   viewport: { width: 1440, height: 900 },
   deviceScaleFactor: 2,
