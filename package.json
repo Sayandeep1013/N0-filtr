@@ -17,17 +17,23 @@
     "brand:assets": "node scripts/brand-assets.mjs",
     "hero:fallback": "node scripts/hero-fallback.mjs",
     "showreel:placeholder": "node scripts/showreel-placeholder.mjs",
+    "capture": "node scripts/capture.mjs",
+    "optimise": "node scripts/optimise.mjs",
     "extract:tonik": "node tools/extract/tonik.mjs",
-    "compare:hero": "node tools/extract/compare-hero.mjs"
+    "compare:hero": "node tools/extract/compare-hero.mjs",
+    "tessera:states": "node scripts/tessera-states.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
+    "embla-carousel": "^8.6.0",
+    "embla-carousel-react": "^8.6.0",
     "gsap": "^3.13.0",
     "lenis": "^1.1.20",
     "next": "^15.1.0",
     "plyr": "^3.8.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "shiki": "^4.4.3",
     "split-type": "^0.3.4",
     "three": "^0.185.1"
   },

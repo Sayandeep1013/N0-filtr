@@ -71,6 +71,33 @@ const REDUCED_FADE = 0.2;
  *
  * First visit only. On a route change the mark has already introduced itself.
  */
+/* ── the accent tint on the way out ─────────────────────────────────────────
+   `01-PHASES.md` T6.7, and `10-design-system.md` §2: *"the outgoing loader tints
+   to `darken(accent, 10%)` before navigating, so the colour lands before the
+   page does."*
+
+   The effect is small and the reason is not: a case study sets `--accent` on
+   mount, which is *after* the loader has already swept up in the page's default
+   grey. Tinting the panel on the way out means the visitor sees the work's
+   colour during the transition rather than a beat after it, and the case-study
+   page appears to have been the colour it is all along.
+
+   Which links carry it: any anchor with `data-accent`. The work cards and
+   `<NextWork>` set it; nothing else on the site has an accent to declare, and
+   an anchor without one gets the default panel. */
+
+/** `#125C91` → `#105283`. Multiplies each channel by 0.9, per §2's darken(10%). */
+function darken(hex: string, amount = 0.1): string {
+  const match = /^#([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!match) return hex;
+  const value = Number.parseInt(match[1]!, 16);
+  const scale = (channel: number) => Math.round(channel * (1 - amount));
+  const r = scale((value >> 16) & 0xff);
+  const g = scale((value >> 8) & 0xff);
+  const b = scale(value & 0xff);
+  return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
+}
+
 /** The blade group's turn, and the spine of the sequence. */
 const IRIS_TURN = 0.9;
 /** How far back the blades start, in degrees. */
@@ -278,6 +305,15 @@ export function Loader() {
     }
 
     enterRef.current?.restart();
+
+    /* The tint belongs to the transition, not to the page. Cleared here rather
+       than in the exit's onComplete because the exit completes *before* the
+       route resolves, and clearing it there would show the grey panel again for
+       the length of a navigation. */
+    const panel = panelRef.current;
+    return () => {
+      if (panel) panel.style.backgroundColor = '';
+    };
   }, [pathname]);
 
   /* ── link interception ──────────────────────────────────────────────────
@@ -302,6 +338,17 @@ export function Loader() {
 
       event.preventDefault();
       pendingHref.current = `${url.pathname}${url.search}${url.hash}`;
+
+      /* T6.7. Set before the exit restarts, so the sweep is already the right
+         colour on its first frame rather than crossfading into it. Cleared on
+         arrival by the effect below — a tint left behind would make the *next*
+         navigation, to anywhere, sweep up in the last work's blue. */
+      const panel = panelRef.current;
+      if (panel) {
+        const accent = anchor.dataset.accent;
+        panel.style.backgroundColor = accent ? darken(accent) : '';
+      }
+
       exitRef.current?.restart();
     };
 

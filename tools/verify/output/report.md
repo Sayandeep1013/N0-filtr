@@ -1,5 +1,5 @@
 # Verification report
-Run: 2026-08-26T15:53:33.844Z · Phase 06 · commit `8dafa52` · branch `main`
+Run: 2026-08-26T17:32:34.547Z · Phase 06 · commit `ad9a6ff` · branch `phase/06-case-study`
 
 ## Summary
 ```
@@ -317,7 +317,7 @@ budget  ✅ 6/6
 ✅ hero 3D — the blades never leave the barrel = reach 1.930 of 2, invariant
 ✅ hero 3D — the housing tips across the viewport = 0.258
 ✅ hero 3D — the housing tips top to bottom = 0.317
-✅ hero 3D — the iris actuates = 0.318 rad about the bore
+✅ hero 3D — the iris actuates = 0.317 rad about the bore
 ✅ hero 3D — the blades lead the housing = 1.23x
 ✅ hero 3D — the response stays subtle = max 0.159 rad
 ✅ hero 3D — loop suspends off-screen = running: false
@@ -542,12 +542,12 @@ lists are authored to fill the accordion and T10.8 writes the real ones. The blo
 ℹ️ matter-js absent from the eagerly-loaded bundle — vacuous: matter-js is not installed yet
 ✅ three absent from the eagerly-loaded bundle = absent
 ✅ plyr absent from the eagerly-loaded bundle = absent
-ℹ️ all built chunks, gzipped (not a per-route figure) = 503.7KB
-✅ JS on / (transferred) = 325.3KB / 360KB
-✅ home page total weight = 472.4KB / 1800KB
+ℹ️ all built chunks, gzipped (not a per-route figure) = 524.7KB
+✅ JS on / (transferred) = 327.5KB / 360KB
+✅ home page total weight = 694.3KB / 1800KB
 ✅ zero network font requests = both faces self-hosted
-✅ CLS (local, unthrottled) = 0.0014
-ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 124ms
+✅ CLS (local, unthrottled) = 0.0025
+ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 180ms
 
 > Poster and reel budgets become binding in phase 10, when assets exist.
 > Lighthouse scores are a phase 12 deliverable via mcp__chrome-devtools__lighthouse_audit; the figures here are local and unthrottled.

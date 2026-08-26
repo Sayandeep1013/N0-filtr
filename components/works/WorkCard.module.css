@@ -49,6 +49,9 @@
      first row. Giving the media a z-index of its own contains the badge, and
      the sheet then covers the whole thing. */
   z-index: 1;
+  /* The plate's ground and hairline. See `.still` below and D-034. */
+  background-color: var(--grey-900);
+  border: var(--hairline);
   /* §5. Not 16:9 — the cards are shallower than video, which is what lets two
      of them sit beside a column of air without the row becoming a band. */
   aspect-ratio: 16 / 10;
@@ -80,12 +83,23 @@
   aspect-ratio: auto;
 }
 
+/* ── the plate ────────────────────────────────────────────────────────────
+   D-034. The poster is inset inside the media box rather than filling it, so
+   the card reads as a screenshot lying on a surface rather than as a window cut
+   into the page. `components/ui/Plate.tsx` carries the full reasoning; the card
+   applies the same rule in CSS instead of wrapping, because the media box is an
+   absolutely-positioned stack — still, reel, overlay, wipe, badge — and putting
+   a new element in the middle of it would reshuffle five z-indices.
+
+   The overlay and the wipe deliberately stay at `inset: 0`: they are hover
+   treatments of the whole card, not of the picture. */
 .still,
 .video {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  inset: var(--card-plate);
+  width: auto;
+  height: auto;
+  box-shadow: 0 1rem 2rem rgb(0 0 0 / 40%);
 }
 
 .image {
@@ -93,6 +107,20 @@
   height: 100%;
   object-fit: cover;
   display: block;
+  /* Grey and white, always — D-035. `.cover` is deliberately not graded: it is
+     drawn in the accent rather than photographed. */
+  filter: var(--media-grade);
+}
+
+/* The plate's inset, as one token so the card and its breakpoints agree. */
+.frame {
+  --card-plate: 1.25rem;
+}
+
+@media (max-width: 767px) {
+  .frame {
+    --card-plate: 0.75rem;
+  }
 }
 
 .video {

@@ -15,6 +15,6 @@ export const notetakerxx: Work = {
   links: { live: 'https://rein-note.vercel.app', repo: 'https://github.com/Sayandeep1013/NoteTakerXX' },
   accent: { light: '#A58812', dark: '#6A570C' },
   invertsPage: false,
-  card: { width: 'wide', poster: '' },
+  card: { width: 'wide', poster: '/media/works/notetakerxx.webp' },
   blocks: [],
 };

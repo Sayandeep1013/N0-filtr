@@ -1,0 +1,22 @@
+/* The image box. Reserves its aspect ratio before the file arrives, and clips
+   the accent tint that sits over it. */
+
+.box {
+  display: block;
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  /* The ground behind a poster that has not landed. Not black — a black box
+     flashing to a bright screenshot is the same flashbang problem Sayandeep
+     flagged on the work cards. */
+  background-color: var(--grey-900);
+}
+
+.img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Grey and white, always. See `--media-grade` in tokens.css and D-035. */
+  filter: var(--media-grade);
+}

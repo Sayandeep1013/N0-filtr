@@ -15,6 +15,10 @@ export const reelshell: Work = {
   links: { repo: 'https://github.com/Sayandeep1013/ReelShell' },
   accent: { light: '#12A5AA', dark: '#086063' },
   invertsPage: false,
+  /* No poster. This one is archived, native or terminal — there is no URL to
+     point a browser at, so `scripts/capture.mjs` skips it and the card draws
+     its generated accent cover instead. Recording these needs a screen capture
+     by hand; see I-035. */
   card: { width: 'half', poster: '' },
   blocks: [],
 };

@@ -48,7 +48,44 @@
   --error-bg: #fef3f2;
 
   /* ── per-page accent — set by the case-study template (phase 6) ─────── */
+  /* The pair, from 10-design-system.md §2. `<CaseStudy>` writes all three onto
+     <html> on mount and removes them on unmount, so these are the values every
+     other page on the site sees.
+
+     --accent        the work's DARK accent. A fill: panels, tints, the cursor.
+     --accent-ground the work's LIGHT accent. The page ground when a work sets
+                     `invertsPage` — none do; see CaseStudy.tsx.
+     --accent-ink    the same light accent used as TEXT on our dark ground.
+
+     The third one is ours rather than the spec's, and it exists because the
+     spec's own instruction does not survive contact with our palette: §? gives
+     code strings and rules as `--accent`, and Tessera's dark accent (#125C91)
+     as text on #212121 is close to unreadable. The light member of the pair is
+     the colour that instruction is reaching for. Kept as a separate name rather
+     than by redefining --accent, because --accent as a *fill* is correct
+     everywhere it is used. See I-046. */
   --accent: var(--black);
+  --accent-ground: var(--white);
+  --accent-ink: var(--white);
+
+  /* ── the media grade ────────────────────────────────────────────────── */
+  /* Every product screenshot on this site renders grey and white. Sayandeep,
+     after the plate landed: *"the coloured info do it grey and white too."*
+
+     It is the strongest version of the immersion fix and it makes a rule out of
+     what was already nearly true: the page has exactly one colour, the work's
+     accent, and now that is the *only* colour a product image can carry —
+     through the accent wash on `<NextWork>` and nowhere else.
+
+     The cost is real and was put to him: a visitor never sees what the products
+     actually look like without opening the live link. Chosen anyway, knowingly,
+     over a grey-until-hover version. See D-035.
+
+     Exactly one exception: `<WorkCover>`, the generated accent plate that
+     stands in for the four works with no deploy. It is drawn *in* the accent
+     rather than photographed, so grading it would grey out the one colour the
+     system permits. */
+  --media-grade: grayscale(1) contrast(1.03);
 
   /* ── families ───────────────────────────────────────────────────────── */
   /* --font-display / --font-mono are injected by next/font/local in layout.tsx

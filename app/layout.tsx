@@ -53,7 +53,20 @@ export const viewport: Viewport = {
   colorScheme: 'dark',
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+/**
+ * `modal` is the parallel slot the work lightbox renders into — see
+ * `app/@modal/(.)works/[slug]/page.tsx`. It sits outside `<main>` and after it,
+ * because it is a layer over the page rather than part of it, and because a
+ * dialog appearing *inside* the main landmark is a dialog a screen reader
+ * treats as page content.
+ */
+export default function RootLayout({
+  children,
+  modal,
+}: {
+  children: ReactNode;
+  modal: ReactNode;
+}) {
   return (
     <html lang="en" className={`${displayFont.variable} ${monoFont.variable}`}>
       {/* `suppressHydrationWarning` on <body> only.
@@ -82,6 +95,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <Navbar />
           <Hero3D />
           <main id="main">{children}</main>
+          {modal}
           <Footer />
           <ContactPanel />
         </MotionProvider>

@@ -1,0 +1,98 @@
+/* The slider block. Embla supplies the transform; everything visible is here.
+
+   Embla's own stylesheet is not imported — it is three rules and importing a
+   vendor sheet into a CSS-Modules build means a global that no longer scopes.
+   The three rules are: the viewport hides overflow, the track is a flex row
+   that does not shrink, and each slide claims a flex-basis. */
+
+.slider {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.viewport {
+  overflow: hidden;
+}
+
+.track {
+  display: flex;
+  gap: 1.5rem;
+  /* `touch-action` so a vertical page scroll started on a slide still scrolls
+     the page. Embla handles the horizontal axis itself. */
+  touch-action: pan-y pinch-zoom;
+}
+
+.slide {
+  margin: 0;
+  flex: 0 0 72%;
+  min-width: 0;
+}
+
+@media (max-width: 767px) {
+  .slide {
+    flex-basis: 88%;
+  }
+}
+
+.caption {
+  display: block;
+  margin-top: 0.75rem;
+  color: var(--text-secondary);
+  font-family: var(--family-mono);
+  text-transform: uppercase;
+}
+
+/* ── controls ─────────────────────────────────────────────────────────── */
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 1rem;
+  border-top: var(--hairline);
+}
+
+.counter {
+  margin: 0;
+  color: var(--text-secondary);
+  font-family: var(--family-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.button {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: var(--hairline);
+  border-radius: 50%;
+  background: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease-in-out),
+    border-color var(--dur-fast) var(--ease-in-out),
+    opacity var(--dur-fast) var(--ease-in-out);
+}
+
+.button:hover:not(:disabled) {
+  background-color: var(--accent);
+  border-color: var(--accent);
+}
+
+.button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.chevron {
+  width: 1rem;
+  height: 1rem;
+}

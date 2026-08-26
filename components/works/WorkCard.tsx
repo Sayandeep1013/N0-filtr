@@ -259,7 +259,9 @@ export function WorkCard({ work, className }: { work: Work; className?: string }
          that ratio is a design decision that belongs next to the other ones. */
       style={{ '--work-accent': work.accent.dark } as React.CSSProperties}
     >
-      <Link href={`/works/${work.slug}`} className={s.link}>
+      {/* `data-accent` is read by the loader on the way out — T6.7. See
+          `darken()` in `components/chrome/Loader.tsx`. */}
+      <Link href={`/works/${work.slug}`} className={s.link} data-accent={work.accent.dark}>
         {/* The positioning context for the sheet, and the reason it exists.
 
             The sheet was `position: absolute; bottom: 0` with no relative
@@ -276,8 +278,24 @@ export function WorkCard({ work, className }: { work: Work; className?: string }
           <div className={s.media} data-work-media>
           <div className={s.still} data-work-still>
             {work.card.poster ? (
+              /* `srcSet` derived from the 1× name rather than stored — see the
+                 note on `poster` in `_types.ts`.
+
+                 `sizes` matters here and is easy to leave off: without it the
+                 browser assumes the image fills the viewport and picks the 2×
+                 for every card, which is 249KB of ReIN Bot to fill a 536px box.
+                 A `half` card is about 40% of the viewport at 1512 and the full
+                 width below 992. */
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={work.card.poster} alt="" className={s.image} loading="lazy" />
+              <img
+                src={work.card.poster}
+                srcSet={`${work.card.poster} 1440w, ${work.card.poster.replace('.webp', '@2x.webp')} 2880w`}
+                sizes="(max-width: 991px) 100vw, 45vw"
+                alt=""
+                className={s.image}
+                loading="lazy"
+                decoding="async"
+              />
             ) : (
               <WorkCover slug={work.slug} accent={work.accent} order={work.order} />
             )}

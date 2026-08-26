@@ -1,0 +1,66 @@
+/* The plate. See Plate.tsx for why it exists — D-034.
+
+   Three things, and only these three: a ground one step lighter than the page,
+   a hairline, and padding. The shadow belongs to the image inside rather than
+   to the plate, because the plate is a surface and the screenshot is the thing
+   lying on it. */
+
+.plate {
+  position: relative;
+  background-color: var(--grey-900);
+  border: var(--hairline);
+}
+
+/* The image inside. Targeted structurally rather than by class so that any
+   media a block puts here — a CaseImage, a video, a canvas — is lifted off the
+   plate the same way. */
+.plate > * {
+  position: relative;
+  box-shadow: 0 1.5rem 3rem rgb(0 0 0 / 45%);
+}
+
+.lg {
+  padding: 3.5rem;
+}
+
+.md {
+  padding: 2rem;
+}
+
+.sm {
+  padding: 1.25rem;
+}
+
+/* The plate reaches the viewport edges; the screenshot inside does not. Same
+   escape as `.bleed` in CaseBlocks — `100vw` with negative margins that survive
+   the container being centred at any width. */
+.bleed {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  border-left: 0;
+  border-right: 0;
+}
+
+/* Padding collapses hard below the desktop gate. 3.5rem of plate around a
+   screenshot on a 390px phone leaves about 280px of picture, which is not a
+   picture — and the plate's job there is done by the hairline alone. */
+@media (max-width: 991px) {
+  .lg {
+    padding: 1.5rem;
+  }
+
+  .md {
+    padding: 1rem;
+  }
+
+  .sm {
+    padding: 0.75rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .plate > * {
+    box-shadow: 0 0.75rem 1.5rem rgb(0 0 0 / 40%);
+  }
+}
