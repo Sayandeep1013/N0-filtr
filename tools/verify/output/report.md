@@ -1,5 +1,5 @@
 # Verification report
-Run: 2026-08-26T01:26:08.116Z · Phase 02 · commit `2536ee2` · branch `phase/02-brand-3d`
+Run: 2026-08-26T01:32:21.127Z · Phase 03 · commit `c3aa5b6` · branch `main`
 
 ## Summary
 ```
@@ -284,8 +284,8 @@ budget  ✅ 5/5
 ✅ loader under reduced motion — loader clears the page = display: none
 ✅ hero 3D — triangle budget = 13064 / 40000
 ✅ hero 3D — ring sweeps 0.4 rad across the viewport = 0.393
-✅ hero 3D — blades sweep 0.6 rad = 0.592
-✅ hero 3D — the blades outrun the ring = 1.51x
+✅ hero 3D — blades sweep 0.6 rad = 0.591
+✅ hero 3D — the blades outrun the ring = 1.50x
 ✅ hero 3D — ring and blades counter-rotate on Y = ring 0.196, blades -0.196
 ✅ hero 3D — loop suspends off-screen = running: false
 ✅ hero 3D — loop resumes on-screen = running: true
@@ -438,7 +438,7 @@ is still blank, so the footer sits near the top of the document and under a 100d
 ✅ home page total weight = 370.1KB / 1800KB
 ✅ zero network font requests = both faces self-hosted
 ✅ CLS (local, unthrottled) = 0.0027
-ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 136ms
+ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 108ms
 
 > Poster and reel budgets become binding in phase 10, when assets exist.
 > Lighthouse scores are a phase 12 deliverable via mcp__chrome-devtools__lighthouse_audit; the figures here are local and unthrottled.
