@@ -3,7 +3,7 @@
 **The first file every agent reads. It must always be true.**
 If you change the build, change this file in the same session — not later.
 
-Last updated: **2026-08-26** · by: **phase 2 session (Opus)** · tag: `phase-02-complete`
+Last updated: **2026-08-26** · by: **phases 3-12 session (Opus)** · tag: `phase-02-complete`
 
 ---
 
@@ -94,9 +94,9 @@ got it right. Protocol §2.9 is the rule.
 
 | | |
 |---|---|
-| Current phase | **3 — Homepage upper** *(unclaimed)* |
-| Status | ⬜ not started |
-| Branch | *(create `phase/03-home-upper`)* |
+| Current phase | **3 — Homepage upper** |
+| Status | 🔨 in progress |
+| Branch | `phase/03-home-upper` |
 | Blocked | no |
 | Verify report | `tools/verify/output/report.md` — tokens 136/136, motion **144/147** (3 pending), visual judged, budget 5/5 |
 
@@ -109,7 +109,7 @@ got it right. Protocol §2.9 is the rule.
 | 0 | Foundation & harness | ✅ | `phase/00-foundation` | `phase-00-complete` | harness proven by break-test |
 | 1 | Global chrome | ✅ | `phase/01-chrome` | `phase-01-complete` | + a behaviour layer in the harness |
 | 2 | Brand & 3D hero 🚦 | ✅ | `phase/02-brand-3d` | `phase-02-complete` | mark approved · 13 hero assertions · budget re-based |
-| 3 | Homepage upper | ⬜ | `phase/03-home-upper` | — | **next** · T3.1/T3.2 already shipped in phase 2 (D-015) |
+| 3 | Homepage upper | 🔨 | `phase/03-home-upper` | — | **next** · T3.1/T3.2 already shipped in phase 2 (D-015) |
 | 4 | Works grid | ⬜ | `phase/04-works-grid` | — | needs 3 |
 | 5 | Homepage lower | ⬜ | `phase/05-home-lower` | — | needs 4 |
 | 6 | Case study 🚦 | ⬜ | `phase/06-case-study` | — | **GATE** · needs 4 |
@@ -188,9 +188,28 @@ Full record: `docs/build/phases/PHASE-02.md`.
 7. **I-021** — the grain is right as built.
 8. **I-019** — the JS budget is **320KB**, raised from a 190 that was never a measurement. (D-013)
 
-### Phase 3 — Homepage: hero, stack wall, reveal ⬜ not started
+### Phase 3 — Homepage: hero, stack wall, reveal 🔨 in progress
 
-Copy the task table from `01-PHASES.md` when you claim it.
+Full record: `docs/build/phases/PHASE-03.md`
+
+| id | task | status | evidence |
+|---|---|---|---|
+| T3.1 | Hero copy — `--t-h1` two lines, inline play control | ✅ | shipped in phase 2 (D-015); `compare:hero` 92/92 |
+| T3.2 | Hero bottom rail — two mono labels above a hairline | ✅ | shipped in phase 2 (D-015) |
+| T3.3 | `<RevealText>` — SplitType words, scrubbed `top 90%`→`top 10%` | ⬜ | |
+| T3.4 | Stack wall ≥768 — static flex-wrap grid, `.7` opacity | ⬜ | |
+| T3.5 | Stack wall ≤767 — GSAP infinite marquee, no library | ⬜ | |
+| T3.6 | Showreel — Flip open/close choreography, Plyr | ⬜ | |
+
+**The five user decisions were answered on 2026-08-26, up front, in one message:**
+
+| Decision | Answer |
+|---|---|
+| Domain | **`nofilter.studio`** — open item 5 closed |
+| Socials | **GitHub real; Instagram / LinkedIn / X as provisional slots**, hrefs swapped later |
+| Tally form id | **none — the mailto fallback is the shipped answer**; open item 7 closed |
+| Footer tagline | **"No filter between the idea and the thing"** — open item 6 closed |
+| Contact budget bands + referral chips | *not asked* — the invented constants stand; see I-015 |
 
 ---
 

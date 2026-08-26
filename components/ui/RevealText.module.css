@@ -1,0 +1,26 @@
+/* The scrubbed word reveal. 20-components-and-motion.md §4.
+
+   There is almost nothing here on purpose. The reveal is an opacity tween on
+   spans that split-type creates at runtime, so the only thing this sheet owes
+   is that those spans do not change the text's layout when they appear.
+
+   `split-type` gives each `.word` `display: inline-block` inline, and keeps the
+   whitespace between words as real text nodes — so the block wraps exactly as
+   it did before it was split. Nothing to correct. */
+
+.reveal {
+  /* The un-revealed rest state is 20% opacity, but it is applied by the tween,
+     not here. If it were declared in CSS the text would sit at .2 for every
+     visitor who never reaches it — including anyone with reduced motion or a
+     narrow viewport, for whom the split never happens at all. */
+  color: var(--text-primary);
+}
+
+/* The split spans inherit everything. Named so the reveal is greppable from the
+   DOM and so a future phase has a hook if one is ever needed. */
+.reveal :global(.word) {
+  /* will-change is deliberately absent. 55 instances of this component ship on
+     the homepage alone; promoting every word to its own layer would cost more
+     than the composite it saves. */
+  color: inherit;
+}
