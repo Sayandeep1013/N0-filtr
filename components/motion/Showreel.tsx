@@ -111,16 +111,48 @@ export function ShowreelProvider({ children }: { children: ReactNode }) {
   const libsRef = useRef<Promise<{ Flip: typeof import('gsap/Flip').Flip }> | null>(null);
   const { reducedMotion, stopScroll, startScroll } = useMotion();
 
-  /* One promise, awaited by everyone. A second call while the first is in
-     flight must not start a second download. */
+  /**
+   * One promise, awaited by everyone — and **cleared if it rejects.**
+   *
+   * The first version was `libsRef.current ??= import('gsap/Flip')...`, which
+   * has two faults that only show themselves when the network does something
+   * other than succeed.
+   *
+   * A dynamic import that fails leaves a **rejected promise cached in the ref**.
+   * `??=` then never reassigns it, so every subsequent hover and every click
+   * re-awaits the same failure: the button is dead for the rest of the session
+   * and reloading is the only cure. And nothing caught the rejection, so it
+   * surfaced as an unhandled `ChunkLoadError` in Next's dev overlay — which is
+   * how this was found, on a dev server whose chunks had been rebuilt under a
+   * page that was still open.
+   *
+   * Clearing the ref in a `catch` makes the next attempt a real retry. The
+   * `catch` also re-throws, so `open()` can still tell the difference between
+   * "loaded" and "did not" and take the no-Flip path rather than doing nothing.
+   */
+  const loadFlip = useCallback(() => {
+    if (!libsRef.current) {
+      libsRef.current = import('gsap/Flip')
+        .then(({ Flip }) => {
+          gsap.registerPlugin(Flip);
+          return { Flip };
+        })
+        .catch((error) => {
+          libsRef.current = null;
+          throw error;
+        });
+    }
+    return libsRef.current;
+  }, []);
+
+  /* Warming is best-effort by definition: it runs on a hover the visitor may
+     never follow with a click. A failure here must be silent — the click path
+     retries, and a toast about a prefetch is noise about something that has not
+     gone wrong yet. */
   const prefetch = useCallback(() => {
     if (!available) return;
-    libsRef.current ??= import('gsap/Flip').then(({ Flip }) => {
-      gsap.registerPlugin(Flip);
-      return { Flip };
-    });
-    void libsRef.current;
-  }, [available]);
+    void loadFlip().catch(() => undefined);
+  }, [available, loadFlip]);
 
   /* Plyr is separate from Flip: Flip is needed to *start* the transition and
      Plyr is not needed until the player is on screen, so waiting on both before
@@ -154,23 +186,33 @@ export function ShowreelProvider({ children }: { children: ReactNode }) {
       void ensurePlyr().then((p) => p?.play());
     };
 
-    if (reducedMotion) {
-      /* No Flip, no reparent. The section is simply present. */
+    /* No Flip, no reparent: the section is simply present. Shared by the
+       reduced-motion path and by the case where the Flip chunk could not be
+       fetched — in both, the visitor still gets the showreel. A player that
+       refuses to open because a 5KB plugin is missing is a worse failure than
+       one that opens without a flourish. */
+    const openWithoutFlip = () => {
       gsap.set(section, { display: 'flex', backgroundColor: '#21212180' });
       gsap.to([playerRef.current, headingRef.current], {
         opacity: 1,
         duration: DUR.base,
         onComplete: runPlayer,
       });
+    };
+
+    if (reducedMotion) {
+      openWithoutFlip();
       return;
     }
 
     void (async () => {
-      const { Flip } = await (libsRef.current ??=
-        import('gsap/Flip').then(({ Flip: F }) => {
-          gsap.registerPlugin(F);
-          return { Flip: F };
-        }));
+      let Flip: typeof import('gsap/Flip').Flip;
+      try {
+        ({ Flip } = await loadFlip());
+      } catch {
+        openWithoutFlip();
+        return;
+      }
 
       // Measure first, then move. Nothing above this line touched the DOM.
       const state = Flip.getState(bg);
@@ -191,7 +233,7 @@ export function ShowreelProvider({ children }: { children: ReactNode }) {
 
       registerTimeline('showreel.open', tl);
     })();
-  }, [available, isOpen, reducedMotion, stopScroll, ensurePlyr]);
+  }, [available, isOpen, reducedMotion, stopScroll, ensurePlyr, loadFlip]);
 
   const close = useCallback(() => {
     if (!isOpen) return;
@@ -206,18 +248,30 @@ export function ShowreelProvider({ children }: { children: ReactNode }) {
 
     if (!section || !bg || !trigger) return;
 
-    if (reducedMotion) {
+    /* The mirror of `openWithoutFlip`. If the panel was opened without Flip it
+       must close without it too, or the background layer is left in the player
+       and the hero's headline has a hole in it. */
+    const closeWithoutFlip = () => {
       gsap.set([playerRef.current, headingRef.current], { opacity: 0 });
       gsap.set(section, { display: 'none', backgroundColor: '#21212100' });
+      if (bg.parentElement !== trigger) trigger.appendChild(bg);
+      gsap.set(bg, { clearProps: 'all' });
+      gsap.set(iconRef.current, { opacity: 1 });
+    };
+
+    if (reducedMotion) {
+      closeWithoutFlip();
       return;
     }
 
     void (async () => {
-      const { Flip } = await (libsRef.current ??=
-        import('gsap/Flip').then(({ Flip: F }) => {
-          gsap.registerPlugin(F);
-          return { Flip: F };
-        }));
+      let Flip: typeof import('gsap/Flip').Flip;
+      try {
+        ({ Flip } = await loadFlip());
+      } catch {
+        closeWithoutFlip();
+        return;
+      }
 
       const state = Flip.getState(bg);
       trigger.appendChild(bg);
@@ -240,7 +294,7 @@ export function ShowreelProvider({ children }: { children: ReactNode }) {
       Flip.from(state, { delay: 0.3, duration: DUR.slow, ease: EASE.soft, absolute: true });
       gsap.to(iconRef.current, { opacity: 1, delay: DUR.base, duration: DUR.base });
     })();
-  }, [isOpen, reducedMotion, startScroll]);
+  }, [isOpen, reducedMotion, startScroll, loadFlip]);
 
   /* Escape closes, and focus is held inside the panel while it is open — the
      same contract the contact panel has, for the same reason. */

@@ -180,34 +180,27 @@ export const TIMELINE_ASSERTIONS: TimelineAssertion[] = [
       { target: '.contact__gif', duration: 0.5, props: ['y'], position: '<+0.2', startTime: 0.7 },
     ],
   },
-  /**
-   * §5's [src] builds this with two children — the caption rise and the
-   * sibling-dim, on one paused timeline. **Ours has one**, and the missing
-   * tween is not missing.
-   *
-   * §21.1 is explicit that the dim is one shared primitive across three
-   * components and not three implementations, and phase 4 is where that
-   * instruction pays: twelve cards each owning a tween over the other eleven
-   * means sliding the pointer between two cards has one timeline reversing
-   * every sibling to 1 while the next drives every sibling to .3, on the same
-   * ten elements, for 400ms. The dim lives once, on the grid, in
-   * `useSiblingDim`, and the behaviour check drives it there — that is the
-   * assertion that actually matches phase 4's acceptance criterion, because
-   * "dims all eleven others to exactly 0.3" is a fact about eleven elements
-   * and not about a tween's duration. See I-039.
-   *
-   * `yPercent`, not §5's `y: '-110%'`: identical in effect — GSAP resolves the
-   * percentage against the element's own height either way — and the name says
-   * which it is.
-   */
-  {
-    id: 'work-card.hover',
-    phase: 4,
-    pending: false,
-    totalDuration: 0.25,
-    tweenCount: 1,
-    tweens: [{ duration: 0.25, ease: 'power1.inOut', props: ['yPercent'], startTime: 0 }],
-  },
+  /* ── `work-card.hover` is gone, and it is not missing ──────────────────────
+     §5's `[src]` gives each card one paused hover timeline with two children:
+     the caption rising to -110%, and the sibling-dim. Phase 4 removed both, for
+     two different reasons, and there is nothing left to register.
+
+     The **sibling-dim** moved to the grid, because §21.1 says to in as many
+     words — "one shared primitive, `useSiblingDim(0.3)`, not three
+     implementations" — and twelve cards each owning a tween over the other
+     eleven made sliding the pointer between two cards a 400ms fight over the
+     same ten elements. It is asserted in the behaviour layer instead, against
+     all eleven other cards, which is what phase 4's acceptance criterion
+     actually says. I-039.
+
+     The **caption rise** was removed at Sayandeep's request: it hid the work's
+     name and summary at the moment you were reading about them. D-025.
+
+     What replaced them — the sheet's wipe, the overlay's asymmetric fade, the
+     reel swap — are separate tweens on separate targets by design, and every
+     one of them is asserted in `behaviour.works.ts` by reading the live tween's
+     own `duration()`. An empty entry here would be worse than none: it would
+     read as a timeline somebody forgot to finish. */
   /**
    * The reveal. §5, one-shot and guarded.
    *

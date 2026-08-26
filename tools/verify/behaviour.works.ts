@@ -155,21 +155,41 @@ async function checkOverlay(browser: Browser, baseUrl: string): Promise<CheckRes
       for (const card of cards) card.dispatchEvent(new MouseEvent('mouseleave'));
       await wait(700);
 
+      const sheet = target.querySelector<HTMLElement>('[data-work-sheet]')!;
+      const media = target.querySelector<HTMLElement>('[data-work-media]')!;
+
       target.dispatchEvent(new MouseEvent('mouseenter'));
-      // Read the tween while it is still alive, before it retires itself.
+      // Read the tweens while they are still alive, before they retire.
       const inTween = g.getTweensOf(overlay)[0];
       const inDuration = inTween ? +inTween.duration().toFixed(3) : null;
-      const inTarget = inTween ? (inTween.vars as { opacity?: number }).opacity ?? null : null;
-      await wait(800);
+      const sheetInTween = g.getTweensOf(sheet)[0];
+      const sheetIn = sheetInTween ? +sheetInTween.duration().toFixed(3) : null;
+      await wait(900);
       const peak = +getComputedStyle(overlay).opacity;
+      const sheetOpen = +getComputedStyle(sheet).opacity;
+      const coverage =
+        +(sheet.getBoundingClientRect().height / media.getBoundingClientRect().height).toFixed(3);
 
       target.dispatchEvent(new MouseEvent('mouseleave'));
       const outTween = g.getTweensOf(overlay)[0];
       const outDuration = outTween ? +outTween.duration().toFixed(3) : null;
-      await wait(800);
+      const sheetOutTween = g.getTweensOf(sheet)[0];
+      const sheetOut = sheetOutTween ? +sheetOutTween.duration().toFixed(3) : null;
+      await wait(900);
       const rest = +getComputedStyle(overlay).opacity;
+      const sheetRest = +getComputedStyle(sheet).opacity;
 
-      return { inDuration, outDuration, inTarget, peak, rest };
+      return {
+        inDuration,
+        outDuration,
+        peak,
+        rest,
+        sheetIn,
+        sheetOut,
+        sheetOpen,
+        sheetRest,
+        coverage,
+      };
     }, c.hoverIndex);
 
     out.push(
@@ -194,6 +214,48 @@ async function checkOverlay(browser: Browser, baseUrl: string): Promise<CheckRes
       measured.rest !== null && near(measured.rest, 0, c.tolerance)
         ? pass('works grid: overlay returns to 0', String(measured.rest))
         : fail('works grid: overlay returns to 0', '0', String(measured.rest)),
+    );
+
+    /* The drawer. §5 sets its opacity outright; ours tweens, on Sayandeep's
+       instruction (D-022), and a requirement nobody checks is one that
+       regresses back to a `set()` the next time someone reads §5. */
+    out.push(
+      measured.sheetIn !== null && near(measured.sheetIn, c.sheetIn, 0.001)
+        ? pass(
+            `works grid: the hover sheet FADES in over ${c.sheetIn}s — it is not set`,
+            `${measured.sheetIn}s`,
+          )
+        : fail(
+            'works grid: the hover sheet fades in rather than being set',
+            `${c.sheetIn}s`,
+            measured.sheetIn === null ? 'no tween — it is a gsap.set()' : `${measured.sheetIn}s`,
+          ),
+    );
+    out.push(
+      measured.sheetOut !== null && near(measured.sheetOut, c.sheetOut, 0.001)
+        ? pass(`works grid: the hover sheet fades out over ${c.sheetOut}s`, `${measured.sheetOut}s`)
+        : fail('works grid: the hover sheet fades out', `${c.sheetOut}s`, String(measured.sheetOut)),
+    );
+    out.push(
+      near(measured.sheetOpen, 1, c.tolerance) && near(measured.sheetRest, 0, c.tolerance)
+        ? pass('works grid: the sheet opens to 1 and returns to 0')
+        : fail(
+            'works grid: the sheet opens to 1 and returns to 0',
+            'open 1, rest 0',
+            `open ${measured.sheetOpen}, rest ${measured.sheetRest}`,
+          ),
+    );
+    out.push(
+      measured.coverage > 0 && measured.coverage <= c.sheetMaxCoverage
+        ? pass(
+            'works grid: the sheet is a drawer, not a curtain — it does not fill the media',
+            `${Math.round(measured.coverage * 100)}% of the media's height`,
+          )
+        : fail(
+            'works grid: the sheet does not fill the media',
+            `≤ ${Math.round(c.sheetMaxCoverage * 100)}%`,
+            `${Math.round(measured.coverage * 100)}%`,
+          ),
     );
   } finally {
     await context.close();
@@ -303,10 +365,32 @@ async function checkMobile(browser: Browser, baseUrl: string): Promise<CheckResu
       const sheet = first.querySelector<HTMLElement>('[data-work-sheet]')!;
       const scs = getComputedStyle(sheet);
       const widths = cards.map((el) => Math.round(el.getBoundingClientRect().width));
+      /* sRGB relative luminance, WCAG's formula. A hex would be the wrong
+         assertion here — every panel is a different colour on purpose. */
+      const luminance = (colour: string) => {
+        const parts = (colour.match(/[\d.]+/g) ?? ['0', '0', '0']).slice(0, 3).map(Number);
+        /* Two formats, two scales. `color-mix()` computes to
+           `color(srgb 0.194 0.143 0.121)` with components in 0..1, while a
+           plain declaration computes to `rgb(33, 33, 33)` in 0..255. Reading
+           the first as the second divides every channel by another 255 and
+           reports a luminance near zero — which would sail through a
+           "must be dark" assertion for entirely the wrong reason, and then fail
+           the "lighter than the page" one. The panel is a color-mix, so this is
+           not hypothetical. */
+        const scale = colour.startsWith('color(') ? 1 : 255;
+        const lin = (v: number) => {
+          const c = v / scale;
+          return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+        };
+        return 0.2126 * lin(parts[0] ?? 0) + 0.7152 * lin(parts[1] ?? 0) + 0.0722 * lin(parts[2] ?? 0);
+      };
+
       return {
         sheetPosition: scs.position,
         sheetOpacity: +scs.opacity,
         sheetBackground: scs.backgroundColor,
+        sheetLuminance: +luminance(scs.backgroundColor).toFixed(4),
+        pageLuminance: +luminance(getComputedStyle(document.body).backgroundColor).toFixed(4),
         videoCount: grid.querySelectorAll('video').length,
         videoDisplay: grid.querySelector('video')
           ? getComputedStyle(grid.querySelector('video')!).display
@@ -329,10 +413,31 @@ async function checkMobile(browser: Browser, baseUrl: string): Promise<CheckResu
             `position ${state.sheetPosition}, opacity ${state.sheetOpacity}`,
           ),
     );
+    /* Never a bright surface. See the note on `sheetMaxLuminance` — the
+       assertion is the property, not a hex, because all twelve panels differ. */
     out.push(
-      state.sheetBackground === c.sheetBackground
-        ? pass('works grid ≤767: the sheet is the #EFEFEF panel', state.sheetBackground)
-        : fail('works grid ≤767: sheet ground', c.sheetBackground, state.sheetBackground),
+      state.sheetLuminance <= c.sheetMaxLuminance
+        ? pass(
+            `works grid: the sheet is never a bright surface (luminance ≤ ${c.sheetMaxLuminance})`,
+            `${state.sheetBackground} → ${state.sheetLuminance}`,
+          )
+        : fail(
+            'works grid: the sheet is never a bright surface',
+            `luminance ≤ ${c.sheetMaxLuminance}`,
+            `${state.sheetBackground} → ${state.sheetLuminance}`,
+          ),
+    );
+    out.push(
+      state.sheetLuminance > state.pageLuminance
+        ? pass(
+            'works grid: the sheet is still distinguishable from the page ground',
+            `sheet ${state.sheetLuminance} vs page ${state.pageLuminance}`,
+          )
+        : fail(
+            'works grid: the sheet is distinguishable from the page ground',
+            'sheet lighter than page',
+            `sheet ${state.sheetLuminance} vs page ${state.pageLuminance}`,
+          ),
     );
     out.push(
       state.gridColumns === 1 && state.distinctWidths.length === 1

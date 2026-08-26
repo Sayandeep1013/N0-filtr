@@ -276,8 +276,36 @@ export const BEHAVIOUR = {
     columnGapPx: 20.5625,
     /** `30-page-specs.md` §2: half ×8, wide ×3, full ×1. */
     mix: { half: 8, wide: 3, full: 1 },
-    /** §5: the mobile panel is `#EFEFEF`. */
-    sheetBackground: 'rgb(239, 239, 239)',
+    /**
+     * The panel must never be a bright surface.
+     *
+     * §5 specifies `#EFEFEF` and phase 4 built that; Sayandeep asked for it
+     * changed twice — once for the abruptness, once for the colour — and it is
+     * now the page's black with 14% of the work's accent mixed in (D-024).
+     *
+     * So this asserts the **property**, not the hex. Each of the twelve panels
+     * is a different colour by design, and pinning one value would either
+     * pass vacuously for eleven of them or need a table that goes stale the
+     * moment an accent is re-sampled. Relative luminance under 0.10 is the
+     * thing that was actually asked for: no bright surface, anywhere, ever.
+     */
+    sheetMaxLuminance: 0.1,
+    /**
+     * The hover drawer must be TWEENED, not set.
+     *
+     * §5's [src] reveals it with `gsap.set('.work__sheet', { opacity: 1 })` —
+     * no duration at all — and on a 1316x822 card that is #212121 to pure white
+     * in one frame. Sayandeep asked for it fixed on 2026-08-26 (D-022), so
+     * "there is a transition" is now a requirement rather than a preference,
+     * and a requirement nobody checks is one that regresses.
+     *
+     * Read off the live tweens rather than sampled, for the same reason as the
+     * overlay: sampling an eased curve measures the harness's own jitter.
+     */
+    sheetIn: 0.5,
+    sheetOut: 0.4,
+    /** It must not fill the media any more. Fraction of the media's height. */
+    sheetMaxCoverage: 0.8,
     desktop: { w: 1512, h: 900 },
     mobile: { w: 390, h: 844 },
   },

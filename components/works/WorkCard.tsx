@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRef } from 'react';
 import { gsap, ScrollTrigger, useGSAP } from '@/lib/motion/gsap';
-import { DUR, EASE, MQ, REVERSE_SCALE } from '@/lib/motion/tokens';
+import { DUR, EASE, MQ } from '@/lib/motion/tokens';
 import { registerTimeline, unregisterTimeline } from '@/lib/motion/registry';
 import { SpecTable } from '@/components/ui/SpecTable';
 import type { Work } from '@/content/works/_types';
@@ -16,9 +16,9 @@ import s from './WorkCard.module.css';
  * **Four independent motions, and they do not know about each other.**
  *
  *   1. the reveal      one-shot, scrubbed in by a ScrollTrigger, guarded
- *   2. hover layer 1   caption rises, every OTHER card dims to .3
+ *   2. hover layer 1   every OTHER card dims to .3 — owned by the GRID (I-039)
  *   3. hover layer 2   `.fade-away-overlay` to .55 in 500ms, out in 400ms
- *   4. hover layer 3   the sheet fades in, the reel replaces the still
+ *   4. hover layer 3   the sheet wipes in, the reel replaces the still
  *
  * Layers 2 and 3 are separate from layer 1 on purpose. §21.2 calls the overlay
  * "an extra layer under the GSAP hover timeline, easy to miss", and its timings
@@ -102,30 +102,95 @@ export function WorkCard({ work, className }: { work: Work; className?: string }
          Desktop only, and only where motion is welcome. One paused timeline
          built on mount, per §5. */
       mm.add(`${MQ.desktop} and ${MQ.noPreference}`, () => {
-        if (!info || !sheet) return;
+        if (!sheet) return;
 
-        /* The caption rise, and only that.
+        /* ── what used to be here ─────────────────────────────────────────
+           §5's `[src]` builds one paused hover timeline per card with two
+           children: the caption rising to -110%, and the sibling-dim. Neither
+           is here any more, and both left for a reason.
 
-           §5's [src] puts the sibling-dim in this same timeline. **§21.1 says
-           not to**, in as many words: "Treat this as one shared primitive,
-           `useSiblingDim(0.3)`, not three implementations." Phase 4 is where
-           the instruction earns itself.
+           The **sibling-dim** moved to the grid. §21.1 says to, in as many
+           words — "one shared primitive, `useSiblingDim(0.3)`, not three
+           implementations" — and phase 4 is where that earns itself: twelve
+           cards each owning a tween over the other eleven means sliding the
+           pointer between two cards has one timeline driving every sibling to 1
+           while the next drives every sibling to .3, on the same ten elements,
+           for 400ms. I-039.
 
-           Twelve cards each owning a tween over the other eleven means that
-           sliding the pointer from one card to the next has card A reversing
-           every sibling back to 1 while card B drives every sibling to .3 — on
-           the same ten elements, at the same time, with neither knowing about
-           the other. It flickers, and it flickers for 400ms.
+           The **caption rise** is gone at Sayandeep's request: it hid the
+           work's name and summary at the moment you were reading about them.
+           D-025.
 
-           The dim now lives once, on the grid, in `useSiblingDim`. See I-039. */
-        const tl = gsap.timeline({ paused: true });
-        tl.fromTo(info, { yPercent: 0 }, { yPercent: -110, duration: DUR.micro, ease: EASE.inOut });
+           So this branch owns the sheet, the overlay and the reel swap, and
+           there is no timeline left to register. `work-card.hover` is not
+           "missing" — it does not exist. */
 
-        tl.eventCallback('onReverseComplete', () => gsap.set(sheet, { opacity: 0 }));
+        /* ── the drawer wipes in from the right ───────────────────────────
+           It rose from the bottom in the first build of this. Sayandeep:
+           *"I don't like the info coming from the bottom — do it the same as
+           the card appears, from right to left."*
+
+           `clip-path`, not a transform. A panel translated in from the right
+           starts a full card-width outside its own box, which means it is
+           briefly drawn over the card in the next column unless something
+           clips it — and the only element positioned to do that is the media,
+           which the sheet is deliberately NOT a child of (§5's anatomy, and
+           what lets ≤767 drop it into the flow). An inset clip needs no
+           ancestor at all: the panel never moves, its visible region does.
+
+           `inset(0 0 0 100%)` is a zero-width strip against the right edge;
+           animating that last value to 0 opens it leftward. Right to left,
+           exactly as asked, with nothing to overflow. */
+        const CLOSED = 'inset(0% 0% 0% 100%)';
+        const OPEN = 'inset(0% 0% 0% 0%)';
+
+        const rows = [...sheet.querySelectorAll<HTMLElement>('[data-spec] > div')];
+
+        gsap.set(sheet, { opacity: 0, clipPath: CLOSED });
+        gsap.set(rows, { opacity: 0, x: 14 });
+
+        const showSheet = () => {
+          gsap.to(sheet, {
+            opacity: 1,
+            clipPath: OPEN,
+            duration: DUR.mid,
+            ease: EASE.soft,
+            overwrite: 'auto',
+          });
+          /* The rows follow the wipe across rather than arriving with it, so
+             the panel reads as being drawn rather than switched on. `.04`
+             across five rows is 160ms of stagger inside a 500ms wipe — enough
+             to see, not enough to wait for. */
+          gsap.to(rows, {
+            opacity: 1,
+            x: 0,
+            duration: DUR.base,
+            ease: EASE.soft,
+            stagger: 0.04,
+            overwrite: 'auto',
+          });
+        };
+
+        const hideSheet = () => {
+          gsap.to(sheet, {
+            opacity: 0,
+            clipPath: CLOSED,
+            duration: DUR.base,
+            ease: EASE.inOut,
+            overwrite: 'auto',
+          });
+          /* No stagger on the way out. Reverses are faster everywhere on this
+             site, and a staggered exit reads as the panel struggling to leave. */
+          gsap.to(rows, { opacity: 0, x: 14, duration: DUR.fast, overwrite: 'auto' });
+        };
 
         const enter = () => {
-          gsap.set(sheet, { opacity: 1 });
-          tl.timeScale(1).play();
+          /* §5 sets the sheet's opacity outright, with no tween, and on a
+             1316x822 card that is #212121 to pure white in one frame. It now
+             wipes in from the right over the same 500ms the overlay takes to
+             darken underneath it, so the media dims first and the drawer is
+             drawn across the dimmed area. See D-022. */
+          showSheet();
           if (overlay) {
             // §21.2 — in over 500ms. Its own tween; see the component note.
             gsap.to(overlay, { opacity: 0.55, duration: DUR.mid, ease: EASE.inOut });
@@ -137,7 +202,7 @@ export function WorkCard({ work, className }: { work: Work; className?: string }
         };
 
         const leave = () => {
-          tl.timeScale(REVERSE_SCALE).reverse();
+          hideSheet();
           if (overlay) {
             // §21.2 — out over 400ms. Faster than in, the inverse of the site's
             // usual rule, and the reason this is not on the main timeline.
@@ -155,18 +220,14 @@ export function WorkCard({ work, className }: { work: Work; className?: string }
         /* Keyboard reaches the card through its link. Focus is not hover — it
            does not dim eleven other cards — but the sheet is real content and a
            keyboard visitor should be able to see it. */
-        card.addEventListener('focusin', () => gsap.set(sheet, { opacity: 1 }));
+        card.addEventListener('focusin', showSheet);
         card.addEventListener('focusout', () => {
-          if (!card.matches(':hover')) gsap.set(sheet, { opacity: 0 });
+          if (!card.matches(':hover')) hideSheet();
         });
-
-        if (work.order === 1) registerTimeline('work-card.hover', tl);
 
         return () => {
           card.removeEventListener('mouseenter', enter);
           card.removeEventListener('mouseleave', leave);
-          if (work.order === 1) unregisterTimeline('work-card.hover');
-          tl.kill();
         };
       });
 
@@ -194,9 +255,27 @@ export function WorkCard({ work, className }: { work: Work; className?: string }
       className={[s.card, className].filter(Boolean).join(' ')}
       data-work-card
       data-work-width={work.card.width}
+      /* The work's own accent, handed to CSS so the hover panel can be tinted
+         with it. A custom property rather than an inline background: the
+         stylesheet decides how much of it to use and what to mix it into, and
+         that ratio is a design decision that belongs next to the other ones. */
+      style={{ '--work-accent': work.accent.dark } as React.CSSProperties}
     >
       <Link href={`/works/${work.slug}`} className={s.link}>
-        <div className={s.media} data-work-media>
+        {/* The positioning context for the sheet, and the reason it exists.
+
+            The sheet was `position: absolute; bottom: 0` with no relative
+            ancestor between it and `.card` — so "bottom" meant the bottom of
+            the whole card, caption included, and the panel covered the work's
+            name and summary. Sayandeep: *"the info at the bottom of the actual
+            card, the project name and the right side description, those are
+            getting covered too. I don't want that getting covered — just cover
+            the card image itself, not the info."*
+
+            The frame is exactly the media's box. The caption lives outside it
+            and can no longer be reached. See D-025. */}
+        <div className={s.frame}>
+          <div className={s.media} data-work-media>
           <div className={s.still} data-work-still>
             {work.card.poster ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -226,33 +305,34 @@ export function WorkCard({ work, className }: { work: Work; className?: string }
               covers the media until the card has arrived. */}
           <div className={s.wipe} data-work-wipe aria-hidden="true" />
 
-          <span className={s.badge} data-work-badge data-t="label-sm">
-            Case study
-          </span>
-        </div>
-
-        {/* A SIBLING of the media, as §5's anatomy has it — not a child. Above
-            768 it is absolutely positioned over the media's box and revealed on
-            hover; at ≤767 it drops into the flow and becomes the card's second
-            block. One element, two layouts, and only the second one is what a
-            phone ever sees. */}
-        <div className={s.sheet} data-work-sheet>
-          <SpecTable rows={specRows} invert className={s.sheetTable} />
-        </div>
-
-        {/* The caption is clipped by its own wrapper. §5 slides it to -110% of
-            its own height on hover, which is a disappearance rather than a
-            move: without something to clip it, it would ride up over the media
-            and sit there. */}
-        <div className={s.infoClip}>
-          <div className={s.info} data-work-info>
-            <span className={s.client} data-t="label">
-              {work.title}
-            </span>
-            <span className={s.summary} data-t="p-sm">
-              {work.summary}
+            <span className={s.badge} data-work-badge data-t="label-sm">
+              Case study
             </span>
           </div>
+
+          {/* A SIBLING of the media, as §5's anatomy has it — not a child. Above
+              768 it is absolutely positioned over the media's box and wiped in
+              on hover; at ≤767 it drops into the flow and becomes the card's
+              second block. One element, two layouts, and only the second one is
+              what a phone ever sees. */}
+          <div className={s.sheet} data-work-sheet>
+            {/* Not `invert`. The panel is dark now (D-024), so the table wants
+                its ordinary palette: grey keys, white values, white-30 rules. */}
+            <SpecTable rows={specRows} className={s.sheetTable} />
+          </div>
+        </div>
+
+        {/* Outside the frame, so nothing can cover it — and it no longer moves.
+            §5 slides the caption to -110% of its own height on hover, which
+            makes the work's name disappear at the exact moment you are reading
+            about it. See D-025. */}
+        <div className={s.info} data-work-info>
+          <span className={s.client} data-t="label">
+            {work.title}
+          </span>
+          <span className={s.summary} data-t="p-sm">
+            {work.summary}
+          </span>
         </div>
       </Link>
     </article>
