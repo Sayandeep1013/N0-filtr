@@ -55,10 +55,20 @@ body {
   overflow-x: hidden;
 }
 
-/* ── the one container ────────────────────────────────────────────────────
-   There is no max content width. The site is edge-to-edge at every viewport
-   and scales by the fluid root instead. Class names mirror tonik's so the
-   teardown maps directly onto our markup. */
+/* ── the containers ───────────────────────────────────────────────────────
+   Two of them, and they do different jobs. Class names mirror tonik's so the
+   teardown maps directly onto our markup.
+
+   `.padding-global` is the page gutter and applies edge to edge.
+   `.container-large` caps the measure inside it and centres.
+
+   **`.container-large` was `max-width: 100%` until phase 2, and that was
+   wrong.** `10-design-system.md` §? documents it as
+   `calc(100vw - 2 * 2.5rem)` — the gutter width — and tonik's is capped.
+   Measured on their live site: the element is 1316px inside a 1512 viewport
+   (root 16.45) and 1520px inside 1920 (root 19). Both are exactly **80rem**,
+   centred, which is why their hero copy starts 98px from the left where a bare
+   gutter would start it at 41. See I-030. */
 .padding-global {
   padding-left: var(--gutter);
   padding-right: var(--gutter);
@@ -66,8 +76,17 @@ body {
 
 .container-large {
   width: 100%;
-  max-width: 100%;
+  max-width: var(--container-large);
   margin-inline: auto;
+}
+
+/* The full-bleed modifier. tonik carry `container-large unl-width` on the one
+   element per page that must ignore the cap — on the homepage it is the hero's
+   3D wrapper, which has to reach the viewport edges while the copy beside it
+   stays inside 80rem. Enumerated on their live DOM: eleven `.container-large`
+   elements, ten at 1316px and one at 100%. */
+.container-large.unl-width {
+  max-width: 100%;
 }
 
 .section {

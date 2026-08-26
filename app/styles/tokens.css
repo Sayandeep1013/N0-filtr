@@ -70,6 +70,9 @@
 
   /* ── layout ─────────────────────────────────────────────────────────── */
   --gutter: 2.5rem;
+  /* The capped measure inside the gutter. Measured on tonik: 1316px at a 16.45
+     root and 1520px at 19 — 80rem at both. See I-030. */
+  --container-large: 80rem;
   /* Spec writes this literally as calc(100vw - (2 * 2.5rem)). Expressed through
      --gutter so the documented mobile gutter override cascades. Identical at
      desktop; the substitution is notation, not a changed value. */

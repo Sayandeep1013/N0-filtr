@@ -1,10 +1,10 @@
 # Verification report
-Run: 2026-08-26T01:32:21.127Z · Phase 03 · commit `c3aa5b6` · branch `main`
+Run: 2026-08-26T06:17:49.285Z · Phase 03 · commit `a6c2ad0` · branch `main`
 
 ## Summary
 ```
 tokens  ✅ 136/136
-motion  ⚠️ 142/145  (3 pending, owed by later phases)
+motion  ⚠️ 144/147  (3 pending, owed by later phases)
 visual  ⚠️ reviewed by agent — see judgement
 budget  ✅ 5/5
 ```
@@ -282,19 +282,21 @@ budget  ✅ 5/5
 ✅ loader under reduced motion — a 200ms fade = 0.2s
 ✅ loader under reduced motion — no transform = opacity, duration, ease, parent, overwrite, delay
 ✅ loader under reduced motion — loader clears the page = display: none
-✅ hero 3D — triangle budget = 13064 / 40000
-✅ hero 3D — ring sweeps 0.4 rad across the viewport = 0.393
-✅ hero 3D — blades sweep 0.6 rad = 0.591
-✅ hero 3D — the blades outrun the ring = 1.50x
-✅ hero 3D — ring and blades counter-rotate on Y = ring 0.196, blades -0.196
+✅ hero 3D — triangle budget = 5232 / 40000
+✅ hero 3D — the blades never leave the barrel = reach 1.930 of 2, invariant
+✅ hero 3D — the housing tips across the viewport = 0.258
+✅ hero 3D — the housing tips top to bottom = 0.317
+✅ hero 3D — the iris actuates = 0.318 rad about the bore
+✅ hero 3D — the blades lead the housing = 1.23x
+✅ hero 3D — the response stays subtle = max 0.159 rad
 ✅ hero 3D — loop suspends off-screen = running: false
 ✅ hero 3D — loop resumes on-screen = running: true
 ✅ hero 3D — suspended off the homepage = context kept, loop stopped
 ✅ hero 3D — faded off the homepage = opacity 0
 ✅ hero 3D — reduced motion renders one frame and stops = running: false
-✅ hero 3D — reduced-motion pose = rotation.y 0.4
+✅ hero 3D — reduced-motion pose = spin 0.4
 ✅ hero 3D — 4 blades at 390 = 4
-✅ hero 3D — camera pulls back on a portrait viewport = z 13.56
+✅ hero 3D — camera pulls back on a portrait viewport = z 13.07
 
 > Pending entries are timelines the spec names but no phase has built yet. The phase that builds one flips `pending: false` in motion.config.ts.
 > Behaviour checks drive the real interface — scroll, hover, click, Escape — rather than reading a registered timeline. They are the only instrument that catches an unwired handler, a matchMedia gate that leaks below 992, or a reverse running at the wrong timeScale. See behaviour.config.ts.
@@ -303,112 +305,110 @@ budget  ✅ 5/5
 
 Contact sheet: `tools/verify/output/contact-sheet.html`
 
-**Agent judgement:** Phase 2, T2.1. Eight captures at 1512 and 390. There is still no hero to compare — the 3D
-assembly is the rest of this phase and the homepage is blank above the footer — so this is a
-judgement about the two content changes that landed with the brand gate: the wordmark casing
-and the rename of service 04. Both surfaces are phase-1 components being re-read, not new ones.
+**Agent judgement:** Phase 2, after the hero rebuild. Ten captures at 1512 and 390. The homepage now has real
+copy, so this is the first run where the hero shot shows the composition it is supposed to
+show rather than the footer wordmark standing in for a headline.
 
-THE WORDMARK, NOW `NO FiLTER`. Compared footer-1512 and footer-390 against their pre-change
-captures and against s11-footer.png. The device works: at 14vw the lone lowercase i sits in a
-run of caps as a visible notch with a dot over it, and it reads as deliberate rather than as a
-typo — which was the argument for choosing caps-caps over `No FiLTER`. It survives at navbar
-size too, which was the real risk. I cropped and upscaled the nav wordmark to check: at a
-15.2px face the dot and the shortened stem are both still legible. It does not degrade into
-`NO FILTER`.
+THE HERO vs tonik-hero-01.png. The structure now matches theirs line for line: a two-line
+headline in the upper third with an inline play square opening the second line, the 3D
+assembly right-of-centre, and a two-up mono rail on the foot above a hairline. Ours reads
+at 24% down for the headline's first line against their 24%, and the rail sits on the
+gutter as theirs does.
 
-AND WHAT THE SCREENSHOTS DID NOT SHOW. The nav wordmark was overrunning its box by 8% and I
-could not see it in any capture. `.logo` is `4.25rem` wide with `flex: none`, so an overrun
-does not clip and does not visibly collide — it silently eats into the gap before the links
-group, 5.6px of it at 1512. It turned up only because I measured `getBoundingClientRect` on
-every `.wordmark` instead of trusting the picture: 75.5px of text in a 69.9px box. The box is
-the specced value (§4, measured off tonik) and the face size was the one phase 1 fitted to the
-lowercase form, so the face size took the correction, 1rem → 0.925rem = 4.25/4.59. Re-measured
-at 99.9% of the box at both 1512 and 390. This is the third phase running where the check that
-found the real defect was not the one that was supposed to. MEASURE THE WORDMARK, DO NOT LOOK
-AT IT.
+The object was rebuilt entirely between runs and the previous judgement is void. It was a
+thin torus with six thin bars floating at its inner edge, and the pointer drove the bars
+independently of the ring — the spec's own recovered curves, faithfully applied, and wrong
+for our object. tonik's glyph floats free inside their ring so a large differential costs
+them nothing; ours is housed, and the same differential slid the blades out of the bore.
+It read as a circle and some lines and it lost its teeth whenever the pointer moved.
 
-THE FOOTER vs s11-footer.png. The composition is unchanged from phase 1's reading and still
-lands — same left gutter, same services height, same enquiry column. One difference is new and
-large enough to state: our wordmark now ends at x=1012.5 where tonik's ends at 737. That is
-275px further right and it is correct. `14vw` is a proportion, our word is longer than `tonik`,
-and it is now in caps; the setting is untouched. It stays inside its own column (1177.8px wide)
-with 165px of slack, so nothing overlaps the enquiry column. It is also a straight improvement
-on I-013: the wordmark fills 82.5% of its column at 1512 against ~59% before, and 71.6% at 390
-against ~51%, which is materially closer to tonik's column-filling SVG at no cost. I-013 is
-amended rather than closed — 71.6% is not 100% — but it is a smaller issue than it was.
+It is one machined barrel with six blades inside its bore now, and the differential moved
+to the axis where it is mechanically true: the housing tips as one object and the blades
+actuate about the bore's own axis, which is what an iris does. Triangles went DOWN, 13,064
+to 5,232 — the first object was expensive because a 200-segment torus is expensive, not
+because it was detailed.
 
-SERVICE 04, NOW CREATIVE DEVELOPMENT. It renders in three places and I checked all three. The
-footer rail reads `Creative Development` at row 4 with the new wireframe-cube glyph, which sits
-at the same 1.25rem and 0.5 opacity as its four neighbours and does not read heavier or lighter
-than them — it is still placeholder art like the rest of the set (I-014, phase 10), but it no
-longer illustrates a service we do not offer. The old drawing was stacked blocks clicking
-together, which was a no-code metaphor and would have been quietly wrong under the new name.
+MATERIAL. This is the biggest visible change and the spec did not describe it. Section 2
+gives a lambert body, a fresnel rim and a grain, and no specular term at all — so a literal
+reading has nothing that glints, and against a reference covered in bright flecks along the
+lit arc it read as flat shading on a dark shape. There is a specular term now, with the
+grain driving both its spread and its strength, and the ring finally reads as something
+cast rather than something filled. I-027.
 
-The contact form picked the rename up on its own, because the chips read from SERVICES rather
-than from a copy. At 1512 `CREATIVE DEVELOPMENT` is the only chip of five that wraps to two
-lines. I looked hard at whether to shorten the label and decided not to: the five chips are a
-grid, all five boxes stay exactly the same height, the wrapped label is centred, and the row
-reads even. Inventing a short form here would also put it at odds with the canonical name in
-SERVICES and in the content model. At 390 the chips are two-up and it fits on one line with
-room, so the wrap is a 1512-only artefact of the longest name in the list.
+Honest comparison: theirs still has more surface glitter than ours. Theirs is a baked map
+with real specular detail; ours is procedural and reads as a finer, more even tooth. I have
+pushed it twice and stopped, because the next step is inventing surface detail the spec
+does not describe rather than lighting the surface it does.
 
-MOBILE @390. Menu opens, the burger still rotates to a dash rather than an x — phase 1
-established that this is what their code does and it is unchanged. Footer collapses in the same
-order. Nothing regressed.
+SILHOUETTE. The ellipse now stretches lower-left to upper-right, and it holds still. The
+previous build spun the assembly about world Y, which for an annulus sweeps it through
+edge-on twice a revolution — the silhouette collapsed to a line and the composition under
+the headline changed as it turned. It spins about the bore axis now, so the ellipse is
+invariant and what you see turning is the grain and the six blades. I-026.
 
-TYPE SCALE. Untouched this phase and re-read only to confirm that: the wordmark carries its own
-face size and letter-spacing and does not inherit from the scale, so changing its casing could
-not have moved anything on the /probe surface. It did not.
+The object overlaps the last word of line two by about 50px. Theirs overlaps 'visionaries'
+by a similar margin. Judged correct rather than tolerated: the copy sits over the
+assembly's left edge in both, and the headline's 60% measure is what stops it becoming more
+than an overlap.
 
-THE 3D HERO vs tonik-hero-01.png. This is the phase's deliverable and the first shot with a
-real reference to hold it against, so it got the longest look.
+HERO @390. The camera is fitted to the viewport, and this is the shot that forced it. At the
+desktop distance a 390-wide viewport put the object at 183% of the width — an arc with one
+blade on it. Fitted, it reads as a ring cropped by the right edge, which is how their own
+mobile capture frames it.
 
-Composition: ours spans x 655-1450 at 1512, so 53% of the width, cropped by the right edge and
-contained top and bottom. Theirs spans 650-1420, 51%. Section 2's target is the right ~55%,
-cropped by the right edge. That match is not what the specced camera produces - at the specced
-z of 6.5 a 4-unit ring is 98% of the viewport HEIGHT before perspective, and the tilt then
-magnifies its near edge another 19%, so the object overflowed on all four sides. The first
-render is what caught it. CAMERA_Z is 7.5 and I-022 records the conflict rather than hiding it.
+WHAT A STILL CANNOT SHOW, and what the behaviour layer now holds instead. Fifteen
+assertions, and three of them exist because of defects this phase actually shipped and had
+to fix:
 
-The object reads as a mechanism rather than a hoop, which is the whole point of the mark. Two
-things had to be fixed before it did. The blades were standing upright through a tipped ring -
-section 2 hangs the ellipse tilt off the Ring line, and applying it only to the torus puts the
-two halves of one mechanism in different planes. And the lighting normalisation divided by
-ambient+key+rim, which no surface can ever receive because the two lights are on opposite sides,
-so the whole object rendered as a near-black silhouette at about 59% of its intended value.
-Both are in D-012.
+  - the blades never leave the barrel, at every pointer position, with the reach invariant
+    to six decimal places rather than merely small. That is the failure the first build had.
+  - the response stays subtle. The first build swung 0.6 rad and read as a thing being
+    waved about; a regression that doubles the current figures is a regression.
+  - the blades lead the housing. The differential survived the rebuild even though the axis
+    it lives on changed, and that is worth asserting rather than assuming.
 
-MATERIAL. Ours is now visibly granular across the torus and along the lit arc, which is what
-the reference shows and what section 2 calls the whole character of the material. It got there
-by wiring the roughness into the fresnel - section 2's own snippet computes a roughness and
-then never reads it, so transcribed literally the grain reaches the pixel through one plus or
-minus 9% albedo term and is invisible. That is I-021. Honest comparison: theirs still sparkles
-harder than ours. Theirs is a Spline material with a baked map and real specular glitter; ours
-is procedural and reads more as fine tooth than as flecks. I would rather be a little under
-than invent a specular term section 2 does not describe.
+The load-in was also measured rather than watched. The specced values were running
+correctly and were simply illegible: 0.85 to 1 is a 15% move, and power3.out spends most of
+its travel in the first fifth of its duration, so sampling at 10ms already found it at
+0.919. It is 0.55 over 1.6s on power2.out now and still climbing at 880ms. I-028.
 
-Where ours legitimately differs: their mark is a solid extruded asterisk filling about 45% of
-the ring, ours is six retracted blades at the inner edge. That is the Open Aperture and it is
-the design, not a shortfall. It does mean our interior reads emptier than theirs, which is
-exactly what the name says it should.
+FOOTER, CONTACT PANEL, MOBILE MENU, TYPE SCALE. Re-read and unchanged from the previous
+run's judgement. The footer no longer sits under a full-height canvas near the top of the
+document, because the homepage finally has height — which was the one thing the previous
+judgement had to explain away.
 
-HERO @390. The camera is fitted to the viewport rather than fixed, and this shot is why. At the
-desktop distance a 390-wide viewport put the ring at 183% of the width - a bare arc with a
-single blade on it, unrecognisable. Fitted, it lands at about 103% and reads as a ring cropped
-by the right edge with three blades visible, which is how tonik's own mobile capture
-(s17-mobile-hero.png) frames it. Ours sits lower in the viewport than theirs; theirs is pushed
-up by hero copy that phase 3 has not written yet, so I am not treating that as a difference.
+MEASURED AGAINST THEIR LIVE DOM, not against a capture. This is the change that ended the
+back-and-forth on alignment, and it should have been the first move rather than the last:
+every earlier pass read pixel positions out of tonik-hero-01.png, which gives you where
+things ARE and never why. Opening tonik.com in Playwright and reading getBoundingClientRect
+and getComputedStyle off the hero gave the actual values in one pass.
 
-WHAT THIS SHOT CANNOT SHOW, and why the behaviour layer grew 13 assertions. Whether the blades
-outrun the ring is a relationship between two rotations - a still cannot show it and neither
-can a registered timeline. Whether the loop is still burning frames behind a faded canvas is
-invisible by construction. Both are asserted now, and the parallax assertion immediately found
-that the sweep was landing at 0.319 rad instead of 0.4 because section 2's damp is per-frame
-and the harness runs near 20fps (I-023). Nothing in a screenshot would ever have shown that.
+Ours now matches theirs on every number in the hero:
 
-The hero overlapping the footer's enquiry column in this capture is not a defect: the homepage
-is still blank, so the footer sits near the top of the document and under a 100dvh hero. Phase
-3 gives the page height and this stops.
+  h1        x 98    y 201.5   1316 x 197.4     font 98.7 / 98.7 / -2.4675   identical
+  play      x 98    y 324.1   65.8 x 65.8      4rem square, --grey-800      identical
+  line 2    flex, align-items flex-end, gap 41.125px                        identical
+  rail      x 98    y 816.8   1316 wide, rule on 858.9                      identical
+  rail rule border-bottom 1px rgba(255,255,255,.3), padding-bottom 28.7875  identical
+  canvas    position absolute, inset 0, 1512x900, z-index 0                 identical
+
+Three real errors came out of that read, none of which a screenshot could have shown:
+
+  1. `.container-large` was `max-width: 100%` and used nowhere. Theirs caps at 80rem and
+     centres — 1316px at a 16.45 root, 1520px at 19. That cap is why their copy starts 98px
+     from the left where a bare 41px gutter would start it at 41, and it is the whole of the
+     alignment drift I had been chasing by eye. 10-design-system.md documents the class as
+     the gutter width, which is wrong. I-030.
+  2. The foot rail's labels are --white, not the secondary grey. Confirmed twice over: their
+     bottom-bar computes to rgb(239,239,239), and the brightest pixel in that row of their
+     capture is exactly #efefef. The footer's labels are grey; the hero's are not.
+  3. The play control is a 4rem SQUARE sized in rem, sitting in a flex row with a 2.5rem gap
+     — not an em-sized glyph inline in the sentence. I had it 0.2rem out with the wrong gap.
+
+The one thing the live read cannot give is their 3D object: it is a Spline scene, and the
+brief deliberately does not copy it. That half stays judgement, and it is the half that took
+the iterations — thin barrel against thick, where the specular sits, how wide the blades are.
+The layout half should not have.
 
 ⏳ stack-wall — owed by phase 3
 ⏳ works-a — owed by phase 4
@@ -433,12 +433,12 @@ is still blank, so the footer sits near the top of the document and under a 100d
 ℹ️ matter-js absent from the eagerly-loaded bundle — vacuous: matter-js is not installed yet
 ✅ three absent from the eagerly-loaded bundle = absent
 ℹ️ plyr absent from the eagerly-loaded bundle — vacuous: plyr is not installed yet
-ℹ️ all built chunks, gzipped (not a per-route figure) = 441.0KB
-✅ JS on / (transferred) = 303.5KB / 320KB
-✅ home page total weight = 370.1KB / 1800KB
+ℹ️ all built chunks, gzipped (not a per-route figure) = 441.5KB
+✅ JS on / (transferred) = 303.7KB / 320KB
+✅ home page total weight = 371.9KB / 1800KB
 ✅ zero network font requests = both faces self-hosted
-✅ CLS (local, unthrottled) = 0.0027
-ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 108ms
+✅ CLS (local, unthrottled) = 0.0025
+ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 116ms
 
 > Poster and reel budgets become binding in phase 10, when assets exist.
 > Lighthouse scores are a phase 12 deliverable via mcp__chrome-devtools__lighthouse_audit; the figures here are local and unthrottled.

@@ -44,6 +44,38 @@ You start cold every session. This is how you get to competent without burning y
 
 **Then stop reading and start working.**
 
+### 9 · Check the extract before you measure anything
+
+`docs/research/03-tonik-extract.md` is tonik's design system read off their **live DOM** — the
+container system, the type scale as rendered, the colour set, the transition vocabulary, the
+section rhythm, and the hero element by element. Regenerate or extend it with:
+
+```bash
+npm run extract:tonik                       # firefox, the default
+node tools/extract/tonik.mjs --chromium     # the cross-engine diff
+```
+
+> **A capture shows where an element is. It never shows the rule that put it there.**
+
+Phase 2 learned this expensively: a session of correcting the hero by eye against a screenshot,
+one number at a time — the foot rail 29px high, the copy column 57px left, the play control
+0.2rem out — when every one of those values was in `getComputedStyle` the whole time. The rule
+behind all of them was a single `max-width: 80rem` on `.container-large`, and no amount of looking
+at a picture would ever have shown it. See D-016 and I-030.
+
+So, in order:
+
+1. **Look in the extract.** If your component's numbers are there, use them.
+2. **If they are not, extend `tools/extract/tonik.mjs`** — it takes a selector list, and the
+   marginal cost of one more component is a line. Then commit the regenerated extract.
+3. **Only then** open a screenshot, and only for composition — where things sit relative to each
+   other, which is the one thing a capture is genuinely better at.
+
+**What the extract does and does not collect.** Measurements and structure — the same class of
+thing `docs/spec/` is built from. Not their copy, their imagery, their Spline scene or their
+logo: those are theirs, ours are ours, and CLAUDE.md's line holds. It is also the cheaper path,
+because a layout tuned to their string lengths has to be re-tuned to ours anyway.
+
 ### The rule that matters
 
 > **Read the Reading Map, not the spec.** `docs/spec/` is ~2,500 lines. Your phase needs

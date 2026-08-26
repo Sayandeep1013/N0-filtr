@@ -1,0 +1,79 @@
+/* The showreel control. 30-page-specs.md §1.
+
+   Measured on tonik's live DOM, not estimated from a capture. Their
+   `home-hero_video-btn` is a <button> 65.797px square at a 16.45 root and 76px
+   square at a 19 root — **4rem at both** — carrying a child
+   `home-hero_video-btn-bg` of the same size at `rgb(59,59,59)`, which is our
+   `--grey-800`, with `border-radius: 0`.
+
+   It is a flex sibling of the headline's second line with a 2.5rem gap, not an
+   inline glyph — so it is sized in `rem` like everything else on the site. The
+   first build sized it in `em` off the headline, which was a reasonable guess
+   and 0.2rem out at 1512 with the wrong gap entirely. */
+
+.square {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 4rem;
+  height: 4rem;
+  /* `align-items: flex-end` on the line puts the control flush with the line
+     box's foot. Theirs sits 9px above it at a 16.45 root — the descender space
+     the text leaves and the button does not. Measured: their button spans
+     324.1..389.9 inside a line box ending at 398.9. */
+  margin-bottom: 0.55rem;
+}
+
+/* Its own layer, because §15's Flip transition reparents THIS element into the
+   full-screen player — theirs is a separate `-btn-bg` child for the same
+   reason. Anything painted directly on .square would be left behind. */
+.background {
+  position: absolute;
+  inset: 0;
+  background-color: var(--bg-tertiary);
+}
+
+.disc {
+  position: relative;
+  display: grid;
+  place-items: center;
+  /* 43% of the square, measured off their capture at both viewports. */
+  width: 1.72rem;
+  height: 1.72rem;
+  border-radius: 50%;
+  background-color: var(--bg-alternate);
+  color: var(--text-alternate);
+}
+
+.triangle {
+  width: 0.55rem;
+  height: auto;
+  /* The optical centre of a play mark sits right of its geometric one. */
+  transform: translateX(0.06rem);
+}
+
+@media (min-width: 992px) {
+  .square {
+    transition: background-color var(--dur-fast) var(--ease-in-out);
+  }
+}
+
+/* Below 768 the headline steps from 6rem to 2.5rem while the root holds at
+   16px, so a 4rem control would be larger than the line it opens. */
+@media (max-width: 767px) {
+  .square {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .disc {
+    width: 0.97rem;
+    height: 0.97rem;
+  }
+
+  .triangle {
+    width: 0.31rem;
+    transform: translateX(0.03rem);
+  }
+}

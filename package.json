@@ -15,7 +15,8 @@
     "verify:visual": "tsx tools/verify/run.ts --only=visual",
     "verify:budget": "tsx tools/verify/run.ts --only=budget",
     "brand:assets": "node scripts/brand-assets.mjs",
-    "hero:fallback": "node scripts/hero-fallback.mjs"
+    "hero:fallback": "node scripts/hero-fallback.mjs",
+    "extract:tonik": "node tools/extract/tonik.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

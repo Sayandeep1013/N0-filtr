@@ -22,13 +22,14 @@ import { BEHAVIOUR } from './behaviour.config';
 const near = (a: number, b: number, tol: number) => Math.abs(a - b) <= tol;
 
 interface HeroDebugRead {
-  ringY: number;
-  ringX: number;
-  bladesY: number;
-  bladesX: number;
-  assemblyY: number;
+  tipX: number;
+  tipY: number;
+  actuation: number;
+  spin: number;
   cameraZ: number;
   blades: number;
+  bladeReach: number;
+  barrelOuter: number;
 }
 
 interface HeroStateRead {
@@ -150,10 +151,17 @@ async function desktopChecks(browser: Browser, baseUrl: string): Promise<CheckRe
         : fail(`${c.id} — triangle budget`, `< ${c.maxTriangles}`, String(state.triangles)),
     );
 
-    /* §2 [ix2 a-3]. Sweep the pointer across the viewport and read the ring and
-       the blades apart. This is the phase's headline acceptance criterion —
-       "the blades outrun the ring; if it looks flat, the curves are wrong" —
-       and it is a relationship between two numbers that nothing else can see. */
+    /* The pointer response. Sweep across the viewport, then top to bottom, and
+       read the two channels apart.
+
+       This replaced §2's recovered ring/mark curves when the object was rebuilt
+       as one housed mechanism — see D-014. The old assertion checked that the
+       blades outran the ring by 1.5x, which was true and which was also the bug:
+       ours are inside a bore, and outrunning the housing meant leaving it. */
+    await page.mouse.move(c.desktop.w / 2, c.desktop.h / 2);
+    await page.waitForTimeout(c.settleMs);
+    const centre = await heroDebug(page);
+
     await page.mouse.move(2, c.desktop.h / 2);
     await page.waitForTimeout(c.settleMs);
     const left = await heroDebug(page);
@@ -162,56 +170,94 @@ async function desktopChecks(browser: Browser, baseUrl: string): Promise<CheckRe
     await page.waitForTimeout(c.settleMs);
     const right = await heroDebug(page);
 
-    if (!left || !right) {
-      out.push(fail(`${c.id} — parallax readable`, 'scene debug handle', 'not exposed'));
-    } else {
-      const ring = Math.abs(right.ringY - left.ringY);
-      const blades = Math.abs(right.bladesY - left.bladesY);
+    await page.mouse.move(c.desktop.w / 2, 2);
+    await page.waitForTimeout(c.settleMs);
+    const top = await heroDebug(page);
 
+    await page.mouse.move(c.desktop.w / 2, c.desktop.h - 2);
+    await page.waitForTimeout(c.settleMs);
+    const bottom = await heroDebug(page);
+
+    if (!centre || !left || !right || !top || !bottom) {
+      out.push(fail(`${c.id} — pointer response readable`, 'scene debug handle', 'not exposed'));
+    } else {
+      /* ── THE invariant ──────────────────────────────────────────────────
+         The blades are housed. Nothing the pointer does may take any blade
+         vertex outside the barrel it sits in, at any pointer position — and
+         because the only differential is a rotation about the bore axis, the
+         reach is mathematically constant rather than merely small. Checked at
+         all five positions so a future change that reintroduces a radial
+         differential fails here rather than in someone's eye. */
+      const reaches = [centre, left, right, top, bottom].map((d) => d.bladeReach);
+      const worst = Math.max(...reaches);
+      const drift = Math.max(...reaches) - Math.min(...reaches);
       out.push(
-        near(ring, c.ringSweep, c.sweepTolerance)
-          ? pass(`${c.id} — ring sweeps ${c.ringSweep} rad across the viewport`, ring.toFixed(3))
-          : fail(`${c.id} — ring sweep`, `${c.ringSweep} +/- ${c.sweepTolerance}`, ring.toFixed(3)),
-      );
-      out.push(
-        near(blades, c.bladeSweep, c.sweepTolerance)
-          ? pass(`${c.id} — blades sweep ${c.bladeSweep} rad`, blades.toFixed(3))
+        worst < centre.barrelOuter && drift < 1e-6
+          ? pass(
+              `${c.id} — the blades never leave the barrel`,
+              `reach ${worst.toFixed(3)} of ${centre.barrelOuter}, invariant`,
+            )
           : fail(
-              `${c.id} — blade sweep`,
-              `${c.bladeSweep} +/- ${c.sweepTolerance}`,
-              blades.toFixed(3),
+              `${c.id} — the blades never leave the barrel`,
+              `reach < ${centre.barrelOuter} and constant`,
+              `reach ${worst.toFixed(3)}, drift ${drift.toExponential(1)}`,
             ),
       );
 
-      const ratio = ring > 0.001 ? blades / ring : 0;
+      // The housing tips, on both axes.
+      const tipSweepX = Math.abs(right.tipX - left.tipX);
+      const tipSweepY = Math.abs(bottom.tipY - top.tipY);
       out.push(
-        ratio >= c.minRatio
-          ? pass(`${c.id} — the blades outrun the ring`, `${ratio.toFixed(2)}x`)
-          : fail(`${c.id} — the blades outrun the ring`, `>= ${c.minRatio}x`, `${ratio.toFixed(2)}x`),
+        tipSweepX > c.respondMin && tipSweepX < c.tipMax * 2 + 0.02
+          ? pass(`${c.id} — the housing tips across the viewport`, tipSweepX.toFixed(3))
+          : fail(
+              `${c.id} — the housing tips across the viewport`,
+              `> ${c.respondMin} and <= ${(c.tipMax * 2).toFixed(2)}`,
+              tipSweepX.toFixed(3),
+            ),
+      );
+      out.push(
+        tipSweepY > c.respondMin && tipSweepY < c.tipMax * 2 + 0.02
+          ? pass(`${c.id} — the housing tips top to bottom`, tipSweepY.toFixed(3))
+          : fail(
+              `${c.id} — the housing tips top to bottom`,
+              `> ${c.respondMin} and <= ${(c.tipMax * 2).toFixed(2)}`,
+              tipSweepY.toFixed(3),
+            ),
       );
 
-      /* On vertical movement the two OPPOSE each other: the ring pitches down
-         as the blades pitch up. That shearing is why the object reads as a
-         mechanism rather than an image, and a single-object rotation cannot
-         produce it — which is exactly the mistake the spec originally made and
-         the IX2 pass corrected. */
-      await page.mouse.move(c.desktop.w / 2, 2);
-      await page.waitForTimeout(c.settleMs);
-      const top = await heroDebug(page);
-      await page.mouse.move(c.desktop.w / 2, c.desktop.h - 2);
-      await page.waitForTimeout(c.settleMs);
-      const bottom = await heroDebug(page);
+      // The iris actuates, and it leads the housing rather than echoing it.
+      const actuation = Math.abs(right.actuation - left.actuation);
+      out.push(
+        actuation > c.actuateMin
+          ? pass(`${c.id} — the iris actuates`, `${actuation.toFixed(3)} rad about the bore`)
+          : fail(`${c.id} — the iris actuates`, `> ${c.actuateMin}`, actuation.toFixed(3)),
+      );
+      out.push(
+        actuation > tipSweepX
+          ? pass(`${c.id} — the blades lead the housing`, `${(actuation / tipSweepX).toFixed(2)}x`)
+          : fail(
+              `${c.id} — the blades lead the housing`,
+              'iris sweep > housing tip',
+              `${actuation.toFixed(3)} vs ${tipSweepX.toFixed(3)}`,
+            ),
+      );
 
-      if (top && bottom) {
-        const ringPitch = bottom.ringX - top.ringX;
-        const bladePitch = bottom.bladesX - top.bladesX;
-        const detail = `ring ${ringPitch.toFixed(3)}, blades ${bladePitch.toFixed(3)}`;
-        out.push(
-          ringPitch * bladePitch < 0
-            ? pass(`${c.id} — ring and blades counter-rotate on Y`, detail)
-            : fail(`${c.id} — ring and blades counter-rotate on Y`, 'opposite signs', detail),
-        );
-      }
+      /* Subtlety is a requirement, not a side effect. tonik's object barely
+         moves; the first build swung 0.6 rad and read as a thing being waved
+         around. A regression that doubles these is a regression. */
+      const biggest = Math.max(
+        ...[left, right, top, bottom].flatMap((d) => [
+          Math.abs(d.tipX),
+          Math.abs(d.tipY),
+          Math.abs(d.actuation),
+        ]),
+      );
+      out.push(
+        biggest <= c.tipMax
+          ? pass(`${c.id} — the response stays subtle`, `max ${biggest.toFixed(3)} rad`)
+          : fail(`${c.id} — the response stays subtle`, `<= ${c.tipMax} rad`, biggest.toFixed(3)),
+      );
     }
 
     /* §2 performance: the render loop is suspended when the hero is off-screen.
@@ -325,9 +371,9 @@ async function reducedChecks(browser: Browser, baseUrl: string): Promise<CheckRe
        two degraded paths stop matching each other. */
     const dbg = await heroDebug(page);
     out.push(
-      dbg && near(dbg.assemblyY, c.reducedPose, 0.001)
-        ? pass(`${c.id} — reduced-motion pose`, `rotation.y ${dbg.assemblyY}`)
-        : fail(`${c.id} — reduced-motion pose`, `rotation.y ${c.reducedPose}`, String(dbg?.assemblyY)),
+      dbg && near(dbg.spin, c.reducedPose, 0.001)
+        ? pass(`${c.id} — reduced-motion pose`, `spin ${dbg.spin}`)
+        : fail(`${c.id} — reduced-motion pose`, `spin ${c.reducedPose}`, String(dbg?.spin)),
     );
   } finally {
     await context.close();

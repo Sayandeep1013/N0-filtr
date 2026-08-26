@@ -10,24 +10,29 @@ Last updated: **2026-08-26** · by: **phase 2 session (Opus)** · tag: `phase-02
 ## Where we are
 
 > *Phase 1 was independently re-confirmed before this phase started: `npm run verify` re-run at
-> `63f4490`, green, exit 0 — `tokens 136/136 · motion 129/132 (3 pending) · budget 4/4`.*
+> `63f4490`, green, exit 0.*
 >
-> **Phase 2 is complete.** The Open Aperture is approved, applied to all seven surfaces §4 names,
-> and built as a real 3D object behind the headline — torus, six extruded blades, procedural
-> object-space grain, and tonik's recovered parallax curves with the blades outrunning the ring
-> by **1.50×**. `npm run verify` is green.
+> **Phase 2 is complete, and it went well past its brief.** The Open Aperture is approved and on
+> all seven surfaces §4 names. The hero object was **rebuilt from scratch** as one housed
+> mechanism after the first build read as "a circle and some lines" and shed its blades under the
+> pointer. Phase 3's hero copy was pulled forward so the composition could be judged against real
+> text. And the way this build measures tonik changed.
 >
-> **Eight decisions from Sayandeep, none open.** The mark itself (D-010); the tick weight (I-009);
-> the footer icons deferred to phase 10 (I-014); the wordmark casing `NO FiLTER` and service 04
-> becoming Creative Development (D-011); the camera kept at 7.5 (I-022); the grain kept as built
-> (I-021); and **the JS budget raised to 320KB** because 190 was arithmetic that omitted React and
-> Next entirely and under-counted Three by 3× (D-013, I-019).
+> **The method change is the important part.** `tools/extract/tonik.mjs` reads their design system
+> off their **live DOM** — container system, type scale, colours, transition vocabulary, section
+> rhythm — into `docs/research/03-tonik-extract.md`. It exists because phase 2 spent a session
+> correcting the hero by eye against a screenshot, one number at a time, when every value was in
+> `getComputedStyle`. **Protocol §2.9 now requires checking the extract before measuring
+> anything**, and all 13 Reading Maps point at it. See D-016.
 >
-> **The harness gained 13 hero assertions** and they earned it immediately, catching that §2's
-> parallax damp is per-frame where its prose says 500ms — the sweep was landing at 0.319 rad
-> instead of 0.4 (I-023). Nothing in a screenshot could have shown it.
+> That pass found the rule behind every alignment miss at once: `.container-large` is
+> `max-width: 80rem`, centred. Our spec called it the gutter width. **I-030.**
 >
-> ⚠️ **Phase 3 has ~17KB of JS budget.** `/` is at 302.8 of 320 and phase 3 adds SplitType, the
+> **Eleven decisions from Sayandeep, none open** — the mark, the tick weight, the footer icons,
+> the `NO FiLTER` casing, Creative Development, the camera, the grain, the JS budget, the object
+> rebuild, the tagline, and the rotation speed.
+>
+> ⚠️ **Phase 3 has ~16KB of JS budget.** `/` is at 303.7 of 320 and phase 3 adds SplitType, the
 > stack wall and the showreel to this route. Read D-013 before spending it.
 
 | | |
@@ -36,7 +41,7 @@ Last updated: **2026-08-26** · by: **phase 2 session (Opus)** · tag: `phase-02
 | Status | ⬜ not started |
 | Branch | *(create `phase/03-home-upper`)* |
 | Blocked | no |
-| Verify report | `tools/verify/output/report.md` — tokens 136/136, motion 142/145 (3 pending), visual judged, budget **5/5** |
+| Verify report | `tools/verify/output/report.md` — tokens 136/136, motion **144/147** (3 pending), visual judged, budget 5/5 |
 
 ---
 
@@ -47,7 +52,7 @@ Last updated: **2026-08-26** · by: **phase 2 session (Opus)** · tag: `phase-02
 | 0 | Foundation & harness | ✅ | `phase/00-foundation` | `phase-00-complete` | harness proven by break-test |
 | 1 | Global chrome | ✅ | `phase/01-chrome` | `phase-01-complete` | + a behaviour layer in the harness |
 | 2 | Brand & 3D hero 🚦 | ✅ | `phase/02-brand-3d` | `phase-02-complete` | mark approved · 13 hero assertions · budget re-based |
-| 3 | Homepage upper 🚦 | ⬜ | `phase/03-home-upper` | — | **next** · needs 1, 2 · put `data-hero` on the hero section |
+| 3 | Homepage upper | ⬜ | `phase/03-home-upper` | — | **next** · T3.1/T3.2 already shipped in phase 2 (D-015) |
 | 4 | Works grid | ⬜ | `phase/04-works-grid` | — | needs 3 |
 | 5 | Homepage lower | ⬜ | `phase/05-home-lower` | — | needs 4 |
 | 6 | Case study 🚦 | ⬜ | `phase/06-case-study` | — | **GATE** · needs 4 |
@@ -147,10 +152,13 @@ The honest record of what has actually been *proven*, as distinct from what has 
 | matchMedia gating at ≤991 | ✅ | `verify:motion` asserted inactive @991 / active @1512, **and** the footer sibling-dim asserted inactive at 991 through a real hover |
 | Reverse discipline (1.2 / 1.5) | ✅ | behaviour checks, through the real close and mouseleave paths |
 | ScrollTrigger leak-free across routes | ✅ | baseline is now **1**, not 0 — the check finally has something to leak |
-| Bundle budgets | ✅ | JS **302.8KB / 320KB**, total 369.4KB, CLS 0.0027. The ceiling was re-based on measurements (D-013) after the specced 190 was found to omit React/Next and under-count Three 3×. `three` absent from the initial bundle is asserted and **no longer vacuous**. ~17KB of headroom. |
+| Bundle budgets | ✅ | JS **303.7KB / 320KB**, total 369.4KB, CLS 0.0027. The ceiling was re-based on measurements (D-013) after the specced 190 was found to omit React/Next and under-count Three 3×. `three` absent from the initial bundle is asserted and **no longer vacuous**. ~17KB of headroom. |
 | Reduced motion | ✅ | emulated `reduce`: Lenis destroyed, no extra loop, **and the loader asserted as a 200ms fade with no transform** |
 | Visual composition vs tonik | ⚠️ | footer, contact panel **and now the 3D hero** compared against `s11`/`s12`/`tonik-hero-01` and judged. The hero's composition matched only after correcting the specced camera — I-022. Hero *copy* still owed by phase 3. |
-| The 3D hero's parallax curves | ✅ | behaviour, through a real pointer sweep: ring 0.394/0.4, blades 0.592/0.6, ratio **1.50×**, counter-rotation ±0.196 |
+| The hero object cannot shed its blades | ✅ | behaviour: blade reach 1.930 of a 2.0 barrel, **invariant to 6dp** at every pointer position — a rotation about the bore axis cannot change a radius |
+| The hero's pointer response stays subtle | ✅ | behaviour: max 0.159 rad across both channels, capped by assertion |
+| The hero matches tonik's live layout | ✅ | h1, play control, foot rail, canvas wrapper — every figure read off their DOM and matched |
+| tonik's design system is extracted, not guessed | ✅ | `docs/research/03-tonik-extract.md`, regenerable, Firefox + Chromium agree |
 | The hero's render loop actually suspends | ✅ | behaviour: off-screen, on-screen again, and off the homepage with the WebGL context kept |
 | Triangle budget | ✅ | 13,064 / 40,000 asserted at runtime |
 | Reduced motion for the hero | ✅ | one frame at the specced `rotation.y 0.4`, loop never attached; the baked WebP is rendered through that same path |

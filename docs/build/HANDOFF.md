@@ -7,156 +7,148 @@ not a log. The template is at the bottom.
 
 # → To the agent starting Phase 3
 
-**From:** phase 02 · 2026-08-26 · **Opus**
+**From:** phase 02 · 2026-08-26 · **Opus** · two sessions
+
+## Read this first: how this build measures tonik changed
+
+**`docs/research/03-tonik-extract.md` is tonik's design system read off their live DOM.** Container
+system, type scale as rendered, colour set, transition vocabulary, section rhythm, the hero element
+by element. Regenerate or extend it:
+
+```bash
+npm run extract:tonik                       # firefox, the default
+node tools/extract/tonik.mjs --chromium     # the cross-engine diff
+```
+
+**Protocol §2.9 now requires you to check it before measuring anything**, and every Reading Map
+points at it. This is not bureaucracy — it is the most expensive lesson this phase learned.
+
+> **A capture shows where an element is. It never shows the rule that put it there.**
+
+Phase 2 spent a session correcting the hero by eye against a screenshot: the foot rail 29px too
+high, the copy column 57px too far left, the play control 0.2rem out with the wrong gap, the label
+colour wrong. Each found, fixed, followed by another. **Every one of those values was in
+`getComputedStyle` the whole time**, and one rule explained all of them at once —
+`.container-large` is `max-width: 80rem`, centred, which our own spec had documented as the gutter
+width. See D-016 and I-030.
+
+If your component's numbers are not in the extract, **extend the extractor** — it takes a selector
+list and one more component costs a line — then commit the regenerated output. Open a screenshot
+only for composition, which is the one thing a capture is genuinely better at.
 
 ## What I did
 
-The site has a brand and a hero. The Open Aperture is **approved** — Sayandeep signed it off
-against the three specced alternates — and it now appears on every surface `50-brand-and-3d.md`
-§4 names: loader, navbar, footer, favicon, apple icon, 512 tile and the OG card. Behind the
-headline there is a real 3D object: a torus, six extruded bevelled blades, a procedural
-object-space grain, and the two parallax curves recovered from tonik's IX2 data, with the blades
-outrunning the ring by exactly 1.50×.
+The Open Aperture is approved and on all seven surfaces §4 names — loader, navbar, footer,
+favicon, apple icon, 512 tile, OG card. Behind the headline is a **machined barrel with six blades
+housed inside its bore**, with a procedural grain and a specular the spec never described.
 
-Two content corrections arrived mid-phase and are done. **The wordmark is `NO FiLTER`**, not
-lowercase. **Service 04 is Creative Development**, not tonik's No-Code Development — they build in
-Webflow and we do not, and that line was a claim this codebase contradicts.
+The homepage has a real hero: headline, inline play control, foot rail, matching tonik's live DOM
+figure for figure.
 
-The harness gained **13 hero assertions** in a new file, `tools/verify/behaviour.hero.ts`, and
-they found two real bugs within minutes of existing.
+**The object was rebuilt from scratch mid-phase**, and the first version is worth knowing about
+because its failure is instructive. It followed §2 literally — a wire torus with six bars floating
+at its inner edge, driven by §2's recovered parallax curves. Those curves are correct for tonik and
+wrong for us: their glyph floats free inside their ring, ours is *housed*, and the same
+differential slid the blades straight out of the bore. See D-014.
 
-## Decisions Sayandeep made
+## ⚠ The five things that will actually affect you
 
-Five at the brand gate (D-010, D-011), three after the hero recording (D-013, and the sign-offs on
-I-021 and I-022). **Nothing is open.** In order:
+**1. Part of your phase is already built.** T3.1 (hero copy) and T3.2 (foot rail) shipped in phase
+2 so the 3D object could be judged against real text instead of the footer wordmark standing in for
+a headline (D-015). **Re-read your brief before you claim it.** Still yours: the scrubbed word
+reveal (T3.3), the stack wall (T3.4, T3.5), the showreel (T3.6).
 
-1. **The Open Aperture is the mark.** Over broken mesh, the NF ligature and the un-screened dot.
-2. **I-009 — ticks at half the ring's weight.** No code changed; the provisional value was right,
-   and it is now written into the spec that had omitted it.
-3. **I-014 — the footer service icons stay placeholder until phase 10.** Owner narrowed from
-   "2 or 10" to 10. Phase 2 will not raise it again.
-4. **The wordmark is `NO FiLTER`**, chosen from four candidates set in the real face.
-5. **Service 04 is `creative-development` / Creative Development.**
-6. **I-022 — keep the camera at 7.5**, not the specced 6.5.
-7. **I-021 — the grain is right as built.** tonik's sparkles harder; that difference is accepted.
-8. **I-019 — the JS budget is 320KB**, raised from a 190 that was arithmetic rather than a
-   measurement.
+**2. You have ~16KB of JS budget.** `/` is at **303.7KB of 320KB**. Phase 3 adds SplitType, the
+stack wall and the showreel to this exact route. The ceiling was raised once, on measurements
+(D-013); raising it again needs the same standard — **measure and put it to Sayandeep, do not edit
+the number.** Two rules protect the headroom: **Plyr must load only when the showreel first opens**,
+and Matter only when the pit scrolls into view. If either shows up in `verify:budget`'s figure that
+is a bug in your import, not a reason to raise the ceiling.
 
-## ⚠ The three things you most need to know
+**3. `PlaySquare` is inert and `aria-hidden` on purpose.** T3.6 turns it into the real Flip trigger.
+Its markup is already the shape Flip needs — the background is a separate layer with
+`data-flip-id="showreel"`, which is how tonik structure theirs. A button that looks live and does
+nothing is worse than no button; a screen reader announcing "play" on a control that cannot play is
+worse still.
 
-**1. You have ~17KB of JS budget, and you will spend it.** `/` measures **302.8KB of 320KB**.
-Phase 3 adds SplitType, the stack wall, the reveal and the showreel to this exact route. The
-ceiling was raised once, on measurements, and raising it a second time needs the same standard —
-**re-measure and put it to Sayandeep, do not just edit the number.** Two rules protect the
-headroom: **Plyr must load only when the showreel is first opened**, and Matter only when the pit
-scrolls into view. Both are specced lazy. If either appears in `verify:budget`'s figure that is a
-bug in your import, not a reason to raise the ceiling. See D-013 and the note in
-`budget.config.ts`.
+**4. `data-hero` is already on the hero section.** That closes I-020 — the mobile scroll drive
+scrubs against it. Nothing to do; **do not remove it.**
 
-**2. A per-frame constant in a spec is a duration wearing a disguise.** §2 states its idle spin as
-"~7.5s per revolution" and its parallax smoothing as "500ms", and writes both as per-frame
-increments — which are only those durations at 60fps. The behaviour check caught it immediately:
-the sweep read 0.319 rad instead of 0.4, because headless Chromium runs the ticker near 20fps. The
-curves were right and the convergence was not. Both are per-second now (I-023). **Phases 4, 5 and
-11 have the same exposure** — the block pit especially. Check every `+=` you copy out of a spec.
-
-**3. One attribute of yours finishes the mobile hero.** Put **`data-hero`** on the hero section.
-`Hero3D` looks for it and falls back to the first viewport of the document until it exists; with
-it, the mobile scroll drive scrubs against the real section's own range. One attribute, no other
-change. I-020, and the constant is `HERO_TRIGGER_SELECTOR` in `Hero3D.tsx`.
+**5. The extract already answers things you are about to need.** Their heading steps are 2rem/2.5rem
+and 1.5rem/1.75rem. Their most-used border is `1px solid rgba(59,59,59,.3)` — the hairline on
+**light** surfaces, which we do not have a token for and phase 4 will need. There is no 0.875rem
+step anywhere on their site, so our `--t-label-big` may be invented.
 
 ## Known gaps
 
 **In the build**
 
-- **`/` is still blank between the navbar and the footer** — that is your phase. The 3D hero now
-  paints behind that blank space, so the footer currently sits *under* a full-height canvas near
-  the top of the document. It looks wrong in the captures and it is not: giving the page height
-  fixes it.
+- **The homepage ends after the hero.** The footer currently sits directly under it, so two rules
+  land ~43px apart with nothing between them. That is the stack wall's slot — it stops when you
+  build it.
 - **Every nav destination still 404s.** `/works`, `/about`, `/services`, `/blog`, `/privacy`. Next
-  hard-navigates to a route it cannot resolve, so you cannot observe a client-side transition
-  through those links — use `/` ↔ `/probe`.
-- **`h3`–`h6` mobile sizes disagree with tonik (I-011), and phase 3 owns it.** It is the first
-  phase to render those at 390. Inherited, unchanged.
-- **The `≤479` breakpoint is still unimplemented** (I-007). Inherited.
-- **The contact panel's gif slot is empty** (I-015) and **the form has no endpoint** — it composes
-  a `mailto:` to a real address. Both phase 10 / user.
-- **The five footer service icons are placeholder art** (I-014, phase 10). The
-  `creative-development` glyph was redrawn this phase because the old one was a no-code metaphor,
-  but it is placeholder like the other four.
-- **I-013 is materially smaller than it was** — the caps wordmark fills 71.6% of its mobile column
-  where the lowercase form filled ~51%. Still open, still phase 12.
+  hard-navigates to an unresolvable route, so you cannot observe a client-side transition through
+  those links — use `/` ↔ `/probe`.
+- **`h3`–`h6` mobile sizes disagree with tonik (I-011), and phase 3 owns it.** You are the first
+  phase to render those at 390. The extract has their real values.
+- **The `≤479` breakpoint is unimplemented** (I-007). Inherited.
+- **The contact panel's gif slot is empty** (I-015); **the form has no endpoint** — it composes a
+  `mailto:` to a real address. Phase 10 / user.
+- **The five footer service icons are placeholder art** (I-014, phase 10).
+- **I-029 is open and harmless**: §2 gives the idle spin as `0.0022`/frame *and* as "~7.5s per
+  revolution", which are not the same motion — 0.0022/frame is 47.6s. Neither is used; Sayandeep
+  asked for it much slower, so it is 0.02 rad/s. `IDLE_SPIN_PER_SECOND = 0` stops it dead.
 
 **In the harness**
 
-- **3 timeline assertions are still pending**, owed by phases 4 and 5. Unchanged.
-- **`matter-js` and `plyr` absence checks are still vacuous** — not installed. `three`'s is not,
-  and it passes.
-- **The hero's off-screen check injects its own scroll height.** `behaviour.hero.ts` grows `body`
-  and calls `lenis.resize()` because the homepage has none. **Delete those lines once your hero
-  section gives the page real height** — the comment says so in place.
+- **3 timeline assertions are still pending**, owed by phases 4 and 5.
+- **`matter-js` and `plyr` absence checks are vacuous** — not installed. `three`'s is not, and passes.
+- **The hero's off-screen check injects its own scroll height** — it grows `body` and calls
+  `lenis.resize()` because the homepage has none. **Delete those lines once your stack wall gives
+  the page real height**; the comment says so in place.
 
 ## Things that will bite you
 
-- **Playwright's element screenshot clips the page to the element's box; it does not isolate the
-  element.** The hero is `inset: 0`, so the first baked fallback came back with the navbar and the
-  wordmark painted over the canvas. Hide siblings first.
-- **Lenis caches its scroll limit from the content element.** Growing `documentElement` and then
-  calling `lenis.scrollTo(2700)` **silently clamps to the stale limit** — the page does not move
-  and nothing errors. Grow `body` and call `lenis.resize()`. This cost me two false "the suspend is
-  broken" diagnoses.
-- **React reconciles away DOM you inject into `main`.** The same check first appended a spacer
-  there and it vanished. Anything a test injects has to live somewhere React does not own.
-- **Backticks inside a GLSL template literal end the string.** Writing `` `roughness` `` in a code
-  comment inside the shader source is a build error with a confusing message.
-- **`three`'s colour management will silently triple an additive literal.** It round-trips a base
-  colour correctly and mangles anything added in the middle. `apertureScene.ts` sets
-  `outputColorSpace` to linear so §2's numbers mean what they say; if you touch that file, know
-  why it is there.
-- **A casing change is a metrics change.** `NO FiLTER` overran the navbar's measured `4.25rem` box
-  by 8% — 5.6px eaten out of the gap before the links, invisible in every screenshot because
-  `flex: none` means an overrun neither clips nor collides. Found by measuring, not looking. If you
-  change any string that sits in a measured box, measure it.
-- **The dev server must not be running when you `verify`.** Inherited, still true.
+- **A per-frame constant in a spec is a duration wearing a disguise.** §2 states its spin as
+  "~7.5s per revolution" and its damp as "500ms" and writes both as per-frame increments — true
+  only at 60fps. The behaviour check caught it: the sweep read 0.319 rad instead of 0.4 because
+  headless Chromium runs the ticker near 20fps. **Phases 4, 5 and 11 have the same exposure** —
+  the block pit especially. Check every `+=` you copy out of a spec.
+- **`networkidle` is not "the page has settled" on a route that dynamically imports three.** The
+  chunk lands after it and React commits later. Two harness checks raced on this and reported bugs
+  that did not exist — a ScrollTrigger leak and a missing loader timeline. Both now wait for state.
+  **If a check starts failing after you add a library, suspect the check first.**
+- **A correct implementation of an illegible value looks exactly like a broken one.** §2's load-in
+  was running perfectly and read as "the object just appears" — 15% of travel, 60% of it in the
+  first fifth of the duration. **Measure before you change.**
+- **Lenis caches its scroll limit from the content element.** Growing `documentElement` and calling
+  `lenis.scrollTo()` clamps silently to the stale limit; the page does not move and nothing errors.
+  Grow `body` and call `lenis.resize()`.
+- **React reconciles away DOM you inject into `main`.** Anything a test injects must live where
+  React does not own it.
+- **Backticks inside a GLSL template literal end the string.** Writing `` `roughness` `` in a
+  shader comment is a build error with a confusing message.
+- **The dev server must not be running when you `verify`.**
   `Get-NetTCPConnection -LocalPort 3000 -State Listen | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }`
 
 ## Anything surprising
 
-**The spec section with no reference to transcribe is a different kind of document, and has to be
-read differently.** §2's scene graph and its GLSL are *authored intent* — tonik's object is a
-Spline binary the brief deliberately does not copy — so unlike §1's ratios or §20's IX2 curves,
-they were never measured off anything. Four of its statements do not survive being followed to the
-letter, and the first render was wrong three ways at once:
+**The spec section with no reference to transcribe is a different kind of document.** §2's scene
+graph and GLSL are *authored intent* — tonik's object is a Spline binary the brief deliberately
+does not copy — so unlike §1's ratios or §20's IX2 curves they were never measured off anything.
+**Six of its statements did not survive being followed to the letter** (I-021 to I-029), and none
+of them is visible in the source. Rendering it and looking at it against the reference is the only
+check that finds this class of problem.
 
-- The blades stood upright through a tipped ring, because §2 hangs the tilt off the *Ring* line
-  and they are one mechanism.
-- The object rendered near-black, because the lambert term was normalised by all three light
-  intensities and the two directional lights face each other, so no surface can receive both.
-- It overflowed the viewport on all four sides, because §2's camera and §2's composition target
-  contradict each other.
-
-**None of that is visible in the source.** CLAUDE.md's model policy singles this phase out as
-resting entirely on judgement; this is what that meant in practice. **Render it and look at it
-against the reference capture** — that is the only check that finds this class of problem, and it
-found all four.
-
-**The check that pays for itself is the one that reads a relationship, not a value.** "The blades
-outrun the ring" is not a number in any file; it is the ratio between two rotations, and no
-screenshot and no registered timeline can see it. Writing that assertion is what surfaced the
-per-frame damp bug. **The pattern generalises — when a spec says one thing moves faster than
-another, assert the ratio.**
-
-**The two degraded paths should be the same picture.** §2 asks for a baked still "at its load-in
-pose", but the load-in ends with the object still turning, so there is no frame that *is* the
-pose. §2 had already fixed one for a different reason — reduced motion renders exactly one frame
-at `rotation.y = 0.4`. Baking the fallback *through* that path makes it deterministic and specced,
-and means a visitor with no WebGL and a visitor who asked for no motion see the same hero instead
-of two different ones.
+**The most valuable assertion is the one that reads a relationship, not a value.** "The blades
+outrun the ring" is not a number in any file — it is a ratio between two rotations. Writing that
+assertion is what surfaced the per-frame damp bug. And when the object was rebuilt, the assertion
+that replaced it is *structural*: a rotation about the bore axis cannot change a radius, so the
+blades are incapable of leaving the barrel. **Assert the invariant, not the tuning.**
 
 **tonik's own numbers were wrong about tonik.** §3 argues against Spline partly on "Three ~48KB
-gz". It is 141KB. The conclusion still holds — Spline is ~380KB plus a scene — but the argument
-that reached it was not sound, and the budget built on the same estimate failed the moment it met
-a real bundle.
+gz". It measures 141KB. The conclusion holds — Spline is ~380KB plus a scene — but the budget
+built on that estimate failed the moment it met a real bundle.
 
 ## Verification state
 
@@ -164,16 +156,13 @@ a real bundle.
 Run: 2026-08-26 · Phase 02 · branch phase/02-brand-3d
 
 tokens  ✅ 136/136
-motion  ⚠️ 142/145  (3 pending, owed by phases 4 and 5)
+motion  ⚠️ 144/147  (3 pending, owed by phases 4 and 5)
 visual  ⚠️ reviewed by agent — see judgement
 budget  ✅ 5/5
 ```
 
-Key figures: **JS 302.8KB / 320KB** · total 369.4KB / 1800KB · CLS 0.0027 · **13,064 triangles /
-40,000** · ring sweep 0.394/0.4 · blade sweep 0.592/0.6 · **ratio 1.50×**.
-
-Full report: `tools/verify/output/report.md` (committed). Phase record:
-`docs/build/phases/PHASE-02.md`.
+**JS 303.7KB / 320KB** · total 370KB / 1800KB · CLS 0.0027 · **5,232 triangles / 40,000** · blade
+reach 1.930 of 2.0 invariant · pointer response max 0.159 rad.
 
 ## What you should do first
 
@@ -181,38 +170,31 @@ Full report: `tools/verify/output/report.md` (committed). Phase record:
    in-progress, commit that immediately.
 2. **`npm run verify`** before you touch anything. It should be green.
 3. **Reset `AGENT_JUDGEMENT` to `null`** in `tools/verify/visual.config.ts`. Mine describes a hero,
-   a footer and a contact panel. Leave it and your run goes green on a stale judgement and the
-   visual check silently stops meaning anything.
-4. **Put `data-hero` on the hero section** as you build it — that is the whole of I-020.
-5. **Watch the 17KB.** Check `verify:budget` after SplitType and after the showreel, not at the
-   end of the phase.
-6. `docs/research/screens/tonik-hero-01.png` is your reference and the `hero` shot in
-   `visual.config.ts` is already enabled — it captures at 1512 and 390 and you re-judge it with
-   your copy over the object.
+   a footer and a contact panel. Leave it and your run goes green on a stale judgement.
+4. **Read `docs/research/03-tonik-extract.md`.** Then re-read your phase brief — T3.1 and T3.2 are
+   done.
+5. **`npm run extract:tonik`** and extend it with the selectors for the stack wall and the showreel
+   *before* you build them. That is the whole point of it existing.
+6. **Watch the 16KB.** Check `verify:budget` after SplitType and after the showreel, not at the end.
 
 ## Commands you'll need
 
 ```bash
 npm run dev                # :3000 — stop it before you verify
-npm run verify             # the gate — ~3 min now, the hero check adds three browser contexts
-npm run verify:motion      # ~90s; 13 of the assertions drive a real WebGL context
+npm run verify             # the gate — ~3 min
+npm run verify:motion      # ~90s; 15 assertions drive a real WebGL context
 npm run verify:visual      # then OPEN tools/verify/output/contact-sheet.html
-npm run brand:assets       # regenerates favicon / apple icon / 512 / OG card
+npm run extract:tonik      # their live design system → docs/research/03-tonik-extract.md
+npm run brand:assets       # favicon / apple icon / 512 / OG card
 npm run hero:fallback      # rebakes public/hero-aperture.webp — needs `npm run dev` running
 npm run lint && npx tsc --noEmit
-```
-
-Freeing port 3000 on Windows when `verify` says the server exited early:
-
-```powershell
-Get-NetTCPConnection -LocalPort 3000 -State Listen | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }
 ```
 
 Reading the hero's live state, which is how every hero assertion works:
 
 ```js
-window.__HERO__          // { mode, running, triangles, reducedMotion }
-window.__HERO_SCENE__.debug()   // { ringY, ringX, bladesY, bladesX, assemblyY, cameraZ, blades }
+window.__HERO__                  // { mode, running, triangles, reducedMotion }
+window.__HERO_SCENE__.debug()    // tip, actuation, spin, cameraZ, blades, bladeReach, scale
 ```
 
 ---

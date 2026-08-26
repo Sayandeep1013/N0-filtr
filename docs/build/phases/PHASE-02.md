@@ -405,6 +405,105 @@ Items 1 to 5 were all found the same way: **render it and look at it against the
 capture.** Items 6 to 8 were found by measuring things a screenshot cannot show. Neither method
 would have found the other's list.
 
+---
+
+## Session 2 — the rebuild, and the method change
+
+Everything above was built, reviewed and merged. Then Sayandeep looked at it running, and almost
+none of it survived contact.
+
+### What he said, and what each thing turned out to be
+
+| His words | What it actually was |
+|---|---|
+| *"make it a singular object not a circle and some lines"* | §2's ring is a `TorusGeometry(2.0, 0.075)` — a wire. Transcribed literally it is a diagram. |
+| *"not loosing its teeth"* | §2's parallax curves detach a **housed** mechanism. Correct for tonik, wrong for us. I-025 |
+| *"they have a lighting and shader … ours dont"* | §2 has **no specular term at all**. I-027 |
+| *"appear gracefully … small to big"* | The load-in was running correctly and was illegible: 15% of travel, 60% of it in the first fifth. I-028 |
+| *"taking up the whole height"* | True, then over-corrected, then measured. |
+| *"the object stays above that [bar]"* | Our foot rule was drawn **above** the labels. The global `.hairline` helper is a `border-top`. |
+| *"why getting so many issues just getting the very first page"* | The fair question. D-016. |
+
+### The object, rebuilt
+
+A machined barrel with six blades **inside its bore**, replacing a torus with bars floating near
+it. The differential moved to the axis where it is mechanically true — the housing tips as one
+object, the blades actuate about the bore's own axis, which is what an iris does.
+
+**The invariant is the point, not the tuning.** A rotation about the bore axis cannot change a
+radius, so the blades are *structurally* incapable of leaving the barrel. `verify:motion` asserts
+it: reach 1.930 of 2.0, **constant to six decimal places** across every pointer position. The old
+assertion — "the blades outrun the ring by 1.5×" — was true, and was the bug. See D-014.
+
+Triangles went **down**, 13,064 → 5,232.
+
+### The method change, which matters more than the object
+
+Three passes of correcting layout by eye produced: rail 29px high, copy column 57px left, play
+control 0.2rem out with the wrong gap, label colour wrong. Each found, fixed, followed by another.
+
+`tools/extract/tonik.mjs` now reads their design system off the **live DOM** into
+`docs/research/03-tonik-extract.md`. One pass found the rule behind all of it:
+
+> **`.container-large` is `max-width: 80rem`, centred.** Ten of their eleven instances are capped;
+> one carries a `unl-width` modifier for full-bleed. That is why their copy starts at x=98 and not
+> at the 41px gutter. Our own spec documented the class as the gutter width. **I-030.**
+
+The same pass gave the type scale as rendered, the colour set, the transition vocabulary, the
+section rhythm — and a border we do not have (`1px solid rgba(59,59,59,.3)`, their most-used, the
+hairline on light surfaces) that phase 4 would have hit blind.
+
+**Protocol §2.9 now requires checking the extract before measuring anything.** All 13 Reading Maps
+point at it. See D-016.
+
+**On the engine.** Firefox is the extractor's default at Sayandeep's request. Worth being precise:
+computed styles are computed styles and Firefox exposes nothing Chromium hides. What it gives is
+an independent renderer — a figure both engines agree on is a property of their CSS; one they
+disagree on is a property of the engine and must not be copied.
+
+### The hero, matched figure for figure
+
+Their live DOM against ours, at 1512×900:
+
+| | tonik | ours |
+|---|---|---|
+| `h1` | x 98, y 201.5, 1316 × 197.4 | identical |
+| type | 98.7 / 98.7 / −2.4675 / 400 | identical |
+| line 2 | flex, flex-end, gap 41.125 | identical |
+| play control | x 98, y 324.1, 65.8 square | identical |
+| foot rail | x 98, y 816.8, rule on 858.9 | identical |
+| rail colour | `rgb(239,239,239)` | identical |
+| canvas | absolute, inset 0, z-index 0 | identical |
+
+### Two harness races the slower page exposed
+
+Neither was a product bug, and both would have bitten every later phase.
+
+The **ScrollTrigger leak check** took its baseline the instant `networkidle` fired. On a route that
+dynamically imports three, the chunk lands *after* that and React commits later — so baseline read
+0 against a correct final 1 and reported a leak that did not exist. It now waits for three
+consecutive equal reads.
+
+The **loader's reduced-motion check** read `__TIMELINES__` immediately. The Loader rebuilds its
+timelines when the reduced-motion context settles, and a rebuild unregisters before it registers;
+the wider commit window let the check read that gap. It now waits for the timeline.
+
+**A correct implementation of an illegible value looks exactly like a broken implementation of a
+good one.** That is true of the load-in, and it is true of both of these. Measure before changing.
+
+### Verification
+
+```
+tokens  ✅ 136/136
+motion  ⚠️ 144/147  (3 pending, owed by phases 4 and 5)
+visual  ⚠️ reviewed by agent — see judgement
+budget  ✅ 5/5      JS 303.7KB / 320KB
+```
+
+15 hero assertions, up from 13. The three added replace four that asserted the wrong thing
+correctly.
+
+
 ## Handed off to
 
 Phase 03 · see `HANDOFF.md`.

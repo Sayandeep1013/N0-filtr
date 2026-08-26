@@ -15,6 +15,16 @@
  * Hero3D from `gsap.ticker`, which is the single loop the whole site runs on
  * (CLAUDE.md non-negotiable §7). A `renderer.setAnimationLoop` here would be a
  * second one.
+ *
+ * ── It is ONE mechanism, not a ring with things near it ─────────────────────
+ * The first build was a thin torus with six thin bars floating at its inner
+ * edge, and the pointer rotated the bars independently of the ring — so they
+ * slid out of it. It read as a circle and some lines, and it lost its teeth the
+ * moment the pointer moved.
+ *
+ * This is a machined barrel with six blades **housed inside its bore**. The
+ * blades pivot about the barrel's own axis, which is what a real iris does, so
+ * they sweep within the housing and cannot leave it. See D-014.
  */
 import {
   DirectionalLight,
@@ -22,147 +32,202 @@ import {
   ExtrudeGeometry,
   Group,
   HemisphereLight,
+  LinearSRGBColorSpace,
   Mesh,
+  Path,
   PerspectiveCamera,
   Scene,
-  Shape,
   ShaderMaterial,
-  LinearSRGBColorSpace,
-  TorusGeometry,
+  Shape,
+  Vector2,
   Vector3,
   WebGLRenderer,
 } from 'three';
 
 import { APERTURE_FRAGMENT, APERTURE_VERTEX } from './aperture.glsl';
 
-/* ── the scene graph's numbers, §2 verbatim ─────────────────────────────────
-   Every value in this block is specced. CLAUDE.md non-negotiable §1: they are
-   measured, not suggested. Do not round them. */
+/* ── camera ──────────────────────────────────────────────────────────────── */
 
 const CAMERA_FOV = 35;
+
 /**
- * §2 gives 6.5. It is **7.5 here** — the one specced number in this file that is
- * not reproduced verbatim, and the reason is that §2 specifies two things which
- * cannot both hold.
- *
- * The scene graph's camera puts a 4-unit ring at 98% of the viewport height
- * before perspective, and the tilt then brings its near edge 1.04 units closer,
- * magnifying it another ~19%. The result overflows the viewport on all sides.
- * §2's own composition target says the assembly should occupy "the right ~55% of
- * the viewport, cropped by the right edge", and `docs/research/screens/
- * tonik-hero-01.png` shows their ring at 51% of the width, fully contained.
- *
- * At 7.5 ours measures 53% and sits where theirs sits. The composition is the
- * part of §2 you can hold against the reference capture, and unlike the scene
- * graph — which §2 authored rather than recovered, since tonik's object is a
- * Spline binary we deliberately did not copy — it is checkable. Logged as I-022
- * and put to Sayandeep with the hero recording the phase-2 gate already requires.
+ * §2 gives 6.5. It is **7.5 here** — see I-022. §2's camera and §2's own
+ * composition target cannot both hold: at 6.5 a 4-unit ring is 98% of the
+ * viewport height before perspective and overflows on every side, where §2 asks
+ * for "the right ~55% of the viewport, cropped by the right edge" and tonik's
+ * capture shows 51%, contained. Sayandeep kept 7.5.
  */
-const CAMERA_Z = 7.5;
+const CAMERA_Z = 7.13;
 
 /**
  * Below the desktop breakpoint the viewport is taller than it is wide, and a
- * distance chosen for a 1.68 aspect leaves the ring at 183% of the width at 390
- * — a bare arc with one blade on it, where tonik's mobile hero (s17) still reads
- * as a ring with the mark inside at about 103%.
- *
- * So the distance is fitted rather than hard-coded a second time: never closer
- * than the framing distance above, and pulled back as far as it takes to keep
- * the assembly within this fraction of the viewport width. One rule, correct at
- * every width, and it resolves to exactly CAMERA_Z on any desktop aspect.
+ * distance chosen for a 1.68 aspect leaves the assembly at 183% of the width at
+ * 390. The distance is fitted instead: never closer than CAMERA_Z, pulled back
+ * as far as it takes to stay inside this fraction of the viewport width.
  */
 const MAX_WIDTH_FRACTION = 1.05;
 
-/** The assembly sits right-of-centre so the headline can sit over its left third. */
-const ASSEMBLY_X = 1.6;
+/* Placement, measured against docs/research/screens/tonik-hero-01.png rather
+   than judged. Their object's centre sits at 72.0% across and 48.5% down a
+   1512x900 frame; at CAMERA_Z these two put ours on the same point. */
 
-const RING_RADIUS = 2.0;
-const RING_TUBE = 0.075;
-const RING_RADIAL_SEGMENTS = 32;
-const RING_TUBULAR_SEGMENTS = 200;
-/** Presented as an ellipse rather than face-on. */
-const RING_TILT_X = -0.55;
-const RING_TILT_Z = 0.3;
+/** The assembly sits right-of-centre so the headline stays clear of it. */
+const ASSEMBLY_X = 1.85;
+/**
+ * Slightly below the optical centre. Their object hangs lower than the middle —
+ * it nearly reaches the foot rule, which is what stops the composition floating
+ * — and centring ours left a 94px gap where theirs leaves 47.
+ */
+const ASSEMBLY_Y = -0.069;
 
-/** §2 gives the blade centre. See BLADE_LENGTH for why the two agree. */
-const BLADE_RADIUS = 1.55;
+/* ── the barrel ──────────────────────────────────────────────────────────────
+   §2's ring is `TorusGeometry(2.0, 0.075, …)` — a wire. The outer radius is
+   kept; the cross-section is not. A tube that thin cannot read as a housing,
+   and it is half of why the first build looked like a diagram. */
+
+const R_OUT = 2.0;
+/**
+ * The bore, and the single number that decides whether this reads as jewellery
+ * or as a tyre.
+ *
+ * The 2D mark's ring is 1/12 of its diameter — a band 16.7% of the radius —
+ * and taken literally in 3D it is mostly side wall at this tilt. 11% was better
+ * and still too heavy: side by side with a live capture of tonik's, ours read as
+ * a dark mass filling the right half where theirs is a slim bright ellipse.
+ *
+ * 7% is the band they carry. A flat annulus that thin, lit hard, is the whole
+ * difference between an object that looks cast and one that looks moulded — and
+ * it gives the blades room to be the thing you actually look at.
+ */
+const R_IN = 1.86;
+const BARREL_DEPTH = 0.115;
+const BARREL_BEVEL = 0.022;
+/** Enough to keep the silhouette clean at 2400px; the cost is checked by the harness. */
+const BARREL_SEGMENTS = 84;
+
+/* ── the blades ──────────────────────────────────────────────────────────────
+   Proportioned off components/brand/ApertureMark.tsx so the 3D object and the
+   2D glyph describe the same mechanism: the 2D tick reaches inward from the
+   ring's inner edge by 1/6 of the radius, and the blade tip lands at the same
+   fraction of R_OUT.
+
+   Each blade tucks under the barrel's inner wall rather than butting against
+   it, so there is no seam for the light to catch. */
+
+const BLADE_OUTER = R_IN + 0.05;
+const BLADE_INNER = 1.48;
+/**
+ * 32° each. Six of them cover 192° of the 360, so more than half the bore is
+ * open — which is what "retracted" has to look like.
+ *
+ * 46° was the first pass and read heavy: against a live capture of tonik's the
+ * interior was busy where theirs is open. The 2D mark's ticks are barely 6°
+ * wide; plates are right for 3D, but they have to stay closer to ticks than to
+ * a closed iris or the centre stops being clear.
+ */
+const BLADE_ARC = (32 * Math.PI) / 180;
+/** The 8° off-radial lean the 2D mark has, built into the blade's own outline. */
+const BLADE_SKEW = (8 * Math.PI) / 180;
+const BLADE_DEPTH = 0.105;
 const BLADE_BEVEL = 0.02;
+
+/* ── presentation ────────────────────────────────────────────────────────────
+   §2 gives `rotation.x = -0.55, rotation.z = 0.30`, which produces an ellipse
+   squashed to 0.85 of its width and rolled 17°. tonik's is nearer 0.65 rolled
+   45°, with the major axis running lower-left to upper-right — the long
+   diagonal pointing away from the headline, which is what keeps the object
+   clear of the copy instead of lying across it.
+
+   Expressed as one tilt about an in-plane axis rather than two Euler terms,
+   because that is the quantity that actually matters: the axis you tilt about is
+   the axis the ellipse keeps, and everything perpendicular to it foreshortens by
+   its cosine. See I-024. */
+
+/**
+ * The kept axis: lower-left ↔ upper-right, so the ellipse stretches that way.
+ *
+ * 51° off horizontal, not 45°. Measured: theirs boxes 658 x ~755 in a 1512x900
+ * frame — taller than it is wide — where a 45° axis gives a square-ish box and
+ * 55° overshoots into too narrow. Leaning the axis toward vertical redistributes
+ * the ellipse into their proportion without changing which corners the stretched
+ * ends point at.
+ */
+const TILT_AXIS = new Vector3(Math.cos(0.892), Math.sin(0.892), 0).normalize();
+/** cos(0.76) ≈ 0.72. Measured off tonik-hero-01.png, then opened a little: the
+ *  barrel has depth where their tube is round, so the same tilt reads narrower. */
+const TILT_ANGLE = 0.76;
+
+/* ── lights and material, §2 verbatim ────────────────────────────────────── */
 
 const KEY_INTENSITY = 2.4;
 const KEY_POSITION: [number, number, number] = [4, 5, 3];
 const RIM_INTENSITY = 1.8;
 const RIM_POSITION: [number, number, number] = [-5, 1, -4];
 const AMBIENT_INTENSITY = 0.18;
+/**
+ * Not in §2 — §2 has no specular term at all, which is why a literal reading
+ * renders a matte body that never glints. See I-027.
+ */
+const SPECULAR = 2.4;
 
 /** `#2a2a2a`, as display-space components. See the note on outputColorSpace. */
 const BASE_COLOR: [number, number, number] = [0x2a / 255, 0x2a / 255, 0x2a / 255];
 const GRAIN_SCALE = 18.0;
 const GRAIN_AMOUNT = 0.35;
 
-/**
- * §2 gives `rotation.y += 0.0022` per frame, "~7.5s per revolution" — which is
- * only true at 60fps. The revolution time is the specced quantity, so the same
- * per-second correction as the damp applies: 0.0022 x 60 rad/s is 7.5s per
- * revolution at any frame rate.
- */
-const IDLE_SPIN_PER_SECOND = 0.0022 * 60;
-/** Each blade's radial offset oscillates by this much, on its own phase. */
-const BREATH_AMPLITUDE = 0.012;
+/* ── motion ──────────────────────────────────────────────────────────────────
+   §2 states its idle spin as "~7.5s per revolution" and its smoothing as
+   "500ms", and writes both as per-frame increments — which are only those
+   durations at 60fps. Both are applied per second here and evaluate to exactly
+   the specced constants at 60. See I-023. */
 
 /**
- * §2: "Smoothing: **500ms** on every channel", implemented in its snippet as a
- * per-frame `* 0.08`, with the note "~500ms smoothing = damp factor 0.08 at
- * 60fps".
+ * The idle drift.
  *
- * A per-frame factor is only 500ms at 60fps. At 30 it is a second; on a
- * throttled tab it is several. The spec's intent is a **duration**, so this is
- * applied per second of elapsed time instead — see `dampFactor` — which
- * evaluates to exactly 0.08 at 60fps and holds the specced 500ms everywhere
- * else. Caught by the behaviour check, which reads the sweep at 0.319 rad
- * instead of 0.4 because headless Chromium runs the ticker near 20fps.
+ * §2 asks for `rotation.y += 0.0022` per frame and calls it "~7.5s per
+ * revolution" — those two do not describe the same motion. 0.0022 rad/frame at
+ * 60fps is 0.132 rad/s, which is **47 seconds** per revolution, not 7.5. A
+ * revolution in 7.5s needs 0.014 rad/frame, six times faster. §2 contradicts
+ * itself and either reading is defensible. I-029.
+ *
+ * Neither is used. Sayandeep asked for it stopped or "wayy slower", so it is
+ * 0.02 rad/s — about five minutes a revolution, which is imperceptible frame to
+ * frame and means the object is never quite the same twice. **Set it to 0 for a
+ * dead-still object**; nothing else depends on it.
  */
+const IDLE_SPIN_PER_SECOND = 0.02;
 const DAMP = 0.08;
-
-/**
- * The specced per-frame damp, generalised to real elapsed time.
- * `dampFactor(1/60) === DAMP` exactly; longer frames catch up proportionally.
- */
 const dampFactor = (dt: number) => 1 - Math.pow(1 - DAMP, dt * 60);
 
-/* ── derived, and why ────────────────────────────────────────────────────────
-   The 2D mark anchors each tick on the ring's INNER EDGE and pivots it 8° about
-   that anchor (components/brand/ApertureMark.tsx). The 3D blade does exactly the
-   same thing, which fixes its length: the tip sits at the inner edge, and §2's
-   blade radius of 1.55 is the blade's centre, so
+/**
+ * Pointer response. **Subtle, and it cannot detach anything.**
+ *
+ * §2 recovered tonik's curves as ±0.2 rad on the ring and −0.1→+0.5 on the
+ * mark, driving two *separate* objects — their glyph floats free inside their
+ * ring, so a large differential costs them nothing. Ours is housed. Applying
+ * that differential to a barrel and its blades slid the blades out of the bore.
+ *
+ * So the differential moved to the axis where it is mechanically true. The
+ * assembly tips as one object, and the blades **actuate about the bore's own
+ * axis** — which is what an iris does, and which sweeps them within the housing
+ * rather than out of it. The mechanism still answers at two rates; it just
+ * cannot come apart. See D-014 and I-025.
+ */
+const TIP = { x: 0.13, y: 0.16 };
+/** Blade sweep about the bore axis, in radians, across the full viewport. */
+const ACTUATE = 0.16;
+/**
+ * A small positional lean, opposite the pointer.
+ *
+ * Rotation alone reads as a thing being turned; adding a shift reads as a thing
+ * being looked around, because the near and far edges then move by different
+ * amounts on screen. It is the cheapest parallax there is and it is most of what
+ * separates a response that feels three-dimensional from one that feels like a
+ * transform. Units, not radians.
+ */
+const SHIFT = { x: 0.11, y: 0.075 };
 
-       length = 2 × (inner edge − centre) = 2 × (1.925 − 1.55) = 0.75
-
-   The specced radius and the 2D construction agree on their own. That is the
-   check that this is the right reading of "radius 1.55". */
-const RING_INNER_EDGE = RING_RADIUS - RING_TUBE;
-/** The assembly's widest extent — the torus, outer edge to outer edge. */
-const ASSEMBLY_DIAMETER = (RING_RADIUS + RING_TUBE) * 2;
-const BLADE_LENGTH = 2 * (RING_INNER_EDGE - BLADE_RADIUS);
-/** 8° off-radial — so six blades read as a mechanism, not a compass rose. */
-const OFF_RADIAL = (8 * Math.PI) / 180;
-
-/** Proportioned off the 2D mark's tick, which is half the ring's stroke wide. */
-const BLADE_HALF_WIDTH_OUTER = 0.085;
-const BLADE_HALF_WIDTH_INNER = 0.045;
-const BLADE_DEPTH = 0.09;
-
-/* ── the recovered parallax curves ──────────────────────────────────────────
-   [ix2 a-3 "home-hero_spline-desktop"]. tonik drives two objects at different
-   rates and COUNTER-rotates them on Y. The mark swings 0.6 rad across the
-   viewport where the ring swings 0.4, so the inner element consistently outruns
-   its frame — that is what reads as depth. On vertical movement they oppose, and
-   that shearing is why it feels like a mechanism rather than an image. */
-const CURVE = {
-  ring: { yFrom: -0.2, yTo: 0.2, xFrom: 0.0, xTo: 0.2 },
-  blades: { yFrom: -0.1, yTo: 0.5, xFrom: 0.1, xTo: -0.1 },
-} as const;
-
-/** [ix2 a-15 "hero-spline-scroll-mobile"] — a ~0.975 rad sweep as the hero leaves. */
+/** [ix2 a-15] — a ~0.975 rad sweep as the hero leaves, on mobile. */
 const MOBILE_SCROLL = { from: -0.525, to: -1.5 } as const;
 
 /** §2: render exactly one frame at this pose under reduced motion, then stop. */
@@ -192,21 +257,25 @@ export interface ApertureScene {
   /** Triangles actually submitted. §2 budgets under 40k. */
   triangleCount(): number;
   /**
-   * Live rotations, for `verify:motion`'s behaviour layer.
+   * Live state, for `verify:motion`'s behaviour layer.
    *
-   * §2's headline acceptance criterion — "the blades outrun the ring; if it
-   * looks flat, the curves are wrong" — is a relationship between two numbers
-   * that no registered timeline holds and no screenshot can show. This is how it
-   * gets asserted rather than admired.
+   * `bladeReach` is the invariant that matters: the furthest any blade vertex
+   * sits from the bore axis. It must stay inside the barrel's outer radius, or
+   * the mechanism has come apart — which is exactly the failure the first build
+   * shipped and the reason this value is exposed at all.
    */
   debug(): {
-    ringY: number;
-    ringX: number;
-    bladesY: number;
-    bladesX: number;
-    assemblyY: number;
+    tipX: number;
+    tipY: number;
+    actuation: number;
+    spin: number;
     cameraZ: number;
     blades: number;
+    bladeReach: number;
+    barrelOuter: number;
+    /** The load-in's scale, so the reveal can be asserted rather than assumed. */
+    scale: number;
+    opacity: number;
   };
   dispose(): void;
 }
@@ -231,10 +300,7 @@ export function createApertureScene(
      base but silently triples the literal `0.55` rim term.
 
      Taking the output space linear means the shader writes display values
-     directly and every specced number means exactly what it says. Nothing else
-     on the site uses three, so this is local rather than a global override, and
-     the base colour is passed as a raw Vector3 for the same reason — a
-     THREE.Color would convert it on the way in. */
+     directly and every specced number means exactly what it says. */
   renderer.outputColorSpace = LinearSRGBColorSpace;
 
   const scene = new Scene();
@@ -243,10 +309,9 @@ export function createApertureScene(
   camera.position.set(0, 0, CAMERA_Z);
 
   /* ── lights ───────────────────────────────────────────────────────────────
-     Real objects in the graph, as §2 specifies, and they are also the single
-     source of the numbers the shader uses — the material reads its directions
-     and intensities off these rather than duplicating them. Change a light and
-     the material follows. */
+     Real objects in the graph, as §2 specifies, and also the single source of
+     the numbers the shader uses — the material reads its directions and
+     intensities off these rather than duplicating them. */
   const keyLight = new DirectionalLight(0xffffff, KEY_INTENSITY);
   keyLight.position.set(...KEY_POSITION);
   const rimLight = new DirectionalLight(0xffffff, RIM_INTENSITY);
@@ -258,7 +323,6 @@ export function createApertureScene(
     vertexShader: APERTURE_VERTEX,
     fragmentShader: APERTURE_FRAGMENT,
     transparent: true,
-    // The blades are thin extrusions seen from both sides as the assembly turns.
     side: DoubleSide,
     uniforms: {
       uBaseColor: { value: new Vector3(...BASE_COLOR) },
@@ -269,61 +333,93 @@ export function createApertureScene(
       uRimDir: { value: rimLight.position.clone().normalize() },
       uRimIntensity: { value: rimLight.intensity },
       uAmbient: { value: ambient.intensity },
+      uSpecular: { value: SPECULAR },
       uOpacity: { value: 1 },
     },
   });
 
   /* ── assembly ─────────────────────────────────────────────────────────────
-     Three nested levels, and the nesting is the point. The assembly carries the
-     idle spin and the mobile scroll drive; the ring and blade groups carry the
-     two parallax curves independently; the ring MESH carries its own
-     presentation tilt, so parallax on the ring group cannot overwrite it. */
+     Four levels, and the nesting is the whole design.
+
+       assembly   — position, idle spin, mobile scroll drive
+       tipper     — the pointer's tip. ONE node, so the barrel and the blades tip
+                    together and the object reads as a single thing.
+       presenter  — the ellipse tilt, about the in-plane axis it keeps
+       barrel + blades — coplanar and concentric by construction
+
+     The blades hang off `presenter` alongside the barrel, so the only motion
+     that can separate them from it is a rotation about the bore axis — which
+     sweeps them *within* the bore. There is no longer an axis on which they can
+     slide out. */
   const assembly = new Group();
-  assembly.position.x = ASSEMBLY_X;
+  assembly.position.set(ASSEMBLY_X, ASSEMBLY_Y, 0);
   scene.add(assembly);
 
-  const ringGroup = new Group();
-  const bladeGroup = new Group();
-  assembly.add(ringGroup, bladeGroup);
+  const tipper = new Group();
+  assembly.add(tipper);
 
-  /* §2 hangs the ellipse tilt off the Ring line, because that is where the
-     presentation is described — but ring and blades are one mechanism and have
-     to lie in the same plane. Tilting only the torus leaves six bars standing
-     upright through a tipped hoop, which is what the first render showed.
+  const presenter = new Group();
+  presenter.quaternion.setFromAxisAngle(TILT_AXIS, TILT_ANGLE);
+  tipper.add(presenter);
 
-     The tilt therefore sits on an inner node of BOTH, below each parallax
-     group. That ordering matters: parallax stays on the outer groups so its
-     axes remain the world-ish X and Y the recovered IX2 curves were measured
-     in, and the tilt is applied after it rather than rotating the axes the
-     curves act on. */
-  const bladeTilt = new Group();
-  bladeTilt.rotation.x = RING_TILT_X;
-  bladeTilt.rotation.z = RING_TILT_Z;
-  bladeGroup.add(bladeTilt);
+  /* Everything that turns idly turns about the BORE AXIS, not about world Y.
 
-  const ringGeometry = new TorusGeometry(
-    RING_RADIUS,
-    RING_TUBE,
-    RING_RADIAL_SEGMENTS,
-    RING_TUBULAR_SEGMENTS,
+     §2 spins the assembly on Y, which is right for tonik: their object is a
+     torus with a glyph floating inside it, and it reads from any angle. Ours is
+     an annulus. Rotating an annulus about a world axis in its own plane sweeps
+     it through edge-on twice a revolution — the silhouette collapses to a line,
+     the composition changes under the headline, and the ellipse the whole
+     presentation is built on stops existing.
+
+     About its own axis the silhouette is invariant: the ellipse never moves, and
+     what you see turning is the grain and the six blades. A lens barrel idling
+     in its mount. See I-026. */
+  const spinner = new Group();
+  presenter.add(spinner);
+
+  /* The barrel: a machined annulus with real depth, not a wire. */
+  const barrelShape = new Shape();
+  barrelShape.absarc(0, 0, R_OUT, 0, Math.PI * 2, false);
+  const bore = new Path();
+  bore.absarc(0, 0, R_IN, 0, Math.PI * 2, true);
+  barrelShape.holes.push(bore);
+
+  const barrelGeometry = new ExtrudeGeometry(barrelShape, {
+    depth: BARREL_DEPTH,
+    bevelEnabled: true,
+    bevelThickness: BARREL_BEVEL,
+    bevelSize: BARREL_BEVEL,
+    bevelSegments: 2,
+    curveSegments: BARREL_SEGMENTS,
+  });
+  barrelGeometry.translate(0, 0, -BARREL_DEPTH / 2);
+  spinner.add(new Mesh(barrelGeometry, material));
+
+  /* The blade: a plate with a curved outer edge that tucks under the bore and a
+     straight inner edge, which is what makes six of them read as a polygonal
+     opening rather than as spokes. The straight edge is swung 8° off-radial —
+     the same lean the 2D mark's ticks have, built into the outline rather than
+     applied as a rotation, because a symmetric plate rotated about the bore axis
+     just moves round the circle and leans nowhere. */
+  const half = BLADE_ARC / 2;
+  const points: Vector2[] = [];
+  const ARC_SAMPLES = 14;
+  for (let i = 0; i <= ARC_SAMPLES; i += 1) {
+    const a = -half + (i / ARC_SAMPLES) * BLADE_ARC;
+    points.push(new Vector2(Math.cos(a) * BLADE_OUTER, Math.sin(a) * BLADE_OUTER));
+  }
+  points.push(
+    new Vector2(
+      Math.cos(half + BLADE_SKEW) * BLADE_INNER,
+      Math.sin(half + BLADE_SKEW) * BLADE_INNER,
+    ),
+    new Vector2(
+      Math.cos(-half + BLADE_SKEW) * BLADE_INNER,
+      Math.sin(-half + BLADE_SKEW) * BLADE_INNER,
+    ),
   );
-  const ring = new Mesh(ringGeometry, material);
-  ring.rotation.x = RING_TILT_X;
-  ring.rotation.z = RING_TILT_Z;
-  ringGroup.add(ring);
 
-  /* The blade profile: a tapered plate lying along its own +Y, centred on its
-     own origin, extruded through Z and bevelled. Wider at the outer end than the
-     inner, which is what stops six of them reading as spokes. */
-  const profile = new Shape();
-  const half = BLADE_LENGTH / 2;
-  profile.moveTo(-BLADE_HALF_WIDTH_INNER, -half);
-  profile.lineTo(BLADE_HALF_WIDTH_INNER, -half);
-  profile.lineTo(BLADE_HALF_WIDTH_OUTER, half);
-  profile.lineTo(-BLADE_HALF_WIDTH_OUTER, half);
-  profile.closePath();
-
-  const bladeGeometry = new ExtrudeGeometry(profile, {
+  const bladeGeometry = new ExtrudeGeometry(new Shape(points), {
     depth: BLADE_DEPTH,
     bevelEnabled: true,
     bevelThickness: BLADE_BEVEL,
@@ -333,48 +429,41 @@ export function createApertureScene(
   });
   bladeGeometry.translate(0, 0, -BLADE_DEPTH / 2);
 
+  /* One group for every blade, rotating about the bore axis. That single node is
+     the iris actuation, and it is the only differential the pointer drives. */
+  const blades = new Group();
+  spinner.add(blades);
+
   // §2: 4 blades on mobile instead of 6.
   const bladeCount = mobile ? 4 : 6;
-  /** The pivots, kept so `breathe` can move each blade along its own radius. */
-  const bladePivots: Group[] = [];
-
   for (let i = 0; i < bladeCount; i += 1) {
-    const station = new Group();
-    station.rotation.z = (i / bladeCount) * Math.PI * 2;
-
-    /* The tip sits on the ring's inner edge and the blade pivots 8° about it —
-       the same anchor and the same pivot as the 2D mark's ticks. */
-    const tip = new Group();
-    tip.position.y = RING_INNER_EDGE;
-    tip.rotation.z = OFF_RADIAL;
-
     const blade = new Mesh(bladeGeometry, material);
-    blade.position.y = -half; // hangs inward from the tip
-    tip.add(blade);
+    blade.rotation.z = (i / bladeCount) * Math.PI * 2;
+    blades.add(blade);
+  }
 
-    station.add(tip);
-    bladeTilt.add(station);
-    bladePivots.push(tip);
+  /* The invariant the harness asserts: how far any blade vertex actually reaches
+     from the bore axis.
+
+     Read off the vertices, not off the bounding box. A blade spans an arc, so
+     its box corners sit outside the geometry — the box put the reach at 2.018
+     against a 2.0 barrel and would have failed a correct object. */
+  const bladePositions = bladeGeometry.getAttribute('position');
+  let bladeReach = 0;
+  for (let i = 0; i < bladePositions.count; i += 1) {
+    const r = Math.hypot(bladePositions.getX(i), bladePositions.getY(i));
+    if (r > bladeReach) bladeReach = r;
   }
 
   /* ── state ────────────────────────────────────────────────────────────────
-     Targets are set by input; the rendered rotations chase them at DAMP. */
-  const target = { ringY: 0, ringX: 0, bladesY: 0, bladesX: 0 };
+     Targets are set by input; the rendered values chase them at DAMP. */
+  const target = { tipX: 0, tipY: 0, actuation: 0, shiftX: 0, shiftY: 0 };
   let scrollProgress = 0;
-  let elapsed = 0;
 
   function applyMobileScroll() {
-    assembly.rotation.y = lerp(MOBILE_SCROLL.from, MOBILE_SCROLL.to, scrollProgress);
-  }
-
-  function breathe() {
-    for (let i = 0; i < bladePivots.length; i += 1) {
-      const pivot = bladePivots[i];
-      if (!pivot) continue;
-      // A per-blade phase offset, so they never pulse in unison.
-      const phase = elapsed * 0.9 + (i / bladePivots.length) * Math.PI * 2;
-      pivot.position.y = RING_INNER_EDGE + Math.sin(phase) * BREATH_AMPLITUDE;
-    }
+    // §2's range, on the bore axis rather than world Y. Same sweep, and the
+    // silhouette survives it. See I-026.
+    spinner.rotation.z = lerp(MOBILE_SCROLL.from, MOBILE_SCROLL.to, scrollProgress);
   }
 
   function render() {
@@ -382,39 +471,44 @@ export function createApertureScene(
   }
 
   if (reducedMotion) {
-    /* §2: exactly one frame at rotation.y = 0.4, then nothing. No idle spin, no
-       parallax, no scroll response. `tick` is never registered by Hero3D in this
-       mode, so this pose is final. */
-    assembly.rotation.y = REDUCED_MOTION_POSE;
+    /* §2: exactly one frame at rotation.y = 0.4, then nothing. `tick` is never
+       registered by Hero3D in this mode, so this pose is final. */
+    spinner.rotation.z = REDUCED_MOTION_POSE;
   } else if (mobile) {
     applyMobileScroll();
   }
 
   return {
     tick(dt) {
-      elapsed += dt;
-
       if (mobile) {
         applyMobileScroll();
       } else {
-        assembly.rotation.y += IDLE_SPIN_PER_SECOND * dt;
+        spinner.rotation.z += IDLE_SPIN_PER_SECOND * dt;
 
         const k = dampFactor(dt);
-        ringGroup.rotation.y += (target.ringY - ringGroup.rotation.y) * k;
-        ringGroup.rotation.x += (target.ringX - ringGroup.rotation.x) * k;
-        bladeGroup.rotation.y += (target.bladesY - bladeGroup.rotation.y) * k;
-        bladeGroup.rotation.x += (target.bladesX - bladeGroup.rotation.x) * k;
+        tipper.rotation.y += (target.tipX - tipper.rotation.y) * k;
+        tipper.rotation.x += (target.tipY - tipper.rotation.x) * k;
+        tipper.position.x += (target.shiftX - tipper.position.x) * k;
+        tipper.position.y += (target.shiftY - tipper.position.y) * k;
+        blades.rotation.z += (target.actuation - blades.rotation.z) * k;
       }
 
-      breathe();
       render();
     },
 
     setPointer(px, py) {
-      target.ringY = lerp(CURVE.ring.yFrom, CURVE.ring.yTo, px);
-      target.ringX = lerp(CURVE.ring.xFrom, CURVE.ring.xTo, py);
-      target.bladesY = lerp(CURVE.blades.yFrom, CURVE.blades.yTo, px);
-      target.bladesX = lerp(CURVE.blades.xFrom, CURVE.blades.xTo, py);
+      // Centred on the viewport, so a pointer in the middle leaves it at rest.
+      const cx = px * 2 - 1;
+      const cy = py * 2 - 1;
+      target.tipX = cx * TIP.x;
+      target.tipY = cy * TIP.y;
+      /* The blades lead the housing. The mechanism answering a moment before its
+         shell does is what carries the sense of depth, now that the two cannot
+         be pulled apart. */
+      target.actuation = -cx * ACTUATE;
+      // Opposite the pointer, so the object leans away from the hand.
+      target.shiftX = -cx * SHIFT.x;
+      target.shiftY = cy * SHIFT.y;
     },
 
     setScrollProgress(p) {
@@ -436,12 +530,12 @@ export function createApertureScene(
          visible width one unit from the camera, so the distance at which the
          assembly fills MAX_WIDTH_FRACTION of it falls straight out. */
       const perUnitWidth = 2 * Math.tan((CAMERA_FOV * Math.PI) / 360) * aspect;
-      const fitted = ASSEMBLY_DIAMETER / (perUnitWidth * MAX_WIDTH_FRACTION);
+      const fitted = (R_OUT * 2) / (perUnitWidth * MAX_WIDTH_FRACTION);
       camera.position.z = Math.max(CAMERA_Z, fitted);
       camera.updateProjectionMatrix();
+
       /* `false` — do not let three write width/height back onto the element's
-         style. The canvas is sized by CSS to fill its container and three
-         setting inline dimensions would fight it. */
+         style. The canvas is sized by CSS to fill its container. */
       renderer.setPixelRatio(dpr);
       renderer.setSize(width, height, false);
     },
@@ -449,13 +543,16 @@ export function createApertureScene(
     renderOnce: render,
 
     debug: () => ({
-      ringY: ringGroup.rotation.y,
-      ringX: ringGroup.rotation.x,
-      bladesY: bladeGroup.rotation.y,
-      bladesX: bladeGroup.rotation.x,
-      assemblyY: assembly.rotation.y,
+      tipX: tipper.rotation.y,
+      tipY: tipper.rotation.x,
+      actuation: blades.rotation.z,
+      spin: spinner.rotation.z,
       cameraZ: camera.position.z,
-      blades: bladePivots.length,
+      blades: bladeCount,
+      bladeReach,
+      barrelOuter: R_OUT,
+      scale: assembly.scale.x,
+      opacity: material.uniforms.uOpacity!.value as number,
     }),
 
     triangleCount() {
@@ -465,7 +562,7 @@ export function createApertureScene(
     },
 
     dispose() {
-      ringGeometry.dispose();
+      barrelGeometry.dispose();
       bladeGeometry.dispose();
       material.dispose();
       renderer.dispose();

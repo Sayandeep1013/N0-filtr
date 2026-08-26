@@ -53,6 +53,35 @@ export const SERVICES: ServiceSummary[] = [
   { slug: 'engineering', name: 'Engineering' },
 ];
 
+/* ── the hero ──────────────────────────────────────────────────────────────
+   `30-page-specs.md` §1 gives the structure and a placeholder line — "Design
+   and engineering" / "for people who ship" — which is tonik's cadence with our
+   services dropped in. It says what we do and nothing about who we are.
+
+   This one earns the name. "Nothing lost" is the same claim the footer tagline
+   makes ("No filter between the idea and the thing") without repeating its
+   words, and the first line names both halves of what we actually sell.
+
+   Length is a design constraint here, not a preference. At `--t-h1` (6rem) a
+   line much past sixteen characters wraps inside the headline's 60% measure,
+   and the measure is what keeps the copy off the 3D assembly — so a longer line
+   does not just look worse, it puts the headline under the object. "Design and
+   engineering" was the first draft and wrapped to three lines.
+
+   Written in phase 2 at Sayandeep's request; the hero itself is phase 3's T3.1.
+   Both lines are here rather than in the component so changing them is one
+   edit and needs no knowledge of the markup. */
+
+export const HERO = {
+  /** Line 1. */
+  lineOne: 'Design and build',
+  /** Line 2. The play control sits inline before it, in the text flow. */
+  lineTwo: 'with nothing lost',
+  /** The 2-up mono rail above the hairline at the section's foot. */
+  labelLeft: '0→1 design and engineering for founders who ship',
+  labelRight: '12 shipped projects · 5 services',
+} as const;
+
 /* ── identity ──────────────────────────────────────────────────────────────
    The canonical origin, used for `metadataBase`, the OG card's absolute URLs
    and the manifest. **The domain is still a placeholder** — open item 5 in

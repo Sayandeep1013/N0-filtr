@@ -517,3 +517,141 @@ next hits it will be looking.
 Note that §3 "Why not Spline" survives intact. Its numbers were wrong, its conclusion was not —
 Spline is ~380KB of runtime plus a ~200KB scene, so Three is still the smaller of the two even at
 141KB.
+
+---
+
+## D-014 · The hero object is one housed mechanism, not a ring with parts near it
+
+**Phase:** 2 · **Date:** 2026-08-26 · **Status:** active
+
+**Context:** The first build followed `50-brand-and-3d.md` §2 literally: a `TorusGeometry(2.0,
+0.075, …)` — a wire — with six thin bars floating at its inner edge, and §2's recovered parallax
+curves driving the bars independently of the ring.
+
+Sayandeep's verdict was exact: *"make it a singular object not a circle and some lines"*, and
+*"it should subtly react to mouse movement … not loosing its teeth"*. Both were right, and the
+second is the interesting one.
+
+**The teeth came off because the spec's curves are correct for tonik and wrong for us.** Their
+glyph floats free inside their ring, so driving the two at different rates on a shared axis costs
+them nothing. Ours is housed. The same differential slid the blades out of the bore.
+
+**Decision: rebuild it as a machined barrel with six blades inside its bore, and move the
+differential to the axis where it is mechanically true.**
+
+- **The barrel** is an extruded annulus with real depth, not a tube. `R_OUT` stays §2's 2.0; the
+  cross-section does not. The band is **7% of the radius** — the 2D mark's own ring is 16.7%, and
+  taken literally in 3D that is mostly side wall and reads as a bracelet. Measured against a live
+  capture of theirs, 7% is the weight that reads as a slim bright ellipse rather than a dark mass.
+- **The blades** are plates with a curved outer edge tucked under the bore and a straight inner
+  edge, which is what makes six of them read as a polygonal opening rather than as spokes. 32°
+  each, so more than half the bore stays open — "retracted" has to look retracted. The 8°
+  off-radial lean is built into the outline, because a symmetric plate rotated about the bore axis
+  just moves round the circle and leans nowhere.
+- **The differential** is now: the housing tips as one object, and the blades **actuate about the
+  bore's own axis**. That is what a real iris does, and it sweeps them within the housing.
+
+**Why this is stronger than what it replaced, not just different.** A rotation about the bore axis
+cannot change a radius. The blades are therefore *structurally* incapable of leaving the barrel —
+it is not a tuning that happens to be small. `verify:motion` asserts exactly that: the furthest any
+blade vertex sits from the axis is 1.930 against a 2.0 barrel, **constant to six decimal places**
+across every pointer position. See I-025.
+
+Triangles went **down**, 13,064 to 5,232. The first object was expensive because a 200-segment
+torus is expensive, not because it was detailed.
+
+**Alternatives:** Keep §2's curves and accept the blades detaching — the literal reading, and
+visibly broken. Shrink the differential until the detachment is small enough to miss — which is
+the same bug with a smaller number and no invariant to protect it. Float the blades free inside
+the ring as tonik's glyph is, which would make the curves transfer directly but abandons the Open
+Aperture: the blades belong to the mechanism, and a floating asterisk is their mark, not ours.
+
+**Consequence:** Four §2 statements are now deliberately not transcribed — I-024 the ellipse,
+I-025 the curves, I-026 the idle axis, I-027 the missing specular — each logged with its
+measurement. Fifteen behaviour assertions hold the result. The old assertions asserted the wrong
+thing correctly: "the blades outrun the ring by 1.5×" was true, and it was the bug.
+
+---
+
+## D-015 · Phase 3's hero was built in phase 2
+
+**Phase:** 2 · **Date:** 2026-08-26 · **Status:** active
+
+**Context:** Phase 2's acceptance requires the 3D hero to be judged against tonik's framing. With
+the homepage empty, the footer's 14vw wordmark sat near the top of the document under a
+full-height canvas and stood in for a headline — 971px of it, where a real tagline is ~700. Every
+judgement about whether the object cleared the copy was being made against a stand-in that will
+never exist.
+
+Sayandeep asked for the hero copy directly, with the play control, so the composition could be
+seen.
+
+**Decision:** Build `30-page-specs.md` §1's hero copy in phase 2 — headline, inline play control,
+foot rail — and leave the rest of phase 3 alone.
+
+Explicitly **not** built, and still phase 3's: the scrubbed word reveal (T3.3), the showreel Flip
+choreography (T3.6), the stack wall (T3.4, T3.5). `PlaySquare` renders the control and is inert
+and `aria-hidden` — a button that looks live and does nothing is worse than no button, and a
+screen reader announcing "play" on a control that cannot play is worse still.
+
+**The tagline is ours, and its length is a design constraint.** "Design and build / with nothing
+lost" — the same claim the footer tagline makes without repeating its words. The first draft,
+"Design and engineering", wrapped to three lines and broke the two-line composition. Both lines
+live in `HERO` in `lib/content/site.ts` so changing them needs no knowledge of the markup.
+
+**Consequence:** Phase 3 inherits a working hero and the `data-hero` anchor, which closes I-020.
+Its brief should be re-read before it is claimed — roughly a third of T3.1 and T3.2 is done.
+
+---
+
+## D-016 · Measure their live DOM, not their screenshots
+
+**Phase:** 2 · **Date:** 2026-08-26 · **Status:** active
+
+**Context:** Phase 2 spent most of a session correcting the hero's layout by eye against
+`docs/research/screens/tonik-hero-01.png`, one number at a time. The foot rail was 29px too high.
+The copy column was 57px too far left. The play control was 0.2rem out with the wrong gap. The
+label colour was wrong. Each was found, fixed, and followed by another.
+
+Sayandeep, reasonably: *"why getting so many issues in this just getting the very first page"*.
+
+**Every one of those values was sitting in `getComputedStyle` the whole time.**
+
+**Decision: extract their design system from the live DOM before building anything, and keep the
+extraction in the repo.** `tools/extract/tonik.mjs`, `npm run extract:tonik`, written to
+`docs/research/03-tonik-extract.md`.
+
+**A capture shows where an element is. It never shows the rule that put it there.** That is the
+whole difference: correcting from a picture converges slowly *and teaches nothing reusable*,
+because the next component has the same rule behind it and you rediscover it from scratch.
+
+The proof is the finding that ended it. `.container-large` is `max-width: 80rem`, centred — 1316px
+at a 16.45 root, 1520px at 19, with a `unl-width` modifier for full-bleed. Ten of their eleven
+instances are capped. That single value is why their copy starts at x=98 rather than the 41px
+gutter, and it explains **every** alignment miss at once. Our own spec documented that class as
+the gutter width. See I-030.
+
+The same pass also gave the type scale as rendered, the colour set, the transition vocabulary and
+the section rhythm — and turned up a border we do not have (`1px solid rgba(59,59,59,.3)`, their
+most-used, the hairline on light surfaces) that phase 4 would otherwise have hit blind.
+
+**On the engine.** Sayandeep asked for a non-Chromium browser. Firefox is the extractor's default,
+and it is worth being precise about what that buys: computed styles are computed styles, and
+Firefox exposes nothing Chromium hides. What it gives is an *independent renderer* — a figure both
+engines agree on is a property of their CSS, and one they disagree on is a property of the engine
+and must not be copied. `--chromium` runs the same pass for the diff.
+
+**On what is and is not collected.** Measurements and structure: sizes, spacing, colour, timing,
+section rhythm. Facts about a layout, and the same class of thing `docs/spec/` was already built
+from. Their copy, their imagery, their Spline scene and their logo are **not** collected and are
+not ours to ship — CLAUDE.md's line holds, *our own brand, our own work*. This is also the cheaper
+path: a layout tuned to their string lengths has to be re-tuned to ours anyway, which is exactly
+what happened when "Design and engineering" wrapped to three lines.
+
+**Alternatives:** Keep correcting from captures — demonstrably slow and it produced a session of
+one-number fixes. Copy their stylesheet wholesale — collects their content with their layout,
+crosses the line above, and still needs re-tuning to our copy.
+
+**Consequence:** Every later phase should **check the extract before measuring anything**, and
+extend `tools/extract/tonik.mjs` rather than opening a screenshot. Protocol §2 and every phase's
+Reading Map now say so.

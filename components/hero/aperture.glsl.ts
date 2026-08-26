@@ -130,6 +130,7 @@ uniform float uKeyIntensity;
 uniform vec3  uRimDir;
 uniform float uRimIntensity;
 uniform float uAmbient;
+uniform float uSpecular;
 uniform float uOpacity;
 
 varying vec3 vObjectPos;
@@ -178,8 +179,25 @@ void main() {
   float fresnel = pow(1.0 - max(dot(N, V), 0.0), mix(3.4, 2.2, roughness));
   fresnel *= mix(0.75, 1.45, grain);
 
+  /* Specular, and it is the grain you are actually looking at.
+
+     Section 2 describes a surface that "catches the rim light" and gives a
+     fresnel term, but no specular at all — so a literal reading has a matte body
+     with a soft edge and nothing that glints. The reference capture is covered
+     in small bright flecks along the lit arc; that is a rough metal catching a
+     key light, and it is most of what makes their object read as a cast object
+     rather than as flat shading.
+
+     The grain drives both halves: it scatters the highlight (a rough patch
+     spreads it) and it modulates its strength (a proud grain catches more). Six
+     specular flecks per grain cell is what a cast surface looks like. I-027. */
+  vec3 H = normalize(normalize(uKeyDir) + V);
+  float spec = pow(max(dot(N, H), 0.0), mix(46.0, 5.0, roughness));
+  float sparkle = mix(0.3, 1.85, grain);
+
   vec3 col = uBaseColor * lit;
   col += vec3(0.55) * fresnel * 0.85;          // rim
+  col += vec3(1.0) * spec * uSpecular * sparkle;
   col *= mix(0.88, 1.06, grain);               // grain modulates albedo slightly too
 
   gl_FragColor = vec4(col, uOpacity);

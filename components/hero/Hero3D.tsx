@@ -26,9 +26,21 @@ import s from './Hero3D.module.css';
  * because unmounting is what would cost a new context.
  */
 
-/** §2 load-in: scale 0.85 → 1 and opacity 0 → 1 over 1.2s power3.out. */
-const REVEAL_FROM_SCALE = 0.85;
-const REVEAL_DURATION = 1.2;
+/**
+ * The load-in. §2 gives `scale 0.85 → 1`, `opacity 0 → 1`, `1.2s power3.out`.
+ *
+ * **Deepened and lengthened on Sayandeep's note** that ours arrived rather than
+ * grew. Measured before changing: the specced values were running correctly and
+ * were simply not legible — 0.85 to 1 is a 15% move, and `power3.out` spends 60%
+ * of its travel in the first fifth of its duration, so the visible entrance was
+ * about 250ms of a 15% grow. Sampled at 10ms it was already at 0.919.
+ *
+ * 0.55 over 1.6s on `power2.out` is a move you can see land: still an ease-out,
+ * still settling rather than stopping, but with a tail long enough to read as
+ * the object arriving. See I-028.
+ */
+const REVEAL_FROM_SCALE = 0.55;
+const REVEAL_DURATION = 1.6;
 
 /** §2 performance: clamp the pixel ratio. */
 const MAX_DPR = 2;
@@ -124,7 +136,7 @@ export function Hero3D() {
           scale: 1,
           opacity: 1,
           duration: REVEAL_DURATION,
-          ease: EASE.out,
+          ease: EASE.soft,
           onUpdate: () => scene?.setReveal(reveal.scale, reveal.opacity),
         });
       });
