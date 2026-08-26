@@ -1828,3 +1828,45 @@ visible in the global sheet rather than hidden inside one component's.
 Gated to desktop width, a fine pointer, and no reduced-motion preference — the
 same three gates as the disc. Hiding the pointer where the replacement is
 switched off would leave no cursor at all.
+
+
+---
+
+## I-060 · Matter traps the page scroll, and the spec only caught half of it  🟢
+
+**Raised:** phase 11 · **Resolved:** phase 11
+
+`Mouse.setElement` attaches six listeners to the element it is given. Read out of
+`node_modules/matter-js/build/matter.js` rather than from the docs:
+
+```js
+element.addEventListener('mousemove',  mouse.mousemove,  { passive: true });
+element.addEventListener('mousedown',  mouse.mousedown,  { passive: true });
+element.addEventListener('mouseup',    mouse.mouseup,    { passive: true });
+element.addEventListener('wheel',      mouse.mousewheel, { passive: false });
+element.addEventListener('touchmove',  mouse.mousemove,  { passive: false });
+element.addEventListener('touchstart', mouse.mousedown,  { passive: false });
+element.addEventListener('touchend',   mouse.mouseup,    { passive: false });
+```
+
+`70-physics-footer.md` §9 flags the **touch** three: they call `preventDefault`
+and trap page scroll inside the pit.
+
+**It does not mention `wheel`, and `wheel` is worse.** `mouse.mousewheel` calls
+`event.preventDefault()` unconditionally. The pit is the last thing on the page,
+so a visitor who scrolled into it could not scroll back out — in either
+direction, with a wheel or a trackpad. On a laptop that is the whole page held
+hostage by a footer toy.
+
+**Resolved** by removing all four non-passive listeners after
+`MouseConstraint.create`. Matter's three passive mouse handlers still drive the
+drag, and on touch devices the browser's compatibility mouse events reach the
+same handlers.
+
+Asserted rather than assumed: a wheel event over the pit moves `window.scrollY`
+by 418px.
+
+**The durable lesson:** *a spec that verified most of a library's behaviour has
+still only verified most of it.* §9 was right about the touch listeners and the
+same paragraph would have caught the wheel one if anybody had read the whole
+`setElement` body instead of the part that was already known to be a problem.
