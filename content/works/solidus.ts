@@ -13,7 +13,7 @@ export const solidus: Work = {
   industries: ["Mobile", "Realtime"],
   year: 2026,
   status: "live",
-  links: { repo: "https://github.com/Sayandeep1013/Solidus" },
+  links: { repo: "https://github.com/Sayandeep1013/Solidus-Bingo" },
   accent: { light: "#1BA755", dark: "#106534" },
   invertsPage: false,
   /* No poster. This one is archived, native or terminal — there is no URL to
@@ -23,5 +23,4 @@ export const solidus: Work = {
   /* A generated plate rather than a screenshot — D-038. The motif comes from
      the seed, so twelve works differ without twelve decisions. */
   card: { width: "half", poster: "", art: "solidus-01" },
-  blocks: [],
 };

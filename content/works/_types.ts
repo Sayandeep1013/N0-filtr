@@ -109,6 +109,8 @@ export interface Work {
     art?: string;
     reel?: string;
   };
-  /** The case-study body. Phase 6 builds the renderer; phase 10 writes eleven. */
-  blocks: Block[];
+  /* The case-study body is deliberately **not** here. It lives in
+     `content/works/bodies/`, keyed by slug — twelve bodies is thirteen thousand
+     words of prose, and `Work` is the object every card, filter and spec table
+     on the site receives. See `content/works/bodies/index.ts` and I-061. */
 }

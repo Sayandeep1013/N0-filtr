@@ -15,12 +15,11 @@ export const ftc: Work = {
   status: "live",
   links: {
     live: "https://ftc-game.vercel.app",
-    repo: "https://github.com/Sayandeep1013/FTC",
+    repo: "https://github.com/Sayandeep1013/FTC-Game",
   },
   accent: { light: "#C67A10", dark: "#7F4F0A" },
   invertsPage: false,
   /* A generated plate rather than a screenshot — D-038. The motif comes from
      the seed, so twelve works differ without twelve decisions. */
-  card: { width: "half", poster: '', art: "ftc-01" },
-  blocks: [],
+  card: { width: "half", poster: "", art: "ftc-01" },
 };

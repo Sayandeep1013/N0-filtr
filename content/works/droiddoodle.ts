@@ -22,5 +22,4 @@ export const droiddoodle: Work = {
   /* A generated plate rather than a screenshot — D-038. The motif comes from
      the seed, so twelve works differ without twelve decisions. */
   card: { width: "half", poster: "", art: "droiddoodle-01" },
-  blocks: [],
 };

@@ -28,8 +28,7 @@ export const reinBot: Work = {
      the seed, so twelve works differ without twelve decisions. */
   card: {
     width: "half",
-    poster: '',
+    poster: "",
     art: "rein-bot-01",
   },
-  blocks: [],
 };
