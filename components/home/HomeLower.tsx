@@ -1,12 +1,10 @@
 import { RevealText } from '@/components/ui/RevealText';
-import { Button } from '@/components/ui/Button';
 import { CtaBlock } from '@/components/ui/CtaBlock';
 import { ServicesAccordion } from '@/components/services/ServicesAccordion';
 import { CultureCollage } from '@/components/motion/CultureCollage';
 import { Schematic } from '@/components/ui/Schematic';
-import { BlogCard } from '@/components/blog/BlogCard';
-import { FEATURED_POSTS } from '@/lib/content/posts';
-import { SERVICES_INTRO, CULTURE, BLOG_ROW } from '@/lib/content/site';
+import { BlogRow } from '@/components/blog/BlogRow';
+import { SERVICES_INTRO, CULTURE } from '@/lib/content/site';
 import s from './HomeLower.module.css';
 
 /**
@@ -96,27 +94,9 @@ export function HomeLower() {
         </div>
       </section>
 
-      {/* ── blog row ─────────────────────────────────────────────────────── */}
-      <section className={s.blog} data-blog-row>
-        <div className="padding-global">
-          <div className="container-large">
-            <div className={s.blogHead}>
-              <p className={s.label} data-t="label">
-                {BLOG_ROW.label}
-              </p>
-              <Button href="/blog">{BLOG_ROW.link}</Button>
-            </div>
-
-            {/* §7's `blogs_cms-list` is `4fr 4fr 4fr` on the 1.25rem gap —
-                three equal twelfths-thirds, measured off their live DOM. */}
-            <div className={s.blogRow}>
-              {FEATURED_POSTS.map((post) => (
-                <BlogCard key={post.slug} post={post} />
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* The blog row moved to `<BlogRow>` in phase 7 — `/works`, five
+          service pages and five industry pages all close with it. */}
+      <BlogRow />
     </>
   );
 }

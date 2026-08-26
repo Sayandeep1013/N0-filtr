@@ -1624,3 +1624,59 @@ draws the same picture.
 
 **The durable lesson:** *deterministic seeding does not survive a shared, stateful consumer.* If it
 can be called twice, it must not remember.
+
+
+---
+
+## I-053 · `Math.cos` is not the same number in Node and the browser  🟢
+
+**Raised:** phase 07 · **Resolved:** phase 07
+
+`<Artwork>`'s `iris` and `orbit` motifs are built from trigonometry, and they hydrated with an
+attribute mismatch — `123.45600000000002` on one side against `123.456` on the other.
+
+`Math.cos` and `Math.sin` are **implementation-defined** in ECMAScript: the standard requires them
+to be close, not identical. The Node process that server-renders a page and the browser that
+hydrates it can therefore disagree in the last bit, and React compares attributes as strings.
+
+**Resolved** by rounding every emitted coordinate to two decimal places, which on a 1600-unit canvas
+is well under a device pixel at any size these are drawn.
+
+Worth separating from I-052, which looked like the same bug and was not: that one was a *count*
+mismatch from a shared mutable generator, this one is an *attribute* mismatch from floating point.
+Fixing the first did not fix the second, and it was only by diffing the server HTML against the
+hydrated DOM twice that the two came apart.
+
+---
+
+## I-054 · Four nav links had nowhere to go  🟡
+
+**Raised:** phase 07 · **Status:** partly resolved
+
+An enumeration of every internal `href` on the site against its status code found nine 404s.
+
+**Resolved in phase 7:** `/works`, `/services`, `/services/[slug]` ×5, `/industries/[slug]` ×5 and
+`/privacy`. `/services` and `/privacy` are not in `30-page-specs.md` at all — the first because the
+spec assumes a nav that points elsewhere (D-039), the second because the footer links to it and a
+privacy link that 404s is the specific kind of broken that people notice.
+
+**Still open:** `/about` (phase 8) and `/blog` plus `/blog/[slug]` (phase 9). The `/404` page from
+D-031 catches them and says which sections are still being built, so nothing reads as broken — but
+they are links to nothing and they are in the navbar.
+
+**Worth keeping:** the enumeration itself. Walking the rendered DOM for `a[href^="/"]` and fetching
+each one is four lines and it found every gap at once. Phase 12 should run it again.
+
+---
+
+## I-055 · The privacy page has to stay true  🟡
+
+**Raised:** phase 07 · **Owner:** whoever adds the next third-party script
+
+`/privacy` says this site sets no cookies, runs no analytics, has no accounts and posts no forms —
+because that is true of it as built. The contact panel composes a `mailto:` and nothing leaves the
+browser until the visitor sends it.
+
+**That page is a claim, and it is only worth making because it is checkable.** Adding a form
+provider, an analytics tag, an embedded player or a session cookie makes it false. Anyone doing that
+changes `app/privacy/page.tsx` in the same commit.

@@ -1,5 +1,6 @@
 import { HERO } from '@/lib/content/site';
 import { PlaySquare } from './PlaySquare';
+import { Button } from '@/components/ui/Button';
 import { StackWall } from './StackWall';
 import s from './Hero.module.css';
 
@@ -79,6 +80,31 @@ export function Hero() {
               <span>{withSelectedWord(HERO.lineTwo)}</span>
             </span>
           </h1>
+
+          {/* ── the mobile actions ──────────────────────────────────────
+              Sayandeep, on the phone: *"the hero section is way too long with
+              nothing in it .. add a button of some sort or something to fill
+              that empty space."*
+
+              He is right, and the void is structural rather than accidental.
+              On desktop the hero's height is filled by the 3D assembly and the
+              headline sitting beside each other; below 768 the object drops
+              behind the copy and the two stop sharing a row, which leaves the
+              column the object used to occupy as dead space above the rail.
+
+              So the space gets the thing it should have had anyway. The
+              desktop hero's only affordance is `<PlaySquare>`, which is a
+              showreel control rather than a way into the site — a phone
+              visitor had nothing to press until they scrolled past the fold.
+
+              Hidden above 767 deliberately: the desktop composition is
+              approved and does not have room for a button row. */}
+          <div className={s.actions}>
+            <Button href="/works">See the work</Button>
+            <Button contact variant="ghost">
+              Let&rsquo;s talk
+            </Button>
+          </div>
 
           <div className={s.rail}>
             <span data-t="label">{HERO.labelLeft}</span>

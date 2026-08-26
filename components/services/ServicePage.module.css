@@ -1,0 +1,111 @@
+/* `/services/[slug]`. 30-page-specs.md §`/services/[slug]`. */
+
+.hero {
+  padding-top: 4rem;
+  padding-bottom: var(--section-y);
+}
+
+/* §: left 7/12, right 4/12 — with the remaining column as the gap between them,
+   which is what stops the table butting against the copy's measure. */
+.heroGrid {
+  display: grid;
+  grid-template-columns: calc(7 * var(--col) + 6 * var(--grid-gap)) 1fr;
+  gap: calc(var(--col) + 2 * var(--grid-gap));
+}
+
+.heroCopy {
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  color: var(--text-primary);
+  font-weight: 400;
+}
+
+.lead {
+  margin: 2rem 0 0;
+  color: var(--text-primary);
+}
+
+.body {
+  margin: 1.25rem 0 0;
+  color: var(--text-secondary);
+}
+
+.cta {
+  margin-top: 2.5rem;
+}
+
+.table {
+  align-self: start;
+}
+
+/* ── works ──────────────────────────────────────────────────────────────── */
+
+.works {
+  padding-bottom: var(--section-y);
+}
+
+.sectionLabel {
+  margin: 0 0 2rem;
+  color: var(--text-secondary);
+  font-family: var(--family-mono);
+  text-transform: uppercase;
+  font-weight: 400;
+}
+
+.empty {
+  margin: 0 0 2.5rem;
+  max-width: calc(7 * var(--col) + 6 * var(--grid-gap));
+  color: var(--text-secondary);
+}
+
+/* ── faq ────────────────────────────────────────────────────────────────── */
+
+.faq {
+  padding-bottom: var(--section-y);
+  border-top: var(--hairline);
+  padding-top: var(--section-y);
+}
+
+/* §: left 5/12, right 7/12. */
+.faqGrid {
+  display: grid;
+  grid-template-columns: calc(4 * var(--col) + 3 * var(--grid-gap)) 1fr;
+  gap: calc(var(--col) + 2 * var(--grid-gap));
+}
+
+.faqTitle {
+  margin: 0;
+  color: var(--text-primary);
+  font-weight: 400;
+}
+
+.faqList {
+  min-width: 0;
+}
+
+@media (max-width: 991px) {
+  .heroGrid,
+  .faqGrid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .hero {
+    padding-top: 2rem;
+    padding-bottom: 3rem;
+  }
+
+  .works,
+  .faq {
+    padding-bottom: 3rem;
+  }
+
+  .faq {
+    padding-top: 3rem;
+  }
+}

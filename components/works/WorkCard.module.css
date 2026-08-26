@@ -159,15 +159,39 @@
   pointer-events: none;
 }
 
-.badge {
+/* The top rail: the work's name on the left, the CASE STUDY chip on the right.
+   `data-work-badge` moved onto this wrapper, so the existing reveal tween wipes
+   both in together rather than needing a second one. */
+.rail {
   position: absolute;
   z-index: 5;
   top: 1rem;
   left: 1rem;
+  right: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   opacity: 0;
+  pointer-events: none;
+}
+
+/* Mono, uppercase, and on the plate rather than under it. The plates are
+   abstract, so this is the only thing that identifies a card at a glance. */
+.name {
+  color: var(--text-primary);
+  font-family: var(--family-mono);
+  text-transform: uppercase;
+  /* The plates are mid-grey in places. A hairline of shadow keeps the label
+     legible over the brightest tile without putting a panel behind it. */
+  text-shadow: 0 1px 6px rgb(0 0 0 / 60%);
+}
+
+.badge {
   padding: 0.375rem 0.625rem;
   background-color: var(--bg-alternate);
   color: var(--text-alternate);
+  white-space: nowrap;
 }
 
 /* ── the hover sheet ──────────────────────────────────────────────────────── */

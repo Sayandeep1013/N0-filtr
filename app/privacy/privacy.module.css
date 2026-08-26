@@ -1,0 +1,54 @@
+/* `/privacy`. 30-page-specs.md: single prose column, --t-p, 7/12. */
+
+.page {
+  padding-top: 10rem;
+  padding-bottom: var(--section-y);
+}
+
+.column {
+  width: calc(7 * var(--col) + 6 * var(--grid-gap));
+  max-width: 100%;
+}
+
+.title {
+  margin: 0;
+  color: var(--text-primary);
+  font-weight: 400;
+}
+
+.intro {
+  margin: 1.5rem 0 0;
+  color: var(--text-secondary);
+}
+
+.section {
+  margin-top: 3rem;
+}
+
+.heading {
+  margin: 0 0 1rem;
+  color: var(--text-primary);
+  font-weight: 400;
+}
+
+.body {
+  margin: 0 0 1rem;
+  color: var(--text-secondary);
+}
+
+.link {
+  color: var(--accent-ink);
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+}
+
+@media (max-width: 767px) {
+  .page {
+    padding-top: 7rem;
+    padding-bottom: 4rem;
+  }
+
+  .section {
+    margin-top: 2rem;
+  }
+}

@@ -1,0 +1,80 @@
+/* `/works`. 30-page-specs.md §`/works`. */
+
+ /* `<ServiceNav>` above already cleared the navbar, so this is section spacing
+   rather than clearance. */
+.hero {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+
+.title {
+  margin: 0;
+  color: var(--text-primary);
+  font-weight: 400;
+}
+
+/* The lead and the count on one row: copy at a readable measure on the left,
+   the derived count aligned right where the filter that drives it sits. */
+.meta {
+  display: grid;
+  grid-template-columns: calc(6 * var(--col) + 5 * var(--grid-gap)) 1fr;
+  align-items: end;
+  gap: var(--grid-gap);
+  margin-top: 2.5rem;
+}
+
+.lead {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.count {
+  margin: 0;
+  justify-self: end;
+  color: var(--text-secondary);
+  font-family: var(--family-mono);
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+
+.empty {
+  margin: 4rem 0 8rem;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 991px) {
+  .meta {
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: 1.5rem;
+  }
+
+  .count {
+    justify-self: start;
+  }
+}
+
+@media (max-width: 767px) {
+  .hero {
+    padding-top: 3rem;
+    padding-bottom: 2.5rem;
+  }
+
+  .meta {
+    margin-top: 1.5rem;
+  }
+}
+
+/* Sayandeep: *"the last case study and get in touch are touching."* The grid had
+   no bottom padding, so the last row sat straight on top of `<CtaBlock>`. Every
+   other page that ends in a grid — the service and industry templates — already
+   had this; `/works` is the one that did not. */
+.gridWrap {
+  padding-bottom: var(--section-y);
+}
+
+@media (max-width: 767px) {
+  .gridWrap {
+    padding-bottom: 4rem;
+  }
+}

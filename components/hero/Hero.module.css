@@ -116,3 +116,51 @@
     gap: 0.75rem;
   }
 }
+
+/* ── the mobile actions ─────────────────────────────────────────────────────
+   See the note in Hero.tsx. Hidden on desktop, where the 3D assembly fills the
+   height the headline does not and there is no room for a button row. */
+.actions {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    /* Anchored to the headline, not floated in the gap.
+
+       The first attempt used `margin-top: auto` — and `.rail` already has one,
+       so the two shared the free space and dropped the buttons into the middle
+       of the 3D object. Sitting them under the headline makes the copy and its
+       actions read as one block and leaves the remaining height to the object,
+       which is what is actually filling it. */
+    /* Well clear of the headline. Sayandeep: *"the buttons need to shift down
+       side .. more."* Far enough that the copy block and the actions read as
+       two things, and still inside the space the 3D object was leaving empty. */
+    margin-top: 4.5rem;
+  }
+}
+
+/* ── the play square, on a phone ─────────────────────────────────────────────
+   Hidden below 768. Sayandeep: *"the play button is also misplaced in phone
+   view."*
+
+   It is not misplaced so much as **unreadable at that size**. On desktop it is a
+   large square that reads as a video thumbnail sitting at the start of line two,
+   which is §15's composition and it works. Scaled down to a phone it becomes a
+   36px dark rectangle with a small glyph in it — dark on dark, shorter than the
+   line it sits in, and indenting line two while line one starts at the gutter.
+   It reads as a rendering fault rather than as a control.
+
+   Hiding it costs nothing today because the showreel behind it is still the
+   placeholder recorded off our own works grid (I-033) — there is no reel to
+   miss. When T10.2 supplies real footage this should come back as a labelled
+   control in the actions row above rather than as a square in the headline,
+   which is the shape it should have had on a phone all along. */
+@media (max-width: 767px) {
+  .lineTwo > :global(.play-square) {
+    display: none;
+  }
+}

@@ -48,6 +48,11 @@ export function CtaBlock({
       ref={ref as React.RefObject<HTMLButtonElement>}
       type="button"
       className={s.cta}
+      /* A hook for `verify:motion`. It used to be found as "the first
+         `button[data-contact]` on the page", which held right up until the hero
+         grew a "Let's talk" button above it and the check started measuring a
+         pill. A component that has to be identified should say what it is. */
+      data-cta-block
       data-contact
       aria-haspopup="dialog"
     >

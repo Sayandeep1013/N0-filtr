@@ -117,28 +117,6 @@
 }
 
 /* ── blog row ─────────────────────────────────────────────────────────────── */
-.blog {
-  padding-top: 4rem;
-  padding-bottom: 8rem;
-  border-top: var(--hairline);
-}
-
-.blogHead {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--gutter);
-  margin-bottom: 2.5rem;
-  padding-top: 2rem;
-}
-
-/* Theirs: `4fr 4fr 4fr`, 1.25rem gap. Three equal thirds of the twelve. */
-.blogRow {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--grid-gap);
-}
-
 /* ── ≤767 ─────────────────────────────────────────────────────────────────
    Every one of their section grids collapses to a single column below 768. */
 @media (max-width: 767px) {
