@@ -1050,3 +1050,186 @@ never a measurement, and the standard it set is the standard for raising it agai
 put it to Sayandeep — do not edit the number.** Before asking, check whether Embla is needed at
 all: section 17's mobile ServiceNav carousel is a horizontal snap list, and `scroll-snap-type: x
 mandatory` is CSS.
+
+
+---
+
+## I-035 · The work cards have no posters  🟡
+
+**Found:** phase 04, 2026-08-26 · **Area:** `content/works/*.ts`, `components/works/WorkCover.tsx`
+
+**Problem:** Every work's `card.poster` is `''`. `01-PHASES.md` T10.1 captures the eight live
+deploys and T10.5 generates per-work shader covers; both are phase 10.
+
+**Impact:** None on the layout, and that is the point of how it was handled. Each card draws a
+**deterministic generated cover** from its own accent — seeded off the slug with an FNV-1a hash and
+a Lehmer LCG, so there is no `Math.random`, the server and the client agree, and a screenshot diff
+is stable between runs.
+
+Phase 4's acceptance criteria are about composition — "hovering one card dims all eleven others",
+the grid's rhythm, the mobile variant — and twelve grey rectangles cannot be judged for any of it.
+
+The cover is deliberately **not** the aperture mark: four rings rather than six, so it never reads
+as the glyph. The mark is the studio's, and putting it on twelve cards would make the grid look
+like twelve pieces of our branding rather than twelve pieces of work.
+
+**Workaround:** In place and working. `WorkCard` prefers `card.poster` whenever it is non-empty.
+
+**Needs:** **Phase 10, T10.1 and T10.5.** Set `card.poster` per work; no component changes. ReIN
+Bot has no imagery in its repo at all and T10.3 marks it a priority.
+
+---
+
+## I-036 · §5's works grid is "two independent columns". Theirs is not.  🟢
+
+**Found:** phase 04, 2026-08-26 · **Area:** `20-components-and-motion.md` §5 · **Resolved:** phase 04
+
+**Problem:** §5 opens with "Two independent columns, each an ordinary block flow" and gives the
+parallax as two selectors, `.works__col:nth-child(2n+1)` at -8% and `2n+2` at -10%.
+
+Their DOM is a single **twelve-column CSS grid** — `repeat(12, 90.8125px)` on a `20.5625px` gap at
+1512 — and every cell carries an explicit placement:
+
+```
+8 / 13   7 / 13   1 / 7   1 / 6   1 / 9   9 / 13
+```
+
+Two block columns cannot produce that. An eight-column card at `1 / 9` crosses the middle of the
+grid, and their DOM order is right-card-first in two of the rows, so placement is authored rather
+than flowed. They also split it into three separate grids (`is-1`, `is-2`, `is-3`) so row heights
+do not couple down the whole section.
+
+**§5's motion half is correct**, and the measurement confirms it: at one scroll position their
+row-1 pair both sat at `translateY(-41.29)` while their row-3 pair sat at `-18.42` and `-23.03` — a
+ratio of 0.80, which is exactly -8% against -10%. The rate is carried by an `is-N` class on each
+**cell**, not by a column.
+
+**Impact:** Building the described structure would have made the layout impossible and the parallax
+subtly wrong — a rate attached to a column applies the same drift to a card at the top of the
+viewport and one at the bottom.
+
+**Resolved:** phase 04. A twelve-column grid with `WORKS_LAYOUT` in `lib/content/works.ts` carrying
+each card's `column`, `row` and `parallax`. The rate is per cell.
+
+---
+
+## I-037 · §8's spec table is `4fr 8fr`. Theirs is `1fr 1fr`.  🟡
+
+**Found:** phase 04, 2026-08-26 · **Area:** `20-components-and-motion.md` §8
+
+**Problem:** §8 gives `.spec { display: grid; grid-template-columns: 4fr 8fr }`. Their
+`project-item_table-item` computes to **`1fr 1fr`**, with a `12.3375px` column gap — 0.75rem, the
+*tight* gap, not the 1.25rem section gap — `padding: 0 0 0.5rem`, and a `rgba(59,59,59,.3)` bottom
+hairline.
+
+**Impact:** §8 calls this "the most reused component on the site" and names four consumers: the work
+hover sheet, the case-study hero, the service hero, and the accordion's right panel. Phase 4 only
+measured the first.
+
+**Workaround:** `SpecTable` takes a `ratio` prop. `'even'` is the measured default and what the work
+card uses; `'key-narrow'` is §8 as written and is currently unused. Neither reading is baked in.
+
+**Needs:** **Phase 6** measures the case-study hero's own table, and **phase 7** the service hero's.
+If all four are `1fr 1fr`, delete the prop and correct §8. If they genuinely differ, §8's claim of
+"identical construction" is the thing that is wrong.
+
+---
+
+## I-038 · The load-more button has no cursor parallax  🟡
+
+**Found:** phase 04, 2026-08-26 · **Area:** `20-components-and-motion.md` §21.4
+
+**Problem:** §21.4 gives their "SEE ALL WORK" button three media layers behind it, tracking the
+cursor at different depths, on **all** breakpoints. Ours is a plain `<Button>` pill.
+
+**Impact:** One missing interaction at the foot of the works section. Nothing else depends on it.
+
+**Workaround:** The button works and routes to `/works`.
+
+**Needs:** **Phase 10** supplies the media the three layers are made of; the interaction itself is
+cheap once there is something to put in them.
+
+---
+
+## I-039 · Twelve sibling-dim timelines fight each other  🟢
+
+**Found:** phase 04, 2026-08-26 · **Area:** `20-components-and-motion.md` §5 vs §21.1 · **Resolved:** phase 04
+
+**Problem:** §5's `[src]` builds the sibling-dim into each card's own paused hover timeline. With
+two items that is fine. With twelve, sliding the pointer from one card to the next fires
+`mouseleave` on the first and `mouseenter` on the second in the same turn — so card A's reverse
+drives every sibling back to 1 while card B's play drives every sibling to `.3`, on the same ten
+elements, for 400ms, with neither timeline aware of the other.
+
+**§21.1 already said not to do this**, in as many words: "Treat this as one shared primitive,
+`useSiblingDim(0.3)`, not three implementations." Phase 1 built the primitive for the footer. Phase
+4 is where the instruction earns itself.
+
+**Impact:** A visible flicker across the grid whenever the pointer moves between cards — which is
+most of the time anyone is using it.
+
+**Resolved:** phase 04. The dim lives once, on the grid, through `useSiblingDim`, plus
+`overwrite: 'auto'` on both of its tweens so the tween that starts later kills the conflicting one.
+The later event is the newer intent, and that is the right answer.
+
+---
+
+## I-040 · The contact address is at a different domain from the site  🟠
+
+**Found:** phase 04, 2026-08-26 · **Area:** `lib/content/site.ts`
+
+**Problem:** Two decisions from Sayandeep on the same day do not agree on a domain:
+
+| | |
+|---|---|
+| `SITE.url` | `https://nofilter.studio` |
+| `CONTACT.email` | `support@nofilter.com` |
+
+**Impact:** Three things, in rising order of cost.
+
+1. A visitor reading `support@nofilter.com` in the footer of `nofilter.studio` reads it as a typo.
+2. The contact form composes a `mailto:` to it. Mail to an unowned domain **bounces silently** —
+   the sender's client reports success and nobody ever receives it. This is the failure mode that
+   costs real enquiries.
+3. Phase 12's structured data will emit both, and a search engine treats mismatched identity
+   signals as exactly that.
+
+A `.com` for mail alongside a `.studio` for the site is a perfectly normal arrangement, so this may
+well be deliberate — but it only works if **both** domains are registered and `nofilter.com` has MX
+records pointing somewhere real.
+
+**Workaround:** None. The address is live in the footer and in the form.
+
+**Needs:** **Sayandeep, before launch (phase 12, T12.8).** Confirm `nofilter.com` is owned and
+receiving mail. If it is not, the address should be `support@nofilter.studio`, which is one
+constant.
+
+---
+
+## I-041 · A failed dynamic import used to be permanent  🟢
+
+**Found:** phase 04, 2026-08-26 · **Area:** `components/motion/Showreel.tsx` · **Resolved:** phase 04
+
+**Problem:** Reported by Sayandeep from the running dev server:
+
+```
+Runtime ChunkLoadError
+Loading chunk _app-pages-browser_node_modules_gsap_Flip_js failed.
+  at ShowreelProvider.useCallback[prefetch]
+```
+
+Two faults, both invisible until the network does something other than succeed.
+
+1. `libsRef.current ??= import('gsap/Flip')` **caches the rejected promise**. `??=` never
+   reassigns, so every later hover and every click re-awaits the same failure: the button is dead
+   for the rest of the session and only a reload fixes it.
+2. Nothing caught the rejection, so it surfaced as an unhandled error in Next's dev overlay — from
+   a *prefetch*, which is best-effort by definition and should never be able to interrupt anyone.
+
+The trigger was mundane: a dev server whose chunks had been rebuilt under a page that was still
+open. On a deploy it is a visitor holding a tab open across a release.
+
+**Resolved:** phase 04. `loadFlip()` clears the ref in a `catch` and re-throws, so the next attempt
+is a real retry and `open()` can still tell "loaded" from "did not". `prefetch()` swallows failures
+silently. And `open()`/`close()` gained a no-Flip path — shared with the reduced-motion branch — so
+a missing 5KB plugin costs the flourish rather than the feature.

@@ -779,3 +779,204 @@ back.
 **Consequence:** `public/media/showreel-placeholder.webm` is 2.27MB in the repo. It is
 `preload="none"`, so it costs nothing until someone opens the panel and does not enter
 `verify:budget`'s page-weight figure. T10.2 replaces the file and touches no code.
+
+---
+
+## D-021 · One word in the headline is drawn as selected
+
+**Phase:** 4 · **Date:** 2026-08-26 · **Status:** active · **Sayandeep's**
+
+**Context:** Sayandeep, looking at the running hero: *"you know how we select texts right — the
+tagline of design and build with nothing lost, I want the word 'build' to be selected, it creates
+a depth effect."*
+
+**Decision: `build` renders with the site's own `::selection` colours — `#efefef` ground, `#212121`
+text.**
+
+It does create depth, and the reason is worth writing down rather than filing as a flourish.
+
+**It is not a new visual language.** `10-design-system.md` §6 already inverts `::selection`
+site-wide, so a visitor who drags across the rest of the headline sees their own selection match
+this word exactly. The effect works *because* the page already behaves this way; the same treatment
+in any other two colours would read as a highlighter pen.
+
+**A selection sits behind the glyphs and spans the full line box** — not the glyph bounds. At
+`--t-h1`'s 6rem line-height that is a tall, flat plane with type sitting on it, which is what
+reads as a different depth. This is why the CSS sets no padding: a browser's selection hugs the
+line box exactly, and padding would break the illusion by making the box a shape of its own.
+
+**Implementation.** `HERO.selectedWord` is a string, and `Hero.tsx` splits whichever line contains
+it. Not an index and not hard-coded markup: rewriting the headline can then never leave the
+highlight on the wrong word, which is the worst kind of content bug because it looks deliberate.
+If the word matches nothing, the line renders plain.
+
+A plain `<span>`, not `<mark>`. `<mark>` means "relevant to the user's current activity" and some
+screen readers announce it; this is a visual treatment of one word in a headline and should be
+read as ordinary text — which is exactly what a real selection is.
+
+---
+
+## D-022 · The work card's hover sheet is a drawer that fades, not a curtain that appears
+
+**Phase:** 4 · **Date:** 2026-08-26 · **Status:** active · **Sayandeep's** · **deviates from §5**
+
+**Context:** `20-components-and-motion.md` §5 specifies the hover sheet as a full-bleed `#EFEFEF`
+panel over the card's media, revealed with:
+
+```js
+onMouseEnter: gsap.set('.work__sheet', { opacity: 1 });
+```
+
+`gsap.set()` — no duration at all. Built exactly as written, which it was, a 1316×822 card goes
+from `#212121` to pure white in one frame, twelve times over as you move down the page.
+
+Sayandeep, on the running build: *"the case study cards take up a lot of space in the page. Okay,
+but hovering them turns them white — basically immediately you get so much exposure, from dark
+grey to pure white. Use some light colours or white in a proper way so people don't get
+flashbanged. Also add a transition effect there, not just hovering and instant."*
+
+**Decision: two changes, fixing different halves of the complaint.**
+
+**1. It is a drawer.** Anchored to the foot of the media and sized by its own content instead of
+filling the frame — 62% of a `half` card and 33% of the `full` opener, against 100% before. The
+cover art stays visible above it, so the card still reads as the work with its specifications drawn
+across the bottom. It also scales properly: a five-row table in an 822px-tall white rectangle
+looked lost, and the same table in a drawer does not.
+
+**2. It arrives.** 500ms in, 400ms out, matching §21.2's overlay so the two layers move together.
+The overlay is already darkening the media to `.55` over the same 500ms, so the sequence a visitor
+sees is *media dims, drawer rises into the dimmed area*. The eye is led rather than hit.
+
+**The ground stays `#EFEFEF`.** The complaint was about area and abruptness, not about the colour,
+and the light panel is the site's own inverted surface — the one `20-components-and-motion.md` §8's
+`SpecTable` already knows how to sit on. Changing it would have cost the contrast that makes the
+specifications readable and gained nothing the other two changes had not already got.
+
+**Why this is a deviation and not a correction.** §5's `gsap.set()` is a faithful transcription of
+what tonik do; nothing here says they got it wrong on *their* cards, which are smaller and carry
+photographs rather than flat accent fields. It is wrong on ours. CLAUDE.md's rule against silently
+changing specced values is satisfied by this entry and by the assertion below.
+
+**Consequence:** `behaviour.config.ts` now asserts `sheetIn: 0.5`, `sheetOut: 0.4` and
+`sheetMaxCoverage: 0.8`, read off the live tweens. A requirement nobody checks is one that
+regresses the next time somebody reads §5 and "fixes" it back.
+
+---
+
+## D-023 · The placeholder reel shows the works, not the hero
+
+**Phase:** 4 · **Date:** 2026-08-26 · **Status:** temporary — T10.2 closes it · **supersedes part of D-020**
+
+**Context:** D-020 baked a placeholder showreel so §15's Flip choreography could actually be
+exercised. It recorded the **hero**: eight seconds of the aperture turning under a moving pointer.
+
+Sayandeep: *"the play icon in the tagline — the play icon opens up the hero section itself. Does
+that seem right? No. Need to find a proper solution for that."*
+
+**Decision: the reel records the works grid instead — eleven seconds panning down the twelve cards.**
+
+He is right, and the objection is about content, not machinery. A showreel that plays you the page
+you are standing on is circular. Pressing play should show you *the work*, and now it does — the
+closest thing to a reel this build has until T10.2 captures the deploys themselves.
+
+Two details the script had to get right, both learned by watching the first take: the recording
+starts at the grid rather than at the top of the page, and the pointer is parked at `(4, 4)` before
+it runs. A cursor left resting on a card dims the other eleven to `.3` for the entire recording,
+which is a hover state rather than a reel.
+
+**What did not change:** the panel still says `PLACEHOLDER REEL — REAL FOOTAGE LANDS WITH THE CASE
+STUDIES` on screen, the file is still 2.3MB behind `preload="none"`, and emptying `SHOWREEL.src`
+still returns `<PlaySquare>` to an inert `aria-hidden` span. T10.2 replaces the file and touches no
+code.
+
+
+---
+
+## D-024 · The work card's hover panel is dark and tinted with the work's accent
+
+**Phase:** 4 · **Date:** 2026-08-26 · **Status:** active · **Sayandeep's** · **deviates from §5**
+
+**Context:** D-022 made the hover sheet a drawer and gave it a transition, but kept §5's `#EFEFEF`
+ground on the reading that the complaint was about area and abruptness rather than colour. It was
+about the colour too. Sayandeep, on that build: *"the total white, change that to a milder dim
+colour."*
+
+**Decision: the panel is `color-mix(in srgb, var(--work-accent) 14%, var(--black))` — the page's own
+ground with 14% of that work's accent mixed in — with white text and a full-strength accent hairline
+along its top edge.**
+
+Chosen from three options put to him with previews; he took the dark accent-tinted one over a
+neutral `#2e2e2e` and over a muted light grey.
+
+**Three things fall out of it, and all three are improvements:**
+
+- There is **no bright surface anywhere on the page**, at any moment. That was the actual request,
+  and a dark panel satisfies it by construction rather than by tuning.
+- Each panel is visibly **that card's** panel — Tessera a dark blue-grey, CanVas a dark red-brown,
+  Solidus a dark green. Twelve identical white rectangles never were.
+- The `SpecTable` drops back to its **ordinary palette** — grey keys, white values, `white-30`
+  rules — so the `invert` variant is not needed here at all.
+
+**14% is the whole of the tuning.** Below about 10% the accents stop being distinguishable from one
+another and the panels all read as the same near-black; above about 20% the darker accents start
+fighting the white text for contrast.
+
+**Consequence:** the assertion is a **property, not a hex**: relative luminance ≤ 0.10, and still
+lighter than the page ground. All twelve panels are different colours by design, so pinning one
+value would pass vacuously for eleven of them and go stale the moment an accent is re-sampled.
+Measured at 0.0211 against the page's 0.0152.
+
+One harness bug came out of this and is worth remembering: `color-mix()` computes to
+`color(srgb 0.194 0.143 0.121)`, with components in **0..1**, while an ordinary declaration computes
+to `rgb(33, 33, 33)` in **0..255**. A luminance helper that assumes one scale reports near-zero for
+the other — which would have sailed through "must be dark" for entirely the wrong reason.
+
+---
+
+## D-025 · The card's caption is never covered and never moves
+
+**Phase:** 4 · **Date:** 2026-08-26 · **Status:** active · **Sayandeep's** · **deviates from §5**
+
+**Context:** Sayandeep, on the build with the dark drawer: *"the info at the bottom of the actual
+card, such as project name and the right side description — those are getting covered too. I don't
+want that getting covered. Just cover the card image itself, not the info."*
+
+**Two separate causes, and only one of them was a design choice.**
+
+**1. A positioning bug.** The sheet is `position: absolute; bottom: 0`, and there was no relative
+ancestor between it and `.card` — so `bottom` resolved against the whole card, caption included.
+Fixed by introducing `.frame`, a `position: relative` wrapper that is exactly the media's box, with
+the caption outside it. The panel now cannot reach the caption at any size.
+
+**2. §5's caption rise, removed.** §5's `[src]` slides `.work__info` to `yPercent: -110` on hover.
+Built faithfully, that makes the work's name and summary disappear at the moment you are reading
+about them — and with the specifications now drawn over the media beside it, there is no reason to
+take the name away. The caption stays put, at full opacity, while the panel is open.
+
+**Consequence:** the card's hover timeline is now **empty and therefore gone.** §5 gives it two
+children; the sibling-dim moved to the grid in I-039 and the caption rise is removed here, so there
+is nothing left to register. `work-card.hover` was deleted from `motion.config.ts` rather than left
+as an empty entry, which would read as a timeline somebody forgot to finish. What replaced it — the
+sheet's wipe, the overlay's asymmetric fade, the reel swap — are separate tweens on separate targets
+by design, and all of them are asserted in `behaviour.works.ts` by reading each live tween's own
+`duration()`.
+
+---
+
+## D-026 · The full-width card is a 21:9 band
+
+**Phase:** 4 · **Date:** 2026-08-26 · **Status:** active · **Sayandeep's**
+
+**Context:** `40-content-model.md` §2 makes Tessera the one `full` card, and §5 gives every card a
+16:10 media box. Across all twelve columns that is **1316 × 822** at 1512 — most of a viewport for
+one card, before its caption. Sayandeep: *"the big card Tessera, that's so big, doesn't look good."*
+
+**Decision: `full` cards use 21:9. Everything else keeps 16:10.**
+
+The fix is the aspect ratio rather than the span. A full-width card should be the **widest** thing
+on the page, not the tallest; at 21:9 it is 1316 × 564, a cinematic band that opens the section and
+then gets out of the way.
+
+The `wide` cards keep 16:10, which at eight columns is 870 × 544 — now the *deeper* of the two
+shapes, so the section's rhythm still alternates between a long band and a tall block rather than
+flattening into one proportion.

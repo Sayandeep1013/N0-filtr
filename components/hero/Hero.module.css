@@ -52,6 +52,26 @@
   display: block;
 }
 
+/* One word drawn as if selected. See HERO.selectedWord and D-021.
+
+   These are the two properties `::selection` sets in global.css, and they are
+   deliberately the same two: the effect only works because the page already
+   inverts selection this way, so a visitor who drags across the rest of the
+   headline sees their own selection match this word exactly.
+
+   `box-decoration-break: clone` matters if the headline ever wraps mid-word-
+   run: without it a fragment split across two lines gets one continuous box
+   stretched between them, which a real selection never does. */
+.selected {
+  background-color: var(--bg-alternate);
+  color: var(--text-alternate);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  /* No padding. A browser's selection box hugs the line box exactly, and the
+     6rem line-height already gives it height; padding would make it a
+     highlighter pen instead. */
+}
+
 /* Line 2 is a flex row: the play control, then the text. tonik's
    `home-hero_video-wrapper` — flex, align-items flex-end, 2.5rem gap. */
 .lineTwo {

@@ -1,10 +1,10 @@
 # Verification report
-Run: 2026-08-26T08:57:24.372Z · Phase 03 · commit `f2592b1` · branch `phase/03-home-upper`
+Run: 2026-08-26T10:36:50.494Z · Phase 04 · commit `27fd7c7` · branch `phase/04-works-grid`
 
 ## Summary
 ```
-tokens  ✅ 137/137
-motion  ⚠️ 165/168  (3 pending, owed by later phases)
+tokens  ✅ 138/138
+motion  ⚠️ 199/201  (2 pending, owed by later phases)
 visual  ⚠️ reviewed by agent — see judgement
 budget  ✅ 6/6
 ```
@@ -114,6 +114,7 @@ budget  ✅ 6/6
 ✅ [data-probe-colour="grey-700"] @1512 background-color = rgb(115, 115, 115)
 ✅ [data-probe-colour="grey-600"] @1512 background-color = rgb(224, 224, 224)
 ✅ [data-probe-colour="white-30"] @1512 background-color = rgba(255, 255, 255, 0.3)
+✅ [data-probe-colour="grey-800-30"] @1512 background-color = rgba(59, 59, 59, 0.3)
 ✅ [data-probe-colour="white-10"] @1512 background-color = rgba(255, 255, 255, 0.1)
 ✅ [data-probe-colour="white-50"] @1512 background-color = rgba(239, 239, 239, 0.5)
 ✅ [data-probe-colour="black-50"] @1512 background-color = rgba(33, 33, 33, 0.5)
@@ -127,7 +128,7 @@ budget  ✅ 6/6
 ✅ [data-probe-colour="text-secondary"] @1512 background-color = rgb(115, 115, 115)
 ✅ [data-probe-colour="text-alternate"] @1512 background-color = rgb(33, 33, 33)
 ✅ [data-probe-colour="border-primary"] @1512 background-color = rgba(255, 255, 255, 0.3)
-✅ [data-probe-colour="border-alternate"] @1512 background-color = rgb(33, 33, 33)
+✅ [data-probe-colour="border-alternate"] @1512 background-color = rgba(59, 59, 59, 0.3)
 ✅ [data-probe-colour="success"] @1512 background-color = rgb(2, 122, 72)
 ✅ [data-probe-colour="success-bg"] @1512 background-color = rgb(236, 253, 243)
 ✅ [data-probe-colour="error"] @1512 background-color = rgb(180, 35, 24)
@@ -185,8 +186,7 @@ budget  ✅ 6/6
 ✅ prefers-reduced-motion detected = true
 ✅ Lenis destroyed under reduced motion = native scroll
 ✅ no rAF loop outside the GSAP ticker, under reduced motion = 0 unsanctioned
-✅ ScrollTrigger count returns to baseline after route changes = 2
-⏳ work-card.hover — owed by phase 4
+✅ ScrollTrigger count returns to baseline after route changes = 25
 ⏳ accordion.open — owed by phase 5
 ⏳ accordion.close — owed by phase 5
 ✅ loader.enter totalDuration = 0.6s
@@ -259,6 +259,18 @@ budget  ✅ 6/6
 ✅ contact.open tween[6] target = div.ContactPanel_gif__T7RsE.contact__gif
 ✅ contact.open tween[6] props = y, parent
 ✅ contact.open tween[6] startTime (<+0.2) = 0.7s
+✅ work-card.reveal totalDuration = 1.05s
+✅ work-card.reveal tween count = 3
+✅ work-card.reveal tween[0] duration = 0.75s
+✅ work-card.reveal tween[0] ease = power3.out
+✅ work-card.reveal tween[0] props = width, parent
+✅ work-card.reveal tween[0] startTime = 0s
+✅ work-card.reveal tween[1] duration = 0.5s
+✅ work-card.reveal tween[1] props = opacity, parent
+✅ work-card.reveal tween[1] startTime (>-0.2) = 0.55s
+✅ work-card.reveal tween[2] duration = 0.5s
+✅ work-card.reveal tween[2] props = opacity, parent
+✅ work-card.reveal tween[2] startTime (<) = 0.55s
 ✅ nav.is-mini threshold — off at 20px = no is-mini
 ✅ nav.is-mini threshold — on at 100px = is-mini
 ✅ nav.is-mini threshold — background = rgb(33, 33, 33)
@@ -319,6 +331,28 @@ budget  ✅ 6/6
 ✅ stack wall: marquee ease is 'none' = none
 ✅ stack wall: no marquee at 1512px — the wall is a static grid
 ✅ stack wall: no marquee under prefers-reduced-motion
+✅ works grid: twelve equal tracks = 12 × equal
+✅ works grid: 1.25rem column gap — theirs, not our old 1.5 = 20.563px
+✅ works grid: card mix is half ×8, wide ×3, full ×1 = {"full":1,"half":8,"wide":3}
+✅ works grid: reveal wipes to 0% and sets its one-shot guard = width 0px
+✅ works grid: 12 cards = 12
+✅ works grid: hovering one card dims all 11 others to exactly 0.3 = every other card at 0.3
+✅ works grid: the hovered card is not dimmed = 1
+✅ works grid: leaving restores every card to 1 = 1
+✅ works grid: overlay reaches 0.55 = 0.55
+✅ works grid: overlay in is 0.5s = 0.5s
+✅ works grid: overlay OUT is 0.4s — faster than in, §21.2's inverted asymmetry = 0.4s
+✅ works grid: overlay returns to 0 = 0
+✅ works grid: the hover sheet FADES in over 0.5s — it is not set = 0.5s
+✅ works grid: the hover sheet fades out over 0.4s = 0.4s
+✅ works grid: the sheet opens to 1 and returns to 0
+✅ works grid: the sheet is a drawer, not a curtain — it does not fill the media = 63% of the media's height
+✅ works grid ≤767: the sheet is permanent content, not a hover state = position static, opacity 1
+✅ works grid: the sheet is never a bright surface (luminance ≤ 0.1) = color(srgb 0.121176 0.161804 0.190902) → 0.0211
+✅ works grid: the sheet is still distinguishable from the page ground = sheet 0.0211 vs page 0.0152
+✅ works grid ≤767: one column, every card the full measure = 350px
+✅ works grid ≤767: no parallax — every cell untransformed
+✅ works grid ≤767: no reel playback = no reels yet
 
 > Pending entries are timelines the spec names but no phase has built yet. The phase that builds one flips `pending: false` in motion.config.ts.
 > Behaviour checks drive the real interface — scroll, hover, click, Escape — rather than reading a registered timeline. They are the only instrument that catches an unwired handler, a matchMedia gate that leaks below 992, or a reverse running at the wrong timeScale. See behaviour.config.ts.
@@ -327,86 +361,95 @@ budget  ✅ 6/6
 
 Contact sheet: `tools/verify/output/contact-sheet.html`
 
-**Agent judgement:** Phase 3. Twelve captures at 1512 and 390, including two new surfaces: the stack wall and the
-showreel. The phase-2 judgement was reset to null before this run — it described a hero, a
-footer and a contact panel and would have gone green on three things nobody had looked at.
+**Agent judgement:** Phase 4. Sixteen captures at 1512 and 390. Phase 3's judgement was reset before this run.
 
-THE STACK WALL vs s02-marquee.png. Theirs is a client-logo marquee; ours is twenty-two tool
-names set as type. The content is deliberately different — their marks are clients, which are
-theirs to show, and ours are tools — so what I am judging is density and whether a band of
-small marks under the fold reads as a section or as debris.
+THE GRID vs s03-projects.png. The structure is theirs and it is NOT what §5 describes.
+§5 says two independent columns, each an ordinary block flow. Their DOM is one twelve-column
+CSS grid — repeat(12, 90.8125px) on a 20.5625px gap at 1512 — with every cell carrying an
+explicit grid-column and grid-row: 8/13, 7/13, 1/7, 1/6, 1/9, 9/13. Two block columns cannot
+produce that. An eight-column card at 1/9 crosses the middle of the grid, and their DOM order
+is right-card-first in two of the rows, so placement is authored rather than flowed. I-036.
 
-It reads as a section. Three rows, centred, resting at .7, with a mono label above it at the
-container's left edge while the marks centre — which is the same tension theirs has and it is
-load-bearing: a centred label over a centred wall would read as a title card. The density is
-close to theirs; 22 marks at 1.5rem fill the 80rem measure about as fully as their 28 logos do.
+§5's MOTION half is right and the measurement confirms it. At one scroll position their row-1
+pair both sat at translateY(-41.29) while their row-3 pair sat at -18.42 and -23.03 — a ratio
+of 0.80, which is exactly -8% against -10%. Our own pair reads 3px apart in works-a-1512,
+which is the same relationship at the same point in the scroll.
 
-The height is not a judgement call and was not treated as one. §1 gives their hero section
-1361px at a 900 viewport — the viewport plus the wall below the fold — and compare:hero now
-asserts it. First pass came out 1311 against 1360.63, and the same ~49px short at 1280 and
-1440, which is what a rem-sized miss looks like when only the root changes. 3rem of padding
-split 2/1 in favour of the top closed it: 1360.6 / 1612 / 1248 / 1348 against their 1360.63 /
-1612 / 1248 / 1348. 96 of 96 structural values agree, and only 1512 was ever tuned.
+THE COMPOSITION is ours to author and I authored it: full, pair, wide-left, pair, wide-right,
+pair, wide-left, pair. No two heavy cells touch and the eye is handed from one side to the
+other on the way down. Rows never quite fill — a pair is 6+5 or 5+6, never 6+6 — and that
+column of air is theirs: every one of their rows leaves one.
 
-THE REVEAL, and the best thing in this contact sheet. stack-wall-1512.png caught it mid-scrub:
-'A studio that defines, designs,' at full opacity, 'and builds products and other digital
-machinery' still sitting at .2, with the boundary falling mid-phrase. That is the signature
-motion of the whole site and it is a picture of it working, taken by accident.
+THE HOVER SHEET WAS WRONG AND IS THE BEST THING THAT CHANGED THIS PHASE. §5 has it as a
+full-bleed #EFEFEF panel appearing with a gsap.set() — no tween at all. Built literally, that
+is a 1316x822 card going from #212121 to pure white in one frame, twelve times over as you
+move down the page. Sayandeep, on the running build: hovering them turns them white,
+immediately you get so much exposure, use light colours properly so people do not get
+flashbanged, add a transition, do not bring the info up from the bottom, and change the total
+white to a milder dim colour. Three passes, and the third is the one that is right.
 
-Its box is not a judgement either. Their reveal sits at x 543.52 and is 743.67 wide; ours reads
-543.51 and 743.67. That did not come from nudging a margin — it came from finding the rule.
-tonik have no grid class, so every phase so far has read their offsets off screenshots. They
-have a grid SYSTEM: three-track fr grids whose tracks are twelfths, on a 1.25rem gap. The
-reveal's parent is 4fr 7fr 1fr. Extending the extractor to divide their used track widths by
-the space left after the gaps turned 424.95px / 743.675px / 106.25px back into 4/12, 7/12,
-1/12, and the same pass named the rule for services (1fr 10fr 1fr), culture, the blog row
-(4fr 4fr 4fr), the footer (6fr 4fr 2fr) and the spec-table row (6fr 6fr on the tight 0.75rem
-gap). Phases 4, 5 and 7 all needed this and would each have rediscovered it separately.
+AREA. It is a drawer, not a curtain — anchored to the foot of the media and sized by its own
+content. 63% of a half card and 33% of the full opener, against 100% before, and the cover art
+stays visible above it so the card still reads as the work.
 
-Two of our tokens were wrong and are now corrected: --grid-gap was 1.5rem and is 1.25rem, and
---col was a twelfth of --content when it is a twelfth of the container. That second one is the
-same mistake as I-030, made in the same place, a phase later.
+DIRECTION. It wipes in from the right, not up from the bottom. clip-path rather than a
+transform, and that choice is load-bearing: a panel translated in from the right starts a full
+card-width outside its own box and would be drawn over the card in the next column, because the
+sheet is deliberately not a child of the media (§5 anatomy, and what lets 767 drop it into the
+flow). An inset clip needs no ancestor at all — the panel never moves, its visible region does.
+The five rows follow the wipe across on a .04 stagger, so it reads as being drawn rather than
+switched on.
 
-It is NOT a 12-column grid with the heading spanning 5/12. That lands the left edge on the
-same pixel and makes the element 759px instead of 744, because seven spanned columns swallow
-six internal gaps a single 7fr track does not have. Right edge, wrong measure — the kind of
-miss that looks like a rounding error and is a different rule.
+COLOUR. Not #EFEFEF. The panel is the page ground with 14% of the WORK OWN accent mixed in —
+Tessera a dark blue-grey, CanVas a dark red-brown, Solidus a dark green — with an accent
+hairline at full strength along the top edge. Three things fall out of that and all three are
+improvements: there is no bright surface anywhere on the page at any moment; each panel is
+visibly the panel of THAT card, which twelve identical white rectangles never were; and the
+SpecTable drops back to its ordinary palette, so the invert variant is not needed here at all.
+14% is the whole of the tuning — below about 10% the accents stop being distinguishable from
+each other, above about 20% the darker ones start fighting the white text. D-022, D-024.
 
-THE TYPE STEP. Their reveal is t-heading-3-rg: 32.9px on 41.125px leading at a 16.45 root, so
-2rem/2.5rem, our --t-h3. Not --t-h2. There is no 5rem step anywhere on their site — the
-extractor's type pass finds 6.25 (one use), 6, 2, 1.5, 1, .75, .625 and .5, and nothing
-between 2 and 6. Our --t-h2 at 5rem may be an invention in the same class as --t-label-big.
-Logged as I-031 rather than changed: phase 5's CTA and culture headings are the phases that
-will actually find out.
+All four properties are asserted, and the colour one is asserted as a PROPERTY rather than a
+hex: relative luminance under 0.10, and still lighter than the page ground. All twelve panels
+are different colours by design, so pinning one value would pass vacuously for eleven of them.
+Measured: 0.0211 against the page 0.0152. A requirement nobody checks is one that regresses the
+next time somebody reads §5 and fixes it back.
 
-THE SHOWREEL. showreel-1512 and -390 both show the panel open with the player in it, so the
-Flip lands at both viewports. The behaviour check is the real evidence and it is stronger than
-the picture: the background layer leaves the headline at {x 98, y 324, w 66, h 66}, becomes a
-1234x694 player — 18.7x its own width — and comes back to {x 98, y 324, w 66, h 66} on Escape.
-A Flip that lands and a Flip that teleports look identical in a still; the round trip does not.
+THE COVERS ARE PLACEHOLDERS AND THEY ARE DOING REAL WORK. Twelve grey rectangles cannot be
+judged for composition, and composition is the whole of phase 4's acceptance. Each card draws
+a deterministic cover from its own accent — seeded off the slug, no Math.random, so the server
+and the client agree and a screenshot diff is stable. Four rings rather than six, deliberately:
+the aperture is the studio's mark and putting it on twelve cards would make the grid read as
+twelve pieces of our branding rather than twelve pieces of work. T10.5 replaces them. I-035.
 
-Two defects were visible in the first frame I took of it and both are fixed. Plyr's stylesheet
-was never imported, so its SVG control icons rendered at intrinsic size — enormous black arrows
-across the hero. And the reparented layer is appended last, so with no stacking order it landed
-on top of the video and the player was a flat grey rectangle. Static CSS, dynamic JS, and a
-z-index on the player.
+ONE DEFECT THE SCREENSHOT FOUND AND NOTHING ELSE WOULD HAVE. The badge is z-index 5 inside the
+media; the sheet is z-index 3 and a SIBLING of it. Media had no z-index, so it created no
+stacking context and those two numbers competed directly — the white CASE STUDY chip painted
+on top of the white hover sheet and read as its first table row. Every computed value involved
+was correct. It is only wrong as a picture.
 
-The reel in it is our own hero, recorded for eight seconds, and the panel says so on screen:
-'PLACEHOLDER REEL — REAL FOOTAGE LANDS WITH THE CASE STUDIES'. T10.2 replaces the file and
-nothing else. I would rather ship a labelled placeholder than a control that opens an empty
-player, and rather that than choreography no one has ever seen run.
+AND ONE THE HARNESS WAS WRONG ABOUT. Every card in the first run was photographed mid-reveal —
+half-faded badges, captions at a third opacity — because the visual check settled 600ms after a
+scroll and the reveal runs 1.05s. That reads as a styling bug in a contact sheet and is not one.
+Same class as SCRUB_SETTLE_MS in phase 3: when a check looks wrong around an animation, ask what
+the animation was doing when you looked.
 
-AT 390. The marquee is moving in stack-wall-390 — three marks across, mid-travel, which is the
-doubled track sliding. The showreel opens and the play square is correctly absent from the
-headline, because it is in the player. The works heading steps to 1.5rem and the three-track
-offset collapses to one column, as every one of their section grids does below 768.
+AT 390. works-a-390 is the responsive behaviour §5 warns is most likely to be got wrong, and it
+is right: the sheet has not hidden, it has become the card's second block — the #EFEFEF panel
+with SERVICES / TOOLS / INDUSTRIES / YEAR / STATUS sitting under the media, then the caption.
+One column, every card the full measure, no transforms on any cell, no reel playback.
 
-WHAT I AM NOT CLAIMING. The homepage still ends after the works heading — no grid, no services,
-no CTA, no culture, no blog row. The footer sits under a heading with nothing beneath it. That
-is phases 4 and 5, and it is why the footer shot is still taken at 'bottom' rather than at
-tonik's 11,984.
+THE HEADLINE has one word drawn as selected — Sayandeep asked for build to look selected because
+it creates a depth effect. It does, and it is not a new visual language: the site already
+inverts ::selection to #efefef on #212121, so this is that, applied on purpose rather than by
+accident. The highlight sits behind the glyphs and spans the full line box, which is what reads
+as a plane at a different depth. D-021.
 
-⏳ works-a — owed by phase 4
+WHAT I AM NOT CLAIMING. The homepage still ends after the works grid — no services, no CTA, no
+culture, no blog row. The footer sits directly under SEE ALL WORK. That is phase 5. The load-more
+button is a plain pill; §21.4 gives theirs three media layers tracking the cursor at different
+depths and we have no media for them until phase 10. I-038.
+
 ⏳ services — owed by phase 5
 ⏳ cta — owed by phase 5
 ⏳ cs-hero — owed by phase 6
@@ -415,6 +458,8 @@ tonik's 11,984.
 ✅ hero @1512 = captured, reference paired
 ✅ stack-wall @1512 = captured, reference paired
 ✅ showreel @1512 = captured, no reference
+✅ works-a @1512 = captured, reference paired
+✅ works-b @1512 = captured, no reference
 ✅ footer @1512 = captured, reference paired
 ✅ contact-panel @1512 = captured, reference paired
 ✅ nav-menu @1512 = captured, no reference
@@ -422,6 +467,8 @@ tonik's 11,984.
 ✅ hero @390 = captured, reference paired
 ✅ stack-wall @390 = captured, reference paired
 ✅ showreel @390 = captured, no reference
+✅ works-a @390 = captured, reference paired
+✅ works-b @390 = captured, no reference
 ✅ footer @390 = captured, reference paired
 ✅ contact-panel @390 = captured, reference paired
 ✅ nav-menu @390 = captured, no reference
@@ -432,12 +479,12 @@ tonik's 11,984.
 ℹ️ matter-js absent from the eagerly-loaded bundle — vacuous: matter-js is not installed yet
 ✅ three absent from the eagerly-loaded bundle = absent
 ✅ plyr absent from the eagerly-loaded bundle = absent
-ℹ️ all built chunks, gzipped (not a per-route figure) = 491.1KB
-✅ JS on / (transferred) = 312.3KB / 320KB
-✅ home page total weight = 441.5KB / 1800KB
+ℹ️ all built chunks, gzipped (not a per-route figure) = 496.0KB
+✅ JS on / (transferred) = 317.3KB / 320KB
+✅ home page total weight = 455.9KB / 1800KB
 ✅ zero network font requests = both faces self-hosted
 ✅ CLS (local, unthrottled) = 0.0025
-ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 148ms
+ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 100ms
 
 > Poster and reel budgets become binding in phase 10, when assets exist.
 > Lighthouse scores are a phase 12 deliverable via mcp__chrome-devtools__lighthouse_audit; the figures here are local and unthrottled.

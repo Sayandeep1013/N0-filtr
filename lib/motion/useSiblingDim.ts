@@ -45,14 +45,25 @@ export function useSiblingDim(
         const items = [...root.querySelectorAll<HTMLElement>(selector)];
         if (items.length < 2) return;
 
+        /* `overwrite: 'auto'` is load-bearing, and phase 4 is where it started
+           mattering. Moving the pointer from one item straight to the next
+           fires `mouseleave` on the first and `mouseenter` on the second in the
+           same turn, so a restore-everything-to-1 tween and a dim-everything-
+           but-me tween end up running on the same eight or ten elements at
+           once. Without overwrite both survive and the shared targets flicker
+           between the two for the length of the slower one. With it, the tween
+           that starts later kills the conflicting one — which is the right
+           answer, because the later event is the newer intent.
+
+           Two items (the footer) never showed this; twelve cards do. */
         const enter = (hovered: HTMLElement) => () => {
           gsap.to(
             items.filter((el) => el !== hovered),
-            { opacity, duration, ease },
+            { opacity, duration, ease, overwrite: 'auto' },
           );
         };
         const leave = () => {
-          gsap.to(items, { opacity: 1, duration, ease });
+          gsap.to(items, { opacity: 1, duration, ease, overwrite: 'auto' });
         };
 
         const handlers = items.map((el) => {

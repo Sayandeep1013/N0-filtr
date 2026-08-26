@@ -33,6 +33,32 @@ import s from './Hero.module.css';
  * section: the mobile scroll drive turns the object across the hero's whole
  * range, wall included, which is what tonik's own range is. That closes I-020.
  */
+/**
+ * Renders `HERO.selectedWord` as if it were selected, wherever it falls.
+ *
+ * The line is split on the word rather than the word being positioned by index,
+ * so rewriting the headline can never leave the highlight on the wrong word —
+ * the worst kind of content bug, because it looks deliberate.
+ *
+ * The wrapper is a plain `<span>`, not `<mark>`. `<mark>` means "relevant to
+ * the user's current activity" and some screen readers announce it; this is a
+ * visual treatment of one word in a headline and should be read as ordinary
+ * text, which is exactly what a real selection is.
+ */
+function withSelectedWord(line: string) {
+  const word = HERO.selectedWord;
+  const at = word ? line.indexOf(word) : -1;
+  if (at === -1) return line;
+
+  return (
+    <>
+      {line.slice(0, at)}
+      <span className={s.selected}>{word}</span>
+      {line.slice(at + word.length)}
+    </>
+  );
+}
+
 export function Hero() {
   return (
     <section className={s.hero} data-hero>
@@ -42,7 +68,7 @@ export function Hero() {
             {/* Two lines, hard-broken rather than wrapped: the break is a design
                 decision and the play control has to land at the start of line 2,
                 which a soft wrap cannot guarantee at any viewport. */}
-            <span className={s.line}>{HERO.lineOne}</span>
+            <span className={s.line}>{withSelectedWord(HERO.lineOne)}</span>
 
             {/* Line 2 is a flex row, as theirs is — `home-hero_video-wrapper`,
                 `display: flex`, `align-items: flex-end`, `gap: 2.5rem`. The play
@@ -50,7 +76,7 @@ export function Hero() {
                 what lets §15's Flip lift it out to full screen later. */}
             <span className={s.lineTwo}>
               <PlaySquare />
-              <span>{HERO.lineTwo}</span>
+              <span>{withSelectedWord(HERO.lineTwo)}</span>
             </span>
           </h1>
 

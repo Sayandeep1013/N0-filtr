@@ -12,11 +12,23 @@
  * `src` of `''`, none of it ever runs, and "implemented" would be the only
  * evidence phase 3 could offer for T3.6 — which protocol §6 does not accept.
  *
- * So the reel is real, and it is honestly a placeholder: our own homepage hero
- * with the pointer moving across it, which is the one piece of finished work
- * this build actually has. **`01-PHASES.md` T10.2 replaces it** with scripted
- * interaction footage of the eight live deploys. Nothing about the component
- * changes when it does — only the file.
+ * So the reel is real, and it is honestly a placeholder.
+ *
+ * ── What it shows, and why that changed ─────────────────────────────────────
+ *
+ * The first version recorded the **hero**: eight seconds of the aperture
+ * turning under a moving pointer. Sayandeep, on the running build: *"the play
+ * icon opens up the hero section itself — does that seem right? No."*
+ *
+ * It does not. A showreel that plays you the page you are already standing on
+ * is circular, and it is the one thing a reel must not be: pressing play should
+ * show you the work. So it records the **works grid** instead — a slow pass
+ * down the twelve cards, which is the closest thing to a reel this build
+ * actually has until phase 10 captures the deploys themselves.
+ *
+ * **`01-PHASES.md` T10.2 replaces it** with scripted interaction footage of the
+ * eight live deploys. Nothing about the component changes when it does — only
+ * the file.
  *
  * ── Why Playwright and not ffmpeg ───────────────────────────────────────────
  *
@@ -37,7 +49,7 @@ const URL_ = process.env.OURS_URL ?? 'http://localhost:3000/';
 
 const W = 1280;
 const H = 720;
-const SECONDS = 8;
+const SECONDS = 11;
 
 await rm(TMP, { recursive: true, force: true });
 await mkdir(TMP, { recursive: true });
@@ -55,19 +67,37 @@ const page = await context.newPage();
 
 await page.goto(URL_, { waitUntil: 'load', timeout: 90_000 });
 await page.evaluate(() => document.fonts.ready);
-// The loader runs on first paint and the hero fades in behind it. Let both finish
-// before the recording has anything worth keeping in it.
-await page.waitForTimeout(2000);
+// The loader runs on first paint and the hero fades in behind it. Let both
+// finish before the recording has anything worth keeping in it.
+await page.waitForTimeout(2500);
 
-/* A slow figure-of-eight across the hero. The parallax curves are damped over
-   ~500ms, so a path this slow reads as the object leaning rather than snapping
-   — which is the thing worth showing. */
+/* Start at the works grid, not at the top. The reel is about the work; the
+   hero is what the visitor pressed play FROM. */
+const { start, end } = await page.evaluate(() => {
+  const grid = document.querySelector('[data-works-grid]');
+  if (!grid) return { start: 0, end: document.documentElement.scrollHeight };
+  const box = grid.getBoundingClientRect();
+  return {
+    start: Math.round(box.top + window.scrollY - 120),
+    end: Math.round(box.bottom + window.scrollY - window.innerHeight + 200),
+  };
+});
+
+/* Park the pointer off the grid. A cursor resting on a card dims the other
+   eleven for the whole recording, which is a hover state rather than a reel. */
+await page.mouse.move(4, 4);
+
+/* One slow, even pass down the grid. `ease: none` on purpose — a reel that
+   accelerates reads as a page being scrolled, and the cards' own parallax is
+   the motion worth showing. */
 const steps = SECONDS * 25;
 for (let i = 0; i < steps; i += 1) {
-  const t = i / steps;
-  const x = W * (0.5 + 0.34 * Math.sin(t * Math.PI * 2));
-  const y = H * (0.5 + 0.22 * Math.sin(t * Math.PI * 4));
-  await page.mouse.move(x, y);
+  const y = Math.round(start + (end - start) * (i / (steps - 1)));
+  await page.evaluate((to) => {
+    const lenis = window.lenis;
+    if (lenis) lenis.scrollTo(to, { immediate: true, force: true });
+    else window.scrollTo(0, to);
+  }, y);
   await page.waitForTimeout(1000 / 25);
 }
 

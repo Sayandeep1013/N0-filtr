@@ -16,7 +16,12 @@
   --grey-600: #e0e0e0; /* form fills, alternate borders */
 
   /* ── alphas ─────────────────────────────────────────────────────────── */
-  --white-30: #ffffff4d; /* hairlines — the most-used border on the site */
+  --white-30: #ffffff4d; /* hairlines on DARK — 13 uses on their homepage */
+  /* The hairline on LIGHT surfaces, and by a distance their most-used border:
+     71 uses against the white-30 rule's 13. We had no token for it until phase
+     4 needed one for the work card's inverted hover sheet. Measured, not
+     chosen: `1px solid rgba(59, 59, 59, 0.3)`. See 03-tonik-extract.md. */
+  --grey-800-30: #3b3b3b4d;
   --white-10: #ffffff1a; /* ghost button fills */
   --white-50: #efefef80; /* muted text on dark */
   --black-50: #21212180; /* scrim */
@@ -32,7 +37,9 @@
   --text-secondary: var(--grey-700);
   --text-alternate: var(--black); /* on inverted surfaces */
   --border-primary: var(--white-30);
-  --border-alternate: var(--black);
+  /* On an inverted (light) surface. Was solid --black, which is four times the
+     weight theirs carries and reads as a rule rather than a hairline. */
+  --border-alternate: var(--grey-800-30);
 
   /* ── system ─────────────────────────────────────────────────────────── */
   --success: #027a48;
@@ -78,6 +85,7 @@
      desktop; the substitution is notation, not a changed value. */
   --content: calc(100vw - (2 * var(--gutter)));
   --hairline: 1px solid var(--border-primary);
+  --hairline-alt: 1px solid var(--border-alternate);
 
   /* ── the 12-unit grid ────────────────────────────────────────────────────
      **Theirs, measured, not ours invented.** Until phase 3 this was described

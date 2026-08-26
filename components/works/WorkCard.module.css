@@ -1,0 +1,296 @@
+/* One works-grid card. 20-components-and-motion.md §5.
+
+   The anatomy §5 gives, and this file follows exactly:
+
+     .card                       position: relative
+       .frame                    position: relative — the media's box, exactly
+         .media                  16:10 (21:9 for `full`), overflow hidden
+           .still  /  .video     poster, then the muted loop over it
+           .overlay              §21.2's fade-away layer, opacity 0
+           .wipe                 absolute, --black, width 100% until revealed
+           .badge                CASE STUDY chip, opacity 0
+         .sheet                  the hover panel, opacity 0
+       .info                     mono title (left) + summary (right)
+
+   `.frame` is not in §5's anatomy and it is load-bearing. The sheet is
+   `position: absolute; bottom: 0`, and with no relative ancestor between it and
+   `.card` that meant the bottom of the whole card — so the panel covered the
+   work's name and summary. The frame is exactly the media's box, and the
+   caption now lives outside it. See D-025.
+*/
+
+.card {
+  position: relative;
+  /* GSAP owns this on hover, dimming every OTHER card to .3. Declared so the
+     value exists before the first tween writes it. */
+  opacity: 1;
+}
+
+.link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+/* The sheet's positioning context, and nothing else. Sized entirely by the
+   media inside it. */
+.frame {
+  position: relative;
+}
+
+/* ── the media ────────────────────────────────────────────────────────────── */
+
+.media {
+  position: relative;
+  /* A stacking context, and the reason is the badge. The badge is `z-index: 5`
+     inside the media; the sheet is `z-index: 3` and a SIBLING of it. With the
+     media at `z-index: auto` those two numbers compete directly, so the white
+     CASE STUDY chip painted on top of the white hover sheet and read as its
+     first row. Giving the media a z-index of its own contains the badge, and
+     the sheet then covers the whole thing. */
+  z-index: 1;
+  /* §5. Not 16:9 — the cards are shallower than video, which is what lets two
+     of them sit beside a column of air without the row becoming a band. */
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background-color: var(--bg-tertiary);
+}
+
+/* ── the full-width card is a band, not a billboard ──────────────────────────
+   16:10 across all twelve columns is 1316 x 822 at 1512 — most of a viewport
+   for one card, before its caption. Sayandeep: *"the big card Tessera, that's
+   so big, doesn't look good."*
+
+   It is right, and the fix is the aspect ratio rather than the span: a full
+   card should be the widest thing on the page, not the tallest. 21:9 puts it at
+   1316 x 564, which is a cinematic band that opens the section and then gets
+   out of the way.
+
+   The `wide` cards keep 16:10. At eight columns that is 870 x 544 — already
+   shorter than the full card is now, so it stays the deeper of the two shapes
+   and the rhythm still alternates. */
+[data-work-width='full'] .media,
+[data-work-width='full'] .sheet {
+  aspect-ratio: 21 / 9;
+}
+
+/* The sheet is content-sized, so it must not inherit the ratio above. The
+   selector is shared only because the media needs it; this takes it back. */
+[data-work-width='full'] .sheet {
+  aspect-ratio: auto;
+}
+
+.still,
+.video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.video {
+  object-fit: cover;
+  /* §5: "muted loop reel, opacity 0 at rest". The still fades out over it
+     rather than the reel fading in — one property, one layer. */
+  opacity: 1;
+  display: block;
+}
+
+.still {
+  /* Above the reel, and taken to 0 on hover so the reel shows through. */
+  z-index: 1;
+}
+
+/* §21.2 [ix2 a-29/a-30]. Its own layer and its own asymmetric timing — in over
+   500ms, out over 400ms, the inverse of the site's usual rule. */
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  opacity: 0;
+  background-color: var(--black);
+  pointer-events: none;
+}
+
+/* The reveal. Full width at rest, wiped to 0% as the card enters. It is a
+   width tween rather than a transform because it has to uncover from one edge:
+   a scaled or translated panel leaves the far edge behind. */
+.wipe {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  width: 100%;
+  background-color: var(--bg-primary);
+  pointer-events: none;
+}
+
+.badge {
+  position: absolute;
+  z-index: 5;
+  top: 1rem;
+  left: 1rem;
+  opacity: 0;
+  padding: 0.375rem 0.625rem;
+  background-color: var(--bg-alternate);
+  color: var(--text-alternate);
+}
+
+/* ── the hover sheet ──────────────────────────────────────────────────────── */
+
+/* ── the sheet, redesigned ────────────────────────────────────────────────────
+   §5 has this as a full-bleed `#EFEFEF` panel over the media, appearing with a
+   `gsap.set()` — no tween at all. Built literally, that is exactly what it does:
+   a 1316x822 card goes from #212121 to pure white in one frame, twelve times
+   over as you move down the page. Sayandeep, on the running build:
+
+     "hovering them turns them white — basically immediately you get so much
+      exposure, from dark grey to pure white ... use some light colours or white
+      in a proper way so people don't get flashbanged. also add a transition
+      effect there, not just hovering and instant."
+
+   Two changes, fixing different halves of it.
+
+   **It is a drawer, not a curtain.** Anchored to the foot of the media and
+   sized by its own content instead of filling the frame. On the `full` opener
+   that is about a quarter of the card rather than all of it, and the cover art
+   stays visible above it — so the card still reads as the work, with its
+   specifications drawn across the bottom. It scales properly too: a five-row
+   table in an 822px-tall white rectangle looked lost, and the same table in a
+   drawer does not.
+
+   **It arrives.** The wipe lives in the component — 500ms in, 400ms out,
+   matching §21.2's overlay so the two layers move together. The overlay under
+   it is already darkening to .55 over the same 500ms, so the sequence a visitor
+   sees is: media dims, drawer is drawn across the dimmed area from the right,
+   its rows following. The eye is led rather than hit.
+
+   **And it is dark.** The first pass kept `#EFEFEF`, on the reading that the
+   complaint was about area and abruptness rather than about the colour. It was
+   about the colour too — *"the total white, change that to a milder dim
+   colour"* — so the panel is now the page's own black with 14% of the work's
+   accent mixed into it. Tessera's is `#1f2931`, Santioni's a dark red-brown,
+   Solidus's a dark green. Three things fall out of that and all three are
+   improvements:
+
+     · there is no bright surface anywhere on the page, at any moment
+     · each panel is visibly *that card's* panel, which twelve identical white
+       rectangles never were
+     · the SpecTable drops back to its ordinary palette — grey keys, white
+       values, white-30 rules — so the `invert` variant is no longer needed here
+
+   14% is the whole of the tuning. Below about 10% the accents stop being
+   distinguishable from each other; above about 20% the darker accents start
+   fighting the white text for contrast. See D-022 and D-024. */
+.sheet {
+  /* ≥768: over the FOOT of the media, height driven by its content. No
+     `aspect-ratio` and no `top` — the two things that made it a full cover. */
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  opacity: 0;
+  /* The page ground with a little of the work's accent in it. `--work-accent`
+     is set per card in WorkCard.tsx; the fallback keeps the panel legible if a
+     work ever ships without one. */
+  background-color: color-mix(in srgb, var(--work-accent, var(--grey-900)) 14%, var(--black));
+  color: var(--text-primary);
+  /* A hairline of the accent at full strength along the top edge. It is the
+     one place the accent is allowed to be itself, and it is what stops the
+     panel reading as a slightly-off-black rectangle. */
+  border-top: 1px solid var(--work-accent, var(--grey-700));
+  padding: 1.25rem 1.5rem 0.75rem;
+  /* The media clips at 16:10 and this sits inside that box, so a drawer taller
+     than its card cannot spill. It never is. */
+  max-height: 100%;
+  overflow: hidden;
+}
+
+/* No forced height. The table is as tall as its rows and the drawer is as tall
+   as the table — that is the whole mechanism. */
+.sheetTable {
+  width: 100%;
+}
+
+/* ── the caption ──────────────────────────────────────────────────────────── */
+
+/* No clip, and no rise. §5 slides the caption to -110% of its own height on
+   hover, so the work's name vanishes at the moment you are reading about it —
+   removed at Sayandeep's request (D-025). Without the movement there is nothing
+   to clip, so the wrapper went with it.
+
+   `opacity: 0` stays: that is the REVEAL, which fades the caption in as the
+   card arrives on screen. Different animation, still wanted. */
+.info {
+  margin-top: 1rem;
+  opacity: 0;
+  display: grid;
+  /* 4fr 8fr: the mono name is a label and the summary is the sentence. This is
+     the one place §8's written ratio is right — it is a caption, not a spec
+     table, and the key here really is narrow. */
+  grid-template-columns: 4fr 8fr;
+  gap: var(--grid-gap-tight);
+  align-items: start;
+}
+
+.client {
+  color: var(--text-primary);
+}
+
+.summary {
+  color: var(--text-secondary);
+}
+
+/* ── ≤767: the sheet stops being a hover state ────────────────────────────────
+   §5, and the responsive behaviour most likely to be got wrong: the sheet is
+   NOT hidden on mobile, it becomes permanent content. Single column: media,
+   then the light panel, then the caption. No hover, no dimming, no video —
+   the JS never attaches below 992, so this is the whole of it. */
+@media (max-width: 767px) {
+  .sheet {
+    position: static;
+    opacity: 1;
+    padding: 1.25rem;
+    max-height: none;
+    /* The hover tween never runs below 992, but a viewport dragged across the
+       breakpoint mid-tween would otherwise leave the wipe behind. */
+    transform: none !important;
+    clip-path: none !important;
+  }
+
+  .video {
+    display: none;
+  }
+
+  /* The caption rise has nothing to reveal here, so the caption simply is. */
+  .info {
+    opacity: 1;
+    grid-template-columns: 1fr;
+    gap: 0.375rem;
+  }
+
+  .info {
+    margin-top: 0.875rem;
+  }
+}
+
+/* Between 768 and 991 the sheet is over the media again but nothing can hover:
+   §5's layout breakpoint is 767 and CLAUDE.md gates every hover at 992, so this
+   band gets the desktop layout with no way to open the sheet. The panel is
+   given a resting opacity so the information is not simply lost. */
+@media (min-width: 768px) and (max-width: 991px) {
+  .sheet {
+    position: static;
+    opacity: 1;
+    max-height: none;
+    transform: none !important;
+    clip-path: none !important;
+  }
+}

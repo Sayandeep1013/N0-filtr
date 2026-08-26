@@ -56,12 +56,34 @@ const RAF_PROBE = `
 })();
 `;
 
+/**
+ * A one-line shim for a helper esbuild injects and the browser has never heard of.
+ *
+ * The harness runs through `tsx`, which compiles with esbuild's `keepNames`
+ * behaviour: a function assigned to a variable is rewritten as
+ * `var wait = __name((ms) => ..., "wait")` so that `fn.name` survives
+ * minification. That rewrite applies to the callbacks we hand to
+ * `page.evaluate` as well — and those are serialised and run **in the browser**,
+ * where `__name` does not exist.
+ *
+ * The failure is `ReferenceError: __name is not defined`, thrown from inside
+ * `page.evaluate`, pointing at a line of perfectly ordinary code. Nothing in
+ * the message suggests a build tool. It cost phase 4 a verify run to find.
+ *
+ * The workaround everyone reaches for first is "don't name functions inside
+ * evaluate", which is a rule nobody remembers and which quietly bans the
+ * clearest way to write a multi-step in-page check. Defining the helper is one
+ * line and it is what esbuild would have emitted itself in a bundle.
+ */
+const KEEP_NAMES_SHIM = 'globalThis.__name = globalThis.__name || function (fn) { return fn; };';
+
 export async function newPage(browser: Browser, opts: PageOptions): Promise<{ context: BrowserContext; page: Page }> {
   const context = await browser.newContext({
     viewport: { width: opts.viewport.w, height: opts.viewport.h },
     deviceScaleFactor: 1,
     reducedMotion: opts.reducedMotion ?? 'no-preference',
   });
+  await context.addInitScript({ content: KEEP_NAMES_SHIM });
   if (opts.instrumentRaf) await context.addInitScript(RAF_PROBE);
   const page = await context.newPage();
   return { context, page };

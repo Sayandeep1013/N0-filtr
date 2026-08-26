@@ -108,7 +108,21 @@ export async function checkVisual(browser: Browser, baseUrl: string): Promise<Se
               if (lenis) lenis.scrollTo(to, { immediate: true, force: true });
               else window.scrollTo(0, to);
             }, target);
-            await page.waitForTimeout(600);
+            /* Long enough for what a scroll starts to finish.
+
+               600ms was fine while the only scrolled shot was the footer.
+               Phase 4's cards reveal on entry over 1.05s — a 0.75s wipe, then
+               the badge and the caption fading in behind it — so a 600ms
+               settle photographed every card mid-reveal: half-faded chips and
+               captions at a third opacity, which reads as a styling bug in a
+               contact sheet and is not one. The scrubbed word reveal has the
+               same shape of problem: `scrub: 1` eases the playhead over about a
+               second after the scroll stops.
+
+               Same lesson as SCRUB_SETTLE_MS in behaviour.home.ts — when a
+               check looks wrong around an animation, ask what the animation was
+               doing when you looked. */
+            await page.waitForTimeout(1800);
           }
 
           if (shot.prepare === 'contact-open') {

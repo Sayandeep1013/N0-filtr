@@ -77,6 +77,24 @@ export const HERO = {
   lineOne: 'Design and build',
   /** Line 2. The play control sits inline before it, in the text flow. */
   lineTwo: 'with nothing lost',
+  /**
+   * One word in the headline is drawn as if the visitor had selected it.
+   *
+   * Sayandeep's, 2026-08-26: *"the word 'build' to be selected — it creates a
+   * depth effect."* It does, and the reason is worth writing down, because it
+   * is not an arbitrary flourish. The site already inverts `::selection` to
+   * `#efefef` on `#212121` (`10-design-system.md` §6), so a selected word here
+   * is not a new visual language — it is the one the page already uses, applied
+   * on purpose instead of by accident. A selection highlight also sits *behind*
+   * the glyphs and spans the full line box, so it reads as a plane at a
+   * different depth from the type rather than as a coloured word.
+   *
+   * It has to be a word that actually appears in `lineOne` or `lineTwo`; the
+   * component splits the line on it rather than being told where it is, so
+   * rewriting the headline cannot leave a stale index behind. If it matches
+   * nothing, the line renders plain. See D-021.
+   */
+  selectedWord: 'build',
   /** The 2-up mono rail above the hairline at the section's foot. */
   labelLeft: '0→1 design and engineering for founders who ship',
   labelRight: '12 shipped projects · 5 services',
@@ -107,7 +125,19 @@ export const SITE = {
    beyond GitHub are deliberately provisional; see SOCIALS. */
 
 export const CONTACT = {
-  email: 'sayandeepmondal1013@gmail.com',
+  /* Changed from a personal gmail address to the studio's own on 2026-08-26,
+     at Sayandeep's request. Worth one line: `support@` at the studio's domain
+     is the difference between a site that looks like a studio and one that
+     looks like a person with a portfolio, and it is the address the contact
+     form's `mailto:` composes to.
+
+     ⚠️ Note the domain. The site's canonical origin is **nofilter.studio**
+     (chosen the same day, open item 5), and this address is at **nofilter.com**.
+     They may well be deliberate — a .com for mail is common — but a visitor
+     reading `support@nofilter.com` in the footer of `nofilter.studio` will read
+     it as a typo, and mail sent to an unowned domain bounces silently. Flagged
+     in the handoff; see I-040. */
+  email: 'support@nofilter.com',
   /**
    * tonik's second footer row is "OPPORTUNITIES AT TONIK → Work with us",
    * linking to their careers page. Decision 2 dropped careers, and printing the
@@ -241,13 +271,19 @@ export const WORKS_INTRO =
    control that opens a player with nothing in it is a worse promise than a
    shape that never claimed to be a control.
 
-   What is in it today is **a placeholder, and it says so**: eight seconds of
-   our own hero with the pointer moving across it, baked by
-   `npm run showreel:placeholder`. It is here because §15's choreography is the
-   only use of Flip on the site and cannot be checked by reading — a background
-   layer is measured, reparented across two components and flown into a player,
-   and with no file none of that ever runs. Protocol §6 does not accept
-   "implemented" as evidence.
+   What is in it today is **a placeholder, and it says so**: eleven seconds
+   panning down the works grid, baked by `npm run showreel:placeholder`. It is
+   here because §15's choreography is the only use of Flip on the site and
+   cannot be checked by reading — a background layer is measured, reparented
+   across two components and flown into a player, and with no file none of that
+   ever runs. Protocol §6 does not accept "implemented" as evidence.
+
+   **It used to record the hero, and that was wrong.** Sayandeep, 2026-08-26:
+   *"the play icon opens up the hero section itself — does that seem right? No."*
+   It does not. A reel that plays you the page you are standing on is circular,
+   and pressing play should show you the work. So it shows the work — the twelve
+   cards — which is the closest thing to a reel this build has until T10.2
+   captures the deploys themselves.
 
    **`01-PHASES.md` T10.2 replaces the file**, with scripted 6–10s interaction
    footage of the eight live deploys, encoded to mp4 *and* webm. Nothing in the

@@ -1,0 +1,73 @@
+/* The spec table. 20-components-and-motion.md §8.
+
+   Geometry read off tonik's `project-item_table-item`:
+     grid-template-columns  1fr 1fr
+     column-gap             12.3375px   = 0.75rem, the TIGHT gap (I-032)
+     padding                0 0 8.225px = 0 0 0.5rem
+     border-bottom          rgba(59, 59, 59, .3) — the light-surface hairline
+
+   The ROW is the grid, not the table. Each row lays out its own two tracks, so
+   a long value in one row cannot widen the key column of another. That is what
+   theirs does, and it is why their keys stay optically aligned down a card even
+   where one value runs to four lines. */
+
+.spec {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: grid;
+  column-gap: var(--grid-gap-tight);
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+  border-bottom: var(--hairline);
+  align-items: start;
+}
+
+/* Every row keeps its rule, the last one included. Theirs does: the table reads
+   as a stack of entries rather than as a bordered block, and dropping the final
+   rule leaves the bottom of the card looking unfinished. */
+
+.even .row {
+  grid-template-columns: 1fr 1fr;
+}
+
+/* §8 as written. Nothing uses it yet — phase 6 measures the case-study hero's
+   own table before choosing. See I-037. */
+.keyNarrow .row {
+  grid-template-columns: 4fr 8fr;
+}
+
+.key {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.value {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  color: var(--text-primary);
+}
+
+.item {
+  display: block;
+}
+
+/* ── inverted ──────────────────────────────────────────────────────────────
+   A light ground. The keys stay the muted member of the pair and the values
+   stay the primary one — the hierarchy does not flip, only the palette. */
+.invert .key {
+  color: var(--grey-700);
+}
+
+.invert .value {
+  color: var(--text-alternate);
+}
+
+.invert .row {
+  border-bottom: var(--hairline-alt);
+}

@@ -362,6 +362,24 @@ export function createApertureScene(
   presenter.quaternion.setFromAxisAngle(TILT_AXIS, TILT_ANGLE);
   tipper.add(presenter);
 
+  /* Dev only: a yaw knob on the whole assembly, so "what does it look like
+     turned round?" is a console call rather than a source edit and two dev
+     reloads. Folded out of production with everything else behind this guard.
+
+     Note what 180° does and does not mean here. The object is six-fold
+     symmetric about its bore, so spinning it 180° about that axis is a no-op —
+     three blade positions, same picture. A yaw of π is the one that changes
+     anything: it looks at the barrel from behind, which mirrors the ellipse's
+     long diagonal from "/" to "\" and puts the key light behind the object
+     instead of in front of it. */
+  if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
+    Object.assign(window, {
+      __APERTURE_YAW__: (radians: number) => {
+        assembly.rotation.y = radians;
+      },
+    });
+  }
+
   /* Everything that turns idly turns about the BORE AXIS, not about world Y.
 
      §2 spins the assembly on Y, which is right for tonik: their object is a

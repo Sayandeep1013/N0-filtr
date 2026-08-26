@@ -1,15 +1,16 @@
 import { RevealText } from '@/components/ui/RevealText';
+import { Button } from '@/components/ui/Button';
 import { WORKS_INTRO } from '@/lib/content/site';
+import { WORKS } from '@/lib/content/works';
+import { WorksGrid } from './WorksGrid';
 import s from './WorksSection.module.css';
 
 /**
  * The homepage's works section. `30-page-specs.md` §2.
  *
- * **Phase 3 builds the header only.** The twelve-card grid, its three hover
- * layers and its differential parallax are phase 4's, and they go where the
- * comment says. The header is here because §2's heading is the site's first
- * `<RevealText>`, and a reveal cannot be judged — or verified — without
- * something to scroll past.
+ * The header arrived in phase 3, because §2's heading is the site's first
+ * `<RevealText>` and a reveal cannot be judged — or verified — without
+ * something to scroll past. Phase 4 filled the grid under it.
  *
  * ── The grid, which is theirs and was not guessed ──────────────────────────
  *
@@ -36,8 +37,17 @@ export function WorksSection() {
             </RevealText>
           </div>
 
-          {/* Phase 4: <WorksGrid /> — 12 cards, two columns, differential
-              parallax at −8% / −10%, then <LoadMoreButton>. */}
+          <div className={s.grid}>
+            <WorksGrid works={WORKS} />
+          </div>
+
+          {/* §2's "SEE ALL WORK". §21.4 gives their load-more button three
+              media layers tracking the cursor at different depths; we have no
+              media for them until phase 10, so this is the plain pill for now.
+              I-038. */}
+          <div className={s.more}>
+            <Button href="/works">See all work</Button>
+          </div>
         </div>
       </div>
     </section>

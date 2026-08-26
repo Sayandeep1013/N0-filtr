@@ -94,11 +94,12 @@ got it right. Protocol §2.9 is the rule.
 
 | | |
 |---|---|
-| Current phase | **4 — Works grid** |
+| Current phase | **5 — Homepage lower** |
 | Status | ⬜ not started |
-| Branch | *(create `phase/04-works-grid`)* |
+| Branch | *(create `phase/05-home-lower`)* |
 | Blocked | no |
-| Verify report | `tools/verify/output/report.md` — tokens 137/137, motion **165/168** (3 pending), visual judged, budget 6/6 |
+| Verify report | `tools/verify/output/report.md` — tokens 138/138, motion **199/201** (2 pending), visual judged, budget 6/6 |
+| ⚠️ Budget | **JS 317.2KB of 320KB — 2.8KB left.** I-034. Phase 7 wants Embla and it does not fit. |
 
 ---
 
@@ -110,8 +111,8 @@ got it right. Protocol §2.9 is the rule.
 | 1 | Global chrome | ✅ | `phase/01-chrome` | `phase-01-complete` | + a behaviour layer in the harness |
 | 2 | Brand & 3D hero 🚦 | ✅ | `phase/02-brand-3d` | `phase-02-complete` | mark approved · 13 hero assertions · budget re-based |
 | 3 | Homepage upper | ✅ | `phase/03-home-upper` | `phase-03-complete` | + the grid system (I-032) · 21 new assertions |
-| 4 | Works grid | ⬜ | `phase/04-works-grid` | — | **next** · the grid is `12 × 1fr` on 1.25rem — I-032 |
-| 5 | Homepage lower | ⬜ | `phase/05-home-lower` | — | needs 4 |
+| 4 | Works grid | ✅ | `phase/04-works-grid` | `phase-04-complete` | 35 assertions · 6 changes from review · I-036 |
+| 5 | Homepage lower | ⬜ | `phase/05-home-lower` | — | **next** · Sayandeep chose: finish the homepage before the block pit |
 | 6 | Case study 🚦 | ⬜ | `phase/06-case-study` | — | **GATE** · needs 4 |
 | 7 | Service & industry | ⬜ | `phase/07-service-pages` | — | needs 6 |
 | 8 | About | ⬜ | `phase/08-about` | — | needs 5 |
@@ -120,7 +121,7 @@ got it right. Protocol §2.9 is the rule.
 | 11 | Block pit | ⬜ | `phase/11-block-pit` | — | needs 1 · parallel-safe |
 | 12 | Polish & launch | ⬜ | `phase/12-polish` | — | needs all |
 
-**Progress: 4 / 13 phases.**
+**Progress: 5 / 13 phases.**
 
 ---
 
@@ -187,6 +188,28 @@ Full record: `docs/build/phases/PHASE-02.md`.
 6. **I-022** — the camera stays at 7.5, not the specced 6.5.
 7. **I-021** — the grain is right as built.
 8. **I-019** — the JS budget is **320KB**, raised from a 190 that was never a measurement. (D-013)
+
+### Phase 4 — Works grid ✅ complete
+
+Full record: `docs/build/phases/PHASE-04.md`
+
+| id | task | status | evidence |
+|---|---|---|---|
+| T4.1 | 12 typed `Work` modules | ✅ | `content/works/*.ts` |
+| T4.2 | `<SpecTable>` | ✅ | `1fr 1fr` on the tight gap, measured (I-037) |
+| T4.3 | `<WorkCard>`, three widths | ✅ | mix asserted: half ×8, wide ×3, full ×1 |
+| T4.4 | Reveal on scroll, one-shot | ✅ | `work-card.reveal` 1.05s / 3 tweens; `data-revealed` |
+| T4.5 | Siblings dim to .3 | ✅ | behaviour: **all eleven** at exactly 0.3, back to 1 on leave |
+| T4.6 | Overlay .55, 500 in / **400 out** | ✅ | both read off the live tweens |
+| T4.7 | Sheet + reel swap | ✅ | wipe 0.5 in / 0.4 out; luminance ≤ 0.10 |
+| T4.8 | Parallax −8 / −10 | ✅ | per cell, not per column — I-036 |
+| T4.9 | Mobile ≤767 | ✅ | sheet `static` + opacity 1, one column, no transforms |
+
+**Six changes from Sayandeep's mid-phase review**, five of them deviations from §5 — the drawer
+(D-022), the right-to-left wipe (D-022), the dark accent-tinted panel (D-024), the caption that is
+never covered (D-025), the 21:9 full card (D-026), and a `ChunkLoadError` fix (I-041).
+
+**Also answered:** the block pit waits — finish the homepage first (phase 5), then phase 11.
 
 ### Phase 3 — Homepage: hero, stack wall, reveal ✅ complete
 

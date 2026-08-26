@@ -180,15 +180,47 @@ export const TIMELINE_ASSERTIONS: TimelineAssertion[] = [
       { target: '.contact__gif', duration: 0.5, props: ['y'], position: '<+0.2', startTime: 0.7 },
     ],
   },
+  /* ── `work-card.hover` is gone, and it is not missing ──────────────────────
+     §5's `[src]` gives each card one paused hover timeline with two children:
+     the caption rising to -110%, and the sibling-dim. Phase 4 removed both, for
+     two different reasons, and there is nothing left to register.
+
+     The **sibling-dim** moved to the grid, because §21.1 says to in as many
+     words — "one shared primitive, `useSiblingDim(0.3)`, not three
+     implementations" — and twelve cards each owning a tween over the other
+     eleven made sliding the pointer between two cards a 400ms fight over the
+     same ten elements. It is asserted in the behaviour layer instead, against
+     all eleven other cards, which is what phase 4's acceptance criterion
+     actually says. I-039.
+
+     The **caption rise** was removed at Sayandeep's request: it hid the work's
+     name and summary at the moment you were reading about them. D-025.
+
+     What replaced them — the sheet's wipe, the overlay's asymmetric fade, the
+     reel swap — are separate tweens on separate targets by design, and every
+     one of them is asserted in `behaviour.works.ts` by reading the live tween's
+     own `duration()`. An empty entry here would be worse than none: it would
+     read as a timeline somebody forgot to finish. */
+  /**
+   * The reveal. §5, one-shot and guarded.
+   *
+   * The `'>-0.2'` and `'<'` positions are why this is asserted by resolved
+   * `startTime` rather than by the strings: the wipe runs 0 → 0.75, the badge
+   * starts 0.2 before the wipe ends, and the info starts with the badge. So
+   * 0.55 and 0.55, and the total is 1.05 rather than the 1.75 that three
+   * sequential tweens would give.
+   */
   {
-    id: 'work-card.hover',
+    id: 'work-card.reveal',
     phase: 4,
-    pending: true,
+    pending: false,
+    totalDuration: 1.05,
+    tweenCount: 3,
     tweens: [
-      { duration: 0.25, ease: 'power1.inOut', props: ['y'] },
-      { duration: 0.4, ease: 'power1.inOut', props: ['opacity'] },
+      { duration: 0.75, ease: 'power3.out', props: ['width'], startTime: 0 },
+      { duration: 0.5, props: ['opacity'], position: '>-0.2', startTime: 0.55 },
+      { duration: 0.5, props: ['opacity'], position: '<', startTime: 0.55 },
     ],
-    reverseTimeScale: 1.2,
   },
   {
     id: 'accordion.open',

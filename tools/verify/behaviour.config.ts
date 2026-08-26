@@ -245,6 +245,71 @@ export const BEHAVIOUR = {
     mobile: { w: 390, h: 844 },
   },
 
+  /**
+   * The works grid. `20-components-and-motion.md` §5, §21.1, §21.2.
+   *
+   * Phase 4's acceptance criteria are almost entirely things a timeline's shape
+   * cannot express, which is why so much of this phase's verification lives
+   * here rather than in `motion.config.ts`:
+   *
+   *   · "hovering one card dims all eleven others to exactly 0.3" is a fact
+   *     about eleven elements
+   *   · §21.2's overlay is asymmetric **in the opposite direction to the rest of
+   *     the site** — 500ms in, 400ms out — and 500/1.2 is 417, close enough to
+   *     400 to look right if it were ever folded into the reversing timeline
+   *   · at ≤767 the sheet does not hide, it becomes content
+   */
+  worksGrid: {
+    id: 'works grid',
+    phase: 4,
+    page: '/',
+    cardCount: 12,
+    /** Which card the checks hover. Index 1 is a `half` in a two-card row. */
+    hoverIndex: 1,
+    dimmed: 0.3,
+    tolerance: 0.02,
+    /** §21.2 [ix2 a-29/a-30]. */
+    overlayOpacity: 0.55,
+    overlayIn: 0.5,
+    overlayOut: 0.4,
+    /** 1.25rem at the 16.45 root — I-032's corrected gap. */
+    columnGapPx: 20.5625,
+    /** `30-page-specs.md` §2: half ×8, wide ×3, full ×1. */
+    mix: { half: 8, wide: 3, full: 1 },
+    /**
+     * The panel must never be a bright surface.
+     *
+     * §5 specifies `#EFEFEF` and phase 4 built that; Sayandeep asked for it
+     * changed twice — once for the abruptness, once for the colour — and it is
+     * now the page's black with 14% of the work's accent mixed in (D-024).
+     *
+     * So this asserts the **property**, not the hex. Each of the twelve panels
+     * is a different colour by design, and pinning one value would either
+     * pass vacuously for eleven of them or need a table that goes stale the
+     * moment an accent is re-sampled. Relative luminance under 0.10 is the
+     * thing that was actually asked for: no bright surface, anywhere, ever.
+     */
+    sheetMaxLuminance: 0.1,
+    /**
+     * The hover drawer must be TWEENED, not set.
+     *
+     * §5's [src] reveals it with `gsap.set('.work__sheet', { opacity: 1 })` —
+     * no duration at all — and on a 1316x822 card that is #212121 to pure white
+     * in one frame. Sayandeep asked for it fixed on 2026-08-26 (D-022), so
+     * "there is a transition" is now a requirement rather than a preference,
+     * and a requirement nobody checks is one that regresses.
+     *
+     * Read off the live tweens rather than sampled, for the same reason as the
+     * overlay: sampling an eased curve measures the harness's own jitter.
+     */
+    sheetIn: 0.5,
+    sheetOut: 0.4,
+    /** It must not fill the media any more. Fraction of the media's height. */
+    sheetMaxCoverage: 0.8,
+    desktop: { w: 1512, h: 900 },
+    mobile: { w: 390, h: 844 },
+  },
+
   loaderReduced: {
     id: 'loader under reduced motion',
     phase: 1,
