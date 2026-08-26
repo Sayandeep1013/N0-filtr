@@ -4,8 +4,27 @@
  */
 
 export const BUDGETS = {
-  /** JS on `/`, gzipped. GSAP ~55, Three ~48gz, Lenis ~4, app ~40. */
-  homeJsGzipKb: 190,
+  /**
+   * JS on `/`, transferred.
+   *
+   * **320, raised from 190 by Sayandeep on 2026-08-26.** See I-019 and D-013.
+   *
+   * The old number was arithmetic, not a measurement: `60-architecture-and-build.md`
+   * §5 itemised it as "GSAP ~55, Three ~48gz, Lenis ~4, app ~40" — which sums to
+   * 147 and omits React and Next entirely. They are ~92KB on their own. Three
+   * measures 141.3KB, not 48; `WebGLRenderer` pulls the whole shader library and
+   * tree-shaking barely dents it.
+   *
+   * Measured at the time of the change: **302.8KB**, which leaves about 17KB.
+   * That is not much, and phases 3 to 5 add real code to this route —
+   * SplitType, Embla, the works grid, the accordion. **Plyr and Matter must stay
+   * out of it**: both are specced as lazy (Plyr on first showreel open, Matter
+   * when the pit scrolls into view), so neither should ever appear in this
+   * figure. If it does, that is the bug — not the ceiling.
+   *
+   * Lighthouse (below) is the quality bar this number only approximates.
+   */
+  homeJsGzipKb: 320,
   /** Home page total transfer with images. */
   homeTotalKb: 1800,
   /** Largest card poster. Becomes binding in phase 10. */

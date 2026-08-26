@@ -21,16 +21,43 @@ composition, same silhouette weight, entirely our own meaning.
 ```
 A circle of stroke weight 1/12 of its diameter.
 Six short radial ticks at the inner edge, at 60° intervals, each 1/6 of the radius long,
-rotated 8° off-radial so they read as retracted blades rather than a compass rose.
+drawn at HALF the ring's stroke weight — 1/24 of the diameter.
+Each tick rotated 8° off-radial so they read as retracted blades rather than a compass rose.
 The centre is empty.
 ```
+
+> **The tick weight was added in phase 2**, not measured — this section originally gave each
+> tick's *length* and never its stroke weight, which is I-009. Half was chosen because it is the
+> only weight at which six separate blades stay countable at 16px: at the ring's own weight a
+> tick 1/6-of-a-radius long is nearly as wide as it is long and renders as a square blob.
+> Approved by Sayandeep at the phase-2 gate, alongside the concept itself. I-009 is closed.
+
 Reads as an aperture at 48px and as a clean geometric circle at 16px. Drawn with
 `fill="currentColor"` so it inherits from the loader, nav and footer without variants.
 
 **Wordmark**
-`no filter` — lowercase, General Sans 400, tracking `-0.02em`, the space between the two words
-tightened to `0.22em`. The footer sets it at `14vw` exactly as tonik does. Lowercase throughout
-matches tonik's own lowercase `tonik` and keeps the mono labels doing the shouting.
+`NO FiLTER` — General Sans 400, tracking `-0.02em`, the space between the two words tightened to
+`0.22em`. The footer sets it at `14vw` exactly as tonik does.
+
+Both words in caps, **with the `i` of FiLTER left lowercase.** That single letter is the whole
+device: it drops a dot into a run of caps — a small void inside the letterform that rhymes with
+the aperture's empty centre. The casing is authored as literal text in
+`components/brand/Wordmark.tsx`, never via `text-transform: uppercase`, which would eat it.
+
+> **Changed by Sayandeep, 2026-08-26.** This clause originally read *"lowercase throughout,
+> matching tonik's own lowercase `tonik`"*. He asked for a mixed case; four candidates —
+> `NO FiLTER`, `No FiLTER`, `No Filter`, `NO FILTER` — were set in the real face at display and
+> navbar size, and he chose `NO FiLTER`. See D-011.
+>
+> **The metrics were re-measured in the same session** — a casing change is a metrics change,
+> and every box the wordmark sits in had been fitted to the lowercase form. `-0.02em` and the
+> footer's `14vw` both **hold**: the footer wordmark fills 82.5% of its column at 1512 and 71.6%
+> at 390, up from ~59% and ~51%, and overflows at neither.
+>
+> The **navbar** did not hold. §4's `4.25rem × 1.25rem` logo box is measured off tonik and
+> `flex: none` reserves it, so the box is fixed and the face size is the free variable; caps
+> measured 4.59rem inside it, an 8% overrun. The face is `0.925rem` now — `4.25 / 4.59` — and
+> lands at 99.9% of the box at both breakpoints. See I-018.
 
 ### Alternates (if you'd rather not go aperture)
 
@@ -245,3 +272,15 @@ smaller, faster, more controllable, and ours.
 1. **Approve the aperture concept** (or pick an alternate).
 2. I'll produce the 2D glyph as SVG and a static render of the 3D assembly for sign-off
    **before** wiring it into the hero — so we're not iterating on brand inside a scroll page.
+
+> **Settled — phase 2, 2026-08-26.** Sayandeep approved **the Open Aperture**, over the three
+> alternates in §1. The tick weight (I-009) was settled in the same conversation at **half the
+> ring's weight**, and the footer service icons (I-014) were deferred to phase 10.
+>
+> Point 2 was satisfied for the 2D glyph by a sign-off sheet rather than a static render:
+> the mark, its construction, actual-size renders at 16/32/48px, the wordmark in the real
+> General Sans, and the glyph in situ in the shipped loader, navbar and footer. Every glyph on
+> the sheet was generated from the same ratios `components/brand/ApertureMark.tsx` uses, so the
+> approved drawing and the shipping drawing cannot drift apart. **The 3D assembly still owes its
+> own sign-off** — the phase-2 acceptance criteria require a screen recording of the hero before
+> phase 3 starts.

@@ -611,7 +611,7 @@ routing, no HTML parsing.
 Sits above the service hero, below the main navbar.
 
 ```
-[01] Product Design   [02] Branding   [03] Websites   [04] No-code   [05] Engineering
+[01] Product Design   [02] Branding   [03] Websites   [04] Creative Dev   [05] Engineering
                                                         FILTER BY INDUSTRY ▾
 border-bottom: var(--hairline)
 ```

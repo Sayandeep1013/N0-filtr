@@ -2,6 +2,7 @@ import type { Browser, Page } from 'playwright';
 import { newPage } from './lib/browser';
 import { fail, pass, type CheckResult } from './lib/types';
 import { BEHAVIOUR } from './behaviour.config';
+import { checkHero3d } from './behaviour.hero';
 
 /**
  * Behaviour checks — what a timeline's *shape* cannot tell you.
@@ -419,5 +420,6 @@ export async function checkBehaviour(browser: Browser, baseUrl: string): Promise
     ...(await checkContactPanel(browser, baseUrl)),
     ...(await checkButtonIcon(browser, baseUrl)),
     ...(await checkLoaderReduced(browser, baseUrl)),
+    ...(await checkHero3d(browser, baseUrl)),
   ];
 }

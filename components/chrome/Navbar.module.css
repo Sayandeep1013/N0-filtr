@@ -34,15 +34,22 @@
   justify-content: space-between;
 }
 
-/* The logo box is exact: 4.25rem × 1.25rem, which "no filter" fills at a 1rem
-   face. 50-brand-and-3d.md §4. */
+/* The logo box is exact: 4.25rem × 1.25rem. 50-brand-and-3d.md §4, measured off
+   tonik, and `flex: none` means it reserves that space in the nav row — so the
+   box is the value that must not move.
+
+   The face size is the free variable and it was re-fitted on 2026-08-26. At 1rem
+   the *lowercase* "no filter" filled 4.25rem exactly; `NO FiLTER` is caps and
+   measured 4.59rem in the same box — an 8% overrun into the links group. 4.25 /
+   4.59 = 0.926, so 0.925rem restores the fit. Verified at 1512 and 390: the
+   wordmark lands at 4.24rem of the 4.25rem box at both. See D-011, I-018. */
 .logo {
   display: flex;
   flex: none;
   align-items: center;
   width: 4.25rem;
   height: 1.25rem;
-  font-size: 1rem;
+  font-size: 0.925rem;
   color: var(--text-primary);
 }
 

@@ -109,6 +109,52 @@ export const BEHAVIOUR = {
    * with **no transform** — 20-components-and-motion.md §1. tonik ships no
    * reduced-motion path at all; this one is ours and it is not optional.
    */
+  /**
+   * The 3D hero. `50-brand-and-3d.md` §2.
+   *
+   * Everything asserted here is invisible to the other checks. A registered
+   * timeline cannot hold a relationship between two objects' rotations; a
+   * screenshot cannot show whether a render loop is still running behind a
+   * faded canvas; and the triangle budget is a runtime figure, not a source
+   * one. All of it is either a §2 performance rule or a phase-2 acceptance
+   * criterion.
+   */
+  hero3d: {
+    id: 'hero 3D',
+    phase: 2,
+    page: '/',
+    /** A route without the hero, to prove the canvas suspends rather than unmounts. */
+    awayPage: '/probe',
+    /** §2 performance budget. */
+    maxTriangles: 40_000,
+    desktop: { w: 1512, h: 900 },
+    mobile: { w: 390, h: 844 },
+
+    /**
+     * §2, [ix2 a-3]. Sweeping the pointer across the full viewport width turns
+     * the ring 0.4 rad and the blades 0.6. The 1.5× ratio between them is the
+     * whole effect: the inner element outruns its frame, and that is what reads
+     * as depth rather than as a flat image being rotated.
+     */
+    ringSweep: 0.4,
+    bladeSweep: 0.6,
+    /**
+     * The damp is ~500ms, so a reading taken shortly after the pointer moves is
+     * still converging. Generous on absolute values, strict on the ratio —
+     * because the ratio is the thing that would be wrong if the curves were
+     * copied carelessly, and it converges long before the magnitudes do.
+     */
+    sweepTolerance: 0.08,
+    minRatio: 1.3,
+    settleMs: 900,
+    /** Section 2: 4 blades below the desktop breakpoint instead of 6. */
+    mobileBlades: 4,
+    /** Section 2: render exactly one frame at this pose, then stop. */
+    reducedPose: 0.4,
+    /** A portrait viewport must fit further back than the desktop distance of 7.5. */
+    minMobileCameraZ: 8,
+  },
+
   loaderReduced: {
     id: 'loader under reduced motion',
     phase: 1,

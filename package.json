@@ -13,7 +13,9 @@
     "verify:tokens": "tsx tools/verify/run.ts --only=tokens",
     "verify:motion": "tsx tools/verify/run.ts --only=motion",
     "verify:visual": "tsx tools/verify/run.ts --only=visual",
-    "verify:budget": "tsx tools/verify/run.ts --only=budget"
+    "verify:budget": "tsx tools/verify/run.ts --only=budget",
+    "brand:assets": "node scripts/brand-assets.mjs",
+    "hero:fallback": "node scripts/hero-fallback.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
@@ -21,13 +23,15 @@
     "lenis": "^1.1.20",
     "next": "^15.1.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "three": "^0.185.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.6",
     "@types/node": "^22.10.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@types/three": "^0.185.4",
     "eslint": "^9.39.5",
     "eslint-config-next": "^15.5.23",
     "playwright": "^1.49.0",

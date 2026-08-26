@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { gsap, useGSAP } from '@/lib/motion/gsap';
 import { DUR, EASE } from '@/lib/motion/tokens';
 import { registerTimeline, unregisterTimeline } from '@/lib/motion/registry';
+import { markLoaderCleared } from '@/lib/motion/loaderSignal';
 import { useMotion } from '@/lib/motion/MotionProvider';
 import { ApertureMark } from '@/components/brand/ApertureMark';
 import { cx } from '@/lib/cx';
@@ -67,7 +68,11 @@ export function Loader() {
          one per page, so its scale resets for free. Ours is mounted once in the
          root layout and survives every route change, so a mark left at 0.5
          would make the second page's fade start half-size. */
-      const enter = gsap.timeline({ paused: true });
+      /* The latch that Hero3D's load-in and phase 3's hero copy hang off.
+         It fires from onComplete rather than from a fixed delay because the
+         timeline is 0.6s normally and 0.2s under reduced motion — any hard
+         number would be wrong in one of the two. See lib/motion/loaderSignal. */
+      const enter = gsap.timeline({ paused: true, onComplete: markLoaderCleared });
       if (reducedMotion) {
         enter
           .set(panel, { display: 'flex', yPercent: 0, opacity: 1 })
@@ -102,7 +107,12 @@ export function Loader() {
       /* A rebuild — the visitor toggled prefers-reduced-motion mid-session —
          reverts GSAP's inline styles, which puts the panel back over the page.
          Jump the fresh timeline to its end so it stays gone. */
-      if (hasEntered.current) enter.progress(1).pause();
+      if (hasEntered.current) {
+        enter.progress(1).pause();
+        // `progress(1)` does not fire onComplete, and the loader has in fact
+        // already cleared — latch it directly so a rebuild cannot un-signal it.
+        markLoaderCleared();
+      }
 
       enterRef.current = enter;
       exitRef.current = exit;

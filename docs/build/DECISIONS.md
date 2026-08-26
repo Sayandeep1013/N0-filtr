@@ -235,3 +235,285 @@ different way, and it would have to be found and replaced rather than simply app
 swap and the §9 fill overlay already asserted. If phase 2's gate rejects the aperture, the
 replacement is `ApertureMark.tsx` and `Wordmark.tsx` and nothing else — every consumer takes
 `currentColor` and sizes from its container.
+
+---
+
+## D-010 · The Open Aperture is the mark; the gate was cleared with a rendered sheet
+
+**Phase:** 2 · **Date:** 2026-08-26 · **Status:** active
+
+**Context:** `50-brand-and-3d.md` §5 makes user approval a precondition for the 3D hero, and
+`01-PHASES.md` marks T2.1 **"STOP. Present to user. Do not proceed without approval."** Phase 2
+is a gate, so everything after T2.1 was blocked on a decision that is Sayandeep's to make —
+brand is a non-technical decision under CLAUDE.md's ground rules.
+
+Two things made the presentation unusual. The mark already existed, because phase 1 built it
+under D-009 — the loader had nothing to render without a glyph. And the *concept* still needed
+approving even though the *drawing* was already in three shipped components.
+
+**Decision:** Present the mark as a published sign-off sheet rather than as a static render, and
+generate every glyph on that sheet from the same four ratios `ApertureMark.tsx` uses rather than
+redrawing them. The sheet is set in the project's own tokens and in the real General Sans and
+IBM Plex Mono, inlined from `app/fonts/`.
+
+Two consequences follow from generating rather than redrawing. The approved drawing and the
+shipping drawing **cannot drift apart** — there is no second source. And the I-009 tick-weight
+options could be rendered as live variants of one function at both 48px and 16px, so the choice
+was made by eye instead of from a description.
+
+Setting it in the real faces is not a nicety: a wordmark whose whole specification is
+`General Sans 400 / -0.02em / 0.22em word gap` cannot be approved in a substitute face, and the
+0.22em gap is invisible as a decision unless you can see the two words set.
+
+**Sayandeep's answers, 2026-08-26:**
+
+1. **The Open Aperture, approved** over the three alternates in §1.
+2. **I-009 — half the ring's weight**, taking the recommendation. Resolved; written into the
+   spec, which had omitted it. No code change: the provisional value was the chosen one.
+3. **I-014 — the footer service icons stay placeholder until phase 10.** Phase 2 owns the brand
+   and could have taken them; he chose not to spend the phase on them.
+
+**Alternatives:** A static PNG render of the assembly, which §5 point 2 literally asks for — but
+the 3D assembly does not exist yet, and rendering the 2D mark to a bitmap to approve a vector is
+a worse artefact than the vector. Asking in prose with no visual, which is how a brand gets
+approved by someone who cannot see it. Building the hero first and asking afterwards, which is
+the failure mode the gate exists to prevent.
+
+**Consequence:** T2.2–T2.9 are unblocked. The 3D assembly still owes its **own** sign-off — the
+phase-2 acceptance criteria require a screen recording of the hero before phase 3 starts, and
+that is a second gate, not the same one. The tick weight is now a specced value, so it falls
+under CLAUDE.md non-negotiable §1 like any other: it may not be silently adjusted.
+
+---
+
+## D-011 · `NO FiLTER`, and Creative Development replaces No-Code
+
+**Phase:** 2 · **Date:** 2026-08-26 · **Status:** active
+
+**Context:** Two content changes from Sayandeep, both arriving after the T2.1 gate had already
+cleared and neither of them a technical call. They are recorded together because they came in
+one message and both are corrections to things the build had inherited rather than chosen.
+
+### The wordmark casing
+
+Spec §1 set the wordmark lowercase throughout, reasoning that it matched tonik's own lowercase
+`tonik` and kept the mono labels doing the shouting. Sayandeep asked for `No FiLTER`
+*"…something like that"* — a direction, not a final form.
+
+**Decision:** Render four candidates and let him choose by eye rather than pick one from the
+description. `NO FiLTER`, `No FiLTER`, `No Filter` and `NO FILTER`, each set in the real
+General Sans 400 with the specced `0.22em` word gap, at display size and at the 1.0625rem the
+navbar actually uses. **He chose `NO FiLTER`.**
+
+Both words in caps make the lone lowercase `i` unmistakably deliberate rather than a slip — with
+only `F` capitalised in `No FiLTER`, the odd letter reads as a typo. And it earns its keep: the
+`i` drops a dot into a run of caps, a small void inside the letterform that rhymes with the
+aperture's empty centre. The two halves of the identity now say the same thing.
+
+**The casing is authored as literal text in `Wordmark.tsx`; `text-transform` is `none`.** Not
+`uppercase` — a transform would eat the lowercase `i`, which is the entire device. That is worth
+stating because `uppercase` is the reflex for a caps wordmark and it would silently destroy this
+one.
+
+**Two values were deliberately *not* changed, then measured in the same session.**
+`letter-spacing: -0.02em` and the footer's `14vw` were both verified in phase 1 against the
+lowercase form. Both are specced, so under CLAUDE.md non-negotiable §1 they get measured before
+they get touched. Logged as **I-018**, measured immediately rather than deferred, and **both
+hold** — the footer wordmark fills 82.5% of its column at 1512 and 71.6% at 390 and overflows at
+neither. It grew from ~59% and ~51%, which halves the gap I-013 complains about at no cost.
+
+**The measurement found a real overrun somewhere else: the navbar.** §4 fixes the logo box at
+`4.25rem × 1.25rem` and `flex: none` reserves that width in the nav row, so the box is measured
+and the face size is not — phase 1 had set `font-size: 1rem` because that is what made the
+*lowercase* wordmark fill 4.25rem exactly. Caps measured **4.59rem in a 4.25rem box, an 8%
+overrun into the links group.** `4.25 / 4.59 = 0.926` → `font-size: 0.925rem`, re-measured at
+99.9% of the box at both 1512 and 390. One value moved and it is the fitted one, not the
+measured one. This is the lesson worth carrying: **a casing change is a metrics change**, and
+every box the wordmark sits in had been fitted to the old metrics.
+
+### Service 04
+
+The five services were transcribed from tonik, and slot 04 was **No-Code Development** — "Launch
+10× faster. Conserve capital, validate early." tonik build in Webflow. This site is Next.js with
+hand-written GSAP timelines, a custom GLSL material and a Matter.js floor. Offering a no-code
+service line underneath that is a claim the codebase directly contradicts, and Sayandeep caught
+it.
+
+**Decision: `creative-development` / Creative Development**, chosen over Motion & Interaction,
+AI Products, and dropping to four services. "The web, doing things the web isn't supposed to do."
+
+It is the exact inverse of the slot it replaces, it is the industry's own term for WebGL, scroll
+choreography and physics, and it is **evidenced rather than asserted** — its strongest portfolio
+piece is the site the claim is written on. That matters here: `40-content-model.md` §3 recorded
+slot 04 as having **zero** supporting works, and `30-page-specs.md` already specified a fallback
+for its empty grid. One rename fixes a positioning lie and a content gap at once.
+
+Motion & Interaction was the runner-up and reads as a discipline inside Product Design rather
+than a service beside it. AI Products would have repeated slot 04's original problem — an
+unevidenced service — with a more fashionable word.
+
+**Consequence:** The slug change touches `lib/content/site.ts`, `ServiceIcon.tsx`, and four spec
+files (`20` §17, `30` §/services, `40` §3, `01-PHASES` phase 7). Done in this commit, before
+phase 7 builds five pages against the old name.
+
+The service icon was re-keyed and **redrawn**: the old glyph was stacked blocks clicking
+together, a no-code metaphor that means nothing under the new name. It is a wireframe cube now.
+Still placeholder art like the other four — I-014 stands, and phase 10 still owns the set.
+
+`docs/research/02-content-inventory.md` is left untouched. It records "No-Code Development —
+nothing; no Webflow/no-code work exists", which is the evidence trail that led to this decision.
+Research files are snapshots of what was found; rewriting them to match a later choice would
+destroy the reasoning.
+
+---
+
+## D-012 · The hero's material, and four places §2 could not be transcribed literally
+
+**Phase:** 2 · **Date:** 2026-08-26 · **Status:** active
+
+**Context:** `50-brand-and-3d.md` §2 is the only spec section on this build with **no reference
+to transcribe.** tonik's hero object is a Spline binary the brief deliberately does not copy, so
+§2's scene graph and its GLSL are *authored design intent*, not measurements — which is a
+different kind of document from §1's ratios or §20's IX2 curves, and has to be read differently.
+
+Four things in it do not survive literal transcription. Each was rendered, looked at against
+`docs/research/screens/tonik-hero-01.png`, and logged as its own issue. This decision records the
+reasoning they share.
+
+### 1. The lights had to actually light something
+
+§2 offers a choice: *"`MeshPhysicalMaterial` extended via `onBeforeCompile`, or a full
+`ShaderMaterial`"*. Its fragment sketch is the second shape — it builds `col` from the base
+colour, a fresnel term and the grain, with no light loop at all. But the scene graph specifies a
+key light at 2.4, a rim light at 1.8 and a hemisphere at 0.18, with exact positions.
+
+Taken together literally, those three lights are inert objects in the graph.
+
+**Decision: a full `ShaderMaterial`, with the specced lights as its uniforms.** The three lights
+are real objects in the scene as §2 draws them, and the material reads its directions and
+intensities *off those objects* rather than duplicating the numbers — change a light and the
+material follows. `MeshPhysicalMaterial` was rejected on weight: it pulls three's entire physical
+shader stack into a bundle that is already the subject of I-019.
+
+Every term §2 *does* give is verbatim: `#2a2a2a`, `pow(…, 2.8)`, `vec3(0.55) * fresnel * 0.85`,
+`mix(0.88, 1.06, grain)`, `uGrainScale 18.0`, `uGrainAmount 0.35`.
+
+**The normalisation took two attempts and the first one was wrong.** Dividing the lambert term by
+`ambient + key + rim` looks obviously right and is not: the two lights sit on **opposite sides**
+of the object, so no surface can ever face both, and the achievable maximum was about 0.59. The
+whole object rendered as a near-black silhouette. It now divides by `ambient + key`, so a
+key-facing surface lands exactly on `uBaseColor`, a rim-facing one at ~0.77, and a clamp holds the
+overlap. Only the fresnel goes above the base colour — which is precisely what §2 says the base
+colour is for.
+
+### 2. The output colour space (no issue — a local implementation choice)
+
+§2's numbers are written as values you see: `#2a2a2a` is described as *"a shade off the `#212121`
+ground"*, a statement about the screen. three's default colour management would convert the base
+colour into linear working space on the way in and back out on the way out — which round-trips the
+base correctly but silently triples the literal `vec3(0.55)` rim term, because that one is added
+in the middle.
+
+**Decision: `renderer.outputColorSpace = LinearSRGBColorSpace`, and the base colour passed as a
+raw `Vector3` rather than a `THREE.Color`.** The shader then writes display values and every
+specced number means what it says. Local to this renderer rather than a global
+`ColorManagement.enabled = false`, and nothing else on the site uses three.
+
+### 3. The grain had to reach the output — **I-021**
+
+§2's sketch computes a `roughness` from the grain and never reads it again, so the grain reaches
+the pixel through one ±9% albedo term and is invisible. The first render was a smooth dark torus,
+against a reference that is visibly speckled. §2's prose says the surface *"has a fine granular
+roughness that catches the rim light"*, so the sketch is missing the line that connects them. The
+roughness now drives the fresnel falloff and its brightness.
+
+### 4. The blades share the ring's tilt (no issue — reading the graph correctly)
+
+§2 hangs `rotation.x = -0.55, rotation.z = 0.30` off the **Ring** line, because that is where the
+ellipse presentation is described. Applied only to the torus it leaves six bars standing upright
+through a tipped hoop — which is exactly what the first render showed. Ring and blades are one
+mechanism and lie in one plane.
+
+The tilt therefore sits on an inner node of **both**, below each parallax group. The ordering
+matters: parallax stays on the outer groups so its axes remain the world X and Y the recovered
+IX2 curves were measured in, rather than rotating the axes those curves act on.
+
+### Also settled here
+
+**I-022 — the camera.** §2's `position (0, 0, 6.5)` and §2's composition target contradict each
+other; the composition is the half that can be checked against a capture, so `CAMERA_Z = 7.5` and
+the distance is fitted to the viewport below the desktop aspect.
+
+**I-023 — per-frame vs per-second.** §2's idle spin and parallax damp are stated as durations and
+written as per-frame increments. Both are now applied per second of elapsed time, evaluating to
+exactly the specced constants at 60fps.
+
+**Alternatives:** Transcribe §2 literally and ship it. That produces an object twice the intended
+size, with no visible grain, lit by nothing, whose blades stand in a different plane from its
+ring — and it would have passed a token check and a screenshot diff, because there is nothing to
+diff it against. This is the phase CLAUDE.md's model policy singles out as resting entirely on
+judgement, and this is what that meant in practice.
+
+**Consequence:** Thirteen behaviour assertions now hold the result in place — the triangle budget,
+both parallax sweeps, the 1.5× ratio, the counter-rotation, both suspend paths, the reduced-motion
+pose, the mobile blade count and the fitted camera. Four of the five deviations are still owed
+Sayandeep's eye at the phase-2 gate, which already required a hero recording.
+
+---
+
+## D-013 · The JS budget is 320KB, because 190 was arithmetic and not a measurement
+
+**Phase:** 2 · **Date:** 2026-08-26 · **Status:** active
+
+**Context:** Installing Three took `/` from 170.1KB to 302.8KB against a specced ceiling of
+190KB, and `npm run verify` went red on it. The ceiling could not be met by any means short of
+removing the hero.
+
+The 190 was wrong in two separate ways, and both are visible in §5's own itemisation —
+*"GSAP ~55, Three ~150 raw/~48 gz, Lenis ~4, app ~40"*:
+
+1. It **sums to 147, not 190**, and it **omits React and Next entirely.** They measure ~92KB
+   gzipped here, so half the ceiling was gone before a line of our code was counted. The
+   framework was never in the budget at all.
+2. It estimates Three at **48KB**. Three 0.185 with a `WebGLRenderer`, a `TorusGeometry` and an
+   `ExtrudeGeometry` measures **141.3KB transferred across two chunks.** `WebGLRenderer` pulls
+   the entire shader library and tree-shaking barely touches it.
+
+**Decision: `BUDGETS.homeJsGzipKb` is 320.** Sayandeep's call, put to him with the measurements
+and three options. §5 now carries the corrected itemisation and the measured breakdown instead of
+the original arithmetic, so the number stops looking like a target someone chose and starts
+looking like what it is.
+
+**What was done before asking**, because a budget argument is only honest once everything unused
+is gone:
+
+- **Three is dynamically imported.** `verify:budget`'s `three absent from the eagerly-loaded
+  bundle` check passes and is no longer vacuous — the first time that assertion has meant
+  anything since phase 0 wrote it.
+- **Flip and Observer were removed** from `lib/motion/gsap.ts`. Registering a plugin is what pulls
+  it into the bundle, and both were shipping on every page for nothing: Flip has exactly one
+  consumer on the whole site (the showreel, §15, "the only use of Flip") and belongs to phase 3;
+  Observer has no consumer in any component spec and was in the stack table only because tonik
+  loads it. **−8.6KB.**
+
+**What was deliberately not done.** Deferring Three's import to `requestIdleCallback` would move
+the download outside `verify:budget`'s measurement window and turn the check green **without
+saving the visitor a single byte.** That is gaming the instrument rather than meeting the budget,
+and it would have quietly destroyed the check's meaning for every later phase. It was offered as
+an explicit option — with the honest note that the budget would then have to be redefined as
+*JS before interactive* — and not chosen.
+
+**Alternatives:** Leave the check red until phase 12 — which hands every intervening phase a gate
+that is already failing, and a gate nobody expects to be green stops being read. Drop the 3D hero
+for the baked still on every visit, saving the full 141.3KB and ending phase 2's reason to exist.
+Both were put to Sayandeep; both were declined.
+
+**Consequence:** `npm run verify` is green. **The headroom is thin — 302.8 of 320, about 17KB —
+and phases 3 to 5 add real code to this route.** Plyr and Matter must never appear in the figure:
+both are specced lazy, so if either turns up that is a bug in the import and not a reason to raise
+the ceiling again. The warning is in `budget.config.ts` beside the number, which is where whoever
+next hits it will be looking.
+
+Note that §3 "Why not Spline" survives intact. Its numbers were wrong, its conclusion was not —
+Spline is ~380KB of runtime plus a ~200KB scene, so Three is still the smaller of the two even at
+141KB.

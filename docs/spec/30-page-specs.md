@@ -164,11 +164,15 @@ Target ~5,330px (tonik's `/product-design` measured exactly).
 └ blog row                            632px
 ```
 
-The five slugs: `product-design`, `websites`, `branding`, `no-code`, `engineering`.
+The five slugs: `product-design`, `websites`, `branding`, `creative-development`, `engineering`.
 
-> Per your instruction, we offer all five. Two of them — `branding` and `no-code` — have no
-> supporting work in the repos. Their works grids will be empty or thin. The spec table and FAQ
-> carry those pages instead, and the works grid falls back to "Selected work across the studio".
+> Per your instruction, we offer all five. **`branding`** has no supporting work in the repos, so
+> its works grid will be empty or thin; the spec table and FAQ carry that page instead, and the
+> grid falls back to "Selected work across the studio".
+>
+> Slot 04 was `no-code` and had the same problem. It is **`creative-development`** as of
+> 2026-08-26 (D-011) — tonik's no-code positioning was never ours — and unlike `branding` it has
+> evidence, starting with this site.
 
 ---
 

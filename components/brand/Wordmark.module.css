@@ -1,6 +1,8 @@
 /* docs/spec/50-brand-and-3d.md §1 — the wordmark.
-   Lowercase throughout, matching tonik's own lowercase `tonik`, which keeps the
-   mono labels doing the shouting. */
+
+   `NO FiLTER`. The spec originally set it lowercase throughout, matching tonik's
+   own lowercase `tonik`; Sayandeep replaced that with a mixed case on 2026-08-26
+   and the spec now carries the new form. See D-011. */
 
 .wordmark {
   display: inline-flex;
@@ -10,7 +12,9 @@
   font-weight: 400;
   letter-spacing: -0.02em;
   line-height: 1;
-  text-transform: lowercase;
+  /* `none`, not `uppercase`. The lone lowercase `i` is the whole point of the
+     casing and a transform would eat it. The case lives in Wordmark.tsx. */
+  text-transform: none;
   white-space: nowrap;
 }
 

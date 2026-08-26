@@ -1,0 +1,45 @@
+/* docs/spec/50-brand-and-3d.md §2 "Placement".
+
+   Mounted once in the root layout, OUTSIDE <main>, so React preserves it across
+   navigation and the WebGL context is created exactly once per session. On
+   non-home routes it fades out and its loop is suspended — it is never
+   unmounted, because unmounting is what would cost a new context. */
+
+.hero {
+  position: absolute;
+  inset: 0;
+  /* Not 100vh: on mobile browsers vh includes the collapsing toolbar, so the
+     canvas would resize on every scroll direction change and thrash the
+     renderer. dvh tracks the real viewport; vh is the fallback for anything
+     that does not know it. */
+  height: 100vh;
+  height: 100dvh;
+  z-index: 0;
+  overflow: hidden;
+  /* The headline sits over this. Nothing here is interactive, and the canvas
+     must never eat a pointer event meant for the copy on top of it. */
+  pointer-events: none;
+  /* Opacity is owned by GSAP, not by a CSS transition — the route fade shares
+     the site's easing vocabulary and must not outlive the element. The initial
+     value is set inline by the component so a non-home first paint never
+     flashes the canvas. */
+}
+
+.canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* §2 Fallback — no WebGL. A pre-baked still of the assembly at its load-in
+   pose, faded in the same way, so the composition is identical and only the
+   motion is missing. */
+.fallback {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Matches the assembly's own placement: right-of-centre, cropped by the right
+     edge, with its left third under the headline. */
+  object-position: 68% 50%;
+}

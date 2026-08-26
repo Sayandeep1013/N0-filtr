@@ -3,28 +3,40 @@
 **The first file every agent reads. It must always be true.**
 If you change the build, change this file in the same session — not later.
 
-Last updated: **2026-08-25** · by: **phase 1 session (Opus)** · commit: `83ff9ae`
+Last updated: **2026-08-26** · by: **phase 2 session (Opus)** · tag: `phase-02-complete`
 
 ---
 
 ## Where we are
 
-> **Phase 1 is complete.** All four global components — Loader, Navbar, ContactPanel, Footer —
-> are built, mounted in the root layout and verified. The harness gained a behaviour layer that
-> drives the real interface. **Phase 2 (brand & 3D hero) is next and unclaimed — it is a GATE.**
+> *Phase 1 was independently re-confirmed before this phase started: `npm run verify` re-run at
+> `63f4490`, green, exit 0 — `tokens 136/136 · motion 129/132 (3 pending) · budget 4/4`.*
 >
-> Two decisions from Sayandeep were applied *after* the phase tag, on `fix/i-017-easing`:
-> **I-017 is resolved** — `EASE.quad` is now `power1.inOut`, because GSAP's `power2` is cubic
-> where Webflow's `inOutQuad` is quadratic — and the **contact details are real**:
-> `sayandeepmondal1013@gmail.com`, no physical address. No open decisions block phase 2.
+> **Phase 2 is complete.** The Open Aperture is approved, applied to all seven surfaces §4 names,
+> and built as a real 3D object behind the headline — torus, six extruded blades, procedural
+> object-space grain, and tonik's recovered parallax curves with the blades outrunning the ring
+> by **1.50×**. `npm run verify` is green.
+>
+> **Eight decisions from Sayandeep, none open.** The mark itself (D-010); the tick weight (I-009);
+> the footer icons deferred to phase 10 (I-014); the wordmark casing `NO FiLTER` and service 04
+> becoming Creative Development (D-011); the camera kept at 7.5 (I-022); the grain kept as built
+> (I-021); and **the JS budget raised to 320KB** because 190 was arithmetic that omitted React and
+> Next entirely and under-counted Three by 3× (D-013, I-019).
+>
+> **The harness gained 13 hero assertions** and they earned it immediately, catching that §2's
+> parallax damp is per-frame where its prose says 500ms — the sweep was landing at 0.319 rad
+> instead of 0.4 (I-023). Nothing in a screenshot could have shown it.
+>
+> ⚠️ **Phase 3 has ~17KB of JS budget.** `/` is at 302.8 of 320 and phase 3 adds SplitType, the
+> stack wall and the showreel to this route. Read D-013 before spending it.
 
 | | |
 |---|---|
-| Current phase | **2 — Brand & 3D hero** 🚦 *(unclaimed, GATE)* |
+| Current phase | **3 — Homepage upper** *(unclaimed)* |
 | Status | ⬜ not started |
-| Branch | *(create `phase/02-brand-3d`)* |
+| Branch | *(create `phase/03-home-upper`)* |
 | Blocked | no |
-| Verify report | `tools/verify/output/report.md` — tokens 136/136, motion 129/132 (3 pending), budget 4/4, visual judged |
+| Verify report | `tools/verify/output/report.md` — tokens 136/136, motion 142/145 (3 pending), visual judged, budget **5/5** |
 
 ---
 
@@ -34,8 +46,8 @@ Last updated: **2026-08-25** · by: **phase 1 session (Opus)** · commit: `83ff9
 |---|---|---|---|---|---|
 | 0 | Foundation & harness | ✅ | `phase/00-foundation` | `phase-00-complete` | harness proven by break-test |
 | 1 | Global chrome | ✅ | `phase/01-chrome` | `phase-01-complete` | + a behaviour layer in the harness |
-| 2 | Brand & 3D hero 🚦 | ⬜ | `phase/02-brand-3d` | — | **GATE** · needs 0 |
-| 3 | Homepage upper | ⬜ | `phase/03-home-upper` | — | needs 1, 2 |
+| 2 | Brand & 3D hero 🚦 | ✅ | `phase/02-brand-3d` | `phase-02-complete` | mark approved · 13 hero assertions · budget re-based |
+| 3 | Homepage upper 🚦 | ⬜ | `phase/03-home-upper` | — | **next** · needs 1, 2 · put `data-hero` on the hero section |
 | 4 | Works grid | ⬜ | `phase/04-works-grid` | — | needs 3 |
 | 5 | Homepage lower | ⬜ | `phase/05-home-lower` | — | needs 4 |
 | 6 | Case study 🚦 | ⬜ | `phase/06-case-study` | — | **GATE** · needs 4 |
@@ -46,7 +58,7 @@ Last updated: **2026-08-25** · by: **phase 1 session (Opus)** · commit: `83ff9
 | 11 | Block pit | ⬜ | `phase/11-block-pit` | — | needs 1 · parallel-safe |
 | 12 | Polish & launch | ⬜ | `phase/12-polish` | — | needs all |
 
-**Progress: 2 / 13 phases.**
+**Progress: 3 / 13 phases.**
 
 ---
 
@@ -88,7 +100,33 @@ Full record: `docs/build/phases/PHASE-01.md`
 | T1.8 | Contact form | ✅ | `shots/contact-panel-1512.png` — renders with no Tally ID |
 | T1.9 | CSS hover states from §22 | ✅ | every `:hover` confirmed inside a `min-width: 992px` query |
 
-### Phase 2 — Brand & 3D hero 🚦 ⬜ not started
+### Phase 2 — Brand & 3D hero 🚦 ✅ complete
+
+Full record: `docs/build/phases/PHASE-02.md`.
+
+| id | task | status | evidence |
+|---|---|---|---|
+| T2.1 | Aperture mark — glyph at 16/32/48px + `NO FiLTER` wordmark | ✅ | **approved by Sayandeep 2026-08-26** (D-010). Casing revised to `NO FiLTER` (D-011); nav box re-fitted and re-measured at 99.9% (I-018) |
+| T2.2 | Three.js scene — persistent mount outside `<main>` | ✅ | mounted in the root layout; behaviour: context kept and loop stopped across a route change |
+| T2.3 | Geometry — torus ring + 6 extruded bevelled blades | ✅ | 13,064 triangles / 40,000 asserted; blade length falls out of the 2D mark's own construction |
+| T2.4 | GLSL material — object-space simplex grain + fresnel rim | ⚠️ done-with-caveat | grain visible in `shots/hero-1512.png`; §2's roughness was wired to the rim it never reached (I-021), lights made real (D-012) |
+| T2.5 | Mouse parallax — the exact tonik curves | ✅ | behaviour: ring 0.394/0.4, blades 0.592/0.6, ratio **1.50×**, counter-rotation ±0.196 |
+| T2.6 | Mobile — scroll-driven `rotationY −0.525 → −1.5` | ⚠️ done-with-caveat | 4 blades at 390 asserted; scrubs the first viewport until phase 3 marks `[data-hero]` (I-020) |
+| T2.7 | Perf — DPR clamp, IntersectionObserver suspend, route fade | ⚠️ done-with-caveat | behaviour: suspends off-screen, resumes, suspends + fades to 0 off `/`. **Bundle budget fails — I-019** |
+| T2.8 | Reduced motion — one static frame; no-WebGL → WebP fallback | ✅ | behaviour: `running: false`, pose `rotation.y 0.4`; `public/hero-aperture.webp` 2400×1600, 28KB, baked through that same path |
+| T2.9 | Mark applied to loader, nav, footer, favicon, OG | ✅ | `app/icon.svg` · `apple-icon.png` 180 · `public/icon-512.png` · `opengraph-image.png` 1200×630 — all generated by `npm run brand:assets` from the component's own ratios; four asset routes prerendered in the build |
+
+**Answered by Sayandeep, 2026-08-26** — no open questions:
+1. **The Open Aperture, approved** over the three alternates. (D-010)
+2. **I-009** — ticks at half the ring's weight. Resolved; written into the spec.
+3. **I-014** — footer service icons stay placeholder until phase 10.
+4. **Wordmark casing** — `NO FiLTER`, over `No FiLTER` / `No Filter` / `NO FILTER`. (D-011)
+5. **Service 04** — `creative-development` / Creative Development, replacing No-Code. (D-011)
+6. **I-022** — the camera stays at 7.5, not the specced 6.5.
+7. **I-021** — the grain is right as built.
+8. **I-019** — the JS budget is **320KB**, raised from a 190 that was never a measurement. (D-013)
+
+### Phase 3 — Homepage: hero, stack wall, reveal ⬜ not started
 
 Copy the task table from `01-PHASES.md` when you claim it.
 
@@ -109,9 +147,14 @@ The honest record of what has actually been *proven*, as distinct from what has 
 | matchMedia gating at ≤991 | ✅ | `verify:motion` asserted inactive @991 / active @1512, **and** the footer sibling-dim asserted inactive at 991 through a real hover |
 | Reverse discipline (1.2 / 1.5) | ✅ | behaviour checks, through the real close and mouseleave paths |
 | ScrollTrigger leak-free across routes | ✅ | baseline is now **1**, not 0 — the check finally has something to leak |
-| Bundle budgets | ⚠️ | JS **170.0KB / 190KB**, total 234.6KB, CLS 0.0018. The three/matter/plyr absence checks are still **vacuous**: not installed. |
+| Bundle budgets | ✅ | JS **302.8KB / 320KB**, total 369.4KB, CLS 0.0027. The ceiling was re-based on measurements (D-013) after the specced 190 was found to omit React/Next and under-count Three 3×. `three` absent from the initial bundle is asserted and **no longer vacuous**. ~17KB of headroom. |
 | Reduced motion | ✅ | emulated `reduce`: Lenis destroyed, no extra loop, **and the loader asserted as a 200ms fade with no transform** |
-| Visual composition vs tonik | ⚠️ | footer and contact panel compared against `s11`/`s12` and judged. Hero and everything above the footer owed by phase 3. |
+| Visual composition vs tonik | ⚠️ | footer, contact panel **and now the 3D hero** compared against `s11`/`s12`/`tonik-hero-01` and judged. The hero's composition matched only after correcting the specced camera — I-022. Hero *copy* still owed by phase 3. |
+| The 3D hero's parallax curves | ✅ | behaviour, through a real pointer sweep: ring 0.394/0.4, blades 0.592/0.6, ratio **1.50×**, counter-rotation ±0.196 |
+| The hero's render loop actually suspends | ✅ | behaviour: off-screen, on-screen again, and off the homepage with the WebGL context kept |
+| Triangle budget | ✅ | 13,064 / 40,000 asserted at runtime |
+| Reduced motion for the hero | ✅ | one frame at the specced `rotation.y 0.4`, loop never attached; the baked WebP is rendered through that same path |
+| Hero composition vs tonik | ✅ | 53% of viewport width against their 51%, judged against `tonik-hero-01.png` at 1512 and 390 |
 | Keyboard operation of the contact panel | ✅ | behaviour: focus enters, Escape closes, focus returns to the trigger |
 
 ---
