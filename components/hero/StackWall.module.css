@@ -1,0 +1,134 @@
+/* The stack wall. 20-components-and-motion.md §11.
+
+   Target height 461px at a 900 viewport — 30-page-specs.md §1 gives the hero
+   section 1361px, of which the first 900 is the copy over the 3D assembly and
+   the remainder is this. At the 16.45 root that is 28rem, and the paddings
+   below are what spend it. */
+
+.wall {
+  position: relative;
+  /* Above the 3D canvas, which is z-index 0 and only 100vh tall anyway — but
+     the wall scrolls past it, and a stacking context here keeps the marks from
+     compositing under the canvas mid-scroll. */
+  z-index: 1;
+  /* 13rem of padding around ~15rem of marks. Not a taste call — a measurement:
+     with 5rem/5rem the section came out 1311px against tonik's 1360.63 at 1512,
+     and 1200 against 1248 at 1280, and 1300 against 1348 at 1440. The same
+     ~49px short at every viewport, because the miss was in rem and the root is
+     the only thing that changed. 3rem is 49.35px at the 16.45 root, split 2/1
+     in favour of the top so the wall breathes coming off the fold.
+
+     Re-measure with `npm run compare:hero`, which asserts `heroHeight`. */
+  padding-top: 7.5rem;
+  padding-bottom: 5.5rem;
+}
+
+.label {
+  color: var(--text-secondary);
+  margin-bottom: 3rem;
+}
+
+/* The marquee's window. At ≥768 it does nothing; at ≤767 it is what the
+   200%-wide track slides inside. `overflow: hidden` rather than `clip` because
+   the track is transformed, and clip's containment is stricter than we want on
+   a transformed child in older Safari. */
+.viewport {
+  overflow: hidden;
+}
+
+.track {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  /* §11: gap 3rem 4rem — row then column. */
+  gap: 3rem 4rem;
+  /* Centred, per §11 "static centred flex-wrap grid". The last row of a
+     wrapping wall is always short; centring is what stops it reading as a
+     ragged left-aligned list that ran out. */
+  justify-content: center;
+}
+
+.mark {
+  /* §11: the resting opacity of the whole wall. */
+  opacity: 0.7;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+/* ── desktop ───────────────────────────────────────────────────────────────
+   The clone exists only for the marquee. Nothing above 767 should ever see it,
+   and `display: none` — not opacity or visibility — because a wrapping flex
+   track would otherwise reserve two rows of space for marks nobody can read. */
+@media (min-width: 768px) {
+  .clone {
+    display: none;
+  }
+}
+
+/* Hover is gated at >991, not at >767. §11 describes the hover as part of the
+   ≥768 layout, but CLAUDE.md non-negotiable §6 puts every hover behind 992 —
+   a tablet in the 768..991 band has a coarse pointer and a sticky :hover, so a
+   mark it touched would stay lit until something else was touched. */
+@media (min-width: 992px) {
+  .mark {
+    transition: opacity var(--dur-base) var(--ease-in-out);
+  }
+
+  .mark:hover {
+    opacity: 1;
+  }
+}
+
+/* ── the marquee, ≤767 ─────────────────────────────────────────────────────
+   The track stops wrapping and becomes one 200%-wide row: the set, then the
+   clone. `width: max-content` is what lets `xPercent: -50` mean "exactly one
+   set" rather than "half the viewport". */
+@media (max-width: 767px) {
+  .wall {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+  }
+
+  .label {
+    margin-bottom: 2rem;
+  }
+
+  .track {
+    flex-wrap: nowrap;
+    width: max-content;
+    justify-content: flex-start;
+    gap: 2.5rem;
+    /* The wall is the one place on the site that deliberately reaches past the
+       gutter: a marquee that starts and stops inside a 1.25rem margin reads as
+       a bug. Pulled out to the viewport edge, then padded back so the first
+       mark still lines up with the copy above it. */
+    padding-right: 2.5rem;
+  }
+
+  .viewport {
+    margin-right: calc(var(--gutter) * -1);
+  }
+}
+
+/* Under reduced motion the marquee never starts, so the track must not be a
+   200%-wide row nobody can scroll to the end of. It wraps, and the clone goes
+   away — the same twenty-two names, sitting still. CLAUDE.md §8. */
+@media (max-width: 767px) and (prefers-reduced-motion: reduce) {
+  .track {
+    flex-wrap: wrap;
+    width: auto;
+    justify-content: flex-start;
+    padding-right: 0;
+    gap: 1.5rem 2rem;
+  }
+
+  .viewport {
+    margin-right: 0;
+  }
+
+  .clone {
+    display: none;
+  }
+}

@@ -1,5 +1,6 @@
 import { HERO } from '@/lib/content/site';
 import { PlaySquare } from './PlaySquare';
+import { StackWall } from './StackWall';
 import s from './Hero.module.css';
 
 /**
@@ -20,20 +21,22 @@ import s from './Hero.module.css';
  * and centres it inside the gutter. Measured on their live site rather than
  * inferred from a capture. See I-030.
  *
- * What is deliberately NOT here, and stays phase 3's:
+ * ── The section is taller than the viewport, and that is the point ─────────
  *
- *  · the scrubbed word reveal (T3.3) — this copy is static
- *  · the showreel Flip choreography (T3.6) — PlaySquare is inert, and says so
- *  · the stack wall below it (T3.4, T3.5)
+ * §1 gives `section_home-hero` **1361px** at a 900 viewport: the first 900 is
+ * the copy over the 3D assembly, and the remaining 461 is `<StackWall />`,
+ * which sits *inside* this section rather than after it — theirs does too. So
+ * `.hero` is a plain block of two children, and it is the first child that
+ * carries the viewport height.
  *
- * `data-hero` is the anchor `Hero3D` looks for. With it, the mobile scroll drive
- * scrubs against this section's own range instead of falling back to the first
- * viewport — which closes I-020.
+ * `data-hero` is the anchor `Hero3D` looks for, and it stays on the outer
+ * section: the mobile scroll drive turns the object across the hero's whole
+ * range, wall included, which is what tonik's own range is. That closes I-020.
  */
 export function Hero() {
   return (
     <section className={s.hero} data-hero>
-      <div className={`${s.gutter} padding-global`}>
+      <div className={`${s.viewport} padding-global`}>
         <div className={`${s.inner} container-large`}>
           <h1 className={s.headline} data-t="h1">
             {/* Two lines, hard-broken rather than wrapped: the break is a design
@@ -57,6 +60,8 @@ export function Hero() {
           </div>
         </div>
       </div>
+
+      <StackWall />
     </section>
   );
 }

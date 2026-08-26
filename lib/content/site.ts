@@ -220,3 +220,14 @@ export const STACK: readonly string[] = [
  * Sayandeep. See D-019.
  */
 export const STACK_LABEL = 'The stack';
+
+/* ── the works section ─────────────────────────────────────────────────────
+   `30-page-specs.md` §2 gives this heading verbatim. It is the site's first
+   `<RevealText>` and the reason phase 3's Reading Map includes §2's heading
+   even though the grid under it belongs to phase 4.
+
+   Set in `--t-h3` (2rem / 2.5rem), not `--t-h2`. That is measured, not chosen:
+   tonik's equivalent heading is `t-heading-3-rg`, 32.9px on a 41.125px leading
+   at a 16.45 root, and there is no 5rem step anywhere on their site. See I-031. */
+export const WORKS_INTRO =
+  'A studio that defines, designs, and builds products and other digital machinery.';

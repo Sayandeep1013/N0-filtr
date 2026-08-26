@@ -1,0 +1,40 @@
+/* The homepage works section. 30-page-specs.md §2.
+
+   Their `section_home-projects` runs 1361 → 8541 and carries
+   `padding-top: 82.25px` / `padding-bottom: 123.375px` at a 16.45 root —
+   5rem and 7.5rem. Not `--section-y`: the sections on this site do not share
+   one vertical rhythm, and asserting one would be inventing a system they
+   do not have. */
+
+.section {
+  position: relative;
+  z-index: 1;
+  padding-top: 5rem;
+  padding-bottom: 7.5rem;
+}
+
+/* `home-projects_title-part`, exactly: three tracks in twelfths, 1.25rem gap.
+   The heading takes the middle one. See the component's note on why this is
+   not a 12-column grid with a spanning child. */
+.header {
+  display: grid;
+  grid-template-columns: 4fr 7fr 1fr;
+  gap: var(--grid-gap);
+}
+
+.heading {
+  grid-column: 2 / 3;
+}
+
+/* Below 768 the three-track offset collapses — a 4/12 indent on a 390 viewport
+   leaves 210px of measure for a 1.5rem heading. tonik collapse theirs the same
+   way; every one of their section grids becomes a single column. */
+@media (max-width: 767px) {
+  .header {
+    grid-template-columns: 1fr;
+  }
+
+  .heading {
+    grid-column: 1 / -1;
+  }
+}
