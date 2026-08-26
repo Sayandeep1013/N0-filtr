@@ -1,0 +1,44 @@
+/* The animated schematic. See the component for why it exists.
+
+   It lives in the empty left column of a section header — the 4/12 track that
+   the works and culture grids leave open. That column is where the page felt
+   most static, and it is the one place a figure this size can sit without
+   competing with anything. */
+
+.schematic {
+  color: var(--text-primary);
+  /* Well under the copy beside it. It is a texture, not an illustration: at
+     full strength it would read as a diagram the visitor is meant to parse. */
+  opacity: 0.28;
+  width: 100%;
+  max-width: 15rem;
+}
+
+.schematic svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* GSAP writes rotations into the groups inside. Without this the browser is
+     free to rasterise the whole SVG once and re-transform the bitmap, which
+     turns the hairlines to mush at the 0.4 stroke weights this figure uses. */
+  shape-rendering: geometricPrecision;
+}
+
+/* Below 992 the column it lives in does not exist, and the idle rotation never
+   starts — the matchMedia gate is desktop-only. Hidden rather than shrunk: a
+   150px version of this is a smudge. */
+@media (max-width: 991px) {
+  .schematic {
+    display: none;
+  }
+}
+
+/* Under reduced motion it draws nothing and turns nothing, so it must not be
+   left sitting at a dash-offset of its own length — which would be invisible.
+   The figure simply is. */
+@media (prefers-reduced-motion: reduce) {
+  .schematic [data-draw] {
+    stroke-dasharray: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+}

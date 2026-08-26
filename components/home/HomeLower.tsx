@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/Button';
 import { CtaBlock } from '@/components/ui/CtaBlock';
 import { ServicesAccordion } from '@/components/services/ServicesAccordion';
 import { CultureCollage } from '@/components/motion/CultureCollage';
+import { Schematic } from '@/components/ui/Schematic';
 import { BlogCard } from '@/components/blog/BlogCard';
 import { FEATURED_POSTS } from '@/lib/content/posts';
 import { SERVICES_INTRO, CULTURE, BLOG_ROW } from '@/lib/content/site';
@@ -67,9 +68,12 @@ export function HomeLower() {
         <div className="padding-global">
           <div className="container-large">
             <div className={s.cultureHead}>
-              <p className={s.label} data-t="label">
-                {CULTURE.label}
-              </p>
+              <div className={s.cultureLeft}>
+                <p className={s.label} data-t="label">
+                  {CULTURE.label}
+                </p>
+                <Schematic className={s.schematic} />
+              </div>
               <div className={s.cultureCopy}>
                 <p className={s.cultureHeading} data-t="h3">
                   {CULTURE.heading}

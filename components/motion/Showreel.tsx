@@ -268,7 +268,7 @@ export function ShowreelProvider({ children }: { children: ReactNode }) {
     const closeWithoutFlip = () => {
       gsap.set([playerRef.current, headingRef.current], { opacity: 0 });
       gsap.set(section, { display: 'none', backgroundColor: '#21212100' });
-      if (bg.parentElement !== trigger) trigger.appendChild(bg);
+      if (bg.parentElement !== trigger) trigger.insertBefore(bg, trigger.firstChild);
       gsap.set(bg, { clearProps: 'all' });
       gsap.set(iconRef.current, { opacity: 1 });
     };
@@ -288,7 +288,12 @@ export function ShowreelProvider({ children }: { children: ReactNode }) {
       }
 
       const state = Flip.getState(bg);
-      trigger.appendChild(bg);
+      /* `insertBefore(..., firstChild)`, not `appendChild`. The background is
+         the button's FIRST child in the markup — the disc and the label paint
+         over it — and appending would return it as the last, which reverses
+         that and hides the play icon behind a grey square. See the note in
+         PlaySquare.module.css. */
+      trigger.insertBefore(bg, trigger.firstChild);
 
       const tl = gsap.timeline();
       tl.to(playerRef.current, { opacity: 0, duration: DUR.base })

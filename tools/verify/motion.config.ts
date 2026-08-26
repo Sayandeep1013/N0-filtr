@@ -126,37 +126,87 @@ export const TIMELINE_ASSERTIONS: TimelineAssertion[] = [
     ],
   },
   /**
-   * [new] — the mark drawing itself, phase 5. Not IX2, not tonik: their loader
-   * shows a static logo.
+   * [new] — the aperture **operating**. Phase 5, rebuilt the same day.
+   *
+   * Not IX2 and not tonik: their loader shows a static logo. Its first version
+   * drew the ring and then popped the blades in by scale, which Sayandeep
+   * called correctly — two discrete events with a seam between them. This one
+   * is a shutter spinning up: the whole mark turns through the sequence on a
+   * `back.out` overshoot, the ring's stroke is laid down *while* it turns, and
+   * the six blades swing into their stations from a third of a turn back.
+   *
+   * Everything overlaps deliberately. All three motions start inside the first
+   * 0.26s, which is what makes it read as one mechanism rather than a list.
    *
    * It is a **separate timeline from `loader.enter` on purpose.** `enter` is a
-   * transcription of `a-23` and this file asserts its exact shape; adding the
-   * draw to it would mean either breaking that assertion or loosening it, and a
+   * transcription of IX2 `a-23` and this file asserts its exact shape; adding
+   * to it would mean either breaking that assertion or loosening it, and a
    * loosened assertion is how a transcription quietly stops being one.
    *
-   * Four children: the mark's own reset, the ring's dash-offset draw, the six
-   * ticks staggered, and a `clearProps` that hands the dash back — without that
-   * last one the ring stays dashed for every later route change, because the
-   * loader is mounted once in the root layout and never rebuilt.
+   * Seven children: the mark's reset, the three motions, and three `clearProps`
+   * sets. Those last three are not tidiness — the loader is mounted once in the
+   * root layout and never rebuilt, so a stroke left dashed stays dashed for
+   * every route change afterwards, and a rotation left on the `<svg>` would
+   * tilt the same mark in the navbar and the footer.
    *
-   * The ticks start before the ring finishes (`>-0.19`): the blades belong to
-   * the ring, and waiting for it reads as two animations rather than one
-   * mechanism. See D-028.
+   * **The ticks' 0.8s is 0.5 with the stagger folded in** — GSAP reports a
+   * staggered tween's span, not its per-element duration. 0.5 + 5 × 0.06. Same
+   * arithmetic as `contact.open`'s tween[5]. See D-028.
    */
   {
     id: 'loader.mark',
     phase: 5,
     pending: false,
-    tweenCount: 4,
+    totalDuration: 1.055,
+    tweenCount: 7,
     tweens: [
       { target: '.loader__mark', duration: 0, props: ['opacity', 'scale'], startTime: 0 },
-      { duration: 0.55, ease: 'power3.out', props: ['strokeDashoffset'], startTime: 0 },
-      /* **0.575, not 0.35.** GSAP folds a stagger into the tween's own
-         duration, so a 0.35s tween staggered 0.045 across six ticks spans
-         0.35 + 5 × 0.045. Same arithmetic as `contact.open`'s tween[5], and
-         the same surprise — the number in the source is per element, the
-         number GSAP reports is for the whole tween. */
-      { duration: 0.575, ease: 'power3.out', props: ['scaleY', 'opacity'], startTime: 0.36 },
+      /* `rotate` only. `transformOrigin` lives in the `fromTo`'s FROM vars,
+         and this checker reads the TO vars — which is the right half to read,
+         because the from vars are a starting pose rather than an animation. */
+      { duration: 1.05, ease: 'back.out(1.4)', props: ['rotate'], startTime: 0 },
+      { duration: 0.85, ease: 'power2.inOut', props: ['strokeDashoffset'], startTime: 0 },
+      { duration: 0.8, ease: 'power3.out', props: ['rotate', 'opacity'], startTime: 0.255 },
+    ],
+  },
+  /**
+   * [new] — the schematic. The only motion on this site that **never stops**.
+   *
+   * Everything else on the homepage is reactive: nothing moves until you move.
+   * That is why a page full of choreography still read as static when Sayandeep
+   * looked at it — stop scrolling and it is a photograph. This one draws itself
+   * once on arrival and then keeps a slow rotation and a sweeping indicator
+   * going forever.
+   *
+   * Only the **draw** is registered here. The two idle tweens are infinite and
+   * a timeline assertion on `repeat: -1` says nothing a duration can express;
+   * they are also plain `gsap.to` calls on the shared ticker rather than a
+   * second rAF, which is the property that actually matters and which the
+   * runtime rAF check already enforces.
+   *
+   * Six arcs start together at 0 and differ only in path length, so the longer
+   * ones simply take longer — the figure resolves outward without anything
+   * waiting. The ticks' 0.776s is 0.5 with a 0.012 stagger across 24 folded in.
+   */
+  {
+    id: 'schematic.draw',
+    phase: 5,
+    pending: false,
+    totalDuration: 0.926,
+    tweenCount: 7,
+    /* All seven, in order, because `tweens` is positional and the six arcs come
+       first: GSAP sorts children by start time and every arc begins at 0. An
+       assertion on "tween[1]" that meant the ticks would silently be checking
+       the second arc. */
+    tweens: [
+      { duration: 0.75, ease: 'power3.out', props: ['strokeDashoffset'], startTime: 0 },
+      { duration: 0.75, ease: 'power3.out', props: ['strokeDashoffset'], startTime: 0 },
+      { duration: 0.75, ease: 'power3.out', props: ['strokeDashoffset'], startTime: 0 },
+      { duration: 0.75, ease: 'power3.out', props: ['strokeDashoffset'], startTime: 0 },
+      { duration: 0.75, ease: 'power3.out', props: ['strokeDashoffset'], startTime: 0 },
+      { duration: 0.75, ease: 'power3.out', props: ['strokeDashoffset'], startTime: 0 },
+      /* The ticks. 0.776 is 0.5 with a 0.012 stagger across 24 folded in. */
+      { duration: 0.776, ease: 'power3.out', props: ['opacity', 'scale'], startTime: 0.15 },
     ],
   },
   /**

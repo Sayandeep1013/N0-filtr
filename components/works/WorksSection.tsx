@@ -1,5 +1,6 @@
 import { RevealText } from '@/components/ui/RevealText';
 import { Button } from '@/components/ui/Button';
+import { Schematic } from '@/components/ui/Schematic';
 import { WORKS_INTRO } from '@/lib/content/site';
 import { WORKS } from '@/lib/content/works';
 import { WorksGrid } from './WorksGrid';
@@ -32,6 +33,11 @@ export function WorksSection() {
       <div className="padding-global">
         <div className="container-large">
           <div className={s.header}>
+            {/* The 4/12 track their `home-projects_title-part` leaves empty.
+                It is the emptiest column on the page and the one place a figure
+                can sit without competing with anything. */}
+            <Schematic className={s.schematic} timelineId="schematic.draw" />
+
             <RevealText as="h2" scale="h3" id="works" className={s.heading}>
               {WORKS_INTRO}
             </RevealText>

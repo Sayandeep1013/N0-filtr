@@ -37,13 +37,27 @@ import s from './Loader.module.css';
 const REDUCED_FADE = 0.2;
 
 /**
- * [new] — the mark drawing itself, on the first paint only.
+ * [new] — the aperture **operating**, on the first paint only.
  *
- * Sayandeep asked for the logo and the loader animated. This is the mark doing
- * what the mark *means*: `50-brand-and-3d.md` §1 draws the aperture with its
- * blades **retracted**, so the ring arriving first and the six ticks then
- * pulling back to the inner edge is an iris opening — the one animation this
- * glyph was always going to have.
+ * Sayandeep asked for the logo and the loader animated, then for this to be
+ * *"more fluid and animatory"* than its first version. The first version drew
+ * the ring by dash-offset and then popped the six blades in by scale — two
+ * discrete events with a seam between them, which is exactly what it looked
+ * like.
+ *
+ * This one is a **shutter spinning up**, which is what the glyph already is.
+ * `50-brand-and-3d.md` §1 draws the aperture with its blades **retracted**: a
+ * ring with six short radial ticks at its inner edge. So:
+ *
+ *   · the whole mark **rotates** through the sequence and eases to rest, so
+ *     every part of it is moving at once and nothing waits its turn
+ *   · the ring draws *while* it turns, so the stroke appears to be laid down by
+ *     the rotation rather than by a separate animation
+ *   · the blades **swing in rotationally** from a third of a turn back, on a
+ *     stagger, overlapping the ring's tail — an iris opening, not six ticks
+ *     appearing
+ *   · a light **overshoot** at the end (`back.out`) so it settles like a
+ *     mechanism rather than stopping like a keyframe
  *
  * It is a **separate timeline** from `loader.enter`, deliberately. `enter` is a
  * transcription of IX2 `a-23` and `verify:motion` asserts its exact shape —
@@ -53,11 +67,17 @@ const REDUCED_FADE = 0.2;
  * over. See D-028.
  *
  * First visit only. On a route change the mark has already introduced itself
- * and 0.75s of it again is a toll, not a flourish.
+ * and a second of it again is a toll, not a flourish.
  */
-const MARK_DRAW = 0.55;
-const MARK_TICKS = 0.35;
-const TICK_STAGGER = 0.045;
+/** The whole mark's rotation, and the spine everything else overlaps. */
+const MARK_SPIN = 1.05;
+/** How far back it starts, in degrees. Two blade stations plus a little. */
+const MARK_SPIN_FROM = -140;
+/** The ring's stroke, laid down while the mark turns. */
+const MARK_DRAW = 0.85;
+/** Each blade swinging into its station. */
+const MARK_TICKS = 0.5;
+const TICK_STAGGER = 0.06;
 
 export function Loader() {
   const panelRef = useRef<HTMLDivElement>(null);
@@ -132,33 +152,62 @@ export function Loader() {
       const ticks = [...mark.querySelectorAll<SVGLineElement>('[data-mark-tick]')];
 
       const draw = gsap.timeline({ paused: true });
-      if (!reducedMotion && ring && ticks.length > 0) {
+      const svg = mark.querySelector<SVGSVGElement>('svg');
+      if (!reducedMotion && ring && svg && ticks.length > 0) {
         const circumference = ring.getTotalLength();
+
         draw
           .set(mark, { opacity: 1, scale: 1 })
+
+          /* The spine. Everything else happens inside this turn, which is what
+             makes the sequence read as one mechanism rather than as a list.
+             `back.out` gives the settle a little overshoot — a shutter coming
+             to rest against its stop. */
+          .fromTo(
+            svg,
+            { rotate: MARK_SPIN_FROM, transformOrigin: '50% 50%' },
+            { rotate: 0, duration: MARK_SPIN, ease: 'back.out(1.4)' },
+            0,
+          )
+
+          /* The stroke is laid down BY the rotation: same start, and a shorter
+             duration so the ring completes while the mark is still turning. */
           .fromTo(
             ring,
             { strokeDasharray: circumference, strokeDashoffset: circumference },
-            { strokeDashoffset: 0, duration: MARK_DRAW, ease: EASE.out },
+            { strokeDashoffset: 0, duration: MARK_DRAW, ease: 'power2.inOut' },
+            0,
           )
+
+          /* The blades swing into their stations rather than growing into
+             them. Each tick already carries two rotations from the mark's own
+             markup, so this one is added about the SVG's centre and GSAP
+             composes it — which is why the origin is the box centre and not the
+             tick's own anchor.
+
+             They start a third of the way into the ring's draw. Waiting for the
+             ring to finish is what made the first version feel like two
+             animations. */
           .fromTo(
             ticks,
-            { scaleY: 0, opacity: 0, transformOrigin: '50% 100%' },
+            { rotate: -55, opacity: 0, transformOrigin: '50% 50%', svgOrigin: '32 32' },
             {
-              scaleY: 1,
+              rotate: 0,
               opacity: 1,
               duration: MARK_TICKS,
-              ease: EASE.out,
+              ease: 'power3.out',
               stagger: TICK_STAGGER,
             },
-            /* Overlapping the ring's tail rather than following it. The blades
-               belong to the ring; waiting for it to finish reads as two
-               animations rather than one mechanism. */
-            `>-${(MARK_DRAW * 0.35).toFixed(2)}`,
+            MARK_DRAW * 0.3,
           )
-          /* Hand the dash back. A stroke left dashed would be dashed on every
-             later route change, because this element is mounted once. */
-          .set(ring, { clearProps: 'strokeDasharray,strokeDashoffset' });
+
+          /* Hand back everything we borrowed. This element is mounted once in
+             the root layout and never rebuilt, so a stroke left dashed stays
+             dashed for every route change afterwards — and a rotation left on
+             the svg would tilt the mark in the nav and the footer too. */
+          .set(ring, { clearProps: 'strokeDasharray,strokeDashoffset' })
+          .set(ticks, { clearProps: 'rotate,transformOrigin,svgOrigin' })
+          .set(svg, { clearProps: 'rotate,transformOrigin' });
       }
 
       /* ── exit ────────────────────────────────────────────────────────────

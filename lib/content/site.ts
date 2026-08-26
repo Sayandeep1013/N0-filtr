@@ -287,7 +287,12 @@ export const WORKS_INTRO =
 
    **`01-PHASES.md` T10.2 replaces the file**, with scripted 6–10s interaction
    footage of the eight live deploys, encoded to mp4 *and* webm. Nothing in the
-   component changes when it does. See I-033. */
+   component changes when it does. See I-033.
+
+   ⚠️ **Sayandeep asked to be reminded (2026-08-26):** he wants the shipped reel
+   to be *"our own original team members video showcasing ourselves"* rather
+   than work footage. That is a different brief from T10.2's and it needs
+   filming, so it is recorded here and in I-033 rather than assumed. */
 export const SHOWREEL = {
   /** mp4, for anything that cannot take webm. T10.2 produces it. */
   src: '',

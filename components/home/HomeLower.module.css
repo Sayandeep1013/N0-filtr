@@ -63,6 +63,19 @@
   margin-bottom: 3.5rem;
 }
 
+/* Track one carries the label and, under it, the schematic. The label alone
+   left this column empty for 500px of section. */
+.cultureLeft {
+  grid-column: 1 / 2;
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.schematic {
+  max-width: 12rem;
+}
+
 .cultureCopy {
   grid-column: 2 / 3;
   display: flex;
@@ -124,6 +137,7 @@
 
   .label,
   .servicesLead,
+  .cultureLeft,
   .cultureCopy {
     grid-column: 1 / -1;
   }

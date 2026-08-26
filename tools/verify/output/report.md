@@ -1,10 +1,10 @@
 # Verification report
-Run: 2026-08-26T11:53:38.159Z · Phase 05 · commit `ce9950f` · branch `phase/05-home-lower`
+Run: 2026-08-26T12:52:12.171Z · Phase 06 · commit `6e74cf2` · branch `main`
 
 ## Summary
 ```
 tokens  ✅ 138/138
-motion  ✅ 241/241
+motion  ✅ 277/277
 visual  ⚠️ reviewed by agent — see judgement
 budget  ✅ 6/6
 ```
@@ -186,7 +186,7 @@ budget  ✅ 6/6
 ✅ prefers-reduced-motion detected = true
 ✅ Lenis destroyed under reduced motion = native scroll
 ✅ no rAF loop outside the GSAP ticker, under reduced motion = 0 unsanctioned
-✅ ScrollTrigger count returns to baseline after route changes = 36
+✅ ScrollTrigger count returns to baseline after route changes = 38
 ✅ loader.enter totalDuration = 0.6s
 ✅ loader.enter tween count = 5
 ✅ loader.enter tween[0] duration = 0s
@@ -211,19 +211,54 @@ budget  ✅ 6/6
 ✅ loader.enter tween[4] target = div.Loader_mark__6dBzw.loader__mark
 ✅ loader.enter tween[4] props = opacity, scale, parent, repeat, immediateRender
 ✅ loader.enter tween[4] startTime = 0.6s
-✅ loader.mark tween count = 4
+✅ loader.mark totalDuration = 1.055s
+✅ loader.mark tween count = 7
 ✅ loader.mark tween[0] duration = 0s
 ✅ loader.mark tween[0] target = div.Loader_mark__6dBzw.loader__mark
 ✅ loader.mark tween[0] props = opacity, scale, parent, repeat, immediateRender
 ✅ loader.mark tween[0] startTime = 0s
-✅ loader.mark tween[1] duration = 0.55s
-✅ loader.mark tween[1] ease = power3.out
-✅ loader.mark tween[1] props = strokeDashoffset, parent, immediateRender, startAt
+✅ loader.mark tween[1] duration = 1.05s
+✅ loader.mark tween[1] ease = back.out(1.4)
+✅ loader.mark tween[1] props = rotate, parent, immediateRender, startAt
 ✅ loader.mark tween[1] startTime = 0s
-✅ loader.mark tween[2] duration = 0.575s
-✅ loader.mark tween[2] ease = power3.out
-✅ loader.mark tween[2] props = scaleY, opacity, parent, immediateRender, startAt
-✅ loader.mark tween[2] startTime = 0.36s
+✅ loader.mark tween[2] duration = 0.85s
+✅ loader.mark tween[2] ease = power2.inOut
+✅ loader.mark tween[2] props = strokeDashoffset, parent, immediateRender, startAt
+✅ loader.mark tween[2] startTime = 0s
+✅ loader.mark tween[3] duration = 0.8s
+✅ loader.mark tween[3] ease = power3.out
+✅ loader.mark tween[3] props = rotate, opacity, parent, immediateRender, startAt
+✅ loader.mark tween[3] startTime = 0.255s
+✅ schematic.draw totalDuration = 0.926s
+✅ schematic.draw tween count = 7
+✅ schematic.draw tween[0] duration = 0.75s
+✅ schematic.draw tween[0] ease = power3.out
+✅ schematic.draw tween[0] props = strokeDashoffset, parent, immediateRender, startAt
+✅ schematic.draw tween[0] startTime = 0s
+✅ schematic.draw tween[1] duration = 0.75s
+✅ schematic.draw tween[1] ease = power3.out
+✅ schematic.draw tween[1] props = strokeDashoffset, parent, immediateRender, startAt
+✅ schematic.draw tween[1] startTime = 0s
+✅ schematic.draw tween[2] duration = 0.75s
+✅ schematic.draw tween[2] ease = power3.out
+✅ schematic.draw tween[2] props = strokeDashoffset, parent, immediateRender, startAt
+✅ schematic.draw tween[2] startTime = 0s
+✅ schematic.draw tween[3] duration = 0.75s
+✅ schematic.draw tween[3] ease = power3.out
+✅ schematic.draw tween[3] props = strokeDashoffset, parent, immediateRender, startAt
+✅ schematic.draw tween[3] startTime = 0s
+✅ schematic.draw tween[4] duration = 0.75s
+✅ schematic.draw tween[4] ease = power3.out
+✅ schematic.draw tween[4] props = strokeDashoffset, parent, immediateRender, startAt
+✅ schematic.draw tween[4] startTime = 0s
+✅ schematic.draw tween[5] duration = 0.75s
+✅ schematic.draw tween[5] ease = power3.out
+✅ schematic.draw tween[5] props = strokeDashoffset, parent, immediateRender, startAt
+✅ schematic.draw tween[5] startTime = 0s
+✅ schematic.draw tween[6] duration = 0.776s
+✅ schematic.draw tween[6] ease = power3.out
+✅ schematic.draw tween[6] props = opacity, scale, parent, immediateRender, startAt
+✅ schematic.draw tween[6] startTime = 0.15s
 ✅ loader.exit totalDuration = 0.5s
 ✅ loader.exit tween count = 3
 ✅ loader.exit tween[0] duration = 0s
@@ -330,6 +365,7 @@ budget  ✅ 6/6
 ✅ showreel: Flip returns the layer to its exact origin = {"x":98,"y":324.06,"w":65.8,"h":65.8} → player → {"x":98,"y":324.06,"w":65.8,"h":65.8}
 ✅ showreel: panel is display:none after close = none
 ✅ showreel: focus returns to the trigger = BUTTON
+✅ showreel: the play icon is still on top after a full open/close = path
 ✅ showreel: showreel.close total = 0.4s
 ✅ showreel: close positions resolve = [0,0,0.1]
 ✅ reveal: 12 words rest at 0.2 = min 0.2
@@ -389,7 +425,7 @@ budget  ✅ 6/6
 ✅ cta: clicking the block opens the contact panel = 1
 ✅ culture: 6 frames = 6
 ✅ culture: every frame starts covered
-✅ culture: the wipe uncovers on scroll = [535,645,423,535,645,535] → [0,0,423,535,645,535]
+✅ culture: the wipe uncovers on scroll = [535,645,423,535,645,535] → [0,172,423,535,645,535]
 ✅ blog row: three cards in three tracks
 ✅ blog row: all three cards share a top and a bottom edge
 ✅ blog row: #3b3b3b card ground = rgb(59, 59, 59)
@@ -534,12 +570,12 @@ lists are authored to fill the accordion and T10.8 writes the real ones. The blo
 ℹ️ matter-js absent from the eagerly-loaded bundle — vacuous: matter-js is not installed yet
 ✅ three absent from the eagerly-loaded bundle = absent
 ✅ plyr absent from the eagerly-loaded bundle = absent
-ℹ️ all built chunks, gzipped (not a per-route figure) = 500.8KB
-✅ JS on / (transferred) = 322.0KB / 360KB
-✅ home page total weight = 467.0KB / 1800KB
+ℹ️ all built chunks, gzipped (not a per-route figure) = 501.7KB
+✅ JS on / (transferred) = 323.0KB / 360KB
+✅ home page total weight = 469.5KB / 1800KB
 ✅ zero network font requests = both faces self-hosted
 ✅ CLS (local, unthrottled) = 0.0025
-ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 160ms
+ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 180ms
 
 > Poster and reel budgets become binding in phase 10, when assets exist.
 > Lighthouse scores are a phase 12 deliverable via mcp__chrome-devtools__lighthouse_audit; the figures here are local and unthrottled.

@@ -208,6 +208,27 @@ async function checkShowreel(browser: Browser, baseUrl: string): Promise<CheckRe
         : fail('showreel: focus returns to the trigger', 'BUTTON', focused || '(none)'),
     );
 
+    /* The play icon has to still be VISIBLE — see `iconVisibleTag`. Read as
+       "what is the topmost element at the button's centre", because the bug
+       this catches left every measurable value correct and only changed which
+       element painted last. */
+    const topmost = await page.evaluate((sel) => {
+      const button = document.querySelector<HTMLElement>(sel);
+      if (!button) return null;
+      const r = button.getBoundingClientRect();
+      const el = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
+      return el ? el.tagName.toLowerCase() : null;
+    }, c.trigger);
+    out.push(
+      topmost === c.iconVisibleTag
+        ? pass('showreel: the play icon is still on top after a full open/close', String(topmost))
+        : fail(
+            'showreel: the play icon is still on top after a full open/close',
+            c.iconVisibleTag,
+            String(topmost),
+          ),
+    );
+
     const close = await readTimeline(page, c.closeTimelineId);
     if (!close) {
       out.push(fail('showreel: close timeline registered', c.closeTimelineId, 'not registered'));

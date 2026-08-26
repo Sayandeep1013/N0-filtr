@@ -26,6 +26,15 @@
   grid-column: 2 / 3;
 }
 
+/* Track one, bottom-aligned with the heading's baseline rather than its box —
+   the heading is two lines of 2.5rem leading, so aligning to the top would
+   leave the figure floating above it. */
+.schematic {
+  grid-column: 1 / 2;
+  align-self: end;
+  justify-self: start;
+}
+
 /* Below 768 the three-track offset collapses — a 4/12 indent on a 390 viewport
    leaves 210px of measure for a 1.5rem heading. tonik collapse theirs the same
    way; every one of their section grids becomes a single column. */
@@ -36,6 +45,10 @@
 
   .heading {
     grid-column: 1 / -1;
+  }
+
+  .schematic {
+    display: none;
   }
 }
 

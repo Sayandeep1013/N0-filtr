@@ -196,6 +196,22 @@ export const BEHAVIOUR = {
     minGrowth: 8,
     /** Flip must return the layer to its exact origin, to the pixel. */
     returnTolerance: 1,
+    /**
+     * **And the play icon must still be visible afterwards.**
+     *
+     * The bug this guards against shipped, and it is worth describing because
+     * every value involved was correct. Flip takes `.background` out of the
+     * button and `appendChild` puts it back — as the LAST child rather than the
+     * first. Two positioned siblings with no z-index paint in tree order, so
+     * after one open-and-close the grey square covered the play triangle and the
+     * button went blank the first time anyone used it.
+     *
+     * Opacity was 1. The box was right. The Flip round trip was exact to the
+     * pixel and the existing assertions all passed. The only thing that was
+     * wrong was which element you could see, so that is what this reads:
+     * `elementFromPoint` at the button's centre, before and after a full cycle.
+     */
+    iconVisibleTag: 'path',
     viewport: { w: 1512, h: 900 },
   },
 

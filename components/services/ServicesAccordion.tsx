@@ -137,9 +137,29 @@ export function ServicesAccordion() {
 
       const lenis = (window as unknown as { lenis?: { scrollTo(v: number, o?: object): void } }).lenis;
       if (lenis && !reducedMotion) {
-        /* Long enough to read as travel rather than a jump, and short enough
-           that it is over before the 0.7s body open finishes. */
-        lenis.scrollTo(to, { duration: 0.6 });
+        /* ── the two directions are not the same journey ───────────────────
+           Opening is a response: you clicked a thing and it comes to you, so
+           0.6s and out of the way before the 0.7s body open finishes.
+
+           Closing is a return, and Sayandeep was right that it was wrong:
+           *"the opening is smooth but the closing needs an ease in — not so
+           quick."* You are being carried back somewhere you were not looking,
+           over a distance that is usually most of a viewport, so it needs long
+           enough to follow and an ease that starts gently rather than snapping
+           away from the row you just closed.
+
+           This is the one place on this site where the reverse is SLOWER than
+           the forward, and it is deliberate. CLAUDE.md's "reverses run faster"
+           rule is about panels and buttons snapping shut — the eye already
+           knows where they went. A scroll is the opposite case: nothing on
+           screen tells you where you are going, so the motion has to. */
+        lenis.scrollTo(to, {
+          duration: opening ? 0.6 : 1.15,
+          easing: opening
+            ? undefined
+            : /* easeInOutCubic — a soft departure, a soft arrival. */
+              (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2),
+        });
       } else {
         /* No Lenis under reduced motion, and no smooth scroll either — an
            instant jump is the honest version of this for someone who asked not

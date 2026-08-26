@@ -42,8 +42,22 @@
   background-color: var(--bg-tertiary);
 }
 
+/* ── the disc paints above the background, whatever the DOM says ───────────
+   The Flip transition takes `.background` out of this button and puts it back
+   with `appendChild`, which returns it as the LAST child rather than the first.
+   After one open-and-close the authored order — background, disc, label —
+   becomes disc, label, background, and two positioned siblings with no z-index
+   paint in tree order. So the grey square covered the play icon, and the button
+   went blank the first time anyone used it.
+
+   Two fixes, both applied. The close now restores the element to its original
+   position rather than appending, so the DOM stays as authored; and the disc
+   carries a `z-index` so it is above the background even if some future
+   transition puts them back in a different order. The first is the tidy one,
+   the second is the one that cannot regress. */
 .disc {
   position: relative;
+  z-index: 1;
   display: grid;
   place-items: center;
   /* 43% of the square, measured off their capture at both viewports. */
