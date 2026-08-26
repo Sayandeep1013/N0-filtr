@@ -1319,3 +1319,104 @@ grep for. That is the shape of every bug in this class.
 check fails around a timing change, suspect the check.** Phase 2 had three `networkidle` races,
 phase 3 had `SCRUB_SETTLE_MS`, phase 4 had the 600ms visual settle. Every one reported a bug that
 did not exist.
+
+
+---
+
+## I-044 · `curTrigger is undefined` under Fast Refresh  🟡
+
+**Found:** phase 05, 2026-08-26 (reported by Sayandeep from the dev server)
+**Area:** `components/works/WorksGrid.tsx`, `components/motion/CultureCollage.tsx`
+
+**Problem:**
+
+```
+can't access property "end", curTrigger is undefined
+  components/works/WorksGrid.tsx (76:23) @ WorksGrid.useGSAP.tweens
+```
+
+The line it names is a `gsap.to(...)` **construction**, not a refresh — which is
+the clue. Constructing a ScrollTrigger makes it walk the global trigger list
+backwards from its own index and read `.end` off every earlier entry
+(`ScrollTrigger.js:1366`, unguarded). If that array shrinks mid-walk the read
+lands on an `undefined` hole.
+
+**What shrinks it:** a sibling `gsap.context` reverting at the same moment — and
+that is exactly what **React Fast Refresh** does. Editing any file with the grid
+on screen remounts components while others are still constructing triggers.
+
+**Reproduced deliberately**, which is the only reason it is understood: a script
+that edits a CSS module six times with the page open and the grid mid-scroll
+fails every run. The same script against a `next build` + `next start` is clean,
+as is navigating away and back in dev.
+
+**Impact:** Development only, and it is loud — Next's error overlay covers the
+page. In production, React serialises a commit's cleanups before its effects,
+so the interleave does not arise; two full hammer rounds of a real production
+build are clean.
+
+**Mitigated:** phase 05. The exposure is proportional to how many triggers exist
+and how often they are constructed, so both came down — and both changes are
+better code independent of the crash:
+
+| | before | after |
+|---|---|---|
+| works grid parallax | 11 triggers | **1** |
+| culture wipes | 6 triggers | **1** |
+| culture parallax | 2 triggers | **1** |
+
+Each is now one trigger with metrics cached on `onRefresh` and `quickSetter`
+writes in `onUpdate`. Identical visually — the progress is still computed per
+element from its own cached top, so each still drifts across its own passage —
+and materially faster: eleven scrubbed tweens are eleven smoothing loops
+fighting over one scroll value, and a `getBoundingClientRect` per element per
+frame is a forced synchronous layout that this now never does.
+
+**Needs:** Nothing blocking. If it becomes irritating in dev, the next step is
+`ScrollTrigger.batch` for the twelve card reveals, which is the idiomatic API
+for exactly that shape and would take the page from ~21 triggers to ~9. Left
+undone because it moves the reveal out of `WorkCard` and into the grid, which is
+a real restructuring for a development-only symptom.
+
+---
+
+## I-045 · `window.lenis` is not a Lenis in production  🟢
+
+**Found:** phase 05, 2026-08-26 · **Area:** `components/services/ServicesAccordion.tsx` · **Resolved:** phase 05
+
+**Problem:** The accordion's scroll-to-row read the instance off the global:
+
+```ts
+const lenis = (window as { lenis?: … }).lenis;
+if (lenis && !reducedMotion) lenis.scrollTo(to, { … });
+```
+
+In production every accordion click threw:
+
+```
+TypeError: m.scrollTo is not a function
+```
+
+**Lenis sets `window.lenis = { version }` itself**, as a build stamp. In
+development `MotionProvider` overwrites that global with the real instance for
+the test harness, so the property is a Lenis and the guard is sound. In a
+production build that assignment is compiled out — and the version object is
+left in its place. Truthy, and with no `scrollTo` on it.
+
+**Impact:** It would have shipped. Every click on a service row on the live site
+would throw, and the row would open with no scroll. **Nothing in the harness
+would have caught it**, because every check runs against the dev server where
+the global is correct.
+
+**Found by** hammering a real `next build` + `next start` rather than the dev
+server — which is now worth doing before any deploy, and is the durable lesson
+here: *a dev-only global is a production bug waiting for a truthiness check.*
+
+**Resolved:** phase 05.
+
+- The component takes `lenis` from `useMotion()`, which is the actual API and is
+  correctly `null` under reduced motion.
+- Every remaining reader — eight in the harness, one in the recorder script —
+  now checks `typeof raw.scrollTo === 'function'` rather than truthiness. They
+  run in dev where the global is right, but they would have hit the same trap on
+  any page whose provider had not mounted yet.

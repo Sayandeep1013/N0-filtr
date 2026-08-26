@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRef } from 'react';
-import { gsap, ScrollTrigger, useGSAP } from '@/lib/motion/gsap';
+import { gsap, useGSAP } from '@/lib/motion/gsap';
 import { DUR, EASE, MQ } from '@/lib/motion/tokens';
 import { registerTimeline, unregisterTimeline } from '@/lib/motion/registry';
 import { SpecTable } from '@/components/ui/SpecTable';
@@ -231,10 +231,8 @@ export function WorkCard({ work, className }: { work: Work; className?: string }
         };
       });
 
-      return () => {
-        mm.revert();
-        ScrollTrigger.refresh();
-      };
+      /* No refresh from a cleanup — see lib/motion/scrollRefresh.ts. */
+      return () => mm.revert();
     },
     { scope: root, dependencies: [work.slug] },
   );

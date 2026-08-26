@@ -1,7 +1,8 @@
 'use client';
 
 import { useCallback, useRef, useState } from 'react';
-import { gsap, ScrollTrigger, useGSAP } from '@/lib/motion/gsap';
+import { gsap, useGSAP } from '@/lib/motion/gsap';
+import { refreshScrollTriggers } from '@/lib/motion/scrollRefresh';
 import { DUR, EASE, MQ } from '@/lib/motion/tokens';
 import { useMotion } from '@/lib/motion/MotionProvider';
 import { registerTimeline, unregisterTimeline } from '@/lib/motion/registry';
@@ -74,7 +75,7 @@ export function ServicesAccordion() {
   const root = useRef<HTMLDivElement>(null);
   /** Where the visitor was before they opened anything. */
   const restoreY = useRef<number | null>(null);
-  const { reducedMotion } = useMotion();
+  const { lenis, reducedMotion } = useMotion();
 
   /**
    * ── Opening a row takes you to it; closing brings you back ────────────────
@@ -135,7 +136,24 @@ export function ServicesAccordion() {
 
       to = Math.max(0, to);
 
-      const lenis = (window as unknown as { lenis?: { scrollTo(v: number, o?: object): void } }).lenis;
+      /* ── the instance comes from the provider, never from `window` ──────
+         This read `window.lenis` and shipped a production-only crash:
+
+             TypeError: m.scrollTo is not a function
+
+         **Lenis sets `window.lenis = { version }` itself**, as a build stamp.
+         In development our own MotionProvider overwrites that global with the
+         real instance for the test harness, so the property is a Lenis and
+         everything works. In a production build that assignment is compiled
+         away — and `window.lenis` is left as the library's version object:
+         truthy, and without a `scrollTo` on it.
+
+         So the guard passed, the call threw, and it threw **only in
+         production**, on every accordion click. Caught by hammering a real
+         `next build` rather than the dev server. See I-045.
+
+         `useMotion()` is the actual API and is null under reduced motion, which
+         is the same condition the old code was checking separately. */
       if (lenis && !reducedMotion) {
         /* ── the two directions are not the same journey ───────────────────
            Opening is a response: you clicked a thing and it comes to you, so
@@ -167,7 +185,7 @@ export function ServicesAccordion() {
         window.scrollTo(0, to);
       }
     },
-    [openSlug, reducedMotion],
+    [openSlug, reducedMotion, lenis],
   );
 
   return (
@@ -280,8 +298,13 @@ function ServiceRow({
 
       /* Anything below this section has moved. Without a refresh the works
          grid's parallax and the reveals keep their pre-open trigger positions,
-         which is a bug you only see after opening a row and scrolling down. */
-      const refresh = gsap.delayedCall(DUR.slower + 0.1, () => ScrollTrigger.refresh());
+         which is a bug you only see after opening a row and scrolling down.
+
+         **This is the only legitimate refresh on the site**, and it goes
+         through the coalescing helper rather than calling ScrollTrigger
+         directly — five rows re-render on one toggle, and five direct calls
+         walk the trigger list five times while React is still committing. */
+      const refresh = gsap.delayedCall(DUR.slower + 0.1, refreshScrollTriggers);
 
       return () => {
         refresh.kill();

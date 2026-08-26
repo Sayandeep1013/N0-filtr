@@ -68,42 +68,118 @@ export function CultureCollage() {
       /* §12's wipe. Every frame, at every width, but only where motion is
          welcome — under `reduce` the overlays are resolved to 0 in CSS and the
          photographs are simply there. */
+      /* One trigger for all six wipes, for the reason spelled out in
+         `WorksGrid` — every ScrollTrigger construction walks the global list,
+         and six constructions is six chances to hit a list that a sibling
+         context is reverting. I-044. The math is per frame and per overlay, so
+         the result is identical to six scrubbed tweens. */
       mm.add(MQ.noPreference, () => {
         const overlays = [...scope.querySelectorAll<HTMLElement>('[data-culture-overlay]')];
-        const tweens = overlays.map((overlay) =>
-          gsap.to(overlay, {
-            width: '0%',
-            duration: 1,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: overlay.parentElement ?? overlay,
-              start: 'top 70%',
-              end: 'bottom bottom',
-              scrub: 1,
-            },
-          }),
-        );
-        return () => tweens.forEach((t) => t.scrollTrigger?.kill());
+        if (overlays.length === 0) return;
+
+        const frames = overlays.map((el) => ({
+          el,
+          set: gsap.quickSetter(el, 'width', '%') as (value: number) => void,
+          top: 0,
+          height: 0,
+        }));
+
+        const measure = () => {
+          for (const f of frames) {
+            const box = (f.el.parentElement ?? f.el).getBoundingClientRect();
+            f.top = box.top + window.scrollY;
+            f.height = box.height;
+          }
+        };
+
+        const apply = () => {
+          const scroll = window.scrollY;
+          const viewport = window.innerHeight;
+          for (const f of frames) {
+            /* §12's window: `start: 'top 70%'` — the frame's top reaching 70%
+               down the viewport — through `end: 'bottom bottom'`. */
+            const from = f.top - viewport * 0.7;
+            const to = f.top + f.height - viewport;
+            const span = to - from;
+            const progress = span > 0 ? (scroll - from) / span : 1;
+            f.set(100 * (1 - Math.min(1, Math.max(0, progress))));
+          }
+        };
+
+        const st = ScrollTrigger.create({
+          trigger: scope,
+          start: 'top bottom',
+          end: 'bottom top',
+          onRefresh: () => {
+            measure();
+            apply();
+          },
+          onUpdate: apply,
+        });
+
+        return () => {
+          st.kill();
+          gsap.set(
+            frames.map((f) => f.el),
+            { clearProps: 'width' },
+          );
+        };
       });
 
       /* §12's parallax. Desktop only — at ≤767 the frames are a single column
          and a −20% drift would slide each one over the caption below it. */
+      /* And one for the two drifting frames. Same pattern, same reason. */
       mm.add(`${MQ.desktop} and ${MQ.noPreference}`, () => {
         const drifters = [...scope.querySelectorAll<HTMLElement>('[data-parallax]')];
-        const tweens = drifters.map((el) =>
-          gsap.to(el, {
-            yPercent: -20,
-            ease: 'none',
-            scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: 1 },
-          }),
-        );
-        return () => tweens.forEach((t) => t.scrollTrigger?.kill());
+        if (drifters.length === 0) return;
+
+        const items = drifters.map((el) => ({
+          el,
+          set: gsap.quickSetter(el, 'yPercent', '%') as (value: number) => void,
+          top: 0,
+          height: 0,
+        }));
+
+        const measure = () => {
+          for (const it of items) {
+            const box = it.el.getBoundingClientRect();
+            it.top = box.top + window.scrollY;
+            it.height = box.height;
+          }
+        };
+
+        const apply = () => {
+          const scroll = window.scrollY;
+          const viewport = window.innerHeight;
+          for (const it of items) {
+            const span = viewport + it.height;
+            const progress = span > 0 ? (scroll + viewport - it.top) / span : 0;
+            it.set(-20 * Math.min(1, Math.max(0, progress)));
+          }
+        };
+
+        const st = ScrollTrigger.create({
+          trigger: scope,
+          start: 'top bottom',
+          end: 'bottom top',
+          onRefresh: () => {
+            measure();
+            apply();
+          },
+          onUpdate: apply,
+        });
+
+        return () => {
+          st.kill();
+          gsap.set(
+            items.map((it) => it.el),
+            { clearProps: 'transform' },
+          );
+        };
       });
 
-      return () => {
-        mm.revert();
-        ScrollTrigger.refresh();
-      };
+      /* No refresh from a cleanup — see lib/motion/scrollRefresh.ts. */
+      return () => mm.revert();
     },
     { scope: root },
   );

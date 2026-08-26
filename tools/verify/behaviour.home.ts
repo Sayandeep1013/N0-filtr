@@ -282,7 +282,16 @@ const SCRUB_SETTLE_MS = 1600;
 
 async function scrollRaw(page: Page, y: number): Promise<void> {
   await page.evaluate((target) => {
-    const lenis = (window as unknown as { lenis?: { scrollTo(v: number, o?: object): void } }).lenis;
+    /* `typeof …scrollTo === 'function'`, not just truthiness. Lenis sets
+         `window.lenis = { version }` itself as a build stamp, so the property
+         exists before — and in production, instead of — the real instance our
+         MotionProvider puts there for this harness. A truthiness check passes
+         on the stamp and then throws. See I-045. */
+      const raw = (window as unknown as { lenis?: { scrollTo?: unknown } }).lenis;
+      const lenis =
+        raw && typeof raw.scrollTo === 'function'
+          ? (raw as { scrollTo(v: number, o?: object): void })
+          : null;
     if (lenis) lenis.scrollTo(target, { immediate: true, force: true });
     else window.scrollTo(0, target);
   }, y);

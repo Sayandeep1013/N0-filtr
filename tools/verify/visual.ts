@@ -115,7 +115,16 @@ export async function checkVisual(browser: Browser, baseUrl: string): Promise<Se
               }
               // Go past Lenis rather than through it: window.scrollTo fights a
               // smooth-scroll library and lands somewhere between the two.
-              const lenis = (window as unknown as { lenis?: { scrollTo(v: number, o?: object): void } }).lenis;
+              /* `typeof …scrollTo === 'function'`, not just truthiness. Lenis sets
+         `window.lenis = { version }` itself as a build stamp, so the property
+         exists before — and in production, instead of — the real instance our
+         MotionProvider puts there for this harness. A truthiness check passes
+         on the stamp and then throws. See I-045. */
+      const raw = (window as unknown as { lenis?: { scrollTo?: unknown } }).lenis;
+      const lenis =
+        raw && typeof raw.scrollTo === 'function'
+          ? (raw as { scrollTo(v: number, o?: object): void })
+          : null;
               if (lenis) lenis.scrollTo(to, { immediate: true, force: true });
               else window.scrollTo(0, to);
             }, target);
@@ -166,8 +175,11 @@ export async function checkVisual(browser: Browser, baseUrl: string): Promise<Se
                 const section = document.querySelector('[data-services]');
                 if (!section) return;
                 const to = section.getBoundingClientRect().top + window.scrollY;
-                const lenis = (window as unknown as { lenis?: { scrollTo(v: number, o?: object): void } })
-                  .lenis;
+                const raw = (window as unknown as { lenis?: { scrollTo?: unknown } }).lenis;
+                const lenis =
+                  raw && typeof raw.scrollTo === 'function'
+                    ? (raw as { scrollTo(v: number, o?: object): void })
+                    : null;
                 if (lenis) lenis.scrollTo(to, { immediate: true, force: true });
                 else window.scrollTo(0, to);
               });

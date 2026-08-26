@@ -2,7 +2,7 @@
 
 import { useRef } from 'react';
 import type { ElementType, ReactNode } from 'react';
-import { gsap, ScrollTrigger, useGSAP } from '@/lib/motion/gsap';
+import { gsap, useGSAP } from '@/lib/motion/gsap';
 import { DUR, EASE, MQ } from '@/lib/motion/tokens';
 import { registerTimeline, unregisterTimeline } from '@/lib/motion/registry';
 import s from './RevealText.module.css';
@@ -138,13 +138,13 @@ export function RevealText({
         };
       });
 
-      return () => {
-        mm.revert();
-        /* A scrubbed trigger created asynchronously can outlive its own
-           refresh cycle if the component unmounts inside one. Cheap insurance;
-           the leak check in verify:motion is what would otherwise find it. */
-        ScrollTrigger.refresh();
-      };
+      /* No refresh from a cleanup. This one carried a comment claiming it was
+         "cheap insurance" against a scrubbed trigger outliving its refresh
+         cycle — it was the opposite. Refreshing while sibling contexts are
+         reverting is what walks a list with a killed entry in it. The
+         `mm.revert()` above already kills this component's trigger, which is
+         the whole of what a cleanup owes. See lib/motion/scrollRefresh.ts. */
+      return () => mm.revert();
     },
     { scope: ref },
   );

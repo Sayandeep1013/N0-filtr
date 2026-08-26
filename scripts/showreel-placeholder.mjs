@@ -94,8 +94,12 @@ const steps = SECONDS * 25;
 for (let i = 0; i < steps; i += 1) {
   const y = Math.round(start + (end - start) * (i / (steps - 1)));
   await page.evaluate((to) => {
+    /* Lenis sets `window.lenis = { version }` itself, so truthiness is not
+       enough — see I-045. */
     const lenis = window.lenis;
-    if (lenis) lenis.scrollTo(to, { immediate: true, force: true });
+    if (lenis && typeof lenis.scrollTo === 'function') {
+      lenis.scrollTo(to, { immediate: true, force: true });
+    }
     else window.scrollTo(0, to);
   }, y);
   await page.waitForTimeout(1000 / 25);

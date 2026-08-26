@@ -1,5 +1,5 @@
 # Verification report
-Run: 2026-08-26T12:52:12.171Z · Phase 06 · commit `6e74cf2` · branch `main`
+Run: 2026-08-26T13:45:42.303Z · Phase 06 · commit `4f3ab85` · branch `main`
 
 ## Summary
 ```
@@ -186,7 +186,7 @@ budget  ✅ 6/6
 ✅ prefers-reduced-motion detected = true
 ✅ Lenis destroyed under reduced motion = native scroll
 ✅ no rAF loop outside the GSAP ticker, under reduced motion = 0 unsanctioned
-✅ ScrollTrigger count returns to baseline after route changes = 38
+✅ ScrollTrigger count returns to baseline after route changes = 21
 ✅ loader.enter totalDuration = 0.6s
 ✅ loader.enter tween count = 5
 ✅ loader.enter tween[0] duration = 0s
@@ -425,7 +425,7 @@ budget  ✅ 6/6
 ✅ cta: clicking the block opens the contact panel = 1
 ✅ culture: 6 frames = 6
 ✅ culture: every frame starts covered
-✅ culture: the wipe uncovers on scroll = [535,645,423,535,645,535] → [0,172,423,535,645,535]
+✅ culture: the wipe uncovers on scroll = [534,646,423,534,646,534] → [0,172,423,534,646,534]
 ✅ blog row: three cards in three tracks
 ✅ blog row: all three cards share a top and a bottom edge
 ✅ blog row: #3b3b3b card ground = rgb(59, 59, 59)
@@ -570,12 +570,12 @@ lists are authored to fill the accordion and T10.8 writes the real ones. The blo
 ℹ️ matter-js absent from the eagerly-loaded bundle — vacuous: matter-js is not installed yet
 ✅ three absent from the eagerly-loaded bundle = absent
 ✅ plyr absent from the eagerly-loaded bundle = absent
-ℹ️ all built chunks, gzipped (not a per-route figure) = 501.7KB
-✅ JS on / (transferred) = 323.0KB / 360KB
-✅ home page total weight = 469.5KB / 1800KB
+ℹ️ all built chunks, gzipped (not a per-route figure) = 502.0KB
+✅ JS on / (transferred) = 323.2KB / 360KB
+✅ home page total weight = 469.8KB / 1800KB
 ✅ zero network font requests = both faces self-hosted
 ✅ CLS (local, unthrottled) = 0.0025
-ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 180ms
+ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 132ms
 
 > Poster and reel budgets become binding in phase 10, when assets exist.
 > Lighthouse scores are a phase 12 deliverable via mcp__chrome-devtools__lighthouse_audit; the figures here are local and unthrottled.

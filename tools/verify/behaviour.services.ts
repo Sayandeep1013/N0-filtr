@@ -70,7 +70,16 @@ async function scrollToSection(page: Page, selector: string): Promise<void> {
     const el = document.querySelector(sel);
     if (!el) return;
     const to = el.getBoundingClientRect().top + window.scrollY;
-    const lenis = (window as unknown as { lenis?: { scrollTo(v: number, o?: object): void } }).lenis;
+    /* `typeof …scrollTo === 'function'`, not just truthiness. Lenis sets
+         `window.lenis = { version }` itself as a build stamp, so the property
+         exists before — and in production, instead of — the real instance our
+         MotionProvider puts there for this harness. A truthiness check passes
+         on the stamp and then throws. See I-045. */
+      const raw = (window as unknown as { lenis?: { scrollTo?: unknown } }).lenis;
+      const lenis =
+        raw && typeof raw.scrollTo === 'function'
+          ? (raw as { scrollTo(v: number, o?: object): void })
+          : null;
     if (lenis) lenis.scrollTo(to, { immediate: true, force: true });
     else window.scrollTo(0, to);
   }, selector);
@@ -327,7 +336,16 @@ async function checkCta(browser: Browser, baseUrl: string): Promise<CheckResult[
     await page.evaluate(() => {
       const cta = document.querySelector<HTMLElement>('button[data-contact]:not(.nav__links *)');
       const to = (cta?.getBoundingClientRect().top ?? 0) + window.scrollY - 200;
-      const lenis = (window as unknown as { lenis?: { scrollTo(v: number, o?: object): void } }).lenis;
+      /* `typeof …scrollTo === 'function'`, not just truthiness. Lenis sets
+         `window.lenis = { version }` itself as a build stamp, so the property
+         exists before — and in production, instead of — the real instance our
+         MotionProvider puts there for this harness. A truthiness check passes
+         on the stamp and then throws. See I-045. */
+      const raw = (window as unknown as { lenis?: { scrollTo?: unknown } }).lenis;
+      const lenis =
+        raw && typeof raw.scrollTo === 'function'
+          ? (raw as { scrollTo(v: number, o?: object): void })
+          : null;
       if (lenis) lenis.scrollTo(to, { immediate: true, force: true });
       else window.scrollTo(0, to);
     });
