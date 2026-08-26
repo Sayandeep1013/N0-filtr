@@ -23,8 +23,7 @@ export const notetakerxx: Work = {
      the seed, so twelve works differ without twelve decisions. */
   card: {
     width: "wide",
-    poster: '',
+    poster: "",
     art: "notetakerxx-01",
   },
-  blocks: [],
 };

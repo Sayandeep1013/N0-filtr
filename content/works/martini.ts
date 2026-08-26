@@ -26,5 +26,4 @@ export const martini: Work = {
   /* A generated plate rather than a screenshot — D-038. The motif comes from
      the seed, so twelve works differ without twelve decisions. */
   card: { width: "wide", poster: "", art: "martini-01" },
-  blocks: [],
 };

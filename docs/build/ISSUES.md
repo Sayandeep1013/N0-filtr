@@ -1870,3 +1870,38 @@ by 418px.
 still only verified most of it.* §9 was right about the touch listeners and the
 same paragraph would have caught the wheel one if anybody had read the whole
 `setElement` body instead of the part that was already known to be a problem.
+
+
+---
+
+## I-061 · Every case-study body was bundled into every page with a card  🟢
+
+**Raised:** phase 10 · **Resolved:** phase 10
+
+Writing the eleven remaining case studies pushed `/` from 350.7KB to **362.8KB**
+and broke the 360KB budget. The bodies are content for `/works/[slug]`; the
+homepage renders none of them.
+
+`<WorksGrid>` is a **client component** and receives whole `Work` objects, so
+every field on them is serialised into the payload for **every page that renders
+a card** — the homepage, `/works`, five service pages and five industry pages.
+Twelve bodies is roughly thirteen thousand words of prose that none of those
+eleven page types displays.
+
+**Resolved** by splitting the prose out of the metadata: `Work` no longer has a
+`blocks` field, bodies live in `content/works/bodies/` keyed by slug, and the
+case-study route fetches its own. The same split the blog already had —
+`lib/content/posts.ts` for metadata, `content/posts/index.ts` for prose — which
+is a reasonable sign it is the right shape.
+
+Both are static imports, so the case-study routes still prerender at build time.
+The point was never lazy loading; it is that eleven page types stop importing
+something they never use.
+
+`/` came out at **348.7KB** — two kilobytes *below* where it started, because
+Tessera's body had been riding along in that payload since phase 6 and nobody
+had looked.
+
+**The durable lesson:** *a client component's props are a bundle decision.*
+Passing a rich domain object to a client component ships every field on it to
+every page that renders one, whether or not anything reads them.

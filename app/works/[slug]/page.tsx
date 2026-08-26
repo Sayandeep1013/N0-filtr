@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { WORKS, workBySlug } from '@/lib/content/works';
+import { bodyFor } from '@/content/works/bodies';
 import { SITE } from '@/lib/content/site';
 import { CaseStudy } from '@/components/case/CaseStudy';
 import { CaseHero } from '@/components/case/CaseHero';
@@ -78,7 +79,7 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
       <div className={s.content}>
         <div className="padding-global">
           <div className="container-large">
-            <CaseBlocks blocks={work.blocks} />
+            <CaseBlocks blocks={bodyFor(work.slug)} />
           </div>
         </div>
       </div>

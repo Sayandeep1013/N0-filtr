@@ -23,8 +23,7 @@ export const valobot: Work = {
      the seed, so twelve works differ without twelve decisions. */
   card: {
     width: "half",
-    poster: '',
+    poster: "",
     art: "valobot-01",
   },
-  blocks: [],
 };

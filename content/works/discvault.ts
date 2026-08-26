@@ -23,8 +23,7 @@ export const discvault: Work = {
      the seed, so twelve works differ without twelve decisions. */
   card: {
     width: "wide",
-    poster: '',
+    poster: "",
     art: "discvault-01",
   },
-  blocks: [],
 };

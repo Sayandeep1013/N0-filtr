@@ -387,10 +387,13 @@ async function checkLoaderTint(browser: Browser, baseUrl: string): Promise<Check
 
 async function checkBlockRhythm(): Promise<CheckResult[]> {
   const { WORKS } = await import('../../lib/content/works');
+  const { bodyFor } = await import('../../content/works/bodies');
   const { longestProseRun } = await import('../../lib/content/blocks');
 
-  const offenders = WORKS.filter((w) => longestProseRun(w.blocks) > CASE.maxProseRun).map(
-    (w) => `${w.slug} (${longestProseRun(w.blocks)})`,
+  /* Bodies come from `content/works/bodies`, not from the work — I-061 moved
+     them so that eleven page types stop bundling prose they never render. */
+  const offenders = WORKS.filter((w) => longestProseRun(bodyFor(w.slug)) > CASE.maxProseRun).map(
+    (w) => `${w.slug} (${longestProseRun(bodyFor(w.slug))})`,
   );
 
   return [
