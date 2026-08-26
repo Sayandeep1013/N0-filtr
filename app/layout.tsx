@@ -56,7 +56,20 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${displayFont.variable} ${monoFont.variable}`}>
-      <body>
+      {/* `suppressHydrationWarning` on <body> only.
+
+          A browser extension injects `class="vsc-initialized"` onto <body>
+          before React hydrates, and React reports the resulting attribute
+          mismatch as a hydration error. It is not ours: the server and the
+          client both render <body> with no className, and a third party edits
+          the DOM in between.
+
+          This is the remedy Next documents for exactly that case, and it is
+          deliberately narrow — it suppresses the attribute diff on THIS element
+          and nothing else. A real hydration mismatch anywhere inside still
+          reports normally, which is the property that makes it safe to use
+          here and nowhere else. */}
+      <body suppressHydrationWarning>
         <MotionProvider>
           <a className="skip-link" href="#main">
             Skip to content

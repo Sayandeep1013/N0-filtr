@@ -61,8 +61,14 @@ These are wrong often enough to state up front.
 2. **Three animation sources.** Markers in `20-components-and-motion.md`:
    `[src]` = their GSAP bundle · `[ix2]` = their Webflow interactions · `[css]` = their CSS
    `:hover` rules · `[new]` = ours. All three of theirs are reproduced.
-3. **The display face is never bolded.** All display weights are 400. Hierarchy comes from size
-   and colour only. Introducing a 600 heading breaks the look.
+3. **The display face is never bolded — in type.** All display weights are 400. Hierarchy comes
+   from size and colour only. Introducing a 600 heading breaks the look, and that still holds for
+   every heading, label and paragraph on the site.
+
+   **One exception, and only one: the wordmark is 700.** `components/brand/Wordmark.module.css`.
+   It is not type set in the system; it is a logo that happens to be drawn with the type face.
+   Sayandeep asked for it on 2026-08-26 — see D-017. If you find yourself "fixing" it back to 400,
+   read that entry first. Anything else above 400 is drift.
 4. **Everything is `rem`** on the fluid root `calc(0.4375rem + 0.625vw)`, locked to `1rem` at
    ≤1440px. Only two exceptions: hairlines (`1px`) and the footer wordmark (`14vw`).
 5. **Reverses run faster than forwards** — `timeScale(1.2)` panels, `1.5` buttons. Always.

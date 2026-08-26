@@ -8,8 +8,17 @@
   display: inline-flex;
   align-items: baseline;
   font-family: var(--family-display);
-  /* Never bolded. CLAUDE.md non-negotiable §3. */
-  font-weight: 400;
+  /* **700, and this is the one deliberate exception to CLAUDE.md §3.**
+
+     That rule says the display face is never bolded and that hierarchy comes
+     from size and colour only. It is about HEADINGS, and it still holds for
+     every one of them — a 600 heading would still break the look.
+
+     The wordmark is not type set in the system; it is a logo that happens to
+     be drawn with the type. Sayandeep asked for it bold on 2026-08-26. §3 has
+     been amended to name this exception explicitly, so it does not read as
+     drift. See D-017. */
+  font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1;
   /* `none`, not `uppercase`. The lone lowercase `i` is the whole point of the

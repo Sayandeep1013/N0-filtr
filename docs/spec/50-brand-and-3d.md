@@ -36,8 +36,14 @@ Reads as an aperture at 48px and as a clean geometric circle at 16px. Drawn with
 `fill="currentColor"` so it inherits from the loader, nav and footer without variants.
 
 **Wordmark**
-`NO FiLTER` — General Sans 400, tracking `-0.02em`, the space between the two words tightened to
-`0.22em`. The footer sets it at `14vw` exactly as tonik does.
+`NO FiLTER` — General Sans **700**, tracking `-0.02em`, the space between the two words tightened
+to `0.22em`. The footer sets it at `14vw` exactly as tonik does.
+
+> **700, not 400 — changed by Sayandeep on 2026-08-26.** This is the single exception to
+> CLAUDE.md non-negotiable §3, which is otherwise intact: the display face is still never bolded
+> in *type*. The wordmark is a logo drawn with the face rather than type set in the system, and
+> at 14vw a 400 weight reads as a headline rather than as a mark. §3 names the exception
+> explicitly so it is not mistaken for drift. See D-017.
 
 Both words in caps, **with the `i` of FiLTER left lowercase.** That single letter is the whole
 device: it drops a dot into a run of caps — a small void inside the letterform that rhymes with

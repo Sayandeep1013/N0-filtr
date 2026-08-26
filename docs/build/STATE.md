@@ -28,9 +28,14 @@ Last updated: **2026-08-26** · by: **phase 2 session (Opus)** · tag: `phase-02
 > That pass found the rule behind every alignment miss at once: `.container-large` is
 > `max-width: 80rem`, centred. Our spec called it the gutter width. **I-030.**
 >
-> **Eleven decisions from Sayandeep, none open** — the mark, the tick weight, the footer icons,
+> **The method was then tested.** `npm run compare:hero` diffs our hero against theirs at four
+> viewports from both DOMs. **92/92 in Firefox and Chromium** — and only 1512 was ever tuned. The
+> first run was 91/92 and the miss was real: their canvas is 110vh at ≥1920, 100vh below, which
+> is now implemented.
+>
+> **Twelve decisions from Sayandeep, none open** — the mark, the tick weight, the footer icons,
 > the `NO FiLTER` casing, Creative Development, the camera, the grain, the JS budget, the object
-> rebuild, the tagline, and the rotation speed.
+> rebuild, the tagline, the rotation speed, and the wordmark at 700 (D-017).
 >
 > ⚠️ **Phase 3 has ~16KB of JS budget.** `/` is at 303.7 of 320 and phase 3 adds SplitType, the
 > stack wall and the showreel to this route. Read D-013 before spending it.

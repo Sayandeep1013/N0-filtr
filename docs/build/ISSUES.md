@@ -561,6 +561,11 @@ it is the one that was fitted rather than measured.
 
 **This also moves I-013**, which is written against the old proportions — see the note there.
 
+> **Touched again on 2026-08-26.** The wordmark went to `font-weight: 700` (D-017), which widens
+> it a third time — the footer mark now ends near x=1100 at 1512 against ~1010 at 400. Still
+> inside its column, still no overflow, and `14vw` is still untouched. Recorded rather than
+> re-opened: the fit holds, and the measurement here is the one that matters.
+
 
 ---
 

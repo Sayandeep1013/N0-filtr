@@ -655,3 +655,36 @@ crosses the line above, and still needs re-tuning to our copy.
 **Consequence:** Every later phase should **check the extract before measuring anything**, and
 extend `tools/extract/tonik.mjs` rather than opening a screenshot. Protocol §2 and every phase's
 Reading Map now say so.
+
+---
+
+## D-017 · The wordmark is 700 — the one exception to "never bolded"
+
+**Phase:** 2 · **Date:** 2026-08-26 · **Status:** active
+
+**Context:** CLAUDE.md non-negotiable §3 is unambiguous: *"The display face is never bolded. All
+display weights are 400. Hierarchy comes from size and colour only."* The wordmark was 400, and
+its CSS cited that rule.
+
+Sayandeep, looking at the running site: *"our no filter text logo .. make it bold"*.
+
+**Decision: the wordmark is `font-weight: 700`, and §3 is amended to name that exception rather
+than left to be silently contradicted.**
+
+The distinction that makes this coherent rather than drift: **§3 is a rule about type, and the
+wordmark is not type.** It is a logo that happens to be drawn with the type face. Every heading,
+label and paragraph on the site stays at 400, and `verify:tokens` still asserts that with an
+every-match on `[data-t^=h], [data-t^=p]` — the wordmark carries no `data-t`, so the check is
+unaffected and still meaningful.
+
+At 14vw a 400 weight reads as a headline that happens to say the studio's name. At 700 it reads as
+a mark. That is the difference the rule was never actually about.
+
+**Why amend CLAUDE.md rather than just make the change.** A non-negotiable that the codebase
+quietly violates is worse than either honouring it or changing it: the next agent reads §3, finds
+a 700 wordmark, and "fixes" it. §3 now names the exception, points at this entry, and closes with
+"anything else above 400 is drift" so the rule keeps its force everywhere it still applies.
+
+**Consequence:** The wordmark is wider at 700, which touches I-018's arithmetic again — the footer
+mark now ends around x=1100 at 1512 against ~1010 at 400. It still sits inside its column with
+room. Noted there rather than re-opened.

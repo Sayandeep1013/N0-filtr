@@ -449,6 +449,31 @@ async function checkTimelines(browser: Browser, baseUrl: string): Promise<CheckR
     for (const [path, group] of byPage) {
       await page.goto(`${baseUrl}${path}`, { waitUntil: 'networkidle' });
       await page.evaluate(() => document.fonts.ready);
+
+      /* Wait for the registry to fill before reading it.
+
+         This is the third place the same race has surfaced. `networkidle` is
+         not "React has committed" on a route that dynamically imports three:
+         the chunk lands after it, the tree commits later, and components
+         register their timelines later still. Reading immediately found an
+         empty `__TIMELINES__` and reported three timelines missing on a page
+         where the behaviour checks then drove them successfully.
+
+         Waiting for the *last* id in the group is enough — they are registered
+         by effects that run in the same commit. */
+      const wanted = group.map((a) => a.id);
+      await page
+        .waitForFunction(
+          (ids) => {
+            const reg = (window as unknown as { __TIMELINES__?: Record<string, unknown> })
+              .__TIMELINES__;
+            return Boolean(reg) && ids.every((id) => Boolean(reg?.[id]));
+          },
+          wanted,
+          { timeout: 15_000 },
+        )
+        .catch(() => undefined);
+
       for (const a of group) {
         const tl = await readTimeline(page, a.id);
         if (!tl) {

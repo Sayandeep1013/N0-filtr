@@ -43,3 +43,22 @@
      edge, with its left third under the headline. */
   object-position: 68% 50%;
 }
+
+/* At 1920 and above, tonik give the canvas 110vh rather than 100.
+
+   Measured, not guessed: their `home-hero_spline` wrapper computes to 990px at
+   a 900 viewport and 1188px at 1080 — exactly 1.1x in both, in Firefox and in
+   Chromium. Swept across widths it holds at 100vh through 1800 and switches at
+   1920, which is Webflow's largest default breakpoint.
+
+   It is not decoration. The object is framed off the viewport HEIGHT, so ten
+   per cent more of it at large sizes is ten per cent less crop — which is why
+   their hero still reads on a wide monitor where a strictly 100vh canvas starts
+   to feel cramped. Found by tools/extract/compare-hero.mjs, which flagged the
+   one structural value out of 92 that did not agree. */
+@media (min-width: 1920px) {
+  .hero {
+    height: 110vh;
+    height: 110dvh;
+  }
+}

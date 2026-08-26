@@ -40,6 +40,24 @@ If your component's numbers are not in the extract, **extend the extractor** —
 list and one more component costs a line — then commit the regenerated output. Open a screenshot
 only for composition, which is the one thing a capture is genuinely better at.
 
+## The proof it works, and how to reuse it
+
+`npm run compare:hero` reads the same structural values out of **both** DOMs — ours and theirs —
+at four viewports and diffs them. It needs `npm run dev` running.
+
+**It passes 92/92 in Firefox and in Chromium.** Only 1512 was ever tuned; 1280, 1440 and 1920 came
+out right on their own, which is the test of whether rules were copied or positions were.
+
+**The first run was 91/92, and the failure is the more useful half.** Their canvas wrapper is
+110vh at 1920 and 100vh below — swept across widths in both engines, switching at exactly 1920,
+which is Webflow's largest default breakpoint. Ten per cent more viewport height is ten per cent
+less crop on an object framed off height, which is why their hero still reads on a wide monitor.
+
+**Extend this the same way you extend the extractor.** When you build the works grid, add its
+structural fields to `STRUCTURAL` in `tools/extract/compare-hero.mjs` and let it tell you whether
+you got it right, rather than looking. It deliberately compares only what is a property of the
+layout — never anything downstream of content, because our copy is ours and theirs is theirs.
+
 ## What I did
 
 The Open Aperture is approved and on all seven surfaces §4 names — loader, navbar, footer,
@@ -78,7 +96,12 @@ worse still.
 **4. `data-hero` is already on the hero section.** That closes I-020 — the mobile scroll drive
 scrubs against it. Nothing to do; **do not remove it.**
 
-**5. The extract already answers things you are about to need.** Their heading steps are 2rem/2.5rem
+**5. The wordmark is `font-weight: 700`, deliberately.** CLAUDE.md §3 says the display face is
+never bolded; §3 has been amended to name this one exception, because the rule is about type and
+a wordmark is a logo drawn with the face. **Do not "fix" it back to 400** — read D-017 first.
+Everything else stays 400 and `verify:tokens` still asserts it.
+
+**6. The extract already answers things you are about to need.** Their heading steps are 2rem/2.5rem
 and 1.5rem/1.75rem. Their most-used border is `1px solid rgba(59,59,59,.3)` — the hairline on
 **light** surfaces, which we do not have a token for and phase 4 will need. There is no 0.875rem
 step anywhere on their site, so our `--t-label-big` may be invented.
@@ -130,6 +153,10 @@ step anywhere on their site, so our `--t-label-big` may be invented.
   Grow `body` and call `lenis.resize()`.
 - **React reconciles away DOM you inject into `main`.** Anything a test injects must live where
   React does not own it.
+- **`networkidle` raced the harness in THREE separate places**, and all three are fixed: the
+  ScrollTrigger baseline, the loader's reduced-motion read, and the registered-timeline reader.
+  Each reported a bug that did not exist. If a check starts failing after you add a library,
+  **suspect the check first** — and if you add a fourth reader of page state, make it wait.
 - **Backticks inside a GLSL template literal end the string.** Writing `` `roughness` `` in a
   shader comment is a build error with a confusing message.
 - **The dev server must not be running when you `verify`.**
@@ -189,6 +216,7 @@ npm run verify             # the gate — ~3 min
 npm run verify:motion      # ~90s; 15 assertions drive a real WebGL context
 npm run verify:visual      # then OPEN tools/verify/output/contact-sheet.html
 npm run extract:tonik      # their live design system → docs/research/03-tonik-extract.md
+npm run compare:hero       # head-to-head vs tonik at 4 viewports — needs `npm run dev` running
 npm run brand:assets       # favicon / apple icon / 512 / OG card
 npm run hero:fallback      # rebakes public/hero-aperture.webp — needs `npm run dev` running
 npm run lint && npx tsc --noEmit
