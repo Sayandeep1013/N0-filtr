@@ -195,7 +195,30 @@ function harvest() {
 
 async function run() {
   console.log(`▸ extracting ${URL_} with ${engine}`);
-  const browser = await launcher.launch();
+
+  /* Firefox is not installed by `npm install` — Playwright downloads browsers
+     separately, and this repo's other tooling only ever needed Chromium. A
+     fresh checkout therefore fails here with a message that does not mention
+     which browser, so say it plainly rather than let the next agent lose ten
+     minutes to it. */
+  let browser;
+  try {
+    browser = await launcher.launch();
+  } catch (err) {
+    if (/Executable doesn't exist|browserType.launch/.test(String(err?.message))) {
+      console.error(
+        `
+✗ ${engine} is not installed for Playwright.
+` +
+          `  Run:  npx playwright install ${engine}
+` +
+          `  Or extract with the browser this repo already has:  node tools/extract/tonik.mjs --chromium
+`,
+      );
+      process.exit(1);
+    }
+    throw err;
+  }
   const result = { engine, url: URL_, capturedAt: new Date().toISOString(), viewports: {} };
 
   try {

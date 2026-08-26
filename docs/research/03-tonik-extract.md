@@ -3,9 +3,13 @@
 **Read from their live DOM, not from a capture.** Regenerate with:
 
 ```bash
+npx playwright install firefox     # once — Playwright ships browsers separately
 npm run extract:tonik              # firefox (default)
 node tools/extract/tonik.mjs --chromium
 ```
+
+Chromium is already installed for the verify harness, so `--chromium` works on a fresh checkout
+with no extra download. The script says so if the Firefox binary is missing.
 
 Output: `tools/extract/output/tonik-<engine>.json`. Firefox and Chromium agree on every figure
 below; where two engines agree, the number is a property of their CSS rather than of a renderer.

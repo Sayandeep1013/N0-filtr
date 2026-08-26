@@ -16,9 +16,13 @@ system, type scale as rendered, colour set, transition vocabulary, section rhyth
 by element. Regenerate or extend it:
 
 ```bash
+npx playwright install firefox              # ONCE — Playwright ships browsers separately
 npm run extract:tonik                       # firefox, the default
-node tools/extract/tonik.mjs --chromium     # the cross-engine diff
+node tools/extract/tonik.mjs --chromium     # the cross-engine diff, no download needed
 ```
+
+Chromium is already installed for the verify harness, so `--chromium` works immediately on a
+fresh checkout. The script tells you which browser is missing rather than failing obscurely.
 
 **Protocol §2.9 now requires you to check it before measuring anything**, and every Reading Map
 points at it. This is not bureaucracy — it is the most expensive lesson this phase learned.
