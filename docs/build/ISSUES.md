@@ -47,6 +47,13 @@ Newest last. **Owner** is the phase that should resolve it, not the phase that f
 | I-021 | Section 2's fragment sketch computes a roughness it never uses | 🟢 resolved in 2 | — |
 | I-022 | Section 2's camera puts the assembly outside its own composition target | 🟢 resolved in 2 | — |
 | I-023 | Section 2's motion values are per-frame; its prose says per-second | 🟢 resolved in 2 | — |
+| I-024 | Section 2's ellipse is two Euler terms; one axis is the real quantity | 🟢 resolved in 2 | — |
+| I-025 | Section 2's parallax curves detach a housed mechanism | 🟢 resolved in 2 | — |
+| I-026 | An idle spin about world Y collapses an annulus | 🟢 resolved in 2 | — |
+| I-027 | Section 2 has no specular term, so the material cannot glint | 🟢 resolved in 2 | — |
+| I-028 | Section 2's load-in is correct and illegible | 🟢 resolved in 2 | — |
+| I-029 | Section 2's idle spin contradicts itself | 🟡 worked around | any |
+| I-030 | `.container-large` is capped at 80rem on tonik; our spec calls it the gutter width | 🟢 resolved in 2 | — |
 
 **Nothing open blocks phase 2.** I-009 and I-014 were both settled in the conversation that
 approved the mark, on 2026-08-26 — I-009 resolved, I-014 explicitly deferred to phase 10.
@@ -738,3 +745,182 @@ else. The specced numbers are unchanged; only the unit they are applied in is. R
 
 The lesson is worth carrying into phases 4, 5 and 11: **a per-frame constant in a spec is a
 duration wearing a disguise.** The block pit in phase 11 has exactly the same exposure.
+
+
+---
+
+## I-030 · `.container-large` is capped at 80rem; our spec calls it the gutter width  🟢
+
+**Found:** phase 02, 2026-08-26 · **Area:** `10-design-system.md`, `app/styles/global.css`
+
+**Problem:** `10-design-system.md` documents `.container-large` as
+`--content: calc(100vw - (2 * 2.5rem))` — the page width less the gutters — and `global.css`
+implemented it as `max-width: 100%`. Nothing used it, so nothing failed.
+
+tonik's is **`max-width: 80rem`, centred**: 1316px at a 16.45 root, 1520px at 19. Enumerated on
+their live DOM, eleven `.container-large` elements on the homepage — **ten capped at 1316px, one
+at 100%** carrying a `unl-width` modifier for the hero's full-bleed 3D wrapper.
+
+**Impact: this was the cause of every alignment miss in phase 2's hero.** Their copy column starts
+at x=98 in a 1512 viewport because 80rem centred inside a 41.125px gutter lands there. Ours started
+at 41 and I moved it three times by eye — 57px, then the foot rail, then the play control — without
+ever finding the rule that put it there.
+
+**Resolved:** `.container-large` is `max-width: var(--container-large)` = 80rem, with a
+`.unl-width` modifier at 100%. `--container-large` is a token. The hero is
+`padding-global > container-large`, which is tonik's own nesting, and every hero figure now matches
+theirs exactly.
+
+**The general lesson, and it is the one worth keeping.** Everything corrected in phase 2's hero was
+sitting in `getComputedStyle` the whole time. A screenshot shows where an element *is*; it never
+shows the rule that put it there, so correcting from a capture converges slowly and teaches you
+nothing reusable. `tools/extract/tonik.mjs` and `docs/research/03-tonik-extract.md` exist so no
+later phase repeats it — **check the extract before measuring anything.**
+
+
+---
+
+## I-024 · §2's ellipse is two Euler terms; the quantity that matters is one axis  🟢
+
+**Found:** phase 02, 2026-08-26 · **Area:** `50-brand-and-3d.md` §2 Scene graph
+
+**Problem:** §2 presents the ellipse as `rotation.x = -0.55, rotation.z = 0.30`. Two Euler terms
+in a fixed order describe *a* result, but they hide the property being chosen: **the axis you tilt
+about is the axis the ellipse keeps**, and everything perpendicular to it foreshortens by that
+angle's cosine. Reasoning about the shape through two coupled terms is guesswork.
+
+Measured, the specced pair gives an ellipse squashed to 0.85 of its width and rolled 17°. tonik's
+is nearer 0.65 rolled ~51°, with the long axis running lower-left to upper-right — the diagonal
+that points away from the headline.
+
+**Impact:** Following §2 puts the object's long axis across the copy instead of away from it.
+
+**Resolved:** phase 02. One `setFromAxisAngle` about an in-plane axis, so the two things being
+chosen — which diagonal stretches, and how much it foreshortens — are each one number. Fitted to
+their capture: 51° off horizontal at 0.76 rad. Sayandeep asked for the stretched ends at top-right
+and bottom-left, which is what that axis gives.
+
+---
+
+## I-025 · §2's parallax curves detach a housed mechanism  🟢
+
+**Found:** phase 02, 2026-08-26 · **Area:** `50-brand-and-3d.md` §2 Mouse parallax
+
+**Problem:** §2's recovered curves drive the ring `±0.2 rad` and the mark `−0.1 → +0.5` as two
+independent objects, and the whole point is that the mark outruns its frame by 1.5×.
+
+That is correct for tonik and wrong for us. **Their glyph floats free inside their ring**, so a
+large differential costs them nothing. Ours is a mechanism: the blades are housed in the barrel's
+bore. Applying the same differential rotated the blades relative to the barrel on a shared axis
+and slid them straight out of it — the object visibly lost its teeth the moment the pointer moved,
+which is exactly how Sayandeep described it.
+
+**Impact:** The headline interaction of the phase, broken in the way most likely to be noticed.
+
+**Resolved:** phase 02, by moving the differential to the axis where it is mechanically true. The
+housing tips as one object; the blades **actuate about the bore's own axis**, which is what a real
+iris does and which sweeps them *within* the housing. The mechanism still answers at two rates and
+can no longer come apart.
+
+`verify:motion` asserts the invariant rather than the numbers: the furthest any blade vertex sits
+from the bore axis is **1.930 against a barrel of 2.0, and constant to six decimal places** at
+every pointer position. A rotation about the bore axis cannot change a radius, so this is a
+property of the structure and not of the tuning. See D-014.
+
+---
+
+## I-026 · An idle spin about world Y collapses an annulus  🟢
+
+**Found:** phase 02, 2026-08-26 · **Area:** `50-brand-and-3d.md` §2 Motion
+
+**Problem:** §2 spins the assembly on `rotation.y`. That is right for tonik — their object is a
+torus with a glyph floating inside it and it reads from any angle.
+
+Ours is an annulus. **Rotating an annulus about an axis lying in its own plane sweeps it through
+edge-on twice a revolution**: the silhouette collapses to a line, the ellipse the entire
+presentation is built on stops existing, and the composition under the headline changes as it
+turns.
+
+**Impact:** The object was unrecognisable for part of every revolution, and the framing measured
+against tonik's held only at the instant of capture.
+
+**Resolved:** phase 02. Everything that turns idly turns about the **bore axis** — the idle drift,
+the mobile scroll drive and the reduced-motion pose. The silhouette is then invariant and what you
+see turning is the grain and the six blades: a lens barrel idling in its mount.
+
+§2's mobile range (`−0.525 → −1.5`) is unchanged; only the axis it is applied to.
+
+---
+
+## I-027 · §2 has no specular term, so the material cannot glint  🟢
+
+**Found:** phase 02, 2026-08-26 · **Area:** `50-brand-and-3d.md` §2 Material
+
+**Problem:** §2 gives a lambert body, a fresnel rim and a grain. There is **no specular term at
+all**. Rendered literally the object has nothing that can catch a light — a matte shape with a
+soft edge — against a reference capture covered in bright flecks along its lit arc.
+
+Sayandeep put it plainly: *"they have a lighting and shader … ours dont"*. He was right, and the
+spec is why.
+
+**Impact:** The single largest gap between our object and theirs. Everything else was geometry;
+this was the surface.
+
+**Resolved:** phase 02. A Blinn-Phong term driven by the key light, with **the grain modulating
+both its spread and its strength** — a rougher patch scatters wider and a proud one catches more.
+That is also what makes the grain visible at all: I-021 had already wired roughness into the
+fresnel, and the specular is where it actually reads.
+
+The range needed care as much as the strength. `mix(0.08, 2.6)` turned the surface to salt and
+pepper; theirs is a fine even tooth with a highlight riding on it, which is a narrower range at a
+higher base. Settled at `mix(0.3, 1.85)` with `uSpecular` 2.4.
+
+**Standing difference, accepted:** theirs still glitters harder. Theirs is a baked map with real
+specular detail; ours is procedural and reads finer. Pushing further means inventing surface
+detail §2 does not describe rather than lighting the surface it does.
+
+---
+
+## I-028 · §2's load-in is correct and illegible  🟢
+
+**Found:** phase 02, 2026-08-26 · **Area:** `50-brand-and-3d.md` §2 Motion
+
+**Problem:** §2's load-in is `scale 0.85 → 1`, `opacity 0 → 1`, `1.2s power3.out`. Sayandeep said
+the object arrived rather than grew.
+
+It was **running correctly**, which is worth stating — the first instinct was that the tween was
+broken. Sampled: 0.919 at 10ms, 0.985 at 380ms, settled by 880ms. The problem is that 0.85 → 1 is
+a 15% move and `power3.out` spends around 60% of its travel in the first fifth of its duration, so
+the visible entrance is roughly 250ms of a 15% grow.
+
+**Impact:** The phase's one piece of choreography, invisible.
+
+**Resolved:** phase 02. `0.55` over `1.6s` on `power2.out` — still an ease-out, still settling
+rather than stopping, with a tail long enough to read. Re-sampled: 0.700 at 19ms, 0.880 at 381ms,
+still climbing at 880ms.
+
+Measuring before changing is the point here. A correct implementation of an illegible value looks
+exactly like a broken implementation of a good one, and only the numbers tell them apart.
+
+---
+
+## I-029 · §2's idle spin contradicts itself  🟡
+
+**Found:** phase 02, 2026-08-26 · **Area:** `50-brand-and-3d.md` §2 Motion
+
+**Problem:** §2 gives the idle rotation as `group.rotation.y += 0.0022` per frame and describes it
+as **"~7.5s per revolution"**. Those are not the same motion.
+
+`0.0022 rad/frame × 60fps = 0.132 rad/s`, and `2π / 0.132` is **47.6 seconds** per revolution. A
+revolution in 7.5s needs `0.014 rad/frame` — six times faster. One of the two is a typo and the
+spec does not say which.
+
+**Impact:** Either reading is defensible from the document, and they look completely different.
+
+**Workaround:** Neither is used. Sayandeep asked for the rotation stopped or *"wayy slower"*, so
+it is **0.02 rad/s** — about five minutes per revolution, imperceptible frame to frame while
+leaving the object never quite the same twice. `IDLE_SPIN_PER_SECOND = 0` gives a dead-still
+object and nothing else depends on it.
+
+**Needs:** Nothing blocking. If the hero is ever re-specced, resolve which of the two §2 meant and
+write one of them down.

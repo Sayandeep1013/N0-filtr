@@ -254,7 +254,30 @@ async function checkRuntime(browser: Browser, baseUrl: string): Promise<CheckRes
           if (ST) return ST.getAll().length;
           return g ? -1 : -1;
         });
-      const baseline = await countTriggers();
+      /* Wait for the count to STOP changing before calling it a baseline.
+
+         `networkidle` is not "the page has settled" on a route that
+         dynamically imports three — the hero's chunk lands after it, React
+         commits, and only then does the navbar create its trigger. Reading
+         immediately gave a baseline of 0 against a correct final count of 1,
+         and reported a leak that did not exist.
+
+         Three consecutive equal reads, 200ms apart. A real leak still fails;
+         a slow route no longer does. */
+      const settleTriggers = async () => {
+        let last = -2;
+        let stable = 0;
+        for (let i = 0; i < 40; i += 1) {
+          const n = await countTriggers();
+          stable = n === last ? stable + 1 : 0;
+          last = n;
+          if (stable >= 2) return n;
+          await page.waitForTimeout(200);
+        }
+        return last;
+      };
+
+      const baseline = await settleTriggers();
       if (baseline < 0) {
         out.push(
           info(
@@ -266,7 +289,7 @@ async function checkRuntime(browser: Browser, baseUrl: string): Promise<CheckRes
         for (const route of RUNTIME.leakRoutes.slice(1)) {
           await page.goto(`${baseUrl}${route}`, { waitUntil: 'networkidle' });
         }
-        const after = await countTriggers();
+        const after = await settleTriggers();
         out.push(
           after === baseline
             ? pass('ScrollTrigger count returns to baseline after route changes', String(after))

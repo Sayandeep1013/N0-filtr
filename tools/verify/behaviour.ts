@@ -357,6 +357,21 @@ async function checkLoaderReduced(browser: Browser, baseUrl: string): Promise<Ch
     await page.goto(`${baseUrl}${c.page}`, { waitUntil: 'networkidle' });
     await page.evaluate(() => document.fonts.ready);
 
+    /* Wait for the timeline to be registered rather than assuming it already is.
+
+       The Loader rebuilds its timelines whenever the reduced-motion matchMedia
+       context settles, and a rebuild unregisters before it registers. On a route
+       that dynamically imports three the page commits later, which widened that
+       gap enough for this check to read it and report `loader.enter` missing on
+       a page where it was demonstrably present a frame later. */
+    await page
+      .waitForFunction(
+        (id) => Boolean((window as unknown as { __TIMELINES__?: Record<string, unknown> }).__TIMELINES__?.[id]),
+        c.timelineId,
+        { timeout: 10_000 },
+      )
+      .catch(() => undefined);
+
     const shape = await page.evaluate((id) => {
       const tl = (
         window as unknown as {

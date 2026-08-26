@@ -131,22 +131,24 @@ export const BEHAVIOUR = {
     mobile: { w: 390, h: 844 },
 
     /**
-     * §2, [ix2 a-3]. Sweeping the pointer across the full viewport width turns
-     * the ring 0.4 rad and the blades 0.6. The 1.5× ratio between them is the
-     * whole effect: the inner element outruns its frame, and that is what reads
-     * as depth rather than as a flat image being rotated.
+     * The pointer response, after the rebuild. See D-014.
+     *
+     * §2's recovered curves (ring ±0.2, mark −0.1→+0.5) drive two *separate*
+     * objects, because tonik's glyph floats free inside their ring. Ours is
+     * housed in a barrel, and applying that differential slid the blades out of
+     * the bore — the object visibly lost its teeth the moment the pointer moved.
+     *
+     * The differential now lives on the axis where it is mechanically true: the
+     * assembly tips as one object, and the blades actuate about the bore's own
+     * axis. What is asserted changed with it — the numbers below are the new
+     * model's, and the invariant two lines down is the one that matters.
      */
-    ringSweep: 0.4,
-    bladeSweep: 0.6,
-    /**
-     * The damp is ~500ms, so a reading taken shortly after the pointer moves is
-     * still converging. Generous on absolute values, strict on the ratio —
-     * because the ratio is the thing that would be wrong if the curves were
-     * copied carelessly, and it converges long before the magnitudes do.
-     */
-    sweepTolerance: 0.08,
-    minRatio: 1.3,
-    settleMs: 900,
+    tipMax: 0.2,
+    actuateMin: 0.06,
+    /** Both channels must actually move, or the pointer is not wired at all. */
+    respondMin: 0.02,
+    settleMs: 1100,
+
     /** Section 2: 4 blades below the desktop breakpoint instead of 6. */
     mobileBlades: 4,
     /** Section 2: render exactly one frame at this pose, then stop. */

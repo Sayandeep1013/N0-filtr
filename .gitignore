@@ -34,3 +34,9 @@ docs/research/source/tonik-animations.js
 docs/research/source/tonik-ix2.json
 docs/research/source/tonik-hero-scene.splinecode
 docs/research/source/ix2-hover.txt
+
+# The tonik extract's raw JSON. The readable summary in
+# docs/research/03-tonik-extract.md is what the build reads and is committed;
+# the dumps are large, regenerable with `npm run extract:tonik`, and are their
+# measurements rather than ours.
+tools/extract/output/

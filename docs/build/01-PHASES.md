@@ -28,6 +28,7 @@ The most important phase. Everything downstream is measured by the harness built
 harness has to be trustworthy before any component exists.
 
 ### Reading Map
+- `docs/research/03-tonik-extract.md` — **check this before measuring anything.** Protocol §2.9
 - `docs/spec/10-design-system.md` — **all of it**
 - `docs/spec/60-architecture-and-build.md` §1 Stack, §2 Structure, §3 Motion architecture,
   §5 Budgets, **§6 Accessibility** (added in phase 0 — it governs the reset: focus-visible,
@@ -62,6 +63,7 @@ harness has to be trustworthy before any component exists.
 `phase/01-chrome` · needs 0 · **~1 session**
 
 ### Reading Map
+- `docs/research/03-tonik-extract.md` — **check this before measuring anything.** Protocol §2.9
 - `20-components-and-motion.md` §1 Loader, §2 Navbar, §3 Contact panel, §9 Buttons, §20 Footer,
   §21.1, §21.3, §22
 - `30-page-specs.md` — the global chrome note at the top
@@ -99,6 +101,7 @@ glyph. Building them ad-hoc here would guarantee they are rebuilt in phase 3.)*
 The only phase with no reference to copy. We are inventing here.
 
 ### Reading Map
+- `docs/research/03-tonik-extract.md` — **check this before measuring anything.** Protocol §2.9
 - `docs/spec/50-brand-and-3d.md` — **all of it**
 - `20-components-and-motion.md` §1 (the loader consumes the mark)
 
@@ -128,7 +131,21 @@ The only phase with no reference to copy. We are inventing here.
 
 `phase/03-home-upper` · needs 1, 2 · **~1 session**
 
+> ⚠ **Part of this phase already exists.** T3.1 and T3.2 were built in phase 2 so the 3D hero's
+> composition could be judged against real copy rather than against the footer wordmark standing
+> in for a headline (D-015). `components/hero/Hero.tsx`, `PlaySquare.tsx` and their modules ship
+> the headline, the inline play control and the foot rail, all matching tonik's live DOM figure
+> for figure.
+>
+> **Still owed by this phase:** the scrubbed word reveal (T3.3), the stack wall (T3.4, T3.5) and
+> the showreel choreography (T3.6). `PlaySquare` is deliberately inert and `aria-hidden` until
+> T3.6 turns it into the real Flip trigger — its markup is already the shape Flip needs.
+>
+> **One line closes I-020:** `data-hero` is already on the hero section, so the mobile scroll
+> drive scrubs against it. Nothing to do; do not remove it.
+
 ### Reading Map
+- `docs/research/03-tonik-extract.md` — **check this before measuring anything.** Protocol §2.9
 - `30-page-specs.md` §1 Hero, §2 (heading only)
 - `20-components-and-motion.md` §4 RevealText, §11 Stack wall
 - `40-content-model.md` §6 Stack wall content
@@ -136,8 +153,8 @@ The only phase with no reference to copy. We are inventing here.
 ### Tasks
 | id | task | done-when |
 |---|---|---|
-| T3.1 | Hero copy — `--t-h1` two lines, inline play button in the text flow | play button sits *in* line 2, not beside it |
-| T3.2 | Hero bottom rail — two mono labels above a hairline | matches at 1512 and 390 |
+| T3.1 | Hero copy — `--t-h1` two lines, inline play control | ✅ **done in phase 2** — matches their live DOM exactly |
+| T3.2 | Hero bottom rail — two mono labels above a hairline | ✅ **done in phase 2** — rule below the labels, x 98, rule on 858.9 |
 | T3.3 | `<RevealText>` — SplitType words, scrubbed `top 90%`→`top 10%`, rest at `.2` opacity | split happens after `document.fonts.ready` |
 | T3.4 | Stack wall ≥768 — static flex-wrap grid, `.7` opacity | 22 wordmarks |
 | T3.5 | Stack wall ≤767 — GSAP infinite marquee, no library | seamless loop, no jump |
@@ -156,6 +173,7 @@ The only phase with no reference to copy. We are inventing here.
 The most intricate component on the site. Three interacting hover layers.
 
 ### Reading Map
+- `docs/research/03-tonik-extract.md` — **check this before measuring anything.** Protocol §2.9
 - `20-components-and-motion.md` §5 Works grid, §8 SpecTable, §21.1 sibling-dim, §21.2 thumbnail overlay
 - `30-page-specs.md` §2 Works
 - `40-content-model.md` §1 Schemas, §2 The twelve works
@@ -185,6 +203,7 @@ The most intricate component on the site. Three interacting hover layers.
 `phase/05-home-lower` · needs 4 · **~1.5 sessions**
 
 ### Reading Map
+- `docs/research/03-tonik-extract.md` — **check this before measuring anything.** Protocol §2.9
 - `30-page-specs.md` §3–§7
 - `20-components-and-motion.md` §6 Services accordion, §10 CTA, §12 Culture, §19 Blog card
 - `40-content-model.md` §3 Services
@@ -213,6 +232,7 @@ The most intricate component on the site. Three interacting hover layers.
 Build **one** work end to end. The other eleven are content, not code.
 
 ### Reading Map
+- `docs/research/03-tonik-extract.md` — **check this before measuring anything.** Protocol §2.9
 - `30-page-specs.md` §`/works/[slug]`
 - `20-components-and-motion.md` §8 SpecTable, §16 Lightbox, §18 Custom cursor, §21.5 cursor system
 - `40-content-model.md` §1 Schemas, §2 (one work), `10-design-system.md` §2 accent theming
@@ -240,6 +260,7 @@ Build **one** work end to end. The other eleven are content, not code.
 `phase/07-service-pages` · needs 6 · **~2 sessions**
 
 ### Reading Map
+- `docs/research/03-tonik-extract.md` — **check this before measuring anything.** Protocol §2.9
 - `30-page-specs.md` §`/works`, §`/services/[slug]`, §`/industries/[slug]`
 - `20-components-and-motion.md` §7 FAQ, §17 ServiceNav, §21.7 filter dropdown
 - `40-content-model.md` §3 Services, §4 Industries
@@ -270,6 +291,7 @@ Build **one** work end to end. The other eleven are content, not code.
 The two best pieces of motion on the site.
 
 ### Reading Map
+- `docs/research/03-tonik-extract.md` — **check this before measuring anything.** Protocol §2.9
 - `30-page-specs.md` §`/about`
 - `20-components-and-motion.md` §13 Flythrough, §14 PinnedRise, §21.6 meetup hover
 
@@ -293,6 +315,7 @@ The two best pieces of motion on the site.
 `phase/09-blog` · needs 5 · **~1 session**
 
 ### Reading Map
+- `docs/research/03-tonik-extract.md` — **check this before measuring anything.** Protocol §2.9
 - `30-page-specs.md` §`/blog`, §`/blog/[slug]`
 - `40-content-model.md` §5 Blog
 
@@ -316,6 +339,7 @@ The two best pieces of motion on the site.
 `phase/10-assets` · needs 6 · **~2 sessions** · *parallel-safe with 8 and 9*
 
 ### Reading Map
+- `docs/research/03-tonik-extract.md` — **check this before measuring anything.** Protocol §2.9
 - `docs/spec/60-architecture-and-build.md` §4 Asset pipeline
 - `40-content-model.md` — all of it
 - `docs/research/02-content-inventory.md`
@@ -344,6 +368,7 @@ The two best pieces of motion on the site.
 `phase/11-block-pit` · needs 1 · **~1 session**
 
 ### Reading Map
+- `docs/research/03-tonik-extract.md` — **check this before measuring anything.** Protocol §2.9
 - `docs/spec/70-physics-footer.md` — **all of it**
 
 ### Tasks
@@ -373,6 +398,7 @@ The two best pieces of motion on the site.
 `phase/12-polish` · needs all · **~1.5 sessions**
 
 ### Reading Map
+- `docs/research/03-tonik-extract.md` — **check this before measuring anything.** Protocol §2.9
 - `60-architecture-and-build.md` §5 Budgets, §6 Accessibility, §8 Fidelity verification
 - `00-brief-and-decisions.md` — the open items table
 

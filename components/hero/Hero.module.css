@@ -1,0 +1,95 @@
+/* The homepage hero. 30-page-specs.md §1.
+
+   Every number here was read off tonik's live DOM at 1512x900 and 1920x1080,
+   not estimated from a capture. Their hero section is 1360.6px tall — the
+   viewport plus the stack wall that sits below the fold — with the copy column
+   inside `padding-global > container-large`.
+
+   The 3D assembly is painted behind all of this by Hero3D, mounted in the root
+   layout at z-index 0. */
+
+.hero {
+  position: relative;
+  /* The 3D canvas is 100dvh and this section has to cover the same range, or the
+     mobile scroll drive scrubs against a different height than the object it is
+     turning. tonik's own canvas wrapper is `position: absolute; inset: 0;
+     height: 900px` at a 900 viewport — the same thing. */
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  /* Nothing here is a background — it all sits over the canvas. */
+  z-index: 1;
+}
+
+.gutter {
+  display: flex;
+  width: 100%;
+}
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  /* The vertical composition, measured: their h1's box starts at y = 201.5 in a
+     900 viewport and their bottom bar's rule lands on 858.9. 12.25rem is 201.5
+     at the 16.45 root; the rail takes the rest with `margin-top: auto`. */
+  padding-top: 12.25rem;
+  padding-bottom: var(--gutter);
+}
+
+.headline {
+  margin: 0;
+  color: var(--text-primary);
+  /* No per-element measure cap. tonik does not cap theirs either —
+     `container-large` holds the copy off the assembly, and it does it for every
+     element in the column at once rather than one rule at a time. */
+}
+
+/* Line 1 is a plain block. */
+.line {
+  display: block;
+}
+
+/* Line 2 is a flex row: the play control, then the text. tonik's
+   `home-hero_video-wrapper` — flex, align-items flex-end, 2.5rem gap. */
+.lineTwo {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--gutter);
+}
+
+.rail {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  gap: var(--gutter);
+  /* The rule sits BELOW the labels. Their `home-hero_bottom-bar` carries
+     `border-bottom: 1px rgba(255,255,255,.3)` and `padding-bottom: 28.7875px` —
+     1.75rem at the 16.45 root — and no top border at all.
+
+     The first build applied the global `.hairline` helper, which is a
+     `border-top`, so the rule drew OVER the labels and pulled the whole rail
+     29px above theirs. */
+  border-bottom: var(--hairline);
+  padding-bottom: 1.75rem;
+  /* --white, not the secondary grey a mono label usually takes on this site.
+     Confirmed twice: their bottom-bar's computed colour is rgb(239,239,239),
+     and the brightest pixel in that row of their capture is exactly #efefef —
+     the same value as a nav link, which tops out at #ffffff only because of
+     antialiasing. The foot rail is primary text; the footer's labels are not. */
+  color: var(--text-primary);
+}
+
+@media (max-width: 767px) {
+  .inner {
+    padding-top: 8rem;
+  }
+
+  .lineTwo {
+    gap: 1rem;
+  }
+
+  .rail {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}
