@@ -1737,7 +1737,7 @@ never the source.
 work are
 
 ```
-G:\CDriveOffload\ms-playwrightranded\chrome\win64-152.0.7977.42\chrome-win64\chrome.exe
+G:\CDriveOffload\ms-playwright\branded\chrome\win64-152.0.7977.42\chrome-win64\chrome.exe
 G:\CDriveOffload\ms-playwright\chromium-1223\chrome-win64\chrome.exe
 G:\CDriveOffload\ms-playwright\chromium-1234\chrome-win64\chrome.exe
 ```
