@@ -1075,3 +1075,89 @@ space over time is precisely what they asked not to have.
 
 **Consequence:** 6rem is the offset because the navbar is `position: fixed`. If the navbar's height
 ever changes, `OPEN_SCROLL_OFFSET_REM` is the one number to revisit.
+
+---
+
+## D-030 · The loader is an opening iris; the schematic is three shapes
+
+**Phase:** 5 · **Date:** 2026-08-26 · **Status:** active · **Sayandeep's, via a brainstorm**
+
+**Context:** Two `[new]` animations, both rejected on sight and both for the same underlying reason.
+
+The loader had been built twice — a dash-offset stroke drawing the mark, then a rotating version of
+the same. *"The loader for the loading page — I don't like that animation there."* The schematic was
+a technical instrument: twenty-four rim ticks, four broken arcs, a crosshair and a sweeping
+indicator. *"Way too convoluted — make it simple, line arts, shapes."*
+
+Three options were put for each, with previews. He took the recommendation both times.
+
+### The loader: the mark stops being drawn and starts working
+
+`50-brand-and-3d.md` §1 draws the aperture **with its blades retracted** — a ring, and six short
+blades sitting at its inner edge. The mark is a shutter that has already opened. So the loader is
+that mechanism arriving at the pose the mark is drawn in: the blades start closed over the bore and
+retract to their stations, turning as they go.
+
+**Nothing is drawn.** The ring is present from the first frame because it is present in the mark.
+That is the whole difference from the two rejected versions — "the logo appears" is something done
+*to* a logo, and dash-drawing a hairline on a 5rem mark is scratchy besides. This is something the
+logo *does*, and a visitor who watches it once understands what the glyph is.
+
+Two motions, both starting at zero, in unison rather than staggered: six blades opening one after
+another is a fan, six opening together is a shutter.
+
+**The retraction is an `attr` tween on `y2`, not a transform**, and that is the one piece of craft
+in it. The blades already carry two rotations from the mark's own markup (`rotate(station)` then
+`rotate(8°)` about their own anchor), and a scale composed on top of those would shear them off
+their radial line. Moving the endpoint keeps every blade exactly on its own axis, which is what
+§1's geometry *is*.
+
+### The schematic: thirty elements to three
+
+A circle, a square and a triangle, nested, on one hairline weight, turning at 90 / 60 / 40 seconds a
+revolution in alternating directions. The periods never come back into phase, so the figure is never
+twice the same.
+
+**The circle is a 330° arc rather than a closed ring.** A closed circle rotating is
+indistinguishable from a circle standing still, so the outermost shape would have been doing nothing
+at all. The gap is what makes its rotation legible, and at 330° it still reads as a circle.
+
+**Why the figure exists at all is worth restating**, because it is not decoration. Every other
+motion on the homepage is *reactive* — the word reveal, the card reveals, the parallax, the marquee,
+the culture wipes, the accordion. Nothing moves until you move, so the instant you stop scrolling
+the page is a photograph. That is why it read as bland with all that choreography in it. This is the
+one thing on the site that does not wait to be asked.
+
+**Consequence:** `ApertureMark` gained a `<g data-mark-blades>` wrapper so the six can be turned as
+one. It carries no transform at rest, so the mark is unchanged at 16px in the navbar and 14vw in the
+footer. Both timelines are asserted — `loader.mark` at 0.9s / 5 children, `schematic.draw` at 0.94s
+/ 3 — and both remain **separate from `loader.enter`**, which is an IX2 transcription whose exact
+shape this harness asserts.
+
+---
+
+## D-031 · The 404 was brought forward from phase 12
+
+**Phase:** 5 · **Date:** 2026-08-26 · **Status:** active
+
+**Context:** The site was deployed to Vercel for the team to review, and **four of the five links in
+the navbar do not resolve yet** — `/works` and `/services/[slug]` are phase 7, `/about` is phase 8,
+`/blog` is phase 9. Anyone clicking one got the bare framework 404.
+
+**Decision: build `01-PHASES.md` T12.1's `/404` now.**
+
+A framework 404 reads as *the site is broken*. This one reads as *that page has not been built yet*,
+and those are very different messages to send someone you have asked to review your work. It lists
+the pending routes and links home.
+
+The route list is read from `NAV_LINKS` rather than written out, so a section that ships stops being
+described as pending without anyone having to remember — and the copy is written to be true for a
+genuine mistyped URL as much as for an unbuilt section.
+
+T12.1's blur reveal (`blur(24px) → 0` after `.5s`) is done in **CSS, not GSAP**. This route has no
+other motion, and pulling the whole animation runtime onto a page whose only job is to apologise is
+a strange way to spend a JS budget that has already been raised once. `prefers-reduced-motion` is
+handled by the global reset, which flattens every animation to 0.01ms.
+
+**Consequence:** T12.1 is done. Phase 12 should re-check it against the finished site rather than
+rebuild it.
