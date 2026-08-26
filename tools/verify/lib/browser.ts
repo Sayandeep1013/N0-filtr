@@ -135,3 +135,51 @@ export async function computed(
     { selector, props },
   );
 }
+
+/**
+ * Wait until the loader panel is actually gone.
+ *
+ * Phase 5 gave the loader a mark animation on first paint — the aperture's ring
+ * draws, then its six blades — so the panel now covers the page for about 1.3s
+ * rather than 0.6s (D-028). Every check that hovers or clicks early was
+ * implicitly relying on the shorter number, and they started failing with
+ * Playwright's most misleading message:
+ *
+ *     <div class="loader"> intercepts pointer events
+ *     - element was detached from the DOM, retrying
+ *
+ * which names the element it could not reach and says nothing about why. The
+ * fix is not a longer `waitForTimeout` — that is the same guess with a bigger
+ * number, and it breaks again the next time the loader changes. Wait for the
+ * state.
+ *
+ * ── Why this polls by hand instead of using `waitForFunction` ──────────────
+ *
+ * Because `waitForFunction` **injects a poller into the page**, and this
+ * harness counts persistent rAF loops to enforce CLAUDE.md's "one animation
+ * loop" rule. Playwright's default polling is `raf`, so the first version of
+ * this helper failed the very check it was written to help other checks reach —
+ * the report named an anonymous frame inside `eval at evaluate`, which points
+ * at nothing you can grep for.
+ *
+ * Setting `polling: 100` was the obvious next move and did not fix it: the
+ * injected poller is still Playwright's own code running in the page, and the
+ * probe is deliberately indiscriminate about whose loop it is. A loop of
+ * `page.evaluate` from the Node side injects nothing that outlives the call.
+ */
+export async function waitForLoaderGone(page: Page, timeoutMs = 12_000): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const gone = await page
+      .evaluate(() => {
+        const loader = document.querySelector('.loader');
+        if (!loader) return true;
+        return getComputedStyle(loader).display === 'none';
+      })
+      .catch(() => true);
+    if (gone) break;
+    await page.waitForTimeout(100);
+  }
+  // One frame past the sweep, so nothing is mid-transform when we measure.
+  await page.waitForTimeout(120);
+}

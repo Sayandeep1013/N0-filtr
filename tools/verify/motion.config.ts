@@ -126,6 +126,40 @@ export const TIMELINE_ASSERTIONS: TimelineAssertion[] = [
     ],
   },
   /**
+   * [new] — the mark drawing itself, phase 5. Not IX2, not tonik: their loader
+   * shows a static logo.
+   *
+   * It is a **separate timeline from `loader.enter` on purpose.** `enter` is a
+   * transcription of `a-23` and this file asserts its exact shape; adding the
+   * draw to it would mean either breaking that assertion or loosening it, and a
+   * loosened assertion is how a transcription quietly stops being one.
+   *
+   * Four children: the mark's own reset, the ring's dash-offset draw, the six
+   * ticks staggered, and a `clearProps` that hands the dash back — without that
+   * last one the ring stays dashed for every later route change, because the
+   * loader is mounted once in the root layout and never rebuilt.
+   *
+   * The ticks start before the ring finishes (`>-0.19`): the blades belong to
+   * the ring, and waiting for it reads as two animations rather than one
+   * mechanism. See D-028.
+   */
+  {
+    id: 'loader.mark',
+    phase: 5,
+    pending: false,
+    tweenCount: 4,
+    tweens: [
+      { target: '.loader__mark', duration: 0, props: ['opacity', 'scale'], startTime: 0 },
+      { duration: 0.55, ease: 'power3.out', props: ['strokeDashoffset'], startTime: 0 },
+      /* **0.575, not 0.35.** GSAP folds a stagger into the tween's own
+         duration, so a 0.35s tween staggered 0.045 across six ticks spans
+         0.35 + 5 × 0.045. Same arithmetic as `contact.open`'s tween[5], and
+         the same surprise — the number in the source is per element, the
+         number GSAP reports is for the whole tween. */
+      { duration: 0.575, ease: 'power3.out', props: ['scaleY', 'opacity'], startTime: 0.36 },
+    ],
+  },
+  /**
    * Our one deliberate correction to tonik: they animate the exit panel
    * `200 → 100`, which never brings it on screen. We animate `100 → 0`.
    */
@@ -222,18 +256,21 @@ export const TIMELINE_ASSERTIONS: TimelineAssertion[] = [
       { duration: 0.5, props: ['opacity'], position: '<', startTime: 0.55 },
     ],
   },
-  {
-    id: 'accordion.open',
-    phase: 5,
-    pending: true,
-    tweens: [{ duration: 0.7 }, { duration: 0.5 }],
-  },
-  {
-    id: 'accordion.close',
-    phase: 5,
-    pending: true,
-    tweens: [{ duration: 0.6 }, { duration: 0.6, position: '>-0.1' }],
-  },
+  /* ── the accordion's two timelines live in the behaviour layer ────────────
+     §6's open and close are different sequences rather than one timeline played
+     both ways — the body opens over .7s and the panel slides in over .5s after
+     it; on the way out the panel leaves first over .6s and the body collapses
+     behind it. Neither exists on a resting page, because each is built on the
+     transition that needs it.
+
+     These two entries sat `pending` here from phase 0, waiting for a component
+     that was never going to satisfy this file's shape: it reads
+     `window.__TIMELINES__` off a page that has just loaded, and a closed
+     accordion has no open timeline to read. `behaviour.services.ts` clicks the
+     row and reads the timeline the click created, then asserts every duration
+     and every resolved position in both directions — plus the things a timeline
+     cannot say, like "opening one row closes the other" and "≤767 has no
+     x-slide at all". */
 ];
 
 /**

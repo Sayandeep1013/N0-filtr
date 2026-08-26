@@ -1,0 +1,207 @@
+/* The services accordion. 20-components-and-motion.md §6.
+
+   Five rows, one open at a time. The head is a grid of three fixed things —
+   icon, name, arrow — and the body is a two-column panel that GSAP opens by
+   height. Every number below is §6's. */
+
+.accordion {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  border-bottom: var(--hairline);
+  transition: background-color var(--dur-fast) var(--ease-in-out);
+}
+
+/* §6: an open row takes `background: var(--grey-900)`. On the row rather than
+   on the body, so the head is inside the change — an open row is a block, not a
+   head with a coloured tray under it. */
+.row[data-open='true'] {
+  background-color: var(--bg-secondary);
+}
+
+.headWrap {
+  margin: 0;
+}
+
+.head {
+  /* §6: `grid: icon 2rem | name | arrow`, `padding 2rem 0`. */
+  display: grid;
+  grid-template-columns: 2rem 1fr 2rem;
+  align-items: center;
+  gap: var(--grid-gap);
+  width: 100%;
+  padding: 2rem var(--gutter);
+  border: 0;
+  background: none;
+  color: var(--text-primary);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  opacity: 0.7;
+}
+
+.name {
+  color: inherit;
+}
+
+.arrow {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  color: var(--text-secondary);
+  /* ↓ at rest. §6: it rotates to → on open. −90°, so the head of the arrow
+     swings to the right rather than the left; the other direction reads as a
+     collapse rather than as an advance. */
+  transform: rotate(0deg);
+  transition:
+    transform var(--dur-base) var(--ease-in-out),
+    color var(--dur-base) var(--ease-in-out);
+}
+
+.arrow svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.row[data-open='true'] .arrow {
+  transform: rotate(-90deg);
+  color: var(--text-primary);
+}
+
+/* ── the body ─────────────────────────────────────────────────────────────
+   `height: 0` and clipped at rest; GSAP owns the height from there. The
+   overflow is what makes a height tween a reveal rather than a squash. */
+.body {
+  height: 0;
+  overflow: hidden;
+}
+
+.bodyInner {
+  display: grid;
+  /* §6's three columns are prose 5/12, testimonial 3/12, spec panel 4/12.
+     Decision 2 dropped testimonials and §6 says what to do: "columns 1 and 3
+     widen to 7/12 and 5/12." */
+  grid-template-columns: 7fr 5fr;
+  gap: var(--grid-gap);
+  padding: 0 var(--gutter) 3rem;
+  align-items: start;
+}
+
+.prose {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  /* The measure. Even at 7/12 of 80rem a paragraph would run past 90 characters
+     without this, and §6's prose column is meant to be read. */
+  max-width: 34rem;
+}
+
+.lead {
+  color: var(--text-primary);
+}
+
+.paragraph {
+  color: var(--text-secondary);
+}
+
+.cta {
+  margin-top: 1rem;
+}
+
+/* ── the inverted panel ───────────────────────────────────────────────────
+   §6: "INVERTED: bg white". The one light surface on the homepage, and it is
+   legitimate here in a way the work card's was not — it is a panel inside an
+   already-open row that the visitor deliberately opened, not something that
+   appears under a pointer. See D-024 for the other case. */
+.panel {
+  background-color: var(--bg-alternate);
+  color: var(--text-alternate);
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  /* GSAP drives xPercent from -100 on open. Declared so the first paint is not
+     a flash of the panel in place before the timeline takes it over. */
+  opacity: 0;
+}
+
+.panelBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.panelKey {
+  color: var(--grey-700);
+  padding-bottom: 0.5rem;
+  border-bottom: var(--hairline-alt);
+}
+
+.panelList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  color: var(--text-alternate);
+}
+
+/* 21:9 rather than 16:10. The panel is 5/12 of the container and the cover is
+   the last thing in a column that already carries two lists — at 16:10 it was
+   the tallest element in the panel and read as the point of it. A band sits
+   under the lists as evidence, which is what §6 asks the slot for. */
+.featured {
+  aspect-ratio: 21 / 9;
+  overflow: hidden;
+  background-color: var(--bg-tertiary);
+}
+
+.featuredTitle {
+  color: var(--grey-700);
+}
+
+/* ── hover, gated ─────────────────────────────────────────────────────────── */
+@media (min-width: 992px) {
+  .head:hover .arrow {
+    color: var(--text-primary);
+  }
+
+  .row:not([data-open='true']):hover {
+    background-color: var(--bg-secondary);
+  }
+}
+
+/* ── ≤767 ─────────────────────────────────────────────────────────────────
+   One column. The panel stops sliding — §6 gives ≤767 its own timeline that
+   animates height alone — so it also stops being positioned off to the left. */
+@media (max-width: 767px) {
+  .head {
+    grid-template-columns: 1.5rem 1fr 1.5rem;
+    gap: 1rem;
+    padding: 1.5rem var(--gutter);
+  }
+
+  .bodyInner {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 0 var(--gutter) 2rem;
+  }
+
+  .prose {
+    max-width: none;
+  }
+
+  .panel {
+    padding: 1.25rem;
+    overflow: hidden;
+  }
+}

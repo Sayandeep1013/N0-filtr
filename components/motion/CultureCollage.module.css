@@ -1,0 +1,111 @@
+/* The culture collage. 20-components-and-motion.md §12.
+
+   The motion is transcribed; the composition is ours and §12 says so — "our
+   lowest-confidence layout (7/10)". Six frames on the site's own twelve-column
+   grid rather than on absolute percentages: a grid keeps them on the column
+   rhythm every other section uses, where percentages tuned at one viewport
+   drift off it at every other. Same reasoning as I-036. */
+
+.collage {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--grid-gap);
+  row-gap: 3.5rem;
+  /* The frames drift up to -20%, so the section needs headroom under the last
+     row or the lowest frame's travel clips against the section's own padding. */
+  padding-bottom: 4rem;
+}
+
+.frame {
+  margin: 0;
+  grid-column: var(--frame-column, auto);
+  grid-row: var(--frame-row, auto);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.media {
+  position: relative;
+  aspect-ratio: var(--frame-ratio, 4 / 3);
+  overflow: hidden;
+  background-color: var(--bg-tertiary);
+  /* A hairline, until there are photographs.
+
+     The stand-in fields are dark by design — the works grid owns the accent
+     colour on this page and a bright culture section would compete with it —
+     but dark-on-dark meant six frames that read as gaps rather than as frames.
+     An edge is what tells you something is meant to be there. It costs one
+     rule, and it stays honest: an empty frame that announces itself is a
+     placeholder, an invisible one is an accident.
+
+     Remove it in T10.4 if the photographs bleed better without it. */
+  border: var(--hairline);
+}
+
+/* The stand-in for a photograph. Deliberately neutral rather than accent-tinted:
+   the works grid uses accent fields to mean "this is a project", and reusing
+   them here would say these are projects too. Seeded per caption so six frames
+   are six places. See I-042. */
+.field {
+  position: absolute;
+  inset: 0;
+  /* Lifted off the page ground. The first pass ran --grey-900 → --black, which
+     on a #212121 page is a difference of eleven values and effectively
+     invisible. --grey-800 at the light end is still nothing like bright and is
+     unmistakably a surface. */
+  background-image: linear-gradient(
+    var(--field-angle, 0deg),
+    var(--grey-900) 0%,
+    var(--grey-800) var(--field-light, 50%),
+    var(--grey-900) 100%
+  );
+}
+
+/* §12's wipe: full width at rest, tweened to 0% on scroll. A width tween rather
+   than a transform because it has to uncover from one edge — a scaled or
+   translated panel leaves the far edge behind. Same mechanism as the work
+   card's reveal. */
+.overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  background-color: var(--bg-primary);
+}
+
+.caption {
+  display: flex;
+  gap: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.captionIndex {
+  color: var(--grey-800);
+}
+
+/* Under reduced motion nothing scrubs, so the overlay must not be left sitting
+   at its full width covering every frame. */
+@media (prefers-reduced-motion: reduce) {
+  .overlay {
+    width: 0%;
+  }
+}
+
+/* §12: "collapsing to a simple 1-column stack at ≤767". */
+@media (max-width: 767px) {
+  .collage {
+    grid-template-columns: 1fr;
+    row-gap: 2.5rem;
+    padding-bottom: 0;
+  }
+
+  .frame {
+    grid-column: 1 / -1 !important;
+    grid-row: auto !important;
+    transform: none !important;
+  }
+
+  .media {
+    aspect-ratio: 4 / 3;
+  }
+}

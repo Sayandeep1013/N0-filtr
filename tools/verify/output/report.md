@@ -1,10 +1,10 @@
 # Verification report
-Run: 2026-08-26T10:36:50.494Z · Phase 04 · commit `27fd7c7` · branch `phase/04-works-grid`
+Run: 2026-08-26T11:53:38.159Z · Phase 05 · commit `ce9950f` · branch `phase/05-home-lower`
 
 ## Summary
 ```
 tokens  ✅ 138/138
-motion  ⚠️ 199/201  (2 pending, owed by later phases)
+motion  ✅ 241/241
 visual  ⚠️ reviewed by agent — see judgement
 budget  ✅ 6/6
 ```
@@ -186,9 +186,7 @@ budget  ✅ 6/6
 ✅ prefers-reduced-motion detected = true
 ✅ Lenis destroyed under reduced motion = native scroll
 ✅ no rAF loop outside the GSAP ticker, under reduced motion = 0 unsanctioned
-✅ ScrollTrigger count returns to baseline after route changes = 25
-⏳ accordion.open — owed by phase 5
-⏳ accordion.close — owed by phase 5
+✅ ScrollTrigger count returns to baseline after route changes = 36
 ✅ loader.enter totalDuration = 0.6s
 ✅ loader.enter tween count = 5
 ✅ loader.enter tween[0] duration = 0s
@@ -213,6 +211,19 @@ budget  ✅ 6/6
 ✅ loader.enter tween[4] target = div.Loader_mark__6dBzw.loader__mark
 ✅ loader.enter tween[4] props = opacity, scale, parent, repeat, immediateRender
 ✅ loader.enter tween[4] startTime = 0.6s
+✅ loader.mark tween count = 4
+✅ loader.mark tween[0] duration = 0s
+✅ loader.mark tween[0] target = div.Loader_mark__6dBzw.loader__mark
+✅ loader.mark tween[0] props = opacity, scale, parent, repeat, immediateRender
+✅ loader.mark tween[0] startTime = 0s
+✅ loader.mark tween[1] duration = 0.55s
+✅ loader.mark tween[1] ease = power3.out
+✅ loader.mark tween[1] props = strokeDashoffset, parent, immediateRender, startAt
+✅ loader.mark tween[1] startTime = 0s
+✅ loader.mark tween[2] duration = 0.575s
+✅ loader.mark tween[2] ease = power3.out
+✅ loader.mark tween[2] props = scaleY, opacity, parent, immediateRender, startAt
+✅ loader.mark tween[2] startTime = 0.36s
 ✅ loader.exit totalDuration = 0.5s
 ✅ loader.exit tween count = 3
 ✅ loader.exit tween[0] duration = 0s
@@ -336,9 +347,9 @@ budget  ✅ 6/6
 ✅ works grid: card mix is half ×8, wide ×3, full ×1 = {"full":1,"half":8,"wide":3}
 ✅ works grid: reveal wipes to 0% and sets its one-shot guard = width 0px
 ✅ works grid: 12 cards = 12
-✅ works grid: hovering one card dims all 11 others to exactly 0.3 = every other card at 0.3
+✅ works grid: hovering one card leaves the other 11 alone — the dim is off by decision (D-027) = every other card at 1
 ✅ works grid: the hovered card is not dimmed = 1
-✅ works grid: leaving restores every card to 1 = 1
+✅ works grid: every card sits at 1 after the pointer leaves = 1
 ✅ works grid: overlay reaches 0.55 = 0.55
 ✅ works grid: overlay in is 0.5s = 0.5s
 ✅ works grid: overlay OUT is 0.4s — faster than in, §21.2's inverted asymmetry = 0.4s
@@ -353,6 +364,35 @@ budget  ✅ 6/6
 ✅ works grid ≤767: one column, every card the full measure = 350px
 ✅ works grid ≤767: no parallax — every cell untransformed
 ✅ works grid ≤767: no reel playback = no reels yet
+✅ accordion: 5 rows = 5
+✅ accordion: every row closed on load
+✅ accordion: accordion.open: total = 1.2s
+✅ accordion: accordion.open: durations = [0.7,0,0.5]
+✅ accordion: accordion.open: positions resolve = [0,0.7,0.7]
+✅ accordion: an open row takes #2e2e2e = rgb(46, 46, 46)
+✅ accordion: the arrow rotates to → = matrix(0, -1, 1, 0, 0, 0)
+✅ accordion: the inverted panel has slid fully in = matrix(1, 0, 0, 1, 0, 0)
+✅ accordion: the body opens to its content = 682px
+✅ accordion: aria-expanded tracks the state = true
+✅ accordion: opening one row closes the other = exactly 1 open
+✅ accordion: accordion.close: total = 1.1s
+✅ accordion: accordion.close: durations = [0.6,0.6,0.6,0]
+✅ accordion: accordion.close: positions resolve = [0,0.5,0.5,0.6]
+✅ accordion: the body collapses to 0 = 0px
+✅ accordion ≤767: no x-slide — height only, per §6 = matrix(1, 0, 0, 1, 0, 0)
+✅ accordion ≤767: the body is one column
+✅ accordion ≤767: the body still opens = 908px
+✅ cta: the whole block is one real button = BUTTON
+✅ cta: no interactive element nested inside it = 0
+✅ cta: #2e2e2e ground = rgb(46, 46, 46)
+✅ cta: at least 23rem tall = 378px
+✅ cta: clicking the block opens the contact panel = 1
+✅ culture: 6 frames = 6
+✅ culture: every frame starts covered
+✅ culture: the wipe uncovers on scroll = [535,645,423,535,645,535] → [0,0,423,535,645,535]
+✅ blog row: three cards in three tracks
+✅ blog row: all three cards share a top and a bottom edge
+✅ blog row: #3b3b3b card ground = rgb(59, 59, 59)
 
 > Pending entries are timelines the spec names but no phase has built yet. The phase that builds one flips `pending: false` in motion.config.ts.
 > Behaviour checks drive the real interface — scroll, hover, click, Escape — rather than reading a registered timeline. They are the only instrument that catches an unwired handler, a matchMedia gate that leaks below 992, or a reverse running at the wrong timeScale. See behaviour.config.ts.
@@ -361,97 +401,104 @@ budget  ✅ 6/6
 
 Contact sheet: `tools/verify/output/contact-sheet.html`
 
-**Agent judgement:** Phase 4. Sixteen captures at 1512 and 390. Phase 3's judgement was reset before this run.
+**Agent judgement:** Phase 5. Twenty captures at 1512 and 390. Phase 4's judgement was reset before this run.
 
-THE GRID vs s03-projects.png. The structure is theirs and it is NOT what §5 describes.
-§5 says two independent columns, each an ordinary block flow. Their DOM is one twelve-column
-CSS grid — repeat(12, 90.8125px) on a 20.5625px gap at 1512 — with every cell carrying an
-explicit grid-column and grid-row: 8/13, 7/13, 1/7, 1/6, 1/9, 9/13. Two block columns cannot
-produce that. An eight-column card at 1/9 crosses the middle of the grid, and their DOM order
-is right-card-first in two of the rows, so placement is authored rather than flowed. I-036.
+THE HOMEPAGE IS COMPLETE, top to bottom. 12,676px against tonik's 12,884 — and that number is
+not a target I aimed at, it is what falls out of building each section to its own measured
+rhythm. Their offsets and ours: services 902 / 863, cta 370 / 370, culture 1781 / 2050, blogs
+632 / 710. Culture is the one that is out, and it is out because it is the one section whose
+composition §12 explicitly hands to us.
 
-§5's MOTION half is right and the measurement confirms it. At one scroll position their row-1
-pair both sat at translateY(-41.29) while their row-3 pair sat at -18.42 and -23.03 — a ratio
-of 0.80, which is exactly -8% against -10%. Our own pair reads 3px apart in works-a-1512,
-which is the same relationship at the same point in the scroll.
+THE ACCORDION is the best thing in this contact sheet. An open row on #2e2e2e with the arrow
+rotated to a right-pointer, the prose column at 7/12 with its pill CTA, and the inverted panel
+at 5/12 carrying OUTPUT, TOOLS and a featured work. §6 gives the body three columns — prose,
+testimonial, spec panel — and says what to do about the testimonial we do not have: columns 1
+and 3 widen to 7/12 and 5/12. They do.
 
-THE COMPOSITION is ours to author and I authored it: full, pair, wide-left, pair, wide-right,
-pair, wide-left, pair. No two heavy cells touch and the eye is handed from one side to the
-other on the way down. Rows never quite fill — a pair is 6+5 or 5+6, never 6+6 — and that
-column of air is theirs: every one of their rows leaves one.
+Its motion is the part worth defending. §6's open and close are DIFFERENT sequences rather than
+one timeline played both ways: the body opens over .7s and the panel slides in over .5s after
+it; on the way out the panel leaves first over .6s and the body collapses behind it, so the
+panel is never caught mid-collapse with its own height changing under it. Read back off the
+live timelines: open 1.2s at [0, 0.7, 0.7], close 1.1s at [0, 0.5, 0.5, 0.6]. Both match §6.
 
-THE HOVER SHEET WAS WRONG AND IS THE BEST THING THAT CHANGED THIS PHASE. §5 has it as a
-full-bleed #EFEFEF panel appearing with a gsap.set() — no tween at all. Built literally, that
-is a 1316x822 card going from #212121 to pure white in one frame, twelve times over as you
-move down the page. Sayandeep, on the running build: hovering them turns them white,
-immediately you get so much exposure, use light colours properly so people do not get
-flashbanged, add a transition, do not bring the info up from the bottom, and change the total
-white to a milder dim colour. Three passes, and the third is the one that is right.
+Neither exists on a resting page, which is why they sat `pending` in motion.config.ts since
+phase 0 — that checker reads window.__TIMELINES__ off a page that has just loaded, and a closed
+accordion has no open timeline to read. They are driven in the behaviour layer now, and the two
+pending entries are gone. Motion is 241/241 with nothing outstanding for the first time.
 
-AREA. It is a drawer, not a curtain — anchored to the foot of the media and sized by its own
-content. 63% of a half card and 33% of the full opener, against 100% before, and the cover art
-stays visible above it so the card still reads as the work.
+ONE THING §6 DOES NOT COVER, and Sayandeep caught it: an open row is most of a viewport tall,
+so opening it in place leaves the thing you asked to see below the fold. The row now scrolls to
+the top on open and returns you to where you were on close. The target is PREDICTED rather than
+measured after the layout settles — waiting out the .7s open would read as lag — and the
+prediction is exact: the row only moves if the row that is closing sits above it, and by
+exactly that row's body height. One subtraction, and the scroll starts on the same frame as the
+click. D-029.
 
-DIRECTION. It wipes in from the right, not up from the bottom. clip-path rather than a
-transform, and that choice is load-bearing: a panel translated in from the right starts a full
-card-width outside its own box and would be drawn over the card in the next column, because the
-sheet is deliberately not a child of the media (§5 anatomy, and what lets 767 drop it into the
-flow). An inset clip needs no ancestor at all — the panel never moves, its visible region does.
-The five rows follow the wipe across on a .04 stagger, so it reads as being drawn rather than
-switched on.
+THE CTA is §10 to the number: #2e2e2e, 3rem padding, 23rem minimum, a 6rem heading and a 6rem
+circle. The thing I checked hardest is that it is ONE REAL BUTTON. §10 says the whole block
+opens the contact panel, and the two easy ways to build that are both wrong — a div with an
+onClick is unreachable by keyboard and announces as nothing, and a nested button for the arrow
+would be invalid and would swallow the click on the element people actually aim at. Asserted:
+tag is BUTTON, zero interactive descendants, and clicking it opens the panel.
 
-COLOUR. Not #EFEFEF. The panel is the page ground with 14% of the WORK OWN accent mixed in —
-Tessera a dark blue-grey, CanVas a dark red-brown, Solidus a dark green — with an accent
-hairline at full strength along the top edge. Three things fall out of that and all three are
-improvements: there is no bright surface anywhere on the page at any moment; each panel is
-visibly the panel of THAT card, which twelve identical white rectangles never were; and the
-SpecTable drops back to its ordinary palette, so the invert variant is not needed here at all.
-14% is the whole of the tuning — below about 10% the accents stop being distinguishable from
-each other, above about 20% the darker ones start fighting the white text. D-022, D-024.
+THE BLOG ROW lines up, and that is the whole component. Three cards on #3b3b3b, title top,
+hairline above the foot, category left and READ ARTICLE right. §19's space-between on a fixed
+22rem minimum is what makes three cards with three different title lengths share a top edge and
+a bottom edge; centred on their own content they would give three baselines and stop reading as
+a row. Asserted as one distinct top and one distinct bottom across all three.
 
-All four properties are asserted, and the colour one is asserted as a PROPERTY rather than a
-hex: relative luminance under 0.10, and still lighter than the page ground. All twelve panels
-are different colours by design, so pinning one value would pass vacuously for eleven of them.
-Measured: 0.0211 against the page 0.0152. A requirement nobody checks is one that regresses the
-next time somebody reads §5 and fixes it back.
+THE CULTURE SECTION IS THE WEAKEST THING ON THE PAGE AND I WILL NOT PRETEND OTHERWISE. §12
+rates it our lowest-confidence layout at 7/10 and splits it exactly right: the motion is exact
+and the composition is a design act we perform ourselves. The motion is there — every frame's
+overlay wipes from full width to 0 on scroll, two of the six carry the -20% parallax, and both
+are asserted. The composition is six frames on the twelve-column grid, uneven by design.
 
-THE COVERS ARE PLACEHOLDERS AND THEY ARE DOING REAL WORK. Twelve grey rectangles cannot be
-judged for composition, and composition is the whole of phase 4's acceptance. Each card draws
-a deterministic cover from its own accent — seeded off the slug, no Math.random, so the server
-and the client agree and a screenshot diff is stable. Four rings rather than six, deliberately:
-the aperture is the studio's mark and putting it on twelve cards would make the grid read as
-twelve pieces of our branding rather than twelve pieces of work. T10.5 replaces them. I-035.
+What is not there is photographs. T10.4 imports them. Each frame draws a neutral seeded field
+until then, deliberately NOT accent-tinted — the works grid uses accent fields to mean 'this is
+a project' and reusing them here would say these are projects too. The first pass ran the
+gradient down to --black, which on a #212121 page is eleven values of difference and effectively
+invisible: six frames that read as gaps rather than as frames. They have a hairline and a
+lighter midpoint now. An empty frame that announces itself is a placeholder; an invisible one is
+an accident. I-042.
 
-ONE DEFECT THE SCREENSHOT FOUND AND NOTHING ELSE WOULD HAVE. The badge is z-index 5 inside the
-media; the sheet is z-index 3 and a SIBLING of it. Media had no z-index, so it created no
-stacking context and those two numbers competed directly — the white CASE STUDY chip painted
-on top of the white hover sheet and read as its first table row. Every computed value involved
-was correct. It is only wrong as a picture.
+It was also 2748px on the first build against tonik's 1781 — three portrait frames stacked, each
+670px on its own. One portrait frame now, and 2050. Still over, and I am leaving it there: our
+six frames are our composition and matching their pixel count would mean matching a photo
+arrangement we do not have.
 
-AND ONE THE HARNESS WAS WRONG ABOUT. Every card in the first run was photographed mid-reveal —
-half-faded badges, captions at a third opacity — because the visual check settled 600ms after a
-scroll and the reveal runs 1.05s. That reads as a styling bug in a contact sheet and is not one.
-Same class as SCRUB_SETTLE_MS in phase 3: when a check looks wrong around an animation, ask what
-the animation was doing when you looked.
+THE LOADER DRAWS ITS OWN MARK NOW. Sayandeep asked for the logo animated, and the aperture had
+one obvious animation in it the whole time: §1 of 50-brand-and-3d draws the mark with its blades
+RETRACTED, so the ring arriving first and the six ticks then pulling back to the inner edge is
+an iris opening. Separate timeline from loader.enter on purpose — enter is a transcription of
+IX2 a-23 and this harness asserts its exact five-child shape; adding to it would mean breaking
+that assertion or loosening it, and a loosened assertion is how a transcription quietly stops
+being one. First visit only. D-028.
 
-AT 390. works-a-390 is the responsive behaviour §5 warns is most likely to be got wrong, and it
-is right: the sheet has not hidden, it has become the card's second block — the #EFEFEF panel
-with SERVICES / TOOLS / INDUSTRIES / YEAR / STATUS sitting under the media, then the caption.
-One column, every card the full measure, no transforms on any cell, no reel playback.
+THAT CHANGE BROKE FOUR HARNESS CHECKS AND ALL FOUR WERE ALREADY WRONG. The loader now covers
+the page for 1.3s rather than 0.6, and everything that had been implicitly relying on the
+shorter number surfaced at once: hovers intercepted by the loader panel, shots of a covered
+page, a ScrollTrigger baseline of 0 read before any trigger existed, and — the good one — a
+phantom rAF loop.
 
-THE HEADLINE has one word drawn as selected — Sayandeep asked for build to look selected because
-it creates a depth effect. It does, and it is not a new visual language: the site already
-inverts ::selection to #efefef on #212121, so this is that, applied on purpose rather than by
-accident. The highlight sits behind the glyphs and spans the full line box, which is what reads
-as a plane at a different depth. D-021.
+That last one is worth the space. readMotionState used page.waitForFunction, which polls on
+requestAnimationFrame by default and therefore installs a self-rescheduling rAF loop IN THE
+PAGE. This file counts persistent rAF loops to enforce CLAUDE.md's one-animation-loop rule, so
+the helper was failing the check twenty lines below it. It had always been fragile and never
+failed: the non-reduced block reads the probe before calling it, and __MOTION__ used to appear
+fast enough that the poller resolved on its first tick, under the five-tick threshold that
+separates a driver from an incidental reschedule. Delaying the provider's first publish by 700ms
+pushed it over. It polls by hand from the Node side now, and so does the loader helper.
 
-WHAT I AM NOT CLAIMING. The homepage still ends after the works grid — no services, no CTA, no
-culture, no blog row. The footer sits directly under SEE ALL WORK. That is phase 5. The load-more
-button is a plain pill; §21.4 gives theirs three media layers tracking the cursor at different
-depths and we have no media for them until phase 10. I-038.
+THE JS BUDGET went to Sayandeep rather than being edited, which is the standard D-013 set when
+it raised the last one. 321.7KB against a 320 ceiling: React and Next ~103, three ~141, GSAP and
+ScrollTrigger ~50, all of our own components ~28. The only lever big enough to matter is three,
+and pulling it means dropping the hero. Raised to 360 with the measurement recorded. Plyr, Flip,
+split-type and Matter all still load on demand and three of the four are asserted absent.
 
-⏳ services — owed by phase 5
-⏳ cta — owed by phase 5
+WHAT I AM NOT CLAIMING. The culture frames are placeholders. The service leads and OUTPUT/TOOLS
+lists are authored to fill the accordion and T10.8 writes the real ones. The blog cards link to
+/blog/[slug], which does not exist until phase 9. And every nav destination still 404s.
+
 ⏳ cs-hero — owed by phase 6
 ⏳ service — owed by phase 7
 ✅ type-scale @1512 = captured, no reference
@@ -460,6 +507,10 @@ depths and we have no media for them until phase 10. I-038.
 ✅ showreel @1512 = captured, no reference
 ✅ works-a @1512 = captured, reference paired
 ✅ works-b @1512 = captured, no reference
+✅ services @1512 = captured, reference paired
+✅ cta @1512 = captured, no reference
+✅ culture @1512 = captured, reference paired
+✅ blog-row @1512 = captured, no reference
 ✅ footer @1512 = captured, reference paired
 ✅ contact-panel @1512 = captured, reference paired
 ✅ nav-menu @1512 = captured, no reference
@@ -469,6 +520,10 @@ depths and we have no media for them until phase 10. I-038.
 ✅ showreel @390 = captured, no reference
 ✅ works-a @390 = captured, reference paired
 ✅ works-b @390 = captured, no reference
+✅ services @390 = captured, reference paired
+✅ cta @390 = captured, no reference
+✅ culture @390 = captured, reference paired
+✅ blog-row @390 = captured, no reference
 ✅ footer @390 = captured, reference paired
 ✅ contact-panel @390 = captured, reference paired
 ✅ nav-menu @390 = captured, no reference
@@ -479,12 +534,12 @@ depths and we have no media for them until phase 10. I-038.
 ℹ️ matter-js absent from the eagerly-loaded bundle — vacuous: matter-js is not installed yet
 ✅ three absent from the eagerly-loaded bundle = absent
 ✅ plyr absent from the eagerly-loaded bundle = absent
-ℹ️ all built chunks, gzipped (not a per-route figure) = 496.0KB
-✅ JS on / (transferred) = 317.3KB / 320KB
-✅ home page total weight = 455.9KB / 1800KB
+ℹ️ all built chunks, gzipped (not a per-route figure) = 500.8KB
+✅ JS on / (transferred) = 322.0KB / 360KB
+✅ home page total weight = 467.0KB / 1800KB
 ✅ zero network font requests = both faces self-hosted
 ✅ CLS (local, unthrottled) = 0.0025
-ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 100ms
+ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 160ms
 
 > Poster and reel budgets become binding in phase 10, when assets exist.
 > Lighthouse scores are a phase 12 deliverable via mcp__chrome-devtools__lighthouse_audit; the figures here are local and unthrottled.

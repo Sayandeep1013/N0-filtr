@@ -94,12 +94,13 @@ got it right. Protocol §2.9 is the rule.
 
 | | |
 |---|---|
-| Current phase | **5 — Homepage lower** |
+| Current phase | **6 — Case study 🚦 GATE** |
 | Status | ⬜ not started |
-| Branch | *(create `phase/05-home-lower`)* |
+| Branch | *(create `phase/06-case-study`)* |
 | Blocked | no |
-| Verify report | `tools/verify/output/report.md` — tokens 138/138, motion **199/201** (2 pending), visual judged, budget 6/6 |
-| ⚠️ Budget | **JS 317.2KB of 320KB — 2.8KB left.** I-034. Phase 7 wants Embla and it does not fit. |
+| Verify report | `tools/verify/output/report.md` — tokens 138/138, motion **241/241** (nothing pending), visual judged, budget 6/6 |
+| Budget | JS **322.0KB of 360KB**. Ceiling raised from 320 by Sayandeep on the measurement — I-034 closed. |
+| 🚦 | **Phase 6 is the gate.** Present the finished case study before phase 7. |
 
 ---
 
@@ -112,8 +113,8 @@ got it right. Protocol §2.9 is the rule.
 | 2 | Brand & 3D hero 🚦 | ✅ | `phase/02-brand-3d` | `phase-02-complete` | mark approved · 13 hero assertions · budget re-based |
 | 3 | Homepage upper | ✅ | `phase/03-home-upper` | `phase-03-complete` | + the grid system (I-032) · 21 new assertions |
 | 4 | Works grid | ✅ | `phase/04-works-grid` | `phase-04-complete` | 35 assertions · 6 changes from review · I-036 |
-| 5 | Homepage lower | ⬜ | `phase/05-home-lower` | — | **next** · Sayandeep chose: finish the homepage before the block pit |
-| 6 | Case study 🚦 | ⬜ | `phase/06-case-study` | — | **GATE** · needs 4 |
+| 5 | Homepage lower | ✅ | `phase/05-home-lower` | `phase-05-complete` | **the homepage is complete** · 41 assertions · motion 241/241 |
+| 6 | Case study 🚦 | ⬜ | `phase/06-case-study` | — | **next · GATE** — present before phase 7 |
 | 7 | Service & industry | ⬜ | `phase/07-service-pages` | — | needs 6 |
 | 8 | About | ⬜ | `phase/08-about` | — | needs 5 |
 | 9 | Blog | ⬜ | `phase/09-blog` | — | needs 5 · parallel-safe |
@@ -121,7 +122,7 @@ got it right. Protocol §2.9 is the rule.
 | 11 | Block pit | ⬜ | `phase/11-block-pit` | — | needs 1 · parallel-safe |
 | 12 | Polish & launch | ⬜ | `phase/12-polish` | — | needs all |
 
-**Progress: 5 / 13 phases.**
+**Progress: 6 / 13 phases.**
 
 ---
 
@@ -188,6 +189,27 @@ Full record: `docs/build/phases/PHASE-02.md`.
 6. **I-022** — the camera stays at 7.5, not the specced 6.5.
 7. **I-021** — the grain is right as built.
 8. **I-019** — the JS budget is **320KB**, raised from a 190 that was never a measurement. (D-013)
+
+### Phase 5 — Homepage: services, CTA, culture, blog row ✅ complete
+
+Full record: `docs/build/phases/PHASE-05.md`. **The homepage is complete, top to bottom** —
+12,676px against tonik's 12,884.
+
+| id | task | status | evidence |
+|---|---|---|---|
+| T5.1 | Services accordion | ✅ | row `rgb(46,46,46)`, arrow `rotate(-90deg)`, one open at a time |
+| T5.2 | Open/close sequences | ✅ | open **1.2s @ [0, 0.7, 0.7]**, close **1.1s @ [0, 0.5, 0.5, 0.6]** |
+| T5.3 | Body + inverted panel | ✅ | 7fr/5fr, per §6's own instruction for the missing column |
+| T5.4 | Accordion ≤767 | ✅ | behaviour at 390: no x-slide, one column |
+| T5.5 | `<CtaBlock>` | ✅ | tag `BUTTON`, **0 nested controls**, opens the panel |
+| T5.6 | `<CultureCollage>` | ⚠️ | both motions asserted; **no photographs** — I-042 |
+| T5.7 | Blog card row | ✅ | one shared top edge and bottom edge across all three |
+
+**Five changes from Sayandeep's mid-phase review:** the `ChunkLoadError` (I-041), the `<video>`
+hydration mismatch, the sibling-dim removed (D-027), the loader drawing its own mark (D-028), and
+the accordion scrolling to its opened row (D-029).
+
+**The JS ceiling moved 320 → 360**, by Sayandeep, on the measurement. I-034 closed.
 
 ### Phase 4 — Works grid ✅ complete
 

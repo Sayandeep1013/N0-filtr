@@ -1,10 +1,11 @@
 import type { Browser, Page } from 'playwright';
-import { newPage } from './lib/browser';
+import { newPage, waitForLoaderGone } from './lib/browser';
 import { fail, pass, type CheckResult } from './lib/types';
 import { BEHAVIOUR } from './behaviour.config';
 import { checkHero3d } from './behaviour.hero';
 import { checkHomeUpper } from './behaviour.home';
 import { checkWorksGrid } from './behaviour.works';
+import { checkHomeLower } from './behaviour.services';
 
 /**
  * Behaviour checks — what a timeline's *shape* cannot tell you.
@@ -48,6 +49,7 @@ async function checkNavMini(browser: Browser, baseUrl: string): Promise<CheckRes
   try {
     await page.goto(`${baseUrl}${c.page}`, { waitUntil: 'networkidle' });
     await page.evaluate(() => document.fonts.ready);
+    await waitForLoaderGone(page);
 
     const needed = c.abovePx + c.viewport.h;
     const height = await page.evaluate(() => document.documentElement.scrollHeight);
@@ -130,6 +132,7 @@ async function checkFooterDim(browser: Browser, baseUrl: string): Promise<CheckR
     try {
       await page.goto(`${baseUrl}${c.page}`, { waitUntil: 'networkidle' });
       await page.evaluate(() => document.fonts.ready);
+    await waitForLoaderGone(page);
 
       const links = page.locator(c.selector);
       if ((await links.count()) < 2) {
@@ -195,6 +198,7 @@ async function checkContactPanel(browser: Browser, baseUrl: string): Promise<Che
   try {
     await page.goto(`${baseUrl}${c.page}`, { waitUntil: 'networkidle' });
     await page.evaluate(() => document.fonts.ready);
+    await waitForLoaderGone(page);
 
     const closed = await page.evaluate(() => getComputedStyle(document.querySelector('.contact')!).display);
     out.push(
@@ -301,6 +305,7 @@ async function checkButtonIcon(browser: Browser, baseUrl: string): Promise<Check
   try {
     await page.goto(`${baseUrl}${c.page}`, { waitUntil: 'networkidle' });
     await page.evaluate(() => document.fonts.ready);
+    await waitForLoaderGone(page);
 
     await page.locator(c.hoverTarget).first().hover();
     await page.waitForTimeout(500);
@@ -358,6 +363,7 @@ async function checkLoaderReduced(browser: Browser, baseUrl: string): Promise<Ch
   try {
     await page.goto(`${baseUrl}${c.page}`, { waitUntil: 'networkidle' });
     await page.evaluate(() => document.fonts.ready);
+    await waitForLoaderGone(page);
 
     /* Wait for the timeline to be registered rather than assuming it already is.
 
@@ -440,5 +446,6 @@ export async function checkBehaviour(browser: Browser, baseUrl: string): Promise
     ...(await checkHero3d(browser, baseUrl)),
     ...(await checkHomeUpper(browser, baseUrl)),
     ...(await checkWorksGrid(browser, baseUrl)),
+    ...(await checkHomeLower(browser, baseUrl)),
   ];
 }

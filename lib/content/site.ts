@@ -301,3 +301,58 @@ export const SHOWREEL = {
   /** Rendered next to the title while `srcWebm` is still the baked stand-in. */
   isPlaceholder: true,
 } as const;
+
+/* ── the services section ──────────────────────────────────────────────────
+   `30-page-specs.md` §3. The label, then a `<RevealText>` lead, then the
+   accordion. The lead is §3's verbatim. */
+export const SERVICES_INTRO = {
+  label: 'Our services',
+  lead: 'Design is the API between vision and reality. Consider us your gateway.',
+} as const;
+
+/* ── the culture section ───────────────────────────────────────────────────
+   `30-page-specs.md` §5 gives the structure — a mono label in the left column,
+   a heading and lead in the right, then the photo scatter — and leaves the copy
+   and the composition to us. §12 rates the composition our lowest-confidence
+   layout on the site and says why: the motion is transcribed, the arrangement
+   is a design act we perform ourselves.
+
+   **There are no photographs yet.** T10.4 imports the real imagery. The frames
+   below carry their captions and their placements; each draws a neutral field
+   until there is something to put in it. See I-042.
+
+   Only ONE frame is portrait. Three were, in the first pass, and the section
+   came out 2748px against tonik's 1781 — a portrait frame five columns wide is
+   670px tall on its own, and three of them stacked made a section nobody would
+   scroll through to reach the blog row. The ratios below are the tuning; the
+   placements are unchanged. */
+export const CULTURE = {
+  label: 'Our studio',
+  heading: 'A studio the size of the work.',
+  lead: 'No account layer, no handover, no telephone game between the person who drew it and the person who built it. The constraint is the point — it is why the work ships.',
+
+  /**
+   * Six frames on the twelve-column grid.
+   *
+   * Deliberately uneven: three tall, three wide, none sharing a top edge with
+   * its neighbour, and the rows overlap so the scatter reads as placed rather
+   * than as a gallery. `parallax` is per frame and only two carry it — §12
+   * flags it per photo, and drifting all six moves the section as a block,
+   * which is the version that looks like a mistake.
+   */
+  frames: [
+    { caption: 'The desk, most days', column: '1 / 6', row: 1, ratio: '4 / 3', parallax: false },
+    { caption: 'Reading a closed system', column: '7 / 13', row: 1, ratio: '5 / 4', parallax: true },
+    { caption: 'Where the grain came from', column: '2 / 6', row: 2, ratio: '4 / 5', parallax: true },
+    { caption: 'Twelve repositories, one voice', column: '7 / 12', row: 2, ratio: '4 / 3', parallax: false },
+    { caption: 'Shipping on a free tier', column: '1 / 7', row: 3, ratio: '16 / 10', parallax: false },
+    { caption: 'The part that took the longest', column: '8 / 13', row: 3, ratio: '4 / 3', parallax: true },
+  ],
+} as const;
+
+/* ── the blog row ──────────────────────────────────────────────────────────
+   `30-page-specs.md` §6: three cards and a link to the index. */
+export const BLOG_ROW = {
+  label: 'From the blog',
+  link: 'Check out our blog',
+} as const;

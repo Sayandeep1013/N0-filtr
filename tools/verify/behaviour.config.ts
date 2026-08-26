@@ -266,6 +266,22 @@ export const BEHAVIOUR = {
     cardCount: 12,
     /** Which card the checks hover. Index 1 is a `half` in a two-card row. */
     hoverIndex: 1,
+    /**
+     * **The sibling-dim is off, and this asserts that it is.**
+     *
+     * §5 calls dimming the other eleven cards to .3 "the single most striking
+     * interaction on the site", and phase 4 built it, hoisted it to the grid per
+     * §21.1, and asserted it at exactly 0.3. Sayandeep then asked for it
+     * removed, because the change that made the hovered card's panel DARK
+     * (D-024) took away the thing the dim was contrasting against — hovering
+     * now made the whole grid darker and nothing brighter. See D-027.
+     *
+     * The assertion is inverted rather than deleted. A removed behaviour with a
+     * removed check is indistinguishable from a behaviour that broke, and this
+     * one is one line away from coming back — the next person to read §5 will
+     * be tempted. `expectDim` is what to flip if it does.
+     */
+    expectDim: false,
     dimmed: 0.3,
     tolerance: 0.02,
     /** §21.2 [ix2 a-29/a-30]. */
@@ -308,6 +324,80 @@ export const BEHAVIOUR = {
     sheetMaxCoverage: 0.8,
     desktop: { w: 1512, h: 900 },
     mobile: { w: 390, h: 844 },
+  },
+
+  /**
+   * The services accordion. `20-components-and-motion.md` §6.
+   *
+   * §6's open and close are **different sequences**, not one timeline played
+   * both ways, and that is the whole design: the body opens over .7s and the
+   * inverted panel slides in over .5s *after* it, while on the way out the
+   * panel leaves first over .6s and the body collapses behind it — so the panel
+   * is never caught mid-collapse with its own height changing under it.
+   *
+   * Which means neither timeline exists on a resting page. They are built per
+   * transition, so `motion.config.ts` cannot read them and had both pending
+   * since phase 0 waiting for a component that was never going to satisfy that
+   * shape. They are driven here instead.
+   *
+   * Every figure below was read back off the live timelines and matched against
+   * §6, both directions.
+   */
+  accordion: {
+    id: 'services accordion',
+    phase: 5,
+    page: '/',
+    rowSelector: '[data-service-row]',
+    rowCount: 5,
+    openTimelineId: 'accordion.open',
+    closeTimelineId: 'accordion.close',
+    openTotal: 1.2,
+    openStarts: [0, 0.7, 0.7],
+    openDurations: [0.7, 0, 0.5],
+    /* The `set()` lands last in `getChildren()` order because GSAP sorts by
+       start time and `'>-0.1'` pulls the body's collapse back to 0.5, ahead of
+       it. Documented because it looks like a mis-ordering and is not. */
+    closeTotal: 1.1,
+    closeStarts: [0, 0.5, 0.5, 0.6],
+    closeDurations: [0.6, 0.6, 0.6, 0],
+    /** §6: an open row takes `background: var(--grey-900)`. */
+    openGround: 'rgb(46, 46, 46)',
+    /** §6: the arrow rotates ↓ → →. `rotate(-90deg)`. */
+    arrowOpen: 'matrix(0, -1, 1, 0, 0, 0)',
+    minBodyHeight: 200,
+    desktop: { w: 1512, h: 900 },
+    mobile: { w: 390, h: 844 },
+  },
+
+  /**
+   * The CTA block. §10.
+   *
+   * "The whole block opens the contact panel" is a claim about the *element*,
+   * not about a handler: a `<div>` with an onClick is unreachable by keyboard
+   * and announces as nothing, and a nested `<button>` for the arrow would be
+   * invalid and would swallow the click on the thing people aim at. Both are
+   * asserted, because both are the easy mistake.
+   */
+  ctaBlock: {
+    id: 'cta block',
+    phase: 5,
+    page: '/',
+    ground: 'rgb(46, 46, 46)',
+    /** §10: min-height 23rem. 23 × 16.45 at 1512. */
+    minHeightPx: 378,
+    desktop: { w: 1512, h: 900 },
+  },
+
+  /** The culture wipe and the blog row's alignment. §12, §19. */
+  homeLower: {
+    id: 'culture and blog row',
+    phase: 5,
+    page: '/',
+    cultureFrames: 6,
+    blogCards: 3,
+    /** §19: `background var(--grey-800)`. */
+    blogGround: 'rgb(59, 59, 59)',
+    desktop: { w: 1512, h: 900 },
   },
 
   loaderReduced: {

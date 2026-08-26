@@ -1233,3 +1233,83 @@ open. On a deploy it is a visitor holding a tab open across a release.
 is a real retry and `open()` can still tell "loaded" from "did not". `prefetch()` swallows failures
 silently. And `open()`/`close()` gained a no-Flip path — shared with the reduced-motion branch — so
 a missing 5KB plugin costs the flourish rather than the feature.
+
+
+---
+
+## I-042 · The culture collage has no photographs  🟠
+
+**Found:** phase 05, 2026-08-26 · **Area:** `lib/content/site.ts` `CULTURE`, `components/motion/CultureCollage.tsx`
+
+**Problem:** `30-page-specs.md` §5 gives the culture section a scatter of 6–8 photographs with mono
+captions — "workspace, screens, process shots, conference/meetup photos". We have none. T10.4
+imports the real imagery.
+
+**Impact:** It is the weakest section on the homepage, and it is 2050px of it. §12 already rates the
+composition **our lowest-confidence layout on the site (7/10)** — "the motion is exact but the
+composition is a design act we perform ourselves" — and the motion half is genuinely done: every
+frame's overlay wipes from full width to 0 on scroll, two of the six carry the −20% parallax, and
+both are asserted.
+
+**Workaround:** Each frame draws a deterministic neutral field seeded off its own caption, with a
+hairline border. Two things about that are deliberate:
+
+- **Not accent-tinted.** The works grid uses accent fields to mean *this is a project*; reusing them
+  here would say these are projects too.
+- **Bordered.** The first build ran the gradient down to `--black`, which on a `#212121` page is
+  eleven values of difference and effectively invisible — six frames that read as gaps rather than
+  as frames. An empty frame that announces itself is a placeholder; an invisible one is an accident.
+
+The section also came out **2748px against tonik's 1781** on the first build — three portrait frames
+stacked, each 670px on its own. One portrait frame now, and 2050. Still over, and left there: six
+frames is our composition, and matching their pixel count would mean matching a photo arrangement we
+do not have.
+
+**Needs:** **Phase 10, T10.4.** Real imagery, then re-judge the composition — it is the one section
+where the arrangement cannot be settled until the content exists. Consider dropping the hairline if
+the photographs bleed better without it.
+
+---
+
+## I-043 · Four harness checks were relying on the loader being 600ms  🟢
+
+**Found:** phase 05, 2026-08-26 · **Area:** `tools/verify/` · **Resolved:** phase 05
+
+**Problem:** D-028 gave the loader a mark animation on first paint, taking it from ~0.6s to ~1.3s.
+Four checks failed at once, and **all four were already wrong** — the change did not break them, it
+revealed them.
+
+| Failure | What it actually was |
+|---|---|
+| `<div class="loader"> intercepts pointer events` | every check that hovers or clicks early had an implicit race with the loader |
+| Visual shots of a covered page | `visual.ts` slept 900ms and called it settled |
+| `ScrollTrigger count returns to baseline — expected 0, got 36` | the baseline was read before any trigger existed, and four equal reads of `0` in 800ms looked settled |
+| `no rAF loop outside the GSAP ticker — got at next (eval at evaluate…)` | **the good one.** See below |
+
+**The rAF one is worth reading.** `readMotionState` used `page.waitForFunction`, which **polls on
+requestAnimationFrame by default** and therefore installs a self-rescheduling rAF loop *in the
+page*. `motion.ts` counts persistent rAF loops to enforce CLAUDE.md's "one animation loop" rule —
+so the helper was failing the check twenty lines below it.
+
+It had always been fragile and had never failed, for two reasons that both stopped holding in phase
+5: the non-reduced block reads the rAF probe *before* calling `readMotionState`, and `__MOTION__`
+used to appear fast enough that the poller resolved on its first tick, under the five-tick threshold
+that separates a real driver from an incidental reschedule. Delaying the provider's first publish
+pushed it over.
+
+The failure names an anonymous frame inside `eval at evaluate`, which points at nothing you can
+grep for. That is the shape of every bug in this class.
+
+**Resolved:** phase 05.
+
+- `waitForLoaderGone(page)` in `lib/browser.ts`, used by every check that interacts. It polls with
+  `page.evaluate` from the **Node** side rather than `waitForFunction`, precisely so it injects
+  nothing that outlives the call.
+- `readMotionState` polls the same way.
+- The visual harness waits for the loader instead of sleeping.
+- The ScrollTrigger baseline waits for the loader and requires four equal reads rather than three.
+
+**The durable lesson**, and it is the third time this build has learned a version of it: **when a
+check fails around a timing change, suspect the check.** Phase 2 had three `networkidle` races,
+phase 3 had `SCRUB_SETTLE_MS`, phase 4 had the 600ms visual settle. Every one reported a bug that
+did not exist.

@@ -3,7 +3,6 @@
 import { useRef } from 'react';
 import { gsap, ScrollTrigger, useGSAP } from '@/lib/motion/gsap';
 import { MQ } from '@/lib/motion/tokens';
-import { useSiblingDim } from '@/lib/motion/useSiblingDim';
 import type { Work } from '@/content/works/_types';
 import { WORKS_LAYOUT, placementFor } from '@/lib/content/works';
 import { WorkCard } from './WorkCard';
@@ -40,11 +39,25 @@ import s from './WorksGrid.module.css';
 export function WorksGrid({ works }: { works: Work[] }) {
   const root = useRef<HTMLDivElement>(null);
 
-  /* §21.1's shared primitive, and the one place the grid's dim lives.
-     "Hovering one card dims all eleven others to exactly 0.3" is phase 4's
-     headline acceptance criterion, and it belongs here rather than twelve times
-     over inside the cards — see the note in `WorkCard`, and I-039. */
-  useSiblingDim(root, { selector: '[data-work-card]' });
+  /* ── the sibling-dim is OFF, and that is a decision ─────────────────────
+     §5 calls dimming the other eleven cards to .3 "the single most striking
+     interaction on the site", and phase 4 built it, hoisted it to this
+     component per §21.1, and asserted it. Sayandeep, on the running build:
+     *"when I hover over one card the rest also gets dimmed — fix that too."*
+
+     He is right, and the reason is a change we made earlier the same day. The
+     dim was legible when the hovered card turned WHITE: one card lit, eleven
+     receded, and the contrast pointed at the one you were on. Now the hovered
+     card's panel is dark too (D-024), so hovering anything makes the entire
+     grid darker and nothing brighter — the page reads as dimming rather than
+     as focusing. The interaction did not stop working; what it was contrasting
+     against went away.
+
+     One line brings it back, and `useSiblingDim` still exists and is still used
+     by the footer, so nothing is stranded. See D-027.
+
+         useSiblingDim(root, { selector: '[data-work-card]' });
+  */
 
   useGSAP(
     () => {

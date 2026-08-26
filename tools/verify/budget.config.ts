@@ -22,9 +22,34 @@ export const BUDGETS = {
    * when the pit scrolls into view), so neither should ever appear in this
    * figure. If it does, that is the bug — not the ceiling.
    *
-   * Lighthouse (below) is the quality bar this number only approximates.
+   * ── 360, raised from 320 by Sayandeep on 2026-08-26 ──────────────────────
+   *
+   * Phase 5 took the route to **321.7KB** and I-034 had flagged it coming: the
+   * works grid, the accordion, the culture collage and the blog row all land on
+   * this one URL. Put to him with the measurement rather than edited, which is
+   * the standard D-013 itself set.
+   *
+   * What is actually in the figure:
+   *
+   *     React + Next runtime      ~103KB   unavoidable
+   *     three.js                  ~141KB   the hero IS the 3D object
+   *     GSAP + ScrollTrigger       ~50KB   every animation on the site
+   *     our own components         ~28KB   grid, accordion, collage, showreel
+   *
+   * The only lever big enough to matter is three, and pulling it means dropping
+   * the hero — which is the site's strongest asset and cost phase 2 two
+   * sessions. 360 leaves about 38KB for phases 6 to 12.
+   *
+   * **The lazy rule is unchanged and is what protects this number.** Plyr,
+   * Flip, split-type and Matter are all specced to load on demand, and three of
+   * the four are asserted absent from the eagerly-loaded bundle below. If one
+   * of them ever shows up in this figure that is the bug, not the ceiling.
+   *
+   * Lighthouse (below) is the quality bar this number only approximates. Total
+   * page weight is 467KB of an 1800KB budget, so nothing here is a number a
+   * visitor would feel — the JS is what is under pressure, not the transfer.
    */
-  homeJsGzipKb: 320,
+  homeJsGzipKb: 360,
   /** Home page total transfer with images. */
   homeTotalKb: 1800,
   /** Largest card poster. Becomes binding in phase 10. */
