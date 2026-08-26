@@ -77,14 +77,20 @@ export function CaseSlider({ items, label }: { items: Media[]; label: string }) 
         <div className={s.track} role="group" aria-roledescription="carousel" aria-label={label}>
           {items.map((item, i) => (
             <figure
-              key={item.src}
+              key={item.art ?? item.src ?? i}
               className={s.slide}
               role="group"
               aria-roledescription="slide"
               aria-label={`${i + 1} of ${items.length}`}
             >
               <Plate size="md">
-                <CaseImage src={item.src} art={item.art} alt={item.alt} sizes={SIZES_CONTENT} ratio={item.ratio} />
+                <CaseImage
+                src={item.src ?? ''}
+                art={item.art}
+                alt={item.alt ?? ''}
+                sizes={SIZES_CONTENT}
+                ratio={item.ratio}
+              />
               </Plate>
               {item.caption ? (
                 <figcaption data-t="label" className={s.caption}>

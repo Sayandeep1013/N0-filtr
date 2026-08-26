@@ -6,8 +6,14 @@
  */
 
 export interface Media {
-  src: string;
-  alt: string;
+  /**
+   * A file. Optional, because `art` is a complete alternative to it rather than
+   * a decoration on it — a generated plate has nothing to fetch. Exactly one of
+   * `src` and `art` should be set.
+   */
+  src?: string;
+  /** Empty for a generated plate: it is decorative and the caption carries it. */
+  alt?: string;
   caption?: string;
   /**
    * A generated plate instead of a file. The value is the seed —

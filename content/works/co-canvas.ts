@@ -23,7 +23,7 @@ export const coCanvas: Work = {
      the seed, so twelve works differ without twelve decisions. */
   card: {
     width: "half",
-    poster: "/media/works/co-canvas.webp",
+    poster: '',
     art: "co-canvas-01",
   },
   blocks: [],

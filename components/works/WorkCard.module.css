@@ -176,18 +176,20 @@
   pointer-events: none;
 }
 
-/* ── the name ─────────────────────────────────────────────────────────────
-   Centred on the plate, faded at rest, and it comes up on hover.
+/* ── the name, in two places ──────────────────────────────────────────────
+   D-045. Sayandeep, on the first centred version: *"the centre text doesn't
+   look great with the info box."*
 
-   `z-index: 4` puts it above the media (1) and the overlay (2) and *below* the
-   hover sheet (3 is the sheet, 5 the chip) — so when the sheet wipes up over
-   the foot of the card the name is not floating in front of the spec table.
+   It does not, and the reason is that a floating label and an information panel
+   were competing for the same card. So the name is one idea rendered as two
+   elements that swap: a **watermark** on the plate at rest, and the drawer's
+   **title** on hover. As one fades out the other fades in, which reads as the
+   name moving into the panel rather than as two labels arguing.
 
-   The type is `--t-h4` and mono-cased rather than a mono label: at the centre
-   of a card this is the largest thing on the plate and it has to hold that
-   position. Uppercase and tracked out, so it reads as a stamp rather than as a
-   heading that wandered into the middle. */
-.name {
+   `z-index: 4` puts the watermark above the media (1) and the overlay (2) and
+   below the sheet (3) — so if the timings ever drift, the drawer wins, which is
+   the right way round. */
+.watermark {
   position: absolute;
   z-index: 4;
   top: 50%;
@@ -198,46 +200,48 @@
   text-align: center;
   color: var(--text-primary);
   font-family: var(--family-mono);
+  font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  /* Faded at rest — Sayandeep's word for it. Enough to read as a watermark on
-     the plate, not enough to compete with it. */
+  /* Faded — his word for it. Enough to read as a watermark on the plate, not
+     enough to compete with it. */
   opacity: 0.28;
   pointer-events: none;
   /* The plates are mid-grey in places. A hairline of shadow keeps it legible
      over the brightest tile without putting a panel behind it. */
   text-shadow: 0 1px 8px rgb(0 0 0 / 70%);
-  transition:
-    opacity var(--dur-base) var(--ease-in-out),
-    top var(--dur-slower) var(--ease-in-out);
+  transition: opacity var(--dur-base) var(--ease-in-out);
 }
 
-/* "u hover it pops up" — up, and to full strength.
+/* The drawer's heading. Mono 500 is the heaviest weight loaded for this face —
+   `app/fonts/fonts.ts` ships Regular and Medium — and it is not the display
+   face, so CLAUDE.md non-negotiable 3 does not apply. */
+.sheetTitle {
+  margin: 0 0 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: var(--hairline);
+  color: var(--text-primary);
+  font-family: var(--family-mono);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
 
-   It travels to 20% rather than nudging, and that is not decoration. The hover
-   sheet wipes up from the foot of the card and its top edge crosses the middle,
-   so a name that stayed centred would be **behind the drawer** at exactly the
-   moment it was meant to be legible. Rising clear of it is both the effect he
-   asked for and the only position where the effect is visible.
-
-   `top` rather than `transform`, because a percentage translate resolves
-   against the element's own height and the distance needed is a fraction of the
-   card's.
-
-   Gated to devices that actually hover: on a phone `:hover` sticks after a tap,
-   and there the name should simply be legible from the start (see below). */
+/* The swap. Gated to devices that actually hover: on a phone `:hover` sticks
+   after a tap, and there the sheet is permanent content rather than a hover
+   state — so the watermark simply stays legible (see below). */
 @media (hover: hover) and (min-width: 992px) {
-  .card:hover .name,
-  .link:focus-visible .name {
-    top: 20%;
-    opacity: 1;
+  .card:hover .watermark,
+  .link:focus-visible .watermark {
+    opacity: 0;
   }
 }
 
-/* No hover to give it, so it does not hide. */
+/* No hover to give it, and the drawer is always open here — so the watermark
+   would sit behind a permanent panel. It goes. */
 @media (max-width: 991px), (pointer: coarse) {
-  .name {
-    opacity: 0.55;
+  .watermark {
+    display: none;
   }
 }
 

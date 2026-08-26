@@ -23,8 +23,13 @@
   margin-left: -3rem;
   margin-top: -3rem;
   border-radius: 50%;
-  background-color: var(--accent);
+  /* Overwritten per target by `tint()` in CustomCursor.tsx — this is the value
+     before the first hover and the floor if a target publishes no accent. */
+  background-color: var(--accent-ink);
   color: var(--text-primary);
+  /* The accents are mid-tone, so the label needs its own contrast rather than
+     relying on the disc being dark. */
+  text-shadow: 0 1px 4px rgb(0 0 0 / 55%);
   /* GSAP sets these on mount too, but they are declared here so the very first
      frame — before the timeline is built — is not a full-size circle sitting in
      the top-left corner. */

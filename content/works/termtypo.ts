@@ -23,7 +23,7 @@ export const termtypo: Work = {
      the seed, so twelve works differ without twelve decisions. */
   card: {
     width: "half",
-    poster: "/media/works/termtypo.webp",
+    poster: '',
     art: "termtypo-01",
   },
   blocks: [],

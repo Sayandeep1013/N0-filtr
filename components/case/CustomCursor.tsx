@@ -119,11 +119,34 @@ export function CustomCursor() {
            **instant** out — the cursor vanishes the moment the pointer leaves
            and shrinks afterwards, which is what stops it trailing off the edge
            of an image. */
+        /* The disc takes the colour of whatever it is over.
+ 
+           On a case study `--accent` is set on <html>, so it was blue there and
+           **black on the works grid**, where nothing sets it — Sayandeep liked
+           "the blue view circle" and on `/works` it was a dark disc on a dark
+           page. Each card already publishes its own `--work-accent`, so the
+           cursor reads that off the element it entered.
+
+           The chain prefers the **light** member of each pair, because the disc
+           is a mid-size mark on a dark page and the dark accents disappear into
+           it — the same distinction `--accent-ink` exists for (I-046). Card
+           first, then the page, then the fills as a floor. */
+        const tint = (el: HTMLElement) => {
+          const styles = getComputedStyle(el);
+          const colour =
+            styles.getPropertyValue('--work-accent-ink').trim() ||
+            styles.getPropertyValue('--accent-ink').trim() ||
+            styles.getPropertyValue('--work-accent').trim() ||
+            styles.getPropertyValue('--accent').trim();
+          if (colour) wrap.style.backgroundColor = colour;
+        };
+
         const onEnter = (event: PointerEvent) => {
           const el = (event.target as Element | null)?.closest?.('[data-cursor]');
           if (!(el instanceof HTMLElement)) return;
           active = el;
           setLabel(el.dataset.cursor || 'View');
+          tint(el);
           place(el);
           gsap.to(wrap, { scale: 1, duration: 0.5, ease: 'power1.inOut', overwrite: true });
           gsap.to(wrap, { opacity: 1, duration: 0.2, ease: 'power1.inOut' });

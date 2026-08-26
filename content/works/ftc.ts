@@ -21,6 +21,6 @@ export const ftc: Work = {
   invertsPage: false,
   /* A generated plate rather than a screenshot — D-038. The motif comes from
      the seed, so twelve works differ without twelve decisions. */
-  card: { width: "half", poster: "/media/works/ftc.webp", art: "ftc-01" },
+  card: { width: "half", poster: '', art: "ftc-01" },
   blocks: [],
 };

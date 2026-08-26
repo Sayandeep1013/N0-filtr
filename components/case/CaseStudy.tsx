@@ -5,16 +5,19 @@ import { useRef } from 'react';
 import { gsap, useGSAP } from '@/lib/motion/gsap';
 import { DUR } from '@/lib/motion/tokens';
 import type { Work } from '@/content/works/_types';
-import { CustomCursor } from './CustomCursor';
 import s from './CaseStudy.module.css';
 
 /**
  * The case-study shell. `30-page-specs.md` §`/works/[slug]`,
  * `10-design-system.md` §2 "Accent theming (case studies)".
  *
- * Three jobs, and nothing else — the page's content is passed in as `children`
+ * Two jobs, and nothing else — the page's content is passed in as `children`
  * from a **server** component, so all of the hero, the blocks and the footer
  * stay server-rendered even though this wrapper is a client component.
+ *
+ * It used to mount `<CustomCursor>` as a third. That moved to the root layout in
+ * D-046, because the cursor now belongs to work *cards* as well as case-study
+ * visuals and the cards appear on five templates.
  *
  * ── 1. The accent ────────────────────────────────────────────────────────
  *
@@ -106,7 +109,6 @@ export function CaseStudy({ work, children }: { work: Work; children: ReactNode 
       }
     >
       {children}
-      <CustomCursor />
     </div>
   );
 }

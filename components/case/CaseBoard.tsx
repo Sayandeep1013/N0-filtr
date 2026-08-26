@@ -170,7 +170,9 @@ export function CaseBoard({ items, caption }: { items: Media[]; caption?: string
             const tile = tiles[i]!;
             return (
               <figure
-                key={item.src}
+                /* `art ?? src`: a generated plate has no `src`, and keying
+                   three tiles on `undefined` is three tiles with the same key. */
+                key={item.art ?? item.src ?? i}
                 className={s.tile}
                 data-board-tile
                 style={{ gridColumn: tile.col, gridRow: tile.row }}
@@ -184,9 +186,9 @@ export function CaseBoard({ items, caption }: { items: Media[]; caption?: string
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={item.src}
-                      srcSet={posterSrcSet(item.src)}
+                      srcSet={posterSrcSet(item.src!)}
                       sizes="(max-width: 991px) 100vw, 50vw"
-                      alt={item.alt}
+                      alt={item.alt ?? ''}
                       className={s.img}
                       loading="lazy"
                       decoding="async"

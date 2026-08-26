@@ -1,5 +1,5 @@
 # Verification report
-Run: 2026-08-26T20:42:44.541Z · Phase 06 · commit `2d26082` · branch `main`
+Run: 2026-08-26T21:07:01.553Z · Phase 06 · commit `d9cabfc` · branch `main`
 
 ## Summary
 ```
@@ -365,7 +365,7 @@ budget  ✅ 6/6
 ✅ works grid: the hover sheet FADES in over 0.5s — it is not set = 0.5s
 ✅ works grid: the hover sheet fades out over 0.4s = 0.4s
 ✅ works grid: the sheet opens to 1 and returns to 0
-✅ works grid: the sheet is a drawer, not a curtain — it does not fill the media = 63% of the media's height
+✅ works grid: the sheet is a drawer, not a curtain — it does not fill the media = 74% of the media's height
 ✅ works grid ≤767: the sheet is permanent content, not a hover state = position static, opacity 1
 ✅ works grid: the sheet is never a bright surface (luminance ≤ 0.1) = rgb(46, 46, 46) → 0.0273
 ✅ works grid: the sheet is still distinguishable from the page ground = sheet 0.0273 vs page 0.0152
@@ -558,12 +558,12 @@ lists are authored to fill the accordion and T10.8 writes the real ones. The blo
 ℹ️ matter-js absent from the eagerly-loaded bundle — vacuous: matter-js is not installed yet
 ✅ three absent from the eagerly-loaded bundle = absent
 ✅ plyr absent from the eagerly-loaded bundle = absent
-ℹ️ all built chunks, gzipped (not a per-route figure) = 546.7KB
-✅ JS on / (transferred) = 347.6KB / 360KB
-✅ home page total weight = 528.6KB / 1800KB
+ℹ️ all built chunks, gzipped (not a per-route figure) = 546.5KB
+✅ JS on / (transferred) = 348.1KB / 360KB
+✅ home page total weight = 543.9KB / 1800KB
 ✅ zero network font requests = both faces self-hosted
 ✅ CLS (local, unthrottled) = 0.0025
-ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 216ms
+ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 152ms
 
 > Poster and reel budgets become binding in phase 10, when assets exist.
 > Lighthouse scores are a phase 12 deliverable via mcp__chrome-devtools__lighthouse_audit; the figures here are local and unthrottled.

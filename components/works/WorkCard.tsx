@@ -258,7 +258,16 @@ export function WorkCard({ work, className }: { work: Work; className?: string }
          with it. A custom property rather than an inline background: the
          stylesheet decides how much of it to use and what to mix it into, and
          that ratio is a design decision that belongs next to the other ones. */
-      style={{ '--work-accent': work.accent.dark } as React.CSSProperties}
+      style={
+        {
+          '--work-accent': work.accent.dark,
+          /* The light member of the pair, for anything that has to be *read*
+             rather than filled — the custom cursor's disc, which is a mid-size
+             mark on a dark page and disappears in the dark accent. Same
+             distinction as `--accent-ink` on a case study (I-046). */
+          '--work-accent-ink': work.accent.light,
+        } as React.CSSProperties
+      }
     >
       {/* A real navigation to a real page — the lightbox that used to intercept
           this is gone (D-037). `data-accent-ink` tints the loader's glyph on the
@@ -276,7 +285,10 @@ export function WorkCard({ work, className }: { work: Work; className?: string }
 
             The frame is exactly the media's box. The caption lives outside it
             and can no longer be reached. See D-025. */}
-        <div className={s.frame}>
+        {/* `data-cursor` makes the card a target for `<CustomCursor>` — D-046.
+            The label is the verb, and it is what the disc says while you are
+            over the card. */}
+        <div className={s.frame} data-cursor="View">
           <div className={s.media} data-work-media>
           <div className={s.still} data-work-still>
             {work.card.art ? (
@@ -342,7 +354,10 @@ export function WorkCard({ work, className }: { work: Work; className?: string }
                 at rest it is a watermark that tells you which work this is
                 without competing with the plate, and on hover it becomes the
                 label. The CASE STUDY chip stays where tonik has it. */}
-            <span className={s.name} data-t="h4" data-work-name>
+            {/* The watermark. `aria-hidden` because the same title is read
+                twice otherwise — once here and once as the drawer's heading
+                below, which is the element that actually labels the panel. */}
+            <span className={s.watermark} data-t="h4" aria-hidden="true">
               {work.title}
             </span>
 
@@ -359,6 +374,18 @@ export function WorkCard({ work, className }: { work: Work; className?: string }
               second block. One element, two layouts, and only the second one is
               what a phone ever sees. */}
           <div className={s.sheet} data-work-sheet>
+            {/* The drawer's title, and the other half of D-045. At rest the name
+                is a faded watermark on the plate; on hover that fades out as
+                this fades in, so the name reads as having moved into the panel
+                rather than as two labels competing for the card.
+
+                Mono 500 — the heaviest weight loaded for this face. The display
+                face is never bolded (CLAUDE.md non-negotiable 3) and this is not
+                the display face. */}
+            <p data-t="label-big" className={s.sheetTitle}>
+              {work.title}
+            </p>
+
             {/* Not `invert`. The panel is dark now (D-024), so the table wants
                 its ordinary palette: grey keys, white values, white-30 rules. */}
             <SpecTable rows={specRows} className={s.sheetTable} />

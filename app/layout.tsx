@@ -12,6 +12,7 @@ import { Loader } from '@/components/chrome/Loader';
 import { Navbar } from '@/components/chrome/Navbar';
 import { Footer } from '@/components/chrome/Footer';
 import { ScrollReset } from '@/components/chrome/ScrollReset';
+import { CustomCursor } from '@/components/case/CustomCursor';
 import { ContactPanel } from '@/components/chrome/ContactPanel';
 import { Hero3D } from '@/components/hero/Hero3D';
 import { SITE } from '@/lib/content/site';
@@ -84,6 +85,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <Navbar />
           <Hero3D />
           <main id="main">{children}</main>
+          {/* Mounted site-wide and **inert without targets**: it only appears
+              over an element carrying `data-cursor`, which is work cards and
+              case-study visuals. So this costs nothing on `/about` or `/blog`
+              and saves five templates from each mounting their own. D-046. */}
+          <CustomCursor />
           <Footer />
           <ContactPanel />
         </MotionProvider>

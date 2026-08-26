@@ -1545,3 +1545,83 @@ effect asked for and the only position where the effect is visible.
 
 Animated on `top` rather than `transform`: a percentage translate resolves against the element's own
 height, and the distance needed is a fraction of the card's.
+
+
+---
+
+## D-045 · The card name is a watermark that becomes the drawer's title
+
+**Phase:** 7 · **Date:** 2026-08-27 · **Status:** active · **supersedes D-044**
+
+Sayandeep, on the centred-and-rising version: *"the centre texts doesn't look great with the info
+box .. make the name bold tho."*
+
+It did not, and the reason is that a floating label and an information panel were competing for the
+same card. D-044 solved the collision by moving the name out of the drawer's way, which stopped them
+overlapping and left two things shouting.
+
+**Decision: one idea, two elements that swap.** At rest the name is a **watermark** on the plate —
+centred, `opacity .28`, which is the state he liked. On hover that fades out as the drawer's
+**title** fades in: left-aligned at the top of the sheet, on a hairline above the spec table, sharing
+its gutter. It reads as the name moving into the panel rather than as two labels arguing.
+
+The watermark is `aria-hidden`, because the title is the element that actually labels the panel and
+a screen reader should not read the work's name twice.
+
+**On "bold".** The name is **IBM Plex Mono at 500**. `CLAUDE.md` non-negotiable 3 governs the
+*display* face and this is not it — but the honest limit is worth writing down anyway:
+`app/fonts/fonts.ts` loads Mono at 400 and 500 only, so 500 is the heaviest weight available without
+adding a font file to the bundle. It reads as bold at this size because mono faces do.
+
+---
+
+## D-046 · The custom cursor covers the works pages, not just case studies
+
+**Phase:** 7 · **Date:** 2026-08-27 · **Status:** active
+
+Sayandeep: *"the mouse effect on tessera work page .. thats a good touch .. instead of the cursor the
+blue view circle follows the mouse .. its good and can be replicable to rest of the works too."*
+
+`20-components-and-motion.md` §18 is explicit that tonik mount theirs on **case studies only**, so
+this is a deliberate departure from a measured behaviour rather than an oversight.
+
+**How it is done matters more than where.** `<CustomCursor>` moved to the root layout and is
+**inert without targets** — it only appears over an element carrying `data-cursor`. So it costs
+nothing on `/about` or `/blog`, and five templates that render work cards get it without each
+mounting their own copy.
+
+`data-cursor="View"` now sits on the work card's frame as well as on case-study board tiles.
+
+**The disc takes the colour of what it is over.** It was reading `--accent`, which a case study sets
+on `<html>` and the works grid does not — so it was blue on a case study and a black disc on a dark
+page everywhere else, which is not the thing he liked. Each card publishes `--work-accent-ink`
+alongside `--work-accent`, and the cursor prefers the light member of whichever pair is in scope:
+the disc is a mid-size mark on a dark ground, and the dark accents disappear into it. Same
+distinction as I-046.
+
+---
+
+## D-047 · No screenshots and no code specimens in the case studies
+
+**Phase:** 6 · **Date:** 2026-08-27 · **Status:** active
+
+Sayandeep: *"remove any real image or code reference from any work .. just links are okay and
+detailed descriptions .. we have to work on proper images that suits the site."*
+
+Every visual in a case study is now a **generated plate** (D-038), and the JSON specimen that sat in
+the middle of Tessera's body is gone. Its argument moved into the prose around it, where it reads
+better anyway: the interesting thing was never the syntax, it was that a row is a line and a line can
+be diffed.
+
+`card.poster` is cleared on all twelve works, so nothing in the content references a capture. **The
+files stay on disk.** They are reproducible output of `scripts/capture.mjs` and they are the
+negatives — re-deriving a poster from a re-encoded poster loses a generation, and this decision is
+one Sayandeep may reverse once there is photography he is happy with.
+
+**The page shape did not change.** The board and the slider are the same blocks holding the same
+number of items, so real images drop straight into the same slots later. What changed is what is in
+them.
+
+**Consequence:** `Media.src` is now optional — `art` is a complete alternative to it rather than a
+decoration on it. The `code` block type still exists and is used by the blog, which is where a
+specimen belongs.
