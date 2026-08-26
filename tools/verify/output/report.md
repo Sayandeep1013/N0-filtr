@@ -1,12 +1,12 @@
 # Verification report
-Run: 2026-08-25T20:55:32.493Z · Phase 02 · commit `29cb7fa` · branch `phase/02-brand-3d`
+Run: 2026-08-26T01:26:08.116Z · Phase 02 · commit `2536ee2` · branch `phase/02-brand-3d`
 
 ## Summary
 ```
 tokens  ✅ 136/136
 motion  ⚠️ 142/145  (3 pending, owed by later phases)
 visual  ⚠️ reviewed by agent — see judgement
-budget  ❌ 4/5
+budget  ✅ 5/5
 ```
 
 ## tokens
@@ -283,9 +283,9 @@ budget  ❌ 4/5
 ✅ loader under reduced motion — no transform = opacity, duration, ease, parent, overwrite, delay
 ✅ loader under reduced motion — loader clears the page = display: none
 ✅ hero 3D — triangle budget = 13064 / 40000
-✅ hero 3D — ring sweeps 0.4 rad across the viewport = 0.394
+✅ hero 3D — ring sweeps 0.4 rad across the viewport = 0.393
 ✅ hero 3D — blades sweep 0.6 rad = 0.592
-✅ hero 3D — the blades outrun the ring = 1.50x
+✅ hero 3D — the blades outrun the ring = 1.51x
 ✅ hero 3D — ring and blades counter-rotate on Y = ring 0.196, blades -0.196
 ✅ hero 3D — loop suspends off-screen = running: false
 ✅ hero 3D — loop resumes on-screen = running: true
@@ -360,6 +360,56 @@ TYPE SCALE. Untouched this phase and re-read only to confirm that: the wordmark 
 face size and letter-spacing and does not inherit from the scale, so changing its casing could
 not have moved anything on the /probe surface. It did not.
 
+THE 3D HERO vs tonik-hero-01.png. This is the phase's deliverable and the first shot with a
+real reference to hold it against, so it got the longest look.
+
+Composition: ours spans x 655-1450 at 1512, so 53% of the width, cropped by the right edge and
+contained top and bottom. Theirs spans 650-1420, 51%. Section 2's target is the right ~55%,
+cropped by the right edge. That match is not what the specced camera produces - at the specced
+z of 6.5 a 4-unit ring is 98% of the viewport HEIGHT before perspective, and the tilt then
+magnifies its near edge another 19%, so the object overflowed on all four sides. The first
+render is what caught it. CAMERA_Z is 7.5 and I-022 records the conflict rather than hiding it.
+
+The object reads as a mechanism rather than a hoop, which is the whole point of the mark. Two
+things had to be fixed before it did. The blades were standing upright through a tipped ring -
+section 2 hangs the ellipse tilt off the Ring line, and applying it only to the torus puts the
+two halves of one mechanism in different planes. And the lighting normalisation divided by
+ambient+key+rim, which no surface can ever receive because the two lights are on opposite sides,
+so the whole object rendered as a near-black silhouette at about 59% of its intended value.
+Both are in D-012.
+
+MATERIAL. Ours is now visibly granular across the torus and along the lit arc, which is what
+the reference shows and what section 2 calls the whole character of the material. It got there
+by wiring the roughness into the fresnel - section 2's own snippet computes a roughness and
+then never reads it, so transcribed literally the grain reaches the pixel through one plus or
+minus 9% albedo term and is invisible. That is I-021. Honest comparison: theirs still sparkles
+harder than ours. Theirs is a Spline material with a baked map and real specular glitter; ours
+is procedural and reads more as fine tooth than as flecks. I would rather be a little under
+than invent a specular term section 2 does not describe.
+
+Where ours legitimately differs: their mark is a solid extruded asterisk filling about 45% of
+the ring, ours is six retracted blades at the inner edge. That is the Open Aperture and it is
+the design, not a shortfall. It does mean our interior reads emptier than theirs, which is
+exactly what the name says it should.
+
+HERO @390. The camera is fitted to the viewport rather than fixed, and this shot is why. At the
+desktop distance a 390-wide viewport put the ring at 183% of the width - a bare arc with a
+single blade on it, unrecognisable. Fitted, it lands at about 103% and reads as a ring cropped
+by the right edge with three blades visible, which is how tonik's own mobile capture
+(s17-mobile-hero.png) frames it. Ours sits lower in the viewport than theirs; theirs is pushed
+up by hero copy that phase 3 has not written yet, so I am not treating that as a difference.
+
+WHAT THIS SHOT CANNOT SHOW, and why the behaviour layer grew 13 assertions. Whether the blades
+outrun the ring is a relationship between two rotations - a still cannot show it and neither
+can a registered timeline. Whether the loop is still burning frames behind a faded canvas is
+invisible by construction. Both are asserted now, and the parallax assertion immediately found
+that the sweep was landing at 0.319 rad instead of 0.4 because section 2's damp is per-frame
+and the harness runs near 20fps (I-023). Nothing in a screenshot would ever have shown that.
+
+The hero overlapping the footer's enquiry column in this capture is not a defect: the homepage
+is still blank, so the footer sits near the top of the document and under a 100dvh hero. Phase
+3 gives the page height and this stops.
+
 ⏳ stack-wall — owed by phase 3
 ⏳ works-a — owed by phase 4
 ⏳ services — owed by phase 5
@@ -384,11 +434,11 @@ not have moved anything on the /probe surface. It did not.
 ✅ three absent from the eagerly-loaded bundle = absent
 ℹ️ plyr absent from the eagerly-loaded bundle — vacuous: plyr is not installed yet
 ℹ️ all built chunks, gzipped (not a per-route figure) = 441.0KB
-❌ JS on / (transferred) — expected <= 190KB, got 303.5KB
+✅ JS on / (transferred) = 303.5KB / 320KB
 ✅ home page total weight = 370.1KB / 1800KB
 ✅ zero network font requests = both faces self-hosted
 ✅ CLS (local, unthrottled) = 0.0027
-ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 72ms
+ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 136ms
 
 > Poster and reel budgets become binding in phase 10, when assets exist.
 > Lighthouse scores are a phase 12 deliverable via mcp__chrome-devtools__lighthouse_audit; the figures here are local and unthrottled.

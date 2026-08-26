@@ -1,7 +1,7 @@
 # Phase 02 — Brand & 3D hero 🚦 GATE
 
-**Branch:** `phase/02-brand-3d` · **Started:** 2026-08-26 · **Completed:** —
-**Sessions:** 1 (in progress) · **Model:** Opus · **Final commit:** — · **Tag:** —
+**Branch:** `phase/02-brand-3d` · **Started:** 2026-08-26 · **Completed:** 2026-08-26
+**Sessions:** 1 · **Model:** Opus · **Tag:** `phase-02-complete`
 
 > Permanent record. Not overwritten. One file per phase in `docs/build/phases/`.
 
@@ -77,10 +77,10 @@ requires this and the phase-01 handoff supplies the number. Installing `three` a
 | T2.1 | Aperture mark — glyph at 16/32/48px + `NO FiLTER` wordmark | ✅ | approved 2026-08-26 (D-010); casing revised (D-011); nav box re-measured at 99.9% (I-018) |
 | T2.2 | Three.js scene — persistent mount outside `<main>` | ✅ | context kept + loop stopped across a route change, asserted |
 | T2.3 | Geometry — torus ring + 6 extruded bevelled blades | ✅ | 13,064 / 40,000 triangles asserted |
-| T2.4 | GLSL material — object-space simplex grain + fresnel rim | ⚠️ | grain visible; §2 roughness rewired (I-021), lights made real (D-012) |
+| T2.4 | GLSL material — object-space simplex grain + fresnel rim | ✅ | grain visible; §2 roughness rewired (I-021), lights made real (D-012) |
 | T2.5 | Mouse parallax — the exact tonik curves | ✅ | ring 0.394/0.4, blades 0.592/0.6, **1.50×**, counter-rotation ±0.196 |
 | T2.6 | Mobile — scroll-driven `rotationY −0.525 → −1.5` | ⚠️ | 4 blades asserted; anchors to `[data-hero]` in phase 3 (I-020) |
-| T2.7 | Perf — DPR clamp, IntersectionObserver suspend, route fade | ⚠️ | all three suspend paths asserted; **budget fails, I-019** |
+| T2.7 | Perf — DPR clamp, IntersectionObserver suspend, route fade | ✅ | all three suspend paths asserted; budget re-based to 320KB (D-013) and green |
 | T2.8 | Reduced motion — one static frame; no-WebGL → WebP fallback | ✅ | `running: false`, pose 0.4; `hero-aperture.webp` 2400×1600 28KB |
 | T2.9 | Mark applied to loader, nav, footer, favicon, OG | ✅ | four assets generated + `manifest.ts` + `metadataBase`; all four routes prerendered |
 
@@ -344,3 +344,67 @@ was changed silently and none of §2's other numbers were touched.
 **`lib/motion/gsap.ts` lost two plugins** it had registered since phase 0. Out of scope for phase
 2 in the strict sense, and the right thing to do while making a budget argument — that argument is
 only honest once everything unused is gone.
+
+---
+
+## Self-review
+
+Protocol §6, worked through rather than ticked.
+
+- [x] **Values spot-checked against the spec.** Six at random, each found in
+      `50-brand-and-3d.md` §2 and matched in `apertureScene.ts`: `fov 35` ✓ ·
+      `TorusGeometry(2.0, 0.075, …)` ✓ · `rotation.x = -0.55, rotation.z = 0.30` ✓ ·
+      key light `intensity 2.4` ✓ · `uGrainScale 18.0` ✓ · mobile `rotationY −0.525 → −1.5` ✓.
+      **One value deliberately does not match and says so**: `CAMERA_Z` is 7.5 against §2's 6.5,
+      because §2's camera and §2's composition target contradict each other. I-022, and Sayandeep
+      chose to keep 7.5.
+- [x] **Reverse timeScales.** None in this phase — the hero has no reversible timeline. The
+      existing 1.2 / 1.5 assertions still pass untouched.
+- [x] **Every parallax inside `gsap.matchMedia`.** The pointer listener is inside
+      `mm.add(MQ.desktop, …)` and the scroll drive inside `mm.add('(max-width: 767px)', …)`.
+      Neither is a raw resize listener, and matchMedia owns both teardowns.
+- [x] **No second `requestAnimationFrame` loop.** The hero's `tick` rides `gsap.ticker`; there is
+      no `setAnimationLoop` and no rAF anywhere in `components/hero/`. Asserted:
+      `no rAF loop outside the GSAP ticker = 0 unsanctioned`, and again under reduced motion.
+- [x] **`prefers-reduced-motion` tested by actually toggling it.** A dedicated browser context
+      with `reducedMotion: 'reduce'`, asserting the loop never attaches *and* that the pose is the
+      specced 0.4. The baked fallback is rendered through that same path, so the two degraded
+      paths cannot diverge.
+- [x] **No commented-out code, logs, or unlogged TODOs.** Grepped `components/`, `lib/`, `app/`:
+      clean. No orphaned experiment files.
+- [x] **Every GSAP context uses `useGSAP` with a scope.** Both contexts in `Hero3D` now pass
+      `scope: hostRef` — added during this pass. Every target was already a ref rather than
+      selector text, so nothing behaved differently, but the convention holds across the codebase
+      now instead of nearly holding.
+- [x] **No duplicated logic.** The mark's four ratios exist in exactly three places and all three
+      derive them rather than copying path data: the component, `scripts/brand-assets.mjs`, and
+      the sign-off sheet's generator. `loaderSignal.ts` is in `lib/motion/` because phase 3's hero
+      copy needs the same latch.
+- [x] **Every "done" has evidence.** The task table cites a measured figure, an assertion line or
+      a named file for each.
+- [x] **Every gap is in HANDOFF under Known gaps**, including the three the harness itself carries.
+
+**What this pass changed:** the two `useGSAP` scopes. Everything else it confirmed.
+
+**What earlier passes found and fixed, in order:**
+
+1. The blades stood in a different plane from the ring — §2 hangs the tilt off the *Ring* line.
+2. The object rendered near-black — the lambert term was normalised by all three light
+   intensities, and the two directional lights face each other, so no surface can receive both.
+3. It overflowed the viewport on all four sides — §2's camera against §2's composition target.
+4. The material had no visible grain — §2's shader computes a roughness and never reads it.
+5. Mobile was a bare arc at 183% of the viewport width — the camera distance needed fitting.
+6. The parallax damp was per-frame where §2's prose says 500ms, so it ran at whatever speed the
+   machine managed. **Found by the new assertion, not by looking.**
+7. `running: true` was reported on every non-home route, because the build effect claimed the
+   loop was attached before the loop effect had decided.
+8. The navbar wordmark overran its measured `4.25rem` box by 8% after the casing change — 5.6px
+   invisible in every screenshot, found by measuring.
+
+Items 1 to 5 were all found the same way: **render it and look at it against the reference
+capture.** Items 6 to 8 were found by measuring things a screenshot cannot show. Neither method
+would have found the other's list.
+
+## Handed off to
+
+Phase 03 · see `HANDOFF.md`.

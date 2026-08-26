@@ -458,3 +458,62 @@ judgement, and this is what that meant in practice.
 both parallax sweeps, the 1.5× ratio, the counter-rotation, both suspend paths, the reduced-motion
 pose, the mobile blade count and the fitted camera. Four of the five deviations are still owed
 Sayandeep's eye at the phase-2 gate, which already required a hero recording.
+
+---
+
+## D-013 · The JS budget is 320KB, because 190 was arithmetic and not a measurement
+
+**Phase:** 2 · **Date:** 2026-08-26 · **Status:** active
+
+**Context:** Installing Three took `/` from 170.1KB to 302.8KB against a specced ceiling of
+190KB, and `npm run verify` went red on it. The ceiling could not be met by any means short of
+removing the hero.
+
+The 190 was wrong in two separate ways, and both are visible in §5's own itemisation —
+*"GSAP ~55, Three ~150 raw/~48 gz, Lenis ~4, app ~40"*:
+
+1. It **sums to 147, not 190**, and it **omits React and Next entirely.** They measure ~92KB
+   gzipped here, so half the ceiling was gone before a line of our code was counted. The
+   framework was never in the budget at all.
+2. It estimates Three at **48KB**. Three 0.185 with a `WebGLRenderer`, a `TorusGeometry` and an
+   `ExtrudeGeometry` measures **141.3KB transferred across two chunks.** `WebGLRenderer` pulls
+   the entire shader library and tree-shaking barely touches it.
+
+**Decision: `BUDGETS.homeJsGzipKb` is 320.** Sayandeep's call, put to him with the measurements
+and three options. §5 now carries the corrected itemisation and the measured breakdown instead of
+the original arithmetic, so the number stops looking like a target someone chose and starts
+looking like what it is.
+
+**What was done before asking**, because a budget argument is only honest once everything unused
+is gone:
+
+- **Three is dynamically imported.** `verify:budget`'s `three absent from the eagerly-loaded
+  bundle` check passes and is no longer vacuous — the first time that assertion has meant
+  anything since phase 0 wrote it.
+- **Flip and Observer were removed** from `lib/motion/gsap.ts`. Registering a plugin is what pulls
+  it into the bundle, and both were shipping on every page for nothing: Flip has exactly one
+  consumer on the whole site (the showreel, §15, "the only use of Flip") and belongs to phase 3;
+  Observer has no consumer in any component spec and was in the stack table only because tonik
+  loads it. **−8.6KB.**
+
+**What was deliberately not done.** Deferring Three's import to `requestIdleCallback` would move
+the download outside `verify:budget`'s measurement window and turn the check green **without
+saving the visitor a single byte.** That is gaming the instrument rather than meeting the budget,
+and it would have quietly destroyed the check's meaning for every later phase. It was offered as
+an explicit option — with the honest note that the budget would then have to be redefined as
+*JS before interactive* — and not chosen.
+
+**Alternatives:** Leave the check red until phase 12 — which hands every intervening phase a gate
+that is already failing, and a gate nobody expects to be green stops being read. Drop the 3D hero
+for the baked still on every visit, saving the full 141.3KB and ending phase 2's reason to exist.
+Both were put to Sayandeep; both were declined.
+
+**Consequence:** `npm run verify` is green. **The headroom is thin — 302.8 of 320, about 17KB —
+and phases 3 to 5 add real code to this route.** Plyr and Matter must never appear in the figure:
+both are specced lazy, so if either turns up that is a bug in the import and not a reason to raise
+the ceiling again. The warning is in `budget.config.ts` beside the number, which is where whoever
+next hits it will be looking.
+
+Note that §3 "Why not Spline" survives intact. Its numbers were wrong, its conclusion was not —
+Spline is ~380KB of runtime plus a ~200KB scene, so Three is still the smaller of the two even at
+141KB.

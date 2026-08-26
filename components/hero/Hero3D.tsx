@@ -233,7 +233,7 @@ export function Hero3D() {
         overwrite: true,
       });
     },
-    { dependencies: [isHome] },
+    { dependencies: [isHome], scope: hostRef },
   );
 
   /* ── pointer parallax ─────────────────────────────────────────────────────
@@ -275,7 +275,7 @@ export function Hero3D() {
 
       return () => mm.revert();
     },
-    { dependencies: [mode, reducedMotion] },
+    { dependencies: [mode, reducedMotion], scope: hostRef },
   );
 
   return (

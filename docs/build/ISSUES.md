@@ -42,10 +42,10 @@ Newest last. **Owner** is the phase that should resolve it, not the phase that f
 | I-016 | `'1rem top'` / `'30rem top'` are pixels — ScrollTrigger has no rem | 🟢 resolved in 1 | — |
 | I-017 | `inOutQuad → power2.inOut` is wrong; GSAP's `power2` is cubic | 🟢 resolved in 1 | — |
 | I-018 | The wordmark's fit was measured against the *lowercase* form | 🟢 resolved in 2 | — |
-| I-019 | `/` is 302.8KB against a 190KB JS budget the spec under-counted | 🔴 open | **user / 12** |
+| I-019 | `/` is 302.8KB against a 190KB JS budget the spec under-counted | 🟢 resolved in 2 | — |
 | I-020 | The mobile hero has no hero section to scrub against until phase 3 | 🟡 worked around | 3 |
-| I-021 | Section 2's fragment sketch computes a roughness it never uses | 🟡 worked around | 2 |
-| I-022 | Section 2's camera puts the assembly outside its own composition target | 🟡 worked around | **user** |
+| I-021 | Section 2's fragment sketch computes a roughness it never uses | 🟢 resolved in 2 | — |
+| I-022 | Section 2's camera puts the assembly outside its own composition target | 🟢 resolved in 2 | — |
 | I-023 | Section 2's motion values are per-frame; its prose says per-second | 🟢 resolved in 2 | — |
 
 **Nothing open blocks phase 2.** I-009 and I-014 were both settled in the conversation that
@@ -557,7 +557,7 @@ it is the one that was fitted rather than measured.
 
 ---
 
-## I-019 · `/` is 302.8KB against a 190KB JS budget the spec under-counted  🔴
+## I-019 · `/` is 302.8KB against a 190KB JS budget the spec under-counted  🟢
 
 **Found:** phase 02, 2026-08-26 · **Area:** `60-architecture-and-build.md` §5
 
@@ -597,7 +597,18 @@ Deferring Three's import to idle would move the download outside the measurement
 the check green **without saving the visitor a single byte**. It was considered and rejected: that
 is gaming the instrument, not meeting the budget.
 
-**Needs:** A decision from Sayandeep. Three honest options:
+**Resolved:** phase 02, 2026-08-26. **Sayandeep raised the budget to 320KB**, taking option 1.
+`BUDGETS.homeJsGzipKb` is 320 and `60-architecture-and-build.md` §5 carries the corrected
+itemisation and the measured breakdown rather than the original arithmetic. `npm run verify` is
+green.
+
+**The headroom is thin and the next agent should know it.** Measured 302.8 of 320 leaves ~17KB,
+and phases 3 to 5 add real code to this route — SplitType, Embla, the works grid, the accordion.
+Plyr and Matter must never appear in the figure: both are specced lazy, so if either shows up
+that is a bug in the import, not a reason to raise the ceiling again. Re-measure before any
+second raise. The note is in `budget.config.ts` where it will be read.
+
+The options as they were put:
 
 1. **Re-budget to ~320KB** and keep the 3D hero. §5's line items were never a measurement;
    Lighthouse (≥85 desktop / ≥70 mobile, §5) stays the real quality bar and is not a byte count.
@@ -631,7 +642,7 @@ its `end` switches from `+=innerHeight` to the element's own `bottom top`.
 
 ---
 
-## I-021 · §2's fragment sketch computes a roughness it never uses  🟡
+## I-021 · §2's fragment sketch computes a roughness it never uses  🟢
 
 **Found:** phase 02, 2026-08-26 · **Area:** `50-brand-and-3d.md` §2 Material
 
@@ -655,13 +666,15 @@ rougher patch both widens the rim falloff and brightens it — and the grain the
 along the lit edge. Every value §2 *does* give is untouched: `#2a2a2a`, `pow(…, 2.8)`,
 `vec3(0.55) * fresnel * 0.85`, `mix(0.88, 1.06, grain)`, `18.0`, `0.35`. See D-012.
 
-**Needs:** Sayandeep's eye on the rendered result, alongside the hero recording the phase-2
-acceptance criteria already require. If the grain is too strong or too weak, the two constants to
-move are named in the file.
+**Resolved:** phase 02, 2026-08-26. Sayandeep reviewed the rendered result against the reference
+in the phase-2 hero recording and kept it as built — a fine granular tooth that catches the rim
+light, without inventing a specular term §2 never describes. tonik's still sparkles harder, which
+is a baked map with real specular glitter against our procedural grain; that difference is
+accepted rather than chased.
 
 ---
 
-## I-022 · §2's camera puts the assembly outside §2's own composition target  🟡
+## I-022 · §2's camera puts the assembly outside §2's own composition target  🟢
 
 **Found:** phase 02, 2026-08-26 · **Area:** `50-brand-and-3d.md` §2 Scene graph
 
@@ -691,9 +704,10 @@ fitted to the viewport — never closer than 7.5, pulled back as far as it takes
 assembly within 105% of the width. One rule, correct at every width, resolving to exactly 7.5 on
 any desktop aspect. Asserted at both breakpoints by `verify:motion`.
 
-**Needs:** Sayandeep's sign-off, with the hero recording the phase-2 acceptance criteria already
-require. If he prefers the specced 6.5 and a full-bleed object it is one constant — but then §2's
-composition target should be rewritten to match rather than left contradicting it.
+**Resolved:** phase 02, 2026-08-26. **Sayandeep kept 7.5**, over going back to 6.5 with a
+full-bleed object. §2's scene graph now disagrees with the code by one number, deliberately, and
+both this issue and the constant's own comment say so — the composition target is the half of §2
+that can be held against a reference capture, and it is the half that holds.
 
 ---
 

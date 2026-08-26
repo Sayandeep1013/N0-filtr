@@ -144,12 +144,36 @@ Copy them in first; capture only fills the gaps.
 | LCP (home, 4G, mid-tier mobile) | < 2.5s |
 | CLS | < 0.05 — all media has explicit dimensions |
 | INP | < 200ms |
-| JS on `/` (gzipped) | < 190KB — GSAP ~55, Three ~150 raw/~48 gz, Lenis ~4, app ~40 |
+| JS on `/` (transferred) | **< 320KB** — see the correction below |
 | Home page total weight | < 1.8MB with images |
 | Lighthouse Performance | ≥ 85 desktop, ≥ 70 mobile (the 3D hero has a real cost) |
 
 Three.js and Plyr are **dynamically imported**. Plyr loads only when the showreel is first
 opened. Case-study reels are `preload="none"` with a poster.
+
+> **The JS budget was 190KB and was wrong. Corrected to 320KB in phase 2** — measured, and raised
+> by Sayandeep on 2026-08-26. See I-019 and D-013.
+>
+> The original figure was arithmetic rather than a measurement, and it was wrong twice. Its own
+> itemisation — *"GSAP ~55, Three ~150 raw/~48 gz, Lenis ~4, app ~40"* — sums to 147 and **omits
+> React and Next entirely**, which measure ~92KB gzipped on their own: half the ceiling gone
+> before a line of ours is counted. And Three 0.185 with a `WebGLRenderer`, a `TorusGeometry` and
+> an `ExtrudeGeometry` measures **141.3KB transferred**, not 48 — `WebGLRenderer` pulls the whole
+> shader library and tree-shaking barely dents it.
+>
+> | Measured on `/` at the end of phase 2 | |
+> |---|---|
+> | React + Next | ~92KB |
+> | GSAP + ScrollTrigger, Lenis, our code | ~69.5KB |
+> | Three | 141.3KB |
+> | **Total** | **302.8KB** / 320KB |
+>
+> **That leaves about 17KB, and phases 3–5 add real code to this route.** Plyr and Matter must
+> stay out of the figure — both are specced lazy and neither should ever appear in it. If the
+> ceiling is reached again, re-measure before raising it a second time.
+>
+> The conclusion of §3 "Why not Spline" is unaffected: its numbers were wrong, but Spline is
+> ~380KB of runtime plus a ~200KB scene, so Three is still the smaller of the two.
 
 ## 6. Accessibility
 
