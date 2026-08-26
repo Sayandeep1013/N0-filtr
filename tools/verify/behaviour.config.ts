@@ -426,3 +426,75 @@ export const BEHAVIOUR = {
     forbiddenProps: ['yPercent', 'y', 'scale'],
   },
 } as const;
+
+/**
+ * Phase 6 — the case study. `behaviour.case.ts` drives these.
+ *
+ * Every value here is a fact about the *first* case study, and Tessera is that
+ * case study by `01-PHASES.md`'s "build one work end to end". The slug is named
+ * once rather than derived from `WORKS[0]`, because a check that follows the
+ * content around is a check that silently starts asserting a different page the
+ * day someone reorders the works.
+ */
+export const CASE = {
+  /** §2's block rhythm rule: never more than two prose blocks without a visual. */
+  maxProseRun: 2,
+
+  accent: {
+    id: 'case accent theming',
+    phase: 6,
+    page: '/works/tessera',
+    viewport: { w: 1512, h: 900 },
+    /** `content/works/tessera.ts`. Both members of the pair — see I-046. */
+    dark: '#125C91',
+    light: '#2595E4',
+  },
+
+  cursor: {
+    id: 'case custom cursor',
+    phase: 6,
+    page: '/works/tessera',
+    viewport: { w: 1512, h: 900 },
+    mobileViewport: { w: 390, h: 844 },
+    /**
+     * The corner the pointer is sent to. Far enough from the tile that a 1:1
+     * follower would travel most of the viewport, which is what makes the drift
+     * assertion mean something.
+     */
+    far: { x: 20, y: 20 },
+    /**
+     * §21.5's window is ±50px per axis, so the widest possible move between two
+     * pointer positions is 100px. 110 allows for the lerp still easing and for
+     * the element re-centring on its tile as the page settles; a 1:1 follower
+     * would be several hundred.
+     */
+    driftMax: 110,
+    /** It has to move *something*, or it is not tracking at all. */
+    driftMin: 8,
+    /** The lerp is 0.15 per frame — about 25 frames to close 95% of the gap. */
+    settle: 1400,
+  },
+
+  lightbox: {
+    id: 'work lightbox',
+    phase: 6,
+    viewport: { w: 1512, h: 900 },
+    href: '/works/tessera',
+    cardSelector: 'a[href="/works/tessera"]',
+    dialogSelector: '[aria-label$="case study"]',
+    /** Left of the panel, which is `min(72rem, 92vw)` wide and right-aligned. */
+    scrimPoint: { x: 60, y: 450 },
+    settle: 2200,
+    /** Generous, because it covers a dev-server compile. See behaviour.case.ts. */
+    openTimeout: 30000,
+  },
+
+  loaderTint: {
+    id: 'loader accent tint',
+    phase: 6,
+    page: '/works/tessera',
+    viewport: { w: 1512, h: 900 },
+    /** `<NextWork>` — a real navigation, deliberately not intercepted. */
+    linkSelector: '[aria-labelledby="next-work-title"] a',
+  },
+};

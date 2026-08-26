@@ -259,9 +259,21 @@ export function WorkCard({ work, className }: { work: Work; className?: string }
          that ratio is a design decision that belongs next to the other ones. */
       style={{ '--work-accent': work.accent.dark } as React.CSSProperties}
     >
-      {/* `data-accent` is read by the loader on the way out — T6.7. See
-          `darken()` in `components/chrome/Loader.tsx`. */}
-      <Link href={`/works/${work.slug}`} className={s.link} data-accent={work.accent.dark}>
+      {/* `data-no-loader`, and it is not an oversight: this link opens the
+          **lightbox** (`app/@modal/(.)works/[slug]`), which slides a drawer over
+          the grid without a full navigation — §16's whole point. Sweeping the
+          loader over the page first would announce a page change that is not
+          happening.
+
+          `data-accent` is still declared, because the same card is a real
+          navigation from anywhere the interception does not apply, and T6.7
+          reads it there. */}
+      <Link
+        href={`/works/${work.slug}`}
+        className={s.link}
+        data-accent={work.accent.dark}
+        data-no-loader
+      >
         {/* The positioning context for the sheet, and the reason it exists.
 
             The sheet was `position: absolute; bottom: 0` with no relative

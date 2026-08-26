@@ -114,7 +114,7 @@ got it right. Protocol §2.9 is the rule.
 | 3 | Homepage upper | ✅ | `phase/03-home-upper` | `phase-03-complete` | + the grid system (I-032) · 21 new assertions |
 | 4 | Works grid | ✅ | `phase/04-works-grid` | `phase-04-complete` | 35 assertions · 6 changes from review · I-036 |
 | 5 | Homepage lower | ✅ | `phase/05-home-lower` | `phase-05-complete` | **the homepage is complete** · 41 assertions · motion 241/241 |
-| 6 | Case study 🚦 | 🟡 | `phase/06-case-study` | — | **built, awaiting the gate** · T6.1–T6.7 done · verify 393/393 |
+| 6 | Case study 🚦 | 🟡 | `phase/06-case-study` | — | **built, awaiting the gate** · T6.1–T6.7 done · verify 269 motion assertions |
 | 7 | Service & industry | ⬜ | `phase/07-service-pages` | — | needs 6 |
 | 8 | About | ⬜ | `phase/08-about` | — | needs 5 |
 | 9 | Blog | ⬜ | `phase/09-blog` | — | needs 5 · parallel-safe |
@@ -209,7 +209,9 @@ D-034 puts every product screenshot on a plate; D-035 replaces `visual-full` / `
 `visual-bleed` with one `board` block and grades every product image to grey. Read both before
 authoring a case-study body — the `Block` union is smaller than `30-page-specs.md` §2 describes.
 
-**Evidence:** `npm run verify` green — tokens 138/138, motion 249/249, budget 6/6. Page is 7,766px
+**Evidence:** `npm run verify` green — tokens 138/138, motion **269/269**, budget 6/6. The 20 new
+assertions are `tools/verify/behaviour.case.ts`, and one of them found I-048: the loader's exit
+sweep had never run in five phases. Page is 7,766px
 at 1512 against the spec's 7,700–9,300 target, reviewed at 1512 and 390.
 
 **What the gate still needs:** Sayandeep to see the finished page and say so.

@@ -318,7 +318,25 @@ export function Loader() {
 
   /* ── link interception ──────────────────────────────────────────────────
      Delegated at the document, so every internal link on the site is covered
-     without any component having to opt in. `data-no-loader` opts out. */
+     without any component having to opt in. `data-no-loader` opts out.
+
+     ── It listens in the CAPTURE phase, and that is load-bearing ──────────
+
+     It was a bubble-phase listener until phase 6, and **the exit timeline never
+     ran once in five phases.** React attaches its own listeners to the root
+     container, which is a descendant of `document`, so on the way *up* React
+     sees the click first — and `next/link`'s handler calls `preventDefault()`
+     and routes. By the time this listener ran, `event.defaultPrevented` was
+     already true and the first guard below sent it home.
+
+     Nothing looked wrong, which is why it survived: `enter` fires on every
+     pathname change, so the loader still swept on arrival. What was missing was
+     the sweep *before* leaving — and, once T6.7 existed, the accent tint that
+     rides on it. `behaviour.case.ts` caught it by asserting the tint.
+
+     Capture means this runs before React, so `stopPropagation()` below is what
+     stops `<Link>` navigating out from under the animation. `preventDefault()`
+     alone is not enough: it suppresses the browser's navigation, not React's. */
   useEffect(() => {
     const onClick = (event: MouseEvent) => {
       if (event.defaultPrevented || event.button !== 0) return;
@@ -337,6 +355,10 @@ export function Loader() {
       if (url.pathname === window.location.pathname && url.search === window.location.search) return;
 
       event.preventDefault();
+      /* Keeps the click away from `<Link>`'s own handler — see the note above.
+         Only for anchors this listener is actually taking over; anything that
+         reached one of the `return`s above is left entirely alone. */
+      event.stopPropagation();
       pendingHref.current = `${url.pathname}${url.search}${url.hash}`;
 
       /* T6.7. Set before the exit restarts, so the sweep is already the right
@@ -352,8 +374,8 @@ export function Loader() {
       exitRef.current?.restart();
     };
 
-    document.addEventListener('click', onClick);
-    return () => document.removeEventListener('click', onClick);
+    document.addEventListener('click', onClick, true);
+    return () => document.removeEventListener('click', onClick, true);
   }, []);
 
   /* bfcache guard [src]. Restoring from the back/forward cache replays the DOM
