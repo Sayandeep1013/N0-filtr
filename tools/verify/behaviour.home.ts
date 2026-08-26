@@ -1,5 +1,5 @@
 import type { Browser, Page } from 'playwright';
-import { newPage } from './lib/browser';
+import { newPage, waitForLoaderGone } from './lib/browser';
 import { fail, pass, type CheckResult } from './lib/types';
 import { BEHAVIOUR } from './behaviour.config';
 
@@ -74,6 +74,7 @@ async function checkShowreel(browser: Browser, baseUrl: string): Promise<CheckRe
   try {
     await page.goto(baseUrl + c.page, { waitUntil: 'load' });
     await page.evaluate(() => document.fonts.ready);
+    await waitForLoaderGone(page);
     await page.waitForTimeout(1500);
 
     const trigger = await page.$(c.trigger);
@@ -275,6 +276,7 @@ async function checkRevealText(browser: Browser, baseUrl: string): Promise<Check
   try {
     await page.goto(baseUrl + c.page, { waitUntil: 'load' });
     await page.evaluate(() => document.fonts.ready);
+    await waitForLoaderGone(page);
     /* The split is deliberately deferred: fonts first, then a dynamic import of
        split-type. Reading before both land reports "not split" for a component
        that is about to be. The handoff's warning about `networkidle` is the
@@ -369,6 +371,7 @@ async function marqueeShape(
   try {
     await page.goto(baseUrl + BEHAVIOUR.stackWall.page, { waitUntil: 'load' });
     await page.evaluate(() => document.fonts.ready);
+    await waitForLoaderGone(page);
     await page.waitForTimeout(1200);
     return await readTimeline(page, BEHAVIOUR.stackWall.timelineId);
   } finally {

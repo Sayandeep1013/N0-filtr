@@ -61,7 +61,11 @@ export function ApertureMark({ className }: { className?: string }) {
       aria-hidden="true"
       focusable="false"
     >
-      <circle cx={C} cy={C} r={R} strokeWidth={RING_STROKE} />
+      {/* `data-mark-ring` and `data-mark-tick` are the loader's handles. The
+          mark itself stays inert — it is used at 16px in a nav and at 14vw in a
+          footer, and neither of those should ever animate. Only the loader
+          looks for them. See D-028. */}
+      <circle cx={C} cy={C} r={R} strokeWidth={RING_STROKE} data-mark-ring />
       {TICKS.map((angle) => (
         <line
           key={angle}
@@ -70,6 +74,7 @@ export function ApertureMark({ className }: { className?: string }) {
           x2={C}
           y2={C - INNER + TICK}
           strokeWidth={TICK_STROKE}
+          data-mark-tick
           /* Read right to left: the tick is first pivoted 8° about its own
              anchor on the inner edge, then swung round to its 60° station. */
           transform={`rotate(${angle} ${C} ${C}) rotate(${OFF_RADIAL} ${C} ${C - INNER})`}

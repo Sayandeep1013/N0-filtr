@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import type { Browser } from 'playwright';
-import { newPage } from './lib/browser';
+import { newPage, waitForLoaderGone } from './lib/browser';
 import { fail, info, pass, pending, type CheckResult, type SectionResult } from './lib/types';
 import { AGENT_JUDGEMENT, SHOTS, VIEWPORTS, type Shot } from './visual.config';
 
@@ -94,14 +94,25 @@ export async function checkVisual(browser: Browser, baseUrl: string): Promise<Se
         try {
           await page.goto(`${baseUrl}${shot.ours}`, { waitUntil: 'networkidle' });
           await page.evaluate(() => document.fonts.ready);
-          // The loader covers the page for its first 600ms.
-          await page.waitForTimeout(900);
+          /* Wait for the loader to be GONE, not for a guess at how long it
+             takes. Phase 5 gave it a mark animation on first paint, so 900ms
+             stopped being enough and every shot was of a covered page. */
+          await waitForLoaderGone(page);
 
-          const target = shot.ourScroll ?? shot.scroll;
+          const target = shot.ourSection ?? shot.ourScroll ?? shot.scroll;
           if (target !== undefined) {
             await page.evaluate((y) => {
               const max = document.documentElement.scrollHeight - window.innerHeight;
-              const to = y === 'bottom' ? max : Math.min(y as number, max);
+              let to: number;
+              if (typeof y === 'string' && y !== 'bottom') {
+                /* A selector. Resolved here rather than passed in as a number,
+                   because the number is different every phase — see
+                   `ourSection` in visual.config.ts. */
+                const el = document.querySelector(y);
+                to = el ? Math.min(el.getBoundingClientRect().top + window.scrollY, max) : 0;
+              } else {
+                to = y === 'bottom' ? max : Math.min(y as number, max);
+              }
               // Go past Lenis rather than through it: window.scrollTo fights a
               // smooth-scroll library and lands somewhere between the two.
               const lenis = (window as unknown as { lenis?: { scrollTo(v: number, o?: object): void } }).lenis;
@@ -141,6 +152,26 @@ export async function checkVisual(browser: Browser, baseUrl: string): Promise<Se
             if (await burger.isVisible()) {
               await burger.click();
               await page.waitForTimeout(800);
+            }
+          } else if (shot.prepare === 'accordion-open') {
+            /* Open the first row, then re-settle: the row grows by most of a
+               viewport, so everything the shot is aimed at has moved. Scrolling
+               again after the open is not belt-and-braces, it is the only way
+               the frame contains what it is supposed to. */
+            const head = page.locator('[data-service-row] button').first();
+            if ((await head.count()) > 0) {
+              await head.click();
+              await page.waitForTimeout(1600);
+              await page.evaluate(() => {
+                const section = document.querySelector('[data-services]');
+                if (!section) return;
+                const to = section.getBoundingClientRect().top + window.scrollY;
+                const lenis = (window as unknown as { lenis?: { scrollTo(v: number, o?: object): void } })
+                  .lenis;
+                if (lenis) lenis.scrollTo(to, { immediate: true, force: true });
+                else window.scrollTo(0, to);
+              });
+              await page.waitForTimeout(900);
             }
           } else if (shot.prepare === 'showreel-open') {
             /* The trigger only exists when a reel file does — `<PlaySquare>` is

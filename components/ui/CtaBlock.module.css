@@ -1,0 +1,85 @@
+/* The CTA block. 20-components-and-motion.md §10.
+
+   Every number is §10's: --grey-900 ground, 3rem padding, 23rem minimum, a
+   6rem heading and a 6rem circle. */
+
+.cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gutter);
+  width: 100%;
+  min-height: 23rem;
+  padding: 3rem;
+  border: 0;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-in-out);
+}
+
+/* The label sits top-left and the heading bottom-left, so the text column has
+   to own the block's full height rather than centring inside it. */
+.text {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-self: stretch;
+  gap: 2rem;
+}
+
+.label {
+  color: var(--text-secondary);
+}
+
+.heading {
+  color: var(--text-primary);
+}
+
+/* §10: 6rem, right, vertically centred. IconCircle draws itself at the size of
+   its box, so the size lives here. */
+.arrow {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 6rem;
+  height: 6rem;
+  transition: transform var(--dur-fast) var(--ease-in-out);
+}
+
+.arrow > * {
+  width: 100%;
+  height: 100%;
+}
+
+/* §10's hover is marked [new] — ours, not transcribed. Gated at >991 like every
+   other hover on the site (CLAUDE.md §6): on a coarse pointer the :hover would
+   stick after a tap and leave the block permanently lit. */
+@media (min-width: 992px) {
+  .cta:hover {
+    background-color: var(--bg-tertiary);
+  }
+
+  .cta:hover .arrow {
+    transform: scale(1.05);
+  }
+}
+
+@media (max-width: 767px) {
+  .cta {
+    min-height: 16rem;
+    padding: 1.5rem;
+    align-items: flex-end;
+  }
+
+  .arrow {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+
+  .text {
+    gap: 3rem;
+  }
+}

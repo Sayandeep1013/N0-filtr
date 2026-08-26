@@ -980,3 +980,98 @@ then gets out of the way.
 The `wide` cards keep 16:10, which at eight columns is 870 × 544 — now the *deeper* of the two
 shapes, so the section's rhythm still alternates between a long band and a tall block rather than
 flattening into one proportion.
+
+
+---
+
+## D-027 · The works grid's sibling-dim is off
+
+**Phase:** 5 · **Date:** 2026-08-26 · **Status:** active · **Sayandeep's** · **overrides §5**
+
+**Context:** `20-components-and-motion.md` §5 calls dimming the other eleven cards to `.3` on hover
+*"the single most striking interaction on the site"*, and §21.1 makes it one of three components
+sharing a `useSiblingDim(0.3)` primitive. Phase 4 built it, hoisted it to the grid, and asserted it
+at exactly 0.3 against all eleven others.
+
+Sayandeep, on the running build: *"when I hover over one card the rest also gets dimmed — fix that
+too."*
+
+**Decision: the dim is off.**
+
+He is right, and the cause is a change we made earlier the same day. **The dim was legible when the
+hovered card turned white.** One card lit, eleven receded, and the contrast pointed at the one you
+were on. D-024 made the hovered card's panel dark, so hovering anything now makes the entire grid
+darker and nothing brighter — the page reads as *dimming* rather than as *focusing*. The
+interaction did not stop working; the thing it was contrasting against went away.
+
+**Consequence:** `useSiblingDim` is untouched and still used by the footer, so nothing is stranded,
+and the call site in `WorksGrid` is left in place as a comment. The assertion was **inverted rather
+than deleted**, behind `expectDim: false` in `behaviour.config.ts` — a removed behaviour whose
+check went with it is indistinguishable from one that broke, and this is one line away from coming
+back. Softening it to `0.55` instead of removing it is the obvious middle path if it is ever
+revisited.
+
+---
+
+## D-028 · The loader draws the aperture before it sweeps
+
+**Phase:** 5 · **Date:** 2026-08-26 · **Status:** active · **Sayandeep's** · `[new]`
+
+**Context:** Sayandeep: *"animate the logo and loader for the initial page."* tonik's loader shows a
+static logo behind a panel sweep; there is nothing to transcribe.
+
+**Decision: on the first paint only, the mark draws itself — the ring by dash-offset, then the six
+ticks staggered — and hands over to `loader.enter`.**
+
+The animation was already in the glyph. `50-brand-and-3d.md` §1 draws the aperture with its blades
+**retracted**: a ring with six short radial ticks at its inner edge. So a ring arriving first and
+the ticks then pulling back to it is *an iris opening* — the one motion this mark was always going
+to have, rather than a fade or a spin that could have been any logo.
+
+**It is a separate timeline from `loader.enter`, and that is the load-bearing part.** `enter` is a
+transcription of IX2 `a-23` and `verify:motion` asserts its exact shape — five children, 0.6s, both
+tweens at `startTime 0`. Adding the draw to it would mean either breaking that assertion or
+loosening it, and **a loosened assertion is how a transcription quietly stops being one.**
+
+**First visit only.** On a route change the mark has already introduced itself, and 0.7s of it
+again is a toll rather than a flourish. Under reduced motion it does not run at all — the loader
+stays the 200ms fade §1 specifies.
+
+**Consequence, and it was the expensive half.** The loader now covers the page for ~1.3s instead of
+0.6s, and **four harness checks that had been implicitly relying on the shorter number failed at
+once**: hovers intercepted by the panel, visual shots of a covered page, a ScrollTrigger baseline
+of 0 read before any trigger existed, and a phantom rAF loop. Every one of them was already fragile
+and none had ever failed. See I-043.
+
+---
+
+## D-029 · Opening an accordion row scrolls to it; closing returns you
+
+**Phase:** 5 · **Date:** 2026-08-26 · **Status:** active · **Sayandeep's** · not in §6
+
+**Context:** Sayandeep: *"when I click on Product Design and all, it opens up where I click — but as
+the content is that big, what it should do is it should get clipped up to the top and open the
+content, and you click it again it clips back down from where you left."*
+
+Neither §6 nor tonik covers this. Their rows are shorter; ours carries a lead, two paragraphs, a
+pill CTA and a three-block inverted panel, which comes to most of a viewport.
+
+**Decision: opening a row scrolls its head to 6rem below the top; closing returns to the scroll
+position the visitor had before they opened anything.**
+
+Two details that are not obvious:
+
+**The target is predicted, not measured after the fact.** Scrolling only once the layout has
+settled means waiting out the 0.7s open, which reads as lag rather than as a response. The row's
+final top is knowable at click time: it moves only if the row that is *closing* sits above it, and
+by exactly that row's body height. One subtraction, and the scroll starts on the same frame as the
+click.
+
+**Switching rows keeps the original restore point.** Open A, then B, then close B, and you return
+to where you entered the section — not to the middle of the row you just left.
+
+Under reduced motion it is an instant jump rather than a 0.6s Lenis scroll: moving someone through
+space over time is precisely what they asked not to have.
+
+**Consequence:** 6rem is the offset because the navbar is `position: fixed`. If the navbar's height
+ever changes, `OPEN_SCROLL_OFFSET_REM` is the one number to revisit.

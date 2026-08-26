@@ -1,6 +1,7 @@
 import { Hero } from '@/components/hero/Hero';
 import { WorksSection } from '@/components/works/WorksSection';
 import { ShowreelProvider } from '@/components/motion/Showreel';
+import { HomeLower } from '@/components/home/HomeLower';
 
 /**
  * The homepage.
@@ -14,8 +15,9 @@ import { ShowreelProvider } from '@/components/motion/Showreel';
  * site's first `<RevealText>`, and a scrubbed reveal cannot be verified without
  * a page tall enough to scroll it past.
  *
- * Phase 4 fills the grid inside it; phase 5 adds services, CTA, culture and the
- * blog row below.
+ * Phase 4 filled the grid inside it. Phase 5 added everything below it —
+ * services, CTA, culture and the blog row — in `<HomeLower>`, which is one file
+ * because those four sections share nothing but their order.
  */
 export default function Home() {
   /* The provider wraps the page rather than the hero, because Flip moves the
@@ -25,6 +27,7 @@ export default function Home() {
     <ShowreelProvider>
       <Hero />
       <WorksSection />
+      <HomeLower />
     </ShowreelProvider>
   );
 }

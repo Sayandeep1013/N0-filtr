@@ -1,5 +1,5 @@
 import type { Browser, Page } from 'playwright';
-import { newPage } from './lib/browser';
+import { newPage, waitForLoaderGone } from './lib/browser';
 import { fail, pass, type CheckResult } from './lib/types';
 import { BEHAVIOUR } from './behaviour.config';
 
@@ -55,6 +55,7 @@ async function checkSiblingDim(browser: Browser, baseUrl: string): Promise<Check
   try {
     await page.goto(baseUrl + c.page, { waitUntil: 'load' });
     await page.evaluate(() => document.fonts.ready);
+    await waitForLoaderGone(page);
     await page.waitForTimeout(1200);
     await scrollToGrid(page);
 
@@ -99,20 +100,39 @@ async function checkSiblingDim(browser: Browser, baseUrl: string): Promise<Check
         : fail('works grid: card count', String(c.cardCount), String(result.cardCount)),
     );
 
-    const allDimmed =
-      result.during.length === 1 && near(result.during[0]!, c.dimmed, c.tolerance);
-    out.push(
-      allDimmed
-        ? pass(
-            `works grid: hovering one card dims all ${result.otherCount} others to exactly ${c.dimmed}`,
-            `every other card at ${result.during[0]}`,
-          )
-        : fail(
-            `works grid: hovering one card dims all ${result.otherCount} others to ${c.dimmed}`,
-            `[${c.dimmed}]`,
-            JSON.stringify(result.during),
-          ),
-    );
+    /* Two opposite assertions behind one flag. See `expectDim` in the config —
+       the behaviour was built, asserted at 0.3, and then removed on request
+       (D-027), and a removed behaviour whose check went with it is
+       indistinguishable from one that broke. */
+    if (c.expectDim) {
+      const allDimmed = result.during.length === 1 && near(result.during[0]!, c.dimmed, c.tolerance);
+      out.push(
+        allDimmed
+          ? pass(
+              `works grid: hovering one card dims all ${result.otherCount} others to exactly ${c.dimmed}`,
+              `every other card at ${result.during[0]}`,
+            )
+          : fail(
+              `works grid: hovering one card dims all ${result.otherCount} others to ${c.dimmed}`,
+              `[${c.dimmed}]`,
+              JSON.stringify(result.during),
+            ),
+      );
+    } else {
+      const untouched = result.during.length === 1 && near(result.during[0]!, 1, c.tolerance);
+      out.push(
+        untouched
+          ? pass(
+              `works grid: hovering one card leaves the other ${result.otherCount} alone — the dim is off by decision (D-027)`,
+              `every other card at ${result.during[0]}`,
+            )
+          : fail(
+              'works grid: hovering one card leaves the others alone',
+              '[1]',
+              JSON.stringify(result.during),
+            ),
+      );
+    }
 
     out.push(
       near(result.self, 1, c.tolerance)
@@ -120,11 +140,13 @@ async function checkSiblingDim(browser: Browser, baseUrl: string): Promise<Check
         : fail('works grid: the hovered card is not dimmed', '1', String(result.self)),
     );
 
+    /* True either way: with the dim on it is the restore, with it off it is the
+       proof that nothing was left behind by the hover. */
     const restored = result.after.length === 1 && near(result.after[0]!, 1, c.tolerance);
     out.push(
       restored
-        ? pass('works grid: leaving restores every card to 1', String(result.after[0]))
-        : fail('works grid: leaving restores every card to 1', '[1]', JSON.stringify(result.after)),
+        ? pass('works grid: every card sits at 1 after the pointer leaves', String(result.after[0]))
+        : fail('works grid: every card at 1 after leave', '[1]', JSON.stringify(result.after)),
     );
   } finally {
     await context.close();
@@ -142,6 +164,7 @@ async function checkOverlay(browser: Browser, baseUrl: string): Promise<CheckRes
   try {
     await page.goto(baseUrl + c.page, { waitUntil: 'load' });
     await page.evaluate(() => document.fonts.ready);
+    await waitForLoaderGone(page);
     await page.waitForTimeout(1200);
     await scrollToGrid(page);
 
@@ -273,6 +296,7 @@ async function checkGridStructure(browser: Browser, baseUrl: string): Promise<Ch
   try {
     await page.goto(baseUrl + c.page, { waitUntil: 'load' });
     await page.evaluate(() => document.fonts.ready);
+    await waitForLoaderGone(page);
     await page.waitForTimeout(1200);
 
     const structure = await page.evaluate(() => {
@@ -355,6 +379,7 @@ async function checkMobile(browser: Browser, baseUrl: string): Promise<CheckResu
   try {
     await page.goto(baseUrl + c.page, { waitUntil: 'load' });
     await page.evaluate(() => document.fonts.ready);
+    await waitForLoaderGone(page);
     await page.waitForTimeout(1200);
     await scrollToGrid(page);
 

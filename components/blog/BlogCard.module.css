@@ -1,0 +1,57 @@
+/* A blog card. 20-components-and-motion.md §19. */
+
+.post {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 2rem;
+  min-height: 22rem;
+  padding: 1.5rem;
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: background-color var(--dur-fast) var(--ease-in-out);
+}
+
+.title {
+  color: var(--text-primary);
+  transition: transform var(--dur-base) var(--ease-in-out);
+}
+
+/* §19: a divider above the footer row, not around it. The rule belongs to the
+   foot, so a longer title pushes it down rather than leaving it stranded. */
+.foot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: var(--hairline);
+}
+
+.category {
+  color: var(--text-secondary);
+}
+
+.read {
+  color: var(--text-primary);
+}
+
+@media (min-width: 992px) {
+  .post:hover {
+    background-color: var(--grey-900);
+  }
+
+  /* §19's [new] hover. The cover cross-fade waits for phase 9's imagery; this
+     is the half that says the card is a link. */
+  .post:hover .title {
+    transform: translateX(0.25rem);
+  }
+}
+
+@media (max-width: 767px) {
+  .post {
+    min-height: 15rem;
+    gap: 1.5rem;
+  }
+}

@@ -1,0 +1,141 @@
+/* The homepage below the works grid. 30-page-specs.md §3–§6.
+
+   Section heights are theirs, measured: services 902, cta 370, culture 1781,
+   blogs 632. There is no single `--section-y` on this site and pretending
+   otherwise would invent a rhythm tonik do not have — every padding below is
+   read off the section it belongs to. */
+
+.label {
+  color: var(--text-secondary);
+}
+
+/* ── services ─────────────────────────────────────────────────────────────
+   Their `services_grid` is `1fr 10fr 1fr` on a 1.25rem gap — the lead is
+   indented by one twelfth and stops one twelfth short of the right edge, which
+   is a different indent from the works heading's `4fr 7fr 1fr`. Both measured;
+   see I-032. */
+.services {
+  padding-top: 6rem;
+  padding-bottom: 4rem;
+}
+
+.servicesGrid {
+  display: grid;
+  grid-template-columns: 1fr 10fr 1fr;
+  gap: var(--grid-gap);
+  margin-bottom: 4rem;
+}
+
+.label {
+  grid-column: 1 / 2;
+}
+
+.servicesLead {
+  grid-column: 2 / 3;
+  /* The measure, not the track. Their lead runs 743.67px inside a 1062px track
+     — the column positions it, the measure keeps it readable. */
+  max-width: 45rem;
+}
+
+/* Full-bleed: the accordion's own rows carry the gutter, so an open row's
+   ground reaches the viewport edge instead of stopping at 80rem. */
+.accordionWrap {
+  border-top: var(--hairline);
+}
+
+/* ── CTA ──────────────────────────────────────────────────────────────────
+   370px, which is the block's own 23rem plus this. */
+.cta {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+
+/* ── culture ──────────────────────────────────────────────────────────────── */
+.culture {
+  padding-top: 5rem;
+  padding-bottom: 4rem;
+}
+
+.cultureHead {
+  display: grid;
+  grid-template-columns: 4fr 7fr 1fr;
+  gap: var(--grid-gap);
+  margin-bottom: 3.5rem;
+}
+
+.cultureCopy {
+  grid-column: 2 / 3;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.cultureHeading {
+  color: var(--text-primary);
+}
+
+.cultureLead {
+  color: var(--text-secondary);
+  max-width: 38rem;
+}
+
+/* ── blog row ─────────────────────────────────────────────────────────────── */
+.blog {
+  padding-top: 4rem;
+  padding-bottom: 8rem;
+  border-top: var(--hairline);
+}
+
+.blogHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gutter);
+  margin-bottom: 2.5rem;
+  padding-top: 2rem;
+}
+
+/* Theirs: `4fr 4fr 4fr`, 1.25rem gap. Three equal thirds of the twelve. */
+.blogRow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--grid-gap);
+}
+
+/* ── ≤767 ─────────────────────────────────────────────────────────────────
+   Every one of their section grids collapses to a single column below 768. */
+@media (max-width: 767px) {
+  .services,
+  .culture {
+    padding-top: 4rem;
+    padding-bottom: 3rem;
+  }
+
+  .blog {
+    padding-bottom: 4rem;
+  }
+
+  .servicesGrid,
+  .cultureHead {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .label,
+  .servicesLead,
+  .cultureCopy {
+    grid-column: 1 / -1;
+  }
+
+  .blogRow {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .blogHead {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+}

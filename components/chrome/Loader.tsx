@@ -36,11 +36,37 @@ import s from './Loader.module.css';
  *  additions to it. */
 const REDUCED_FADE = 0.2;
 
+/**
+ * [new] — the mark drawing itself, on the first paint only.
+ *
+ * Sayandeep asked for the logo and the loader animated. This is the mark doing
+ * what the mark *means*: `50-brand-and-3d.md` §1 draws the aperture with its
+ * blades **retracted**, so the ring arriving first and the six ticks then
+ * pulling back to the inner edge is an iris opening — the one animation this
+ * glyph was always going to have.
+ *
+ * It is a **separate timeline** from `loader.enter`, deliberately. `enter` is a
+ * transcription of IX2 `a-23` and `verify:motion` asserts its exact shape —
+ * five children, 0.6s, both tweens at `startTime 0`. Adding tweens to it would
+ * mean either breaking that assertion or loosening it, and a loosened assertion
+ * is how a transcription quietly stops being one. Ours runs first, then hands
+ * over. See D-028.
+ *
+ * First visit only. On a route change the mark has already introduced itself
+ * and 0.75s of it again is a toll, not a flourish.
+ */
+const MARK_DRAW = 0.55;
+const MARK_TICKS = 0.35;
+const TICK_STAGGER = 0.045;
+
 export function Loader() {
   const panelRef = useRef<HTMLDivElement>(null);
   const markRef = useRef<HTMLDivElement>(null);
   const enterRef = useRef<gsap.core.Timeline | null>(null);
   const exitRef = useRef<gsap.core.Timeline | null>(null);
+  const drawRef = useRef<gsap.core.Timeline | null>(null);
+  /** The mark introduces itself once per session, not once per route. */
+  const hasDrawn = useRef(false);
   /** Where the intercepted click was going. Read by the exit's onComplete. */
   const pendingHref = useRef<string | null>(null);
   /** False until the first enter has run, so a rebuild does not re-cover the page. */
@@ -88,6 +114,53 @@ export function Loader() {
           .set(mark, { opacity: 1, scale: 1 });
       }
 
+      /* ── the mark draws itself ───────────────────────────────────────────
+         See MARK_DRAW. Separate from `enter` so the IX2 transcription keeps its
+         asserted shape.
+
+         The ring is drawn with `stroke-dasharray` set to its own circumference
+         and the offset animated to 0 — the standard SVG line-draw, and the
+         reason the circumference is read from the element rather than computed
+         here is that the mark's geometry lives in `ApertureMark` and this file
+         should not have a second copy of it that can drift.
+
+         The ticks scale from their outer end. `transform-origin` is set per
+         tick in user units because each one is already carrying two rotations
+         from the mark's own markup — a percentage origin would resolve against
+         the rotated box and send them wandering. */
+      const ring = mark.querySelector<SVGCircleElement>('[data-mark-ring]');
+      const ticks = [...mark.querySelectorAll<SVGLineElement>('[data-mark-tick]')];
+
+      const draw = gsap.timeline({ paused: true });
+      if (!reducedMotion && ring && ticks.length > 0) {
+        const circumference = ring.getTotalLength();
+        draw
+          .set(mark, { opacity: 1, scale: 1 })
+          .fromTo(
+            ring,
+            { strokeDasharray: circumference, strokeDashoffset: circumference },
+            { strokeDashoffset: 0, duration: MARK_DRAW, ease: EASE.out },
+          )
+          .fromTo(
+            ticks,
+            { scaleY: 0, opacity: 0, transformOrigin: '50% 100%' },
+            {
+              scaleY: 1,
+              opacity: 1,
+              duration: MARK_TICKS,
+              ease: EASE.out,
+              stagger: TICK_STAGGER,
+            },
+            /* Overlapping the ring's tail rather than following it. The blades
+               belong to the ring; waiting for it to finish reads as two
+               animations rather than one mechanism. */
+            `>-${(MARK_DRAW * 0.35).toFixed(2)}`,
+          )
+          /* Hand the dash back. A stroke left dashed would be dashed on every
+             later route change, because this element is mounted once. */
+          .set(ring, { clearProps: 'strokeDasharray,strokeDashoffset' });
+      }
+
       /* ── exit ────────────────────────────────────────────────────────────
          Built paused and restarted per click rather than created inside the
          handler, so it can be registered and asserted. */
@@ -116,14 +189,18 @@ export function Loader() {
 
       enterRef.current = enter;
       exitRef.current = exit;
+      drawRef.current = draw;
       registerTimeline('loader.enter', enter);
       registerTimeline('loader.exit', exit);
+      registerTimeline('loader.mark', draw);
 
       return () => {
         unregisterTimeline('loader.enter');
         unregisterTimeline('loader.exit');
+        unregisterTimeline('loader.mark');
         enterRef.current = null;
         exitRef.current = null;
+        drawRef.current = null;
       };
     },
     { scope: panelRef, dependencies: [reducedMotion] },
@@ -132,7 +209,19 @@ export function Loader() {
   /* Enter runs on mount and on every route change — tonik fires `a-23` on
      PAGE_START, PAGE_SCROLL_UP and PAGE_FINISH alike. */
   useEffect(() => {
+    const first = !hasEntered.current;
     hasEntered.current = true;
+
+    /* First paint: the mark draws, then the panel sweeps. Every route change
+       after that is the sweep alone — see MARK_DRAW on why. */
+    if (first && !hasDrawn.current && drawRef.current && drawRef.current.duration() > 0) {
+      hasDrawn.current = true;
+      const draw = drawRef.current;
+      draw.eventCallback('onComplete', () => enterRef.current?.restart());
+      draw.restart();
+      return;
+    }
+
     enterRef.current?.restart();
   }, [pathname]);
 

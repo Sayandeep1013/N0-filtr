@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { Browser, Page } from 'playwright';
-import { newPage } from './lib/browser';
+import { newPage, waitForLoaderGone } from './lib/browser';
 import { fail, info, pass, pending, type CheckResult, type SectionResult } from './lib/types';
 import { checkBehaviour } from './behaviour';
 import {
@@ -101,12 +101,37 @@ interface MotionDebugSnapshot {
  * The settle after it covers React StrictMode's mount → unmount → mount, whose
  * middle step reverts every matchMedia context and republishes an empty set.
  */
+/**
+ * Wait for `__MOTION__` to exist, then read it.
+ *
+ * **Polled by hand, not with `waitForFunction`.** That API polls on
+ * requestAnimationFrame by default, which installs a self-rescheduling rAF loop
+ * *in the page* — and this file counts persistent rAF loops to enforce
+ * CLAUDE.md's "one animation loop" rule. The helper was failing the check
+ * twenty lines below it.
+ *
+ * It only started failing in phase 5, which is what made it hard to see. The
+ * non-reduced block reads the rAF probe *before* calling this, so the poller
+ * had not run yet; the reduced block calls this first. And `__MOTION__` used to
+ * appear almost immediately, so the poller resolved on its first tick and never
+ * reached the five-tick threshold that separates a driver from an incidental
+ * reschedule. Giving the loader a mark animation (D-028) delayed the provider's
+ * first publish past that threshold, and a check that had always been fragile
+ * finally reported it — as an anonymous frame inside `eval at evaluate`, which
+ * points at nothing you can grep for.
+ *
+ * A loop of `page.evaluate` from the Node side injects nothing that outlives
+ * the call.
+ */
 async function readMotionState(page: Page): Promise<MotionDebugSnapshot | null> {
-  await page
-    .waitForFunction(() => Boolean((window as unknown as { __MOTION__?: unknown }).__MOTION__), null, {
-      timeout: 10_000,
-    })
-    .catch(() => undefined);
+  const deadline = Date.now() + 10_000;
+  while (Date.now() < deadline) {
+    const ready = await page
+      .evaluate(() => Boolean((window as unknown as { __MOTION__?: unknown }).__MOTION__))
+      .catch(() => false);
+    if (ready) break;
+    await page.waitForTimeout(100);
+  }
   await page.waitForTimeout(200);
   return page.evaluate(() => (window as unknown as { __MOTION__?: MotionDebugSnapshot }).__MOTION__ ?? null);
 }
@@ -271,12 +296,21 @@ async function checkRuntime(browser: Browser, baseUrl: string): Promise<CheckRes
           const n = await countTriggers();
           stable = n === last ? stable + 1 : 0;
           last = n;
-          if (stable >= 2) return n;
+          /* Four equal reads, not three. Phase 5 put a scrubbed reveal, six
+             culture frames and twelve card reveals on this route, and they are
+             created in waves as fonts and dynamic chunks land. */
+          if (stable >= 3) return n;
           await page.waitForTimeout(200);
         }
         return last;
       };
 
+      /* The loader covers the page for ~1.3s on first paint since phase 5's
+         mark animation, and the triggers below it are created after that.
+         Without this the first four reads all return 0, `settleTriggers` calls
+         that a settled baseline, and the check reports a leak of everything the
+         page legitimately builds. */
+      await waitForLoaderGone(page);
       const baseline = await settleTriggers();
       if (baseline < 0) {
         out.push(

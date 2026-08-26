@@ -15,15 +15,7 @@ import { DUR, EASE } from '@/lib/motion/tokens';
 import { registerTimeline, unregisterTimeline } from '@/lib/motion/registry';
 import { useMotion } from '@/lib/motion/MotionProvider';
 import { SHOWREEL } from '@/lib/content/site';
-/* Plyr's own stylesheet, imported statically while the library itself is
-   imported on demand. That split is deliberate. The budget under pressure is
-   the JS one (D-013), and CSS is not in it; meanwhile a dynamically imported
-   stylesheet arrives a frame or two after the player it is meant to dress, and
-   the first build of this component shipped a screen full of Plyr's unstyled
-   SVG icons rendered at their intrinsic size — enormous black arrows over the
-   hero. Static CSS, dynamic JS. */
-import 'plyr/dist/plyr.css';
-import s from './Showreel.module.css';
+import ShowreelPanel from './ShowreelPanel';
 
 /**
  * The showreel. `20-components-and-motion.md` §15 — **the only use of Flip on
@@ -96,6 +88,28 @@ export function ShowreelProvider({ children }: { children: ReactNode }) {
      working when T10.2 changes these strings. */
   const available = (SHOWREEL.src as string) !== '' || (SHOWREEL.srcWebm as string) !== '';
   const [isOpen, setIsOpen] = useState(false);
+
+  /**
+   * The panel renders after mount, never on the server.
+   *
+   * A `<video>` is the favourite target of media extensions — Video Speed
+   * Controller injects a `<div class="vsc-controller">` into it *before React
+   * hydrates* — and React reports that as a hydration mismatch naming our file.
+   *
+   * `suppressHydrationWarning` was the first attempt and does not cover it:
+   * React applies that to **text content and attributes** on the element it is
+   * set on, not to extra or missing children. The warning kept coming.
+   *
+   * `next/dynamic` with `ssr: false` was the second, and it worked — but it
+   * cost 1.7KB of a route that had 2.8KB left (I-034), because the dynamic
+   * wrapper ships alongside a chunk that is fetched on mount anyway. A boolean
+   * does the same job for nothing: the server sends no `<video>`, so there is
+   * nothing for an extension to modify before hydration and nothing for React
+   * to compare. The panel appears a frame later, which is a very long time
+   * before anyone can click a button to open it.
+   */
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const backgroundRef = useRef<HTMLElement | null>(null);
   const iconRef = useRef<HTMLElement | null>(null);
@@ -361,7 +375,7 @@ export function ShowreelProvider({ children }: { children: ReactNode }) {
   return (
     <ShowreelContext.Provider value={value}>
       {children}
-      {available && (
+      {available && mounted && (
         <ShowreelPanel
           sectionRef={sectionRef}
           playerWrapRef={playerWrapRef}
@@ -373,69 +387,5 @@ export function ShowreelProvider({ children }: { children: ReactNode }) {
         />
       )}
     </ShowreelContext.Provider>
-  );
-}
-
-function ShowreelPanel({
-  sectionRef,
-  playerWrapRef,
-  playerRef,
-  headingRef,
-  videoRef,
-  onClose,
-  isOpen,
-}: {
-  sectionRef: React.RefObject<HTMLElement | null>;
-  playerWrapRef: React.RefObject<HTMLDivElement | null>;
-  playerRef: React.RefObject<HTMLDivElement | null>;
-  headingRef: React.RefObject<HTMLDivElement | null>;
-  videoRef: React.RefObject<HTMLVideoElement | null>;
-  onClose: () => void;
-  isOpen: boolean;
-}) {
-  return (
-    <section
-      ref={sectionRef}
-      className={s.section}
-      aria-modal={isOpen || undefined}
-      role="dialog"
-      aria-label={SHOWREEL.label}
-      aria-hidden={!isOpen}
-    >
-      {/* The scrim is the section's own background colour, which the open
-          timeline tweens from #21212100 to #21212180. Clicking it closes —
-          the same affordance the lightbox gets in phase 6. */}
-      <button type="button" className={s.scrim} onClick={onClose} aria-label="Close showreel" />
-
-      <div className={s.inner}>
-        <div ref={headingRef} className={s.heading}>
-          <p data-t="label" className={s.label}>
-            {SHOWREEL.label}
-          </p>
-          <p data-t="h5">{SHOWREEL.title}</p>
-          {/* Said out loud, not hidden in a comment. The reel in the player is
-              our own hero, baked to give §15's Flip something real to open;
-              T10.2 replaces it with the actual work. Anyone who opens this
-              deserves to know which one they are watching. */}
-          {SHOWREEL.isPlaceholder && (
-            <p data-t="label" className={s.label}>
-              Placeholder reel — real footage lands with the case studies
-            </p>
-          )}
-        </div>
-
-        {/* THE Flip target's destination. The button's background layer is
-            appended here on open and taken back on close; it must therefore be
-            an element whose box is the player's box. */}
-        <div ref={playerWrapRef} className={s.playerWrap}>
-          <div ref={playerRef} className={s.player}>
-            <video ref={videoRef} playsInline poster={SHOWREEL.poster} preload="none">
-              {SHOWREEL.srcWebm && <source src={SHOWREEL.srcWebm} type="video/webm" />}
-              {SHOWREEL.src && <source src={SHOWREEL.src} type="video/mp4" />}
-            </video>
-          </div>
-        </div>
-      </div>
-    </section>
   );
 }
