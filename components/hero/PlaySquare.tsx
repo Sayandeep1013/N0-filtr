@@ -60,7 +60,7 @@ export function PlaySquare() {
 
   if (!live) {
     return (
-      <span className={s.square} aria-hidden="true">
+      <span className={`${s.square} play-square`} aria-hidden="true">
         {layers}
       </span>
     );
@@ -69,7 +69,10 @@ export function PlaySquare() {
   return (
     <button
       type="button"
-      className={`${s.square} ${s.live}`}
+      /* `play-square` is a global hook so the hero's own stylesheet can hide
+         this below 768 without reaching for a CSS-Modules class it does not
+         own. See the note in Hero.module.css. */
+      className={`${s.square} ${s.live} play-square`}
       onClick={onActivate}
       /* Warm the Flip and Plyr chunks before the click that needs them.
          Pointer-enter covers the mouse; focus covers the keyboard. */

@@ -44,6 +44,12 @@ export interface Shot {
    * looked at it. Implemented in visual.ts.
    */
   prepare?: 'contact-open' | 'nav-menu-open' | 'showreel-open' | 'accordion-open';
+  /**
+   * Skip this shot below a width. For controls that do not exist on a phone —
+   * which is a design decision rather than a gap, and therefore something the
+   * harness should be told rather than something it should trip over.
+   */
+  minWidth?: number;
   /** The phase that makes this shot meaningful. Shots for unbuilt pages are skipped. */
   phase: number;
   /** Flip to false when the page exists. */
@@ -88,6 +94,15 @@ export const SHOTS: Shot[] = [
     name: 'showreel',
     ours: '/',
     prepare: 'showreel-open',
+    /* Desktop only, because the control is. `<PlaySquare>` is hidden below 768
+       — at that size it rendered as a 36px dark rectangle in the middle of the
+       headline rather than as a play button, and Sayandeep read it as a fault.
+       See the note in `Hero.module.css`.
+
+       This shot failed with a click timeout the moment that landed, which is
+       the harness working: a scenario that opens something unreachable should
+       say so rather than pass. */
+    minWidth: 768,
     phase: 3,
   },
   /* Their s03 is taken at 1900 in a 12,884px document. Ours is a different

@@ -90,6 +90,8 @@ export async function checkVisual(browser: Browser, baseUrl: string): Promise<Se
     const { context, page } = await newPage(browser, { viewport: { w: viewport.w, h: viewport.h } });
     try {
       for (const shot of live) {
+        /* A shot can be desktop-only. See `minWidth` in visual.config.ts. */
+        if (shot.minWidth !== undefined && viewport.w < shot.minWidth) continue;
         const label = `${shot.name} @${viewport.w}`;
         try {
           await page.goto(`${baseUrl}${shot.ours}`, { waitUntil: 'networkidle' });

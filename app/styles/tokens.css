@@ -152,6 +152,12 @@
   --col: calc((var(--container-large) - (11 * var(--grid-gap))) / 12);
 
   --section-y: 8rem; /* standard vertical section padding */
+  /* The fixed navbar's height, measured on the running site at 1512: 58px at a
+     16.45 root, which is 3.5rem. Anything that is the FIRST element on a page —
+     `<ServiceNav>` on `/works` and the service pages — has to clear it, because
+     a fixed bar takes no space in the flow and the element under it starts at
+     y 0. Kept as a token so a change to the bar's padding moves both. */
+  --navbar-height: 3.5rem;
 
   /* ── motion, mirrored from lib/motion/tokens.ts for CSS-side transitions ──
      The [css] hover rules in 20-components-and-motion.md §22 use these. If you

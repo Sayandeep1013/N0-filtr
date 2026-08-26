@@ -289,7 +289,7 @@ async function checkCta(browser: Browser, baseUrl: string): Promise<CheckResult[
     await page.waitForTimeout(1500);
 
     const shape = await page.evaluate(() => {
-      const cta = document.querySelector<HTMLElement>('button[data-contact]:not(.nav__links *)');
+      const cta = document.querySelector<HTMLElement>('[data-cta-block]');
       if (!cta) return null;
       const cs = getComputedStyle(cta);
       const box = cta.getBoundingClientRect();
@@ -334,7 +334,7 @@ async function checkCta(browser: Browser, baseUrl: string): Promise<CheckResult[
 
     /* It has to actually open the panel — §3 listens for any [data-contact]. */
     await page.evaluate(() => {
-      const cta = document.querySelector<HTMLElement>('button[data-contact]:not(.nav__links *)');
+      const cta = document.querySelector<HTMLElement>('[data-cta-block]');
       const to = (cta?.getBoundingClientRect().top ?? 0) + window.scrollY - 200;
       /* `typeof …scrollTo === 'function'`, not just truthiness. Lenis sets
          `window.lenis = { version }` itself as a build stamp, so the property

@@ -361,3 +361,26 @@ export const BLOG_ROW = {
   label: 'From the blog',
   link: 'Check out our blog',
 } as const;
+
+/**
+ * `/works`. `30-page-specs.md` §`/works` gives the heading as "Selected work";
+ * the lead is ours, and it says the thing that actually distinguishes this list
+ * from a studio's — every one of them is a repository you can open.
+ */
+export const WORKS_INDEX = {
+  heading: 'Selected work',
+  lead: 'Twelve products, each one built rather than art-directed. Every card below goes to a case study, and every case study ends in a deploy and a repository you can read.',
+} as const;
+
+/**
+ * Facts about the studio that appear as claims on a page.
+ *
+ * One place, because they are the values most likely to be repeated across
+ * templates and least likely to be updated everywhere when they change. The
+ * service pages' TEAM SIZE row reads from here; PROJECTS SHIPPED is derived from
+ * the works rather than typed, because a number that can disagree with the grid
+ * under it eventually will.
+ */
+export const STUDIO = {
+  teamSize: '2 to 5, per project',
+} as const;

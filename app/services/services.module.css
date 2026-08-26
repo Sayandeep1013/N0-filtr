@@ -1,0 +1,149 @@
+/* `/services`. See the note in page.tsx — this template is ours rather than the
+   spec's, so it is built out of shapes the spec already established: the
+   case-study footer's big link rows, and the numerals from §7 and §17. */
+
+.hero {
+  padding-top: 10rem;
+  padding-bottom: 4rem;
+}
+
+.title {
+  margin: 0;
+  color: var(--text-primary);
+  font-weight: 400;
+}
+
+.lead {
+  margin: 2.5rem 0 0;
+  max-width: calc(7 * var(--col) + 6 * var(--grid-gap));
+  color: var(--text-secondary);
+}
+
+/* ── the five ───────────────────────────────────────────────────────────── */
+
+.list {
+  padding-bottom: var(--section-y);
+}
+
+.rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: var(--hairline);
+}
+
+.row {
+  border-bottom: var(--hairline);
+}
+
+/* The whole row is the target — the same rule as the case study's outcome rows,
+   and for the same reason: a link the width of its text inside a row 80rem wide
+   is a row that mostly does not respond to being clicked. */
+.link {
+  display: grid;
+  grid-template-columns: 3.5rem 1fr auto;
+  align-items: center;
+  gap: var(--grid-gap);
+  padding: 2rem 0;
+  text-decoration: none;
+  color: var(--text-primary);
+  transition: padding-left var(--dur-base) var(--ease-in-out);
+}
+
+.link:hover,
+.link:focus-visible {
+  padding-left: 1.25rem;
+}
+
+.numeral {
+  align-self: start;
+  padding-top: 0.5rem;
+  color: var(--text-secondary);
+  font-family: var(--family-mono);
+}
+
+.rowCopy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.rowTitle {
+  font-weight: 400;
+}
+
+.rowLead {
+  max-width: calc(6 * var(--col) + 5 * var(--grid-gap));
+  color: var(--text-secondary);
+}
+
+.icon {
+  justify-self: end;
+  transition: background-color var(--dur-fast) var(--ease-in-out);
+}
+
+.link:hover .icon,
+.link:focus-visible .icon {
+  background-color: var(--accent-ink);
+}
+
+/* ── industries ─────────────────────────────────────────────────────────── */
+
+.industries {
+  padding-bottom: var(--section-y);
+}
+
+.sectionLabel {
+  margin: 0 0 1.5rem;
+  color: var(--text-secondary);
+  font-family: var(--family-mono);
+  text-transform: uppercase;
+  font-weight: 400;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chip {
+  display: inline-block;
+  padding: 0.625rem 1.25rem;
+  border: var(--hairline);
+  border-radius: 2rem;
+  color: var(--text-secondary);
+  font-family: var(--family-mono);
+  text-transform: uppercase;
+  text-decoration: none;
+  transition:
+    color var(--dur-fast) var(--ease-in-out),
+    border-color var(--dur-fast) var(--ease-in-out);
+}
+
+.chip:hover,
+.chip:focus-visible {
+  color: var(--text-primary);
+  border-color: var(--border-primary);
+}
+
+@media (max-width: 767px) {
+  .hero {
+    padding-top: 7rem;
+    padding-bottom: 2.5rem;
+  }
+
+  .link {
+    grid-template-columns: 2.5rem 1fr auto;
+    padding: 1.5rem 0;
+  }
+
+  .list,
+  .industries {
+    padding-bottom: 3rem;
+  }
+}

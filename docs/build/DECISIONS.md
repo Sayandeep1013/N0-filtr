@@ -1411,3 +1411,72 @@ passed across a component boundary. See I-052.
 
 **Consequence:** all twelve works carry `card.art`. The screenshots that remain in Tessera's board
 are the ones that are *evidence* — the sprite, the document, the ASCII — rather than decoration.
+
+
+---
+
+## D-039 · `/services` exists, and the industries live on it
+
+**Phase:** 7 · **Date:** 2026-08-27 · **Status:** active
+
+`30-page-specs.md` lists five `/services/[slug]` pages and no index. Our navbar has said SERVICES
+since phase 1, so that route had to exist or the link had to move.
+
+**Decision: build the index.** A redirect to `/services/product-design` was the alternative and is
+worse — it makes one of the five look canonical, and the back button then lands you where you
+already are.
+
+The template is ours rather than the spec's, so it is assembled from shapes the spec already
+established: the case-study footer's big link rows, and the generated numerals from §7 and §17.
+
+The five **industries** are listed on it too. `/industries/[slug]` is five real routes that nothing
+linked to — reachable from the works filter in spirit and from nowhere in the markup. A section here
+is the honest home for them until phase 12 revisits the navigation. See I-054.
+
+---
+
+## D-040 · The work card carries its own name
+
+**Phase:** 7 · **Date:** 2026-08-27 · **Status:** active
+
+Sayandeep: *"show the name of the projects on top of the card like tonik does."*
+
+It matters more for us than it does for them. Their cards are key images of recognisable clients;
+ours are **generated plates** (D-038), so without a name on the picture there is no way to tell one
+card from another until you read the caption underneath it.
+
+The name takes the strong position — top left, where the eye lands — and the CASE STUDY chip moves
+opposite it. Both sit in one wrapper carrying `data-work-badge`, so they wipe in on the tween the
+badge already had rather than needing a second one.
+
+---
+
+## D-041 · The phone hero gets buttons, and loses the play square
+
+**Phase:** 7 · **Date:** 2026-08-27 · **Status:** active
+
+Sayandeep: *"in mobile the hero section is way too long with nothing in it .. add a button of some
+sort or something to fill that empty space"*, then *"the play button is also misplaced in phone
+view .. the buttons need to shift down."*
+
+**The void is structural.** On desktop the hero's height is filled by the 3D assembly and the
+headline sharing a row. Below 768 the object drops behind the copy, the two stop sharing anything,
+and the column the object used to occupy becomes dead space above the rail.
+
+So it gets the thing it should always have had: **SEE THE WORK** and **LET'S TALK**, below the
+headline. The desktop hero's only affordance was `<PlaySquare>`, which is a showreel control rather
+than a way into the site — a phone visitor had nothing to press until they had scrolled past the
+fold.
+
+A first attempt gave the row `margin-top: auto`, and `.rail` already had one, so the two shared the
+free space and dropped the buttons into the middle of the 3D object. They are anchored to the
+headline instead.
+
+**`<PlaySquare>` is hidden below 768.** It is not misplaced so much as unreadable at that size: a
+36px dark rectangle with a small glyph, shorter than the line it sits in, indenting line two while
+line one starts at the gutter. It reads as a rendering fault. Hiding it costs nothing today because
+the reel behind it is still the placeholder recorded off our own works grid (I-033); when T10.2
+supplies real footage it should return as a labelled control in the actions row rather than as a
+square in the headline.
+
+Hidden above 767 deliberately — the desktop composition is approved and has no room for a button row.

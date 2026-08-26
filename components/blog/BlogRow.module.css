@@ -1,0 +1,43 @@
+/* The blog row. Moved out of HomeLower.module.css in phase 7, unchanged.
+   20-components-and-motion.md §7 and 30-page-specs.md. */
+
+.blog {
+  padding-top: 4rem;
+  padding-bottom: 8rem;
+  border-top: var(--hairline);
+}
+
+.blogHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gutter);
+  margin-bottom: 2.5rem;
+  padding-top: 2rem;
+}
+
+.label {
+  margin: 0;
+  color: var(--text-secondary);
+  font-family: var(--family-mono);
+  text-transform: uppercase;
+}
+
+/* Theirs: `4fr 4fr 4fr`, 1.25rem gap. Three equal thirds of the twelve. */
+.blogRow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--grid-gap);
+}
+
+@media (max-width: 767px) {
+  .blog {
+    padding-top: 3rem;
+    padding-bottom: 4rem;
+  }
+
+  .blogRow {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}

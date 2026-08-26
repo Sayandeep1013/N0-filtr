@@ -66,6 +66,24 @@ type Motif = (typeof MOTIFS)[number];
 const W = 1600;
 const H = 1000;
 
+/**
+ * Every coordinate this file emits goes through here, and it is not cosmetic.
+ *
+ * `Math.cos` and `Math.sin` are **implementation-defined** in ECMAScript — the
+ * standard requires them to be close, not identical — so the same expression can
+ * differ in its last bit between the Node process that server-renders a page and
+ * the browser that hydrates it. React compares the attribute strings, and
+ * `123.45600000000002` against `123.456` is a hydration mismatch.
+ *
+ * The first version of this file hit exactly that in `<Iris>` and `<Orbit>`, the
+ * two motifs built from trigonometry, and nowhere else — `<Mosaic>` places
+ * everything on integer multiples of a cell.
+ *
+ * Two decimal places on a 1600-unit canvas is well under a device pixel at any
+ * size these are drawn, so nothing is lost but the disagreement. See I-053.
+ */
+const n = (value: number) => Math.round(value * 100) / 100;
+
 export function Artwork({
   seed,
   motif,
@@ -193,11 +211,11 @@ function Iris({ seed }: { seed: string }) {
     items.push(
       <ellipse
         key={`r${i}`}
-        cx={cx}
-        cy={cy}
-        rx={r}
-        ry={r * squash}
-        transform={`rotate(${TILT} ${cx} ${cy})`}
+        cx={n(cx)}
+        cy={n(cy)}
+        rx={n(r)}
+        ry={n(r * squash)}
+        transform={`rotate(${TILT} ${n(cx)} ${n(cy)})`}
         className={i === 0 ? s.strokeBright : s.strokeDim}
       />,
     );
@@ -219,7 +237,16 @@ function Iris({ seed }: { seed: string }) {
     };
     const [x1, y1] = project(inner);
     const [x2, y2] = project(reach);
-    items.push(<line key={`b${i}`} x1={x1} y1={y1} x2={x2} y2={y2} className={s.strokeMid} />);
+    items.push(
+      <line
+        key={`b${i}`}
+        x1={n(x1)}
+        y1={n(y1)}
+        x2={n(x2)}
+        y2={n(y2)}
+        className={s.strokeMid}
+      />,
+    );
   }
 
   return <g>{items}</g>;
@@ -246,10 +273,10 @@ function Strata({ seed }: { seed: string }) {
     lines.push(
       <line
         key={i}
-        x1={left}
-        y1={y}
-        x2={left + width}
-        y2={y}
+        x1={n(left)}
+        y1={n(y)}
+        x2={n(left + width)}
+        y2={n(y)}
         className={i % 7 === 0 ? s.strokeBright : s.strokeDim}
       />,
     );
@@ -273,13 +300,13 @@ function Orbit({ seed }: { seed: string }) {
     const ry = r * 0.7247;
     const start = random() * Math.PI * 2;
     const sweep = between(random, 0.9, 2.6);
-    const p = (a: number) => `${cx + Math.cos(a) * r} ${cy + Math.sin(a) * ry}`;
+    const p = (a: number) => `${n(cx + Math.cos(a) * r)} ${n(cy + Math.sin(a) * ry)}`;
     const large = sweep > Math.PI ? 1 : 0;
     arcs.push(
       <path
         key={i}
-        d={`M ${p(start)} A ${r} ${ry} 0 ${large} 1 ${p(start + sweep)}`}
-        transform={`rotate(${TILT} ${cx} ${cy})`}
+        d={`M ${p(start)} A ${n(r)} ${n(ry)} 0 ${large} 1 ${p(start + sweep)}`}
+        transform={`rotate(${TILT} ${n(cx)} ${n(cy)})`}
         className={i === 0 ? s.strokeBright : s.strokeMid}
         fill="none"
       />,
@@ -296,8 +323,8 @@ function Rule({ seed }: { seed: string }) {
   const horizontal = random() > 0.5;
   const at = between(random, 0.18, 0.82);
   return horizontal ? (
-    <line x1={0} y1={H * at} x2={W} y2={H * at} className={s.rule} />
+    <line x1={0} y1={n(H * at)} x2={W} y2={n(H * at)} className={s.rule} />
   ) : (
-    <line x1={W * at} y1={0} x2={W * at} y2={H} className={s.rule} />
+    <line x1={n(W * at)} y1={0} x2={n(W * at)} y2={H} className={s.rule} />
   );
 }
