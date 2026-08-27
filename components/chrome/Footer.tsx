@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useSiblingDim } from '@/lib/motion/useSiblingDim';
 import { DUR, EASE } from '@/lib/motion/tokens';
 import { ApertureMark } from '@/components/brand/ApertureMark';
-import { Wordmark } from '@/components/brand/Wordmark';
+import { HollowMark } from '@/components/brand/HollowMark';
 import { Button } from '@/components/ui/Button';
 import { ServiceIcon } from '@/components/ui/ServiceIcon';
 import { CONTACT, FOOTER_TAGLINE, SERVICES, SOCIALS } from '@/lib/content/site';
@@ -133,7 +133,10 @@ export function Footer() {
           <p data-t="label" className={s.label}>
             {FOOTER_TAGLINE}
           </p>
-          <Wordmark className={s.wordmark} />
+          {/* Hollow, and lit local to the pointer — see HollowMark.tsx. The
+              14vw size stays here, on the footer's own rule, because it is a
+              layout decision about this slot rather than about the mark. */}
+          <HollowMark className={s.wordmark} />
         </div>
       </div>
     </footer>

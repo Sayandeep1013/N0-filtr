@@ -1,0 +1,72 @@
+/* The hollow footer wordmark. See HollowMark.tsx for why it is built this way.
+
+   Two stacked copies of the same word: a grey hollow one, and an accent-stroked
+   one masked to a circle at the pointer. */
+
+.mark {
+  position: relative;
+  display: inline-flex;
+  /* Far off the mark until the first pointer move, so nothing is lit on load
+     and nothing is lit for a visitor who never brings a pointer near it. */
+  --mx: -9999px;
+  --my: -9999px;
+  /* Generous, because the letters are 14vw — a radius small enough to light one
+     letter of a 1rem word lights a third of one letter here. */
+  --glow-radius: 15vw;
+}
+
+.layer {
+  /* Hollow: the fill goes, the edge stays. `-webkit-text-stroke` is prefixed in
+     every browser that has it, Firefox included — there is no unprefixed form
+     to fall back to, and the unprefixed `text-stroke` is not implemented
+     anywhere. Without support the letters are simply transparent, so the fill
+     is not left to chance: `color` is the token and the stroke paints over it
+     only where it lands. */
+  color: transparent;
+  -webkit-text-stroke: 1px var(--white-30);
+}
+
+/* The lit copy. Identical geometry, stacked exactly on top, revealed only
+   inside a soft circle at the pointer. */
+.glow {
+  position: absolute;
+  inset: 0;
+  -webkit-text-stroke-color: var(--wordmark-hue, var(--accent-ink));
+  /* `--accent-ink` is the light member of a work's accent pair, which is the one
+     meant to be read on our dark ground. On a page with no work it resolves to
+     --white and the cycle in HollowMark.tsx overwrites it. */
+  -webkit-mask-image: radial-gradient(
+    circle var(--glow-radius) at var(--mx) var(--my),
+    #000 0%,
+    rgba(0, 0, 0, 0.8) 38%,
+    transparent 74%
+  );
+  mask-image: radial-gradient(
+    circle var(--glow-radius) at var(--mx) var(--my),
+    #000 0%,
+    rgba(0, 0, 0, 0.8) 38%,
+    transparent 74%
+  );
+  /* The crossfade between accents. `--dur-slower` is 0.7s, which the motion
+     token table names as the accent crossfade. Transitioning the stroke colour
+     rather than the custom property, because a custom property is not
+     interpolable without an `@property` declaration and the stroke colour is. */
+  transition: -webkit-text-stroke-color var(--dur-slower) linear;
+}
+
+/* A colour that changes with nobody touching it is motion. The cycle is already
+   stopped in JS under `reduce`; this stops the crossfade of the one change that
+   still happens — arriving on, or leaving, a case study. */
+@media (prefers-reduced-motion: reduce) {
+  .glow {
+    transition: none;
+  }
+}
+
+/* No pointer, no glow. The hollow mark is the part of the design that does not
+   depend on input, and it stays. */
+@media (max-width: 991px) {
+  .glow {
+    display: none;
+  }
+}

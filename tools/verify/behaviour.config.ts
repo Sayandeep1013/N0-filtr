@@ -415,9 +415,51 @@ export const BEHAVIOUR = {
     phase: 5,
     page: '/',
     cultureFrames: 6,
+
+    /* ── parallax travel ────────────────────────────────────────────────
+       §12 drifts a flagged frame by `-20%` of its own height, and the works
+       grid drifts each of its twelve cells at its own rate.
+
+       **This assertion exists because both were silently doing nothing.**
+       `quickSetter(el, 'yPercent', '%')` builds the string `"-20%"`, which
+       GSAP's transform parser drops without a word — the setter ran on every
+       scroll frame and wrote nothing, through two phases and 267 passing
+       motion assertions. I-065.
+
+       The lesson generalises past this one bug: the motion harness asserts
+       that timelines have the right durations and eases, which says nothing
+       about whether a *scrubbed* setter ever reaches its target. Anything
+       scrubbed wants a check on the distance actually travelled. */
+    parallaxTravelPercent: -20,
+    parallaxTolerance: 3,
+    /** Twelve cells at one rate is not a differential parallax. */
+    worksMinDistinctRates: 5,
+
+    /* ── the wire rig · D-056 ───────────────────────────────────────────── */
+    wireCount: 9,
+    poleCount: 4,
+    /** A rope has to hang below the straight line between its ends. */
+    minSagPx: 10,
+    /** How far a wire's end may sit from the pole it is pinned to. */
+    pinTolerance: 0.5,
+
     blogCards: 3,
     /** §19: `background var(--grey-800)`. */
     blogGround: 'rgb(59, 59, 59)',
+    desktop: { w: 1512, h: 900 },
+  },
+
+  /** The hollow footer wordmark. D-056. */
+  hollowMark: {
+    id: 'hollow mark',
+    phase: 12,
+    page: '/',
+    /** Transparent fill and a hairline stroke — that is what "hollow" means. */
+    fill: 'rgba(0, 0, 0, 0)',
+    stroke: 'rgba(255, 255, 255, 0.3)',
+    /** Two stacked copies, and exactly one of them readable. */
+    layers: 2,
+    readableNames: 1,
     desktop: { w: 1512, h: 900 },
   },
 

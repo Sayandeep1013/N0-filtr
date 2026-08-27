@@ -4,6 +4,7 @@ import { useRef } from 'react';
 import { gsap, ScrollTrigger, useGSAP } from '@/lib/motion/gsap';
 import { MQ } from '@/lib/motion/tokens';
 import { CULTURE } from '@/lib/content/site';
+import { createWireRig } from './wireRig';
 import s from './CultureCollage.module.css';
 
 /**
@@ -135,7 +136,12 @@ export function CultureCollage() {
 
         const items = drifters.map((el) => ({
           el,
-          set: gsap.quickSetter(el, 'yPercent', '%') as (value: number) => void,
+          /* **No unit.** `yPercent` is already a percentage, and passing `'%'`
+             makes GSAP build the string `"-20%"`, which its transform parser
+             drops on the floor — silently, with no error and no warning. The
+             setter runs, writes nothing, and the parallax simply does not
+             happen. See I-065; `CaseBoard` had it right and was the control. */
+          set: gsap.quickSetter(el, 'yPercent') as (value: number) => void,
           top: 0,
           height: 0,
         }));
@@ -178,6 +184,29 @@ export function CultureCollage() {
         };
       });
 
+      /* ── the wire rig ─────────────────────────────────────────────────
+         Poles on four frames and simulated ropes between them. `[new]` —
+         ours; see `wireRig.ts` for why the composition belongs here and why
+         the wires are simulated rather than drawn.
+
+         **Its own matchMedia block, gated on width alone.** Every other
+         motion here also requires `noPreference`, because every other motion
+         here is something moving. The rig is not: under `reduce` the ropes
+         are settled once at mount and drawn hanging correctly, then never
+         touched again — no ticker, no drag, no wind. Folding it into the
+         `noPreference` block would have deleted the wires outright for anyone
+         who asked for less motion, which is a heavier answer than the request
+         and would have left four poles carrying nothing. */
+      /* The object form, because this block needs to read *two* conditions and
+         `context.conditions` only ever carries the queries registered in its
+         own `add()`. Named keys, both booleans, and the callback re-runs when
+         either flips. */
+      mm.add({ wide: MQ.desktop, reduced: MQ.reduced }, (context) => {
+        const { wide, reduced } = context.conditions as Record<string, boolean | undefined>;
+        if (!wide) return undefined;
+        return createWireRig(scope, { reduced: reduced === true });
+      });
+
       /* No refresh from a cleanup — see lib/motion/scrollRefresh.ts. */
       /* No cleanup returned. `useGSAP` reverts its context, and the matchMedia
          created inside it reverts with it — running every `mm.add()` cleanup
@@ -202,6 +231,7 @@ export function CultureCollage() {
           <figure
             key={frame.caption}
             className={s.frame}
+            data-culture-frame
             data-parallax={frame.parallax ? '' : undefined}
             style={
               {
@@ -211,7 +241,21 @@ export function CultureCollage() {
               } as React.CSSProperties
             }
           >
-            <div className={s.media}>
+            {/* The drag lives on this wrapper, not on the figure.
+
+                §12's parallax owns the figure's `transform` through GSAP, and
+                GSAP refuses to write transforms to an element whose cache it
+                has flagged `uncache` — which `useGSAP`'s context revert does on
+                every StrictMode double-mount (I-065). Routing the drag through
+                the same cache made it a coin flip.
+
+                A child GSAP never touches has no such problem, and the two
+                compose for free: the figure translates by the parallax, the
+                wrapper translates by the drag, and neither needs to know about
+                the other. It is also cheaper — two custom properties per
+                pointer move instead of a GSAP render. */}
+            <div className={s.drag} data-culture-drag>
+              <div className={s.media} data-culture-media>
               <div
                 className={s.field}
                 aria-hidden="true"
@@ -225,15 +269,19 @@ export function CultureCollage() {
               {/* §12's wipe. `width: 100%` at rest, tweened to 0% as the frame
                   crosses the viewport — anchored left, so it uncovers rightward
                   like a curtain being drawn. */}
-              <div className={s.overlay} data-culture-overlay aria-hidden="true" />
+                <div className={s.overlay} data-culture-overlay aria-hidden="true" />
+              </div>
+              <figcaption className={s.caption} data-t="label">
+                <span className={s.captionIndex}>{String(index + 1).padStart(2, '0')}</span>
+                {frame.caption}
+              </figcaption>
             </div>
-            <figcaption className={s.caption} data-t="label">
-              <span className={s.captionIndex}>{String(index + 1).padStart(2, '0')}</span>
-              {frame.caption}
-            </figcaption>
           </figure>
         );
       })}
+      {/* The rig fills this. Empty on the server and below 992 — it is one
+          element either way, and never takes a pointer event. */}
+      <svg className={s.rig} data-wire-rig aria-hidden="true" />
     </div>
   );
 }

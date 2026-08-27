@@ -65,8 +65,15 @@ got it right. Protocol §2.9 is the rule.
 > through it in the browser and reporting what is wrong; each round is fixed, verified and
 > committed before the next. The rounds so far: the works-card hover and its travelling title
 > (D-051), the services accordion's timing (D-052), always-landing-at-the-top navigation (D-053),
-> the pit's depth, count, colour and grabber (D-054), the stuck info drawer (I-064), and a full
-> mobile sweep at 390 (D-055).
+> the pit's depth, count, colour and grabber (D-054), the stuck info drawer (I-064), a full mobile
+> sweep at 390 (D-055), and two effects of his own choosing — a simulated wire rig over the culture
+> collage and a hollow, pointer-lit footer wordmark (D-056).
+>
+> **That last round also turned up I-065**, which is the most consequential bug found in this build:
+> §12's culture parallax and the works grid's differential parallax had **never once run**, in dev
+> or in production, because `quickSetter(el, 'yPercent', '%')` silently writes nothing. Both are now
+> alive and asserted on distance travelled — a shape of check the harness did not previously have,
+> and the reason 267 motion assertions passed while two specced motions did nothing.
 >
 > **What is still open is content and launch, not build.** 9 of 12 blog posts unwritten (D-043),
 > the showreel is a placeholder awaiting real footage (I-033), the 30 service FAQs are drafts
@@ -111,8 +118,8 @@ got it right. Protocol §2.9 is the rule.
 | Status | 🟡 the whole site is built; running review rounds against it |
 | Branch | `main` |
 | Blocked | no |
-| Verify report | `tools/verify/output/report.md` — tokens 138/138, motion **267/267**, visual judged, budget 7/7 |
-| Budget | JS **322.0KB of 360KB**. Ceiling raised from 320 by Sayandeep on the measurement — I-034 closed. |
+| Verify report | `tools/verify/output/report.md` — tokens 138/138, motion **276/276**, visual judged, budget 7/7 |
+| Budget | JS **351.7KB of 360KB**. Ceiling raised from 320 by Sayandeep on the measurement — I-034 closed. |
 | 🚦 | **Phase 6 is the gate.** Present the finished case study before phase 7. |
 
 ---

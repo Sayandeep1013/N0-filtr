@@ -26,6 +26,15 @@ tools/verify/output/**/*.png
 tools/verify/output/contact-sheet.html
 !tools/verify/output/**/report.md
 
+# ── reference material dropped in by hand ───────────────────────────────
+# Screenshots and clips Sayandeep drops at the repo root while reviewing —
+# the electric-pole reel that became the wire rig (D-056), and whatever
+# follows it. They are somebody else's frames, they are phone screenshots
+# rather than assets, and the *decisions* they produced are written down in
+# docs/build/. Keep the folder locally for as long as it is useful.
+/electric pole wire connections/
+/reference/
+
 # ── tonik-owned material ────────────────────────────────────────────────
 # Recovered from tonik.com for analysis. Kept LOCAL ONLY — this repo is
 # public and these are their assets, not ours. The extracted *values* live

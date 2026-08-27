@@ -1874,3 +1874,89 @@ so a keyboard visitor on a phone tabbed through a menu they could not see. `iner
 in a way it did not at 1440: 32 tiles across a 390px floor stack seven rows deep. **22** tiles and
 `8.5rem` of clearance restore D-054's relationship — the heap reaches the baseline, the letters read
 through it.
+
+---
+
+## D-056 · The wire rig, and the hollow mark
+
+**Phase:** 12 · **Date:** 2026-08-27 · **Status:** active · `[new]`
+
+Sayandeep brought two references. One was @akarsh_suhane's *"Electric Wire Stretch Effect"* — photos
+of electric poles as separate floating cards, with the wires continuing out of one frame and sagging
+across the gap into the next. The other was a wordmark drawn as hollow outline letters with a blue
+hue lighting only the strokes near the cursor.
+
+Both are ours, not tonik's. That makes three `[new]` things on the site now — the block pit,
+`<Schematic>`, and this — so the "one addition of our own" framing in CLAUDE.md is no longer
+accurate and should be read as "our additions are logged decisions".
+
+### Where the wires went, and why there
+
+**The culture collage.** The composition was already there: §12's six frames are scattered at three
+sizes with no two sharing a top edge, and two parallax at a different rate from their neighbours —
+cards at varying distances that pull apart as they pass, which is the arrangement the reference had
+to build by hand. It is also the section that most needed something, being generated fields on a
+dark ground until T10.4 lands photographs, and §12's own lowest-confidence layout.
+
+**Four frames, not six.** A chain of 01 → 02 → 03 → 04, a Z across the composition, leaving 05 and
+06 clean. A real street does not wire every building. An earlier version paired 02 with 04, which
+sit in the same column — a vertical wire, which is a thing wires do not do.
+
+**Two values had to be inverted rather than transcribed.** The wires are *light*: they are black in
+the reference because they hang against a bright sky, and ours hang against `--black`. The first
+build inherited the colour along with the idea and drew nine invisible lines. And each pole fades
+out at its base, because a full-height vertical at a flat weight reads as a seam dividing the plate
+rather than as an object standing in it — the reference gets away with it because its poles stand in
+a photograph.
+
+**Nothing below 992.** The plan was static wires on mobile, on the grounds that stacked frames can
+still be connected. Building it proved that wrong: in one column the spans become long near-vertical
+cables running down the page, cutting across the frames they are meant to link. Same gate as every
+other hover and parallax on the site, and it costs the phone nothing.
+
+### The wires are simulated, and that was a rewrite
+
+The first build drew each wire as one cubic Bézier with sag computed from a tension term. Then:
+*"i want a way where i can move the pole cards and the wires dynamically acts like real wires."*
+
+A formula has no memory. It resolves to the correct shape every frame, which is fine while the only
+input is scroll and useless the moment a visitor can grab a pole — no swing, no overshoot, no
+settle. So each wire is fourteen verlet points with gravity and distance constraints, pinned at both
+ends. Two hand-tuned numbers stopped existing: **sag** is gravity acting on a rope cut longer than
+its gap, and **a stretched wire straightens** is not a rule anyone wrote, it is what happens when
+segments cannot exceed their rest length.
+
+One non-obvious choice: the constraint only ever *shortens*. Correcting in both directions makes it
+a spring and it bounces like one, which is the clearest way to make a wire look wrong.
+
+**Visitors can drag the cards.** Sayandeep asked for it after trying the mock on a trackpad. Mouse
+and pen only — a touchscreen laptop is above 992 and would otherwise lose vertical scrolling the
+moment a finger landed on a frame. The drag writes two custom properties on an inner wrapper that
+CSS applies with `translate`, while §12's parallax owns the frame's `transform` through GSAP; the
+two compose without either knowing about the other, which is cheaper than a GSAP write per pointer
+move and cannot race.
+
+### The hollow mark
+
+Two stacked copies of the wordmark: a hollow one, and an identical one stroked in the accent and
+masked by a radial gradient at the pointer, so only the strokes near it take colour. A `:hover` rule
+cannot do this — it would light the whole word, and the reference lights two letters.
+
+**A case study lends its own accent**, read from the inline `--accent-ink` that `<CaseStudy>` writes
+on the document element, so Tessera's footer glows Tessera's blue. Everywhere else it **cycles the
+twelve**, which Sayandeep chose over a single house colour. The list is `PIT_ACCENTS` rather than a
+second copy of the same values — §2's note that the pit is "the only other place on the site where
+those colours appear together" now has one more member.
+
+The blocks stay on top of it, per his call: *"glow through"*. Hollow letters survive a pile better
+than solid ones, because you read the letterform through the gaps rather than losing it under them.
+
+Under `reduce` the glow **stays** and the cycling stops. A light that answers the pointer is direct
+manipulation, the same class of thing as a hover, and this site keeps its hovers. A colour that
+changes with nobody touching it is not.
+
+### What it cost
+
+**2.6KB** — `/` went from 349.1 to 351.7 of 360KB. No new dependency. A Matter.js rope was the
+obvious alternative and Matter is already in the tree, but ropes there are chains of constrained
+bodies, heavy and jittery, and it is lazy-loaded at the footer only.

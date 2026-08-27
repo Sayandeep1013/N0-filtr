@@ -102,7 +102,12 @@ export function WorksGrid({ works }: { works: Work[] }) {
         const setters = cells.map(({ el, rate }) => ({
           rate,
           el,
-          set: gsap.quickSetter(el, 'yPercent', '%') as (value: number) => void,
+          /* **No unit.** `yPercent` is already a percentage, and passing `'%'`
+             makes GSAP build the string `"-20%"`, which its transform parser
+             drops on the floor — silently, with no error and no warning. The
+             setter runs, writes nothing, and the parallax simply does not
+             happen. See I-065; `CaseBoard` had it right and was the control. */
+          set: gsap.quickSetter(el, 'yPercent') as (value: number) => void,
           top: 0,
           height: 0,
         }));

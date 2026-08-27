@@ -2012,3 +2012,40 @@ faster than it plays. Folding it in made its exit run at `REVERSE_SCALE` and qui
 one place tonik deliberately went the other way. `verify:motion` failed on it, which is an assertion
 earning its keep. It is a plain tween again, and safe as one: this bug was about a `delay`, and the
 overlay has none.
+
+---
+
+## I-065 · Two specced parallaxes had never once run  🟢
+
+**Raised:** phase 12 · **Resolved:** phase 12
+
+Found while building the wire rig (D-056), whose whole premise is that the collage frames pull apart
+as they pass — so it mattered whether they actually do.
+
+They did not. **§12's culture parallax and the works grid's differential parallax had both been dead
+since they were written**, in development and in production alike. Every frame sat at zero.
+
+```js
+gsap.quickSetter(el, 'yPercent', '%')   // writes nothing, ever
+gsap.quickSetter(el, 'yPercent')        // works
+```
+
+`yPercent` is *already* a percentage. Passing `'%'` as the unit makes GSAP build the string `"-20%"`,
+which its transform parser drops — silently, with no error, no warning and no thrown exception. The
+setter runs on every scroll frame and writes nothing at all.
+
+It is a hard bug to see. There is no failure signal of any kind; the only symptom is absence, on two
+sections whose stand-in art is deliberately subtle and one of which has no photographs in it yet.
+`CaseBoard` had written the same call **without** the unit and its parallax worked, which is what
+made the comparison possible — one control against two failures.
+
+**Resolved** by dropping the unit in both places. Measured after: the culture frames travel
+**−105.6px on a 528px frame**, which is exactly the −20% §12 asks for, and the works grid's twelve
+cells now drift at **nine distinct rates**, which is the whole point of calling it differential.
+
+Two lessons worth keeping. **A silent no-op is worse than a crash**, and GSAP has several — the
+`quickSetter` unit argument is one, and it is worth suspecting any time a setter appears to run and
+nothing moves. And **`verify:motion` asserts timeline durations and eases, not that a scrubbed
+setter reaches its target value**; 267 assertions passed the whole time this was broken. An
+assertion on the travelled distance would have caught it, and is the right shape of check for
+anything scrubbed.

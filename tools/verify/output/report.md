@@ -1,10 +1,10 @@
 # Verification report
-Run: 2026-08-27T06:44:45.019Z · Phase 06 · commit `5b40075` · branch `main`
+Run: 2026-08-27T08:17:51.021Z · Phase 12 · commit `c82ce46` · branch `main`
 
 ## Summary
 ```
 tokens  ✅ 138/138
-motion  ✅ 267/267
+motion  ✅ 276/276
 visual  ⚠️ reviewed by agent — see judgement
 budget  ✅ 7/7
 ```
@@ -398,9 +398,18 @@ budget  ✅ 7/7
 ✅ culture: 6 frames = 6
 ✅ culture: every frame starts covered
 ✅ culture: the wipe uncovers on scroll = [534,646,423,534,646,534] → [0,172,423,534,646,534]
+✅ culture: parallax travels -20% = [-20,-20,-20]
+✅ works grid: 9 distinct drift rates across 12 cells
+✅ wire rig: 9 wires on 4 poles
+✅ wire rig: every wire hangs (min sag 63px)
+✅ wire rig: takes no pointer events
 ✅ blog row: three cards in three tracks
 ✅ blog row: all three cards share a top and a bottom edge
 ✅ blog row: #3b3b3b card ground = rgb(59, 59, 59)
+✅ hollow mark: 2 stacked copies
+✅ hollow mark: transparent fill, hairline stroke
+✅ hollow mark: the lit copy is masked to the pointer
+✅ hollow mark: one readable name, the lit copy hidden
 ✅ case rhythm: no work runs more than 2 prose blocks without a visual (§2)
 ✅ case accent: --accent is #125C91 = #125C91
 ✅ case accent: --accent-ink is #2595E4 (I-046) = #2595E4
@@ -559,12 +568,12 @@ lists are authored to fill the accordion and T10.8 writes the real ones. The blo
 ✅ matter-js absent from the eagerly-loaded bundle = absent
 ✅ three absent from the eagerly-loaded bundle = absent
 ✅ plyr absent from the eagerly-loaded bundle = absent
-ℹ️ all built chunks, gzipped (not a per-route figure) = 572.9KB
-✅ JS on / (transferred) = 349.1KB / 360KB
-✅ home page total weight = 546.3KB / 1800KB
+ℹ️ all built chunks, gzipped (not a per-route figure) = 575.4KB
+✅ JS on / (transferred) = 351.7KB / 360KB
+✅ home page total weight = 550.1KB / 1800KB
 ✅ zero network font requests = both faces self-hosted
-✅ CLS (local, unthrottled) = 0.0025
-ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 172ms
+✅ CLS (local, unthrottled) = 0.0014
+ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 228ms
 
 > Poster and reel budgets become binding in phase 10, when assets exist.
 > Lighthouse scores are a phase 12 deliverable via mcp__chrome-devtools__lighthouse_audit; the figures here are local and unthrottled.

@@ -20,10 +20,22 @@ import s from './Wordmark.module.css';
  * rather than a typo, and it drops a dot into a run of caps — a small void
  * inside the letterform that rhymes with the aperture's empty centre. See D-011.
  */
-export function Wordmark({ className }: { className?: string }) {
+/**
+ * `decorative` drops the readable name and hides the whole mark from assistive
+ * technology. It exists for `<HollowMark>`, which stacks two identical copies of
+ * the word to light one of them — without it a screen reader would hear "No
+ * Filter" twice in the footer, which is worse than either fix for it.
+ */
+export function Wordmark({
+  className,
+  decorative = false,
+}: {
+  className?: string;
+  decorative?: boolean;
+}) {
   return (
-    <span className={cx(s.wordmark, 'wordmark', className)}>
-      <span className="visually-hidden">No Filter</span>
+    <span className={cx(s.wordmark, 'wordmark', className)} aria-hidden={decorative || undefined}>
+      {!decorative && <span className="visually-hidden">No Filter</span>}
       <span aria-hidden="true">NO</span>
       <span aria-hidden="true" className={s.gap} />
       <span aria-hidden="true">FiLTER</span>

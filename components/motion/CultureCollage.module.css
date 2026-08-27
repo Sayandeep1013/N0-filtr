@@ -20,9 +20,19 @@
   margin: 0;
   grid-column: var(--frame-column, auto);
   grid-row: var(--frame-row, auto);
+}
+
+/* The frame's contents, and the element a visitor actually drags.
+
+   `translate` rather than `transform`, and on a child rather than on the frame
+   itself: §12's parallax owns the frame's `transform` through GSAP, and the two
+   compose without either one knowing about the other. See I-065 for why sharing
+   the element was not an option. */
+.drag {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  translate: var(--drag-x, 0px) var(--drag-y, 0px);
 }
 
 .media {
@@ -108,4 +118,58 @@
   .media {
     aspect-ratio: 4 / 3;
   }
+}
+
+/* ── the wire rig ───────────────────────────────────────────────────────────
+   The SVG the poles and ropes are drawn into. `overflow: visible` because a
+   rope hangs below the frame it leaves and a dragged card can carry its wires
+   well outside the collage's own box; clipping them to it would cut a wire in
+   mid-air.
+
+   `pointer-events: none` is load-bearing rather than tidy — the rig covers all
+   six frames, and without it nothing underneath could be grabbed at all. */
+.rig {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* The collage is the rig's positioning context. */
+.collage {
+  position: relative;
+}
+
+/* ── dragging ───────────────────────────────────────────────────────────────
+   Above 992 only, which is the only place the rig exists to drag against.
+
+   `user-select` is off because a drag that starts on a frame would otherwise
+   select its caption and every word after it. `touch-action` is deliberately
+   left alone: the JS ignores touch pointers, so a touchscreen laptop keeps
+   ordinary scrolling over these frames. */
+@media (min-width: 992px) {
+  .frame {
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .frame[data-held] {
+    cursor: grabbing;
+  }
+
+  /* The one piece of feedback that the card is in hand. The frames are
+     otherwise unlit, so brightening the edge it already has says "held"
+     without introducing a colour or a shadow the site does not use. */
+  .frame[data-held] .media {
+    border-color: var(--white-50);
+  }
+}
+
+/* A frame you have moved keeps its transform, so it must not be a stacking
+   accident when it overlaps a neighbour. */
+.frame[data-held] {
+  z-index: 2;
 }

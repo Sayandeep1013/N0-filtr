@@ -409,6 +409,135 @@ async function checkCultureAndBlog(browser: Browser, baseUrl: string): Promise<C
         : fail('culture: the wipe uncovers on scroll', 'narrower overlays', JSON.stringify(after)),
     );
 
+    /* ── parallax travel, and the wire rig it drives ────────────────────
+       I-065: both parallaxes on this page wrote nothing at all for two
+       phases, and nothing in the harness noticed, because the motion checks
+       assert timeline shape rather than distance travelled. These measure
+       the distance. */
+    const travel = await page.evaluate(async (tol: number) => {
+      const translateY = (el: Element) => {
+        const m = getComputedStyle(el).transform.match(/matrix\(([^)]+)\)/);
+        return m ? Number(m[1]!.split(',')[5]) : 0;
+      };
+      const inCulture = (el: Element) => Boolean(el.closest('[data-culture]'));
+      const all = [...document.querySelectorAll<HTMLElement>('[data-parallax]')];
+      const culture = all.filter(inCulture);
+      const works = all.filter((el) => !inCulture(el));
+
+      const lowest = new Map<Element, number>();
+      for (const el of all) lowest.set(el, 0);
+
+      const height = document.documentElement.scrollHeight;
+      for (let y = 0; y < height; y += 200) {
+        window.scrollTo(0, y);
+        await new Promise((r) => setTimeout(r, 55));
+        for (const el of all) lowest.set(el, Math.min(lowest.get(el) ?? 0, translateY(el)));
+      }
+      window.scrollTo(0, 0);
+
+      const asPercent = (el: Element) => {
+        const h = el.getBoundingClientRect().height;
+        return h > 0 ? ((lowest.get(el) ?? 0) / h) * 100 : 0;
+      };
+      return {
+        culturePercents: culture.map((el) => Number(asPercent(el).toFixed(1))),
+        worksRates: [...new Set(works.map((el) => Math.round(lowest.get(el) ?? 0)))].length,
+        worksCells: works.length,
+        tol,
+      };
+    }, c.parallaxTolerance);
+
+    const cultureOk =
+      travel.culturePercents.length > 0 &&
+      travel.culturePercents.every(
+        (p) => Math.abs(p - c.parallaxTravelPercent) <= c.parallaxTolerance,
+      );
+    out.push(
+      cultureOk
+        ? pass(
+            `culture: parallax travels ${c.parallaxTravelPercent}%`,
+            JSON.stringify(travel.culturePercents),
+          )
+        : fail(
+            'culture: parallax travel',
+            `every flagged frame near ${c.parallaxTravelPercent}%`,
+            JSON.stringify(travel.culturePercents),
+          ),
+    );
+    out.push(
+      travel.worksRates >= c.worksMinDistinctRates
+        ? pass(
+            `works grid: ${travel.worksRates} distinct drift rates across ${travel.worksCells} cells`,
+          )
+        : fail(
+            'works grid: differential parallax',
+            `at least ${c.worksMinDistinctRates} distinct rates`,
+            `${travel.worksRates} across ${travel.worksCells} cells`,
+          ),
+    );
+
+    await scrollToSection(page, '[data-culture]');
+    await page.waitForTimeout(1400);
+
+    const rig = await page.evaluate(() => {
+      const svg = document.querySelector('[data-wire-rig]');
+      if (!svg) return null;
+      const groups = [...svg.querySelectorAll('g')];
+      const poles = [...(groups[0]?.querySelectorAll('path') ?? [])];
+      const wires = [...(groups[1]?.querySelectorAll('path') ?? [])];
+
+      const coords = (d: string) => {
+        const n = (d.match(/-?\d+\.?\d*/g) ?? []).map(Number);
+        const pts: Array<[number, number]> = [];
+        for (let i = 0; i + 1 < n.length; i += 2) pts.push([n[i]!, n[i + 1]!]);
+        return pts;
+      };
+
+      let minSag = Infinity;
+      for (const w of wires) {
+        const pts = coords(w.getAttribute('d') ?? '');
+        if (pts.length < 3) continue;
+        const a = pts[0]!;
+        const z = pts[pts.length - 1]!;
+        const mid = pts[Math.floor(pts.length / 2)]!;
+        minSag = Math.min(minSag, mid[1] - (a[1] + (z[1] - a[1]) / 2));
+      }
+
+      return {
+        wires: wires.filter((w) => w.getAttribute('d')).length,
+        poles: poles.filter((p) => p.getAttribute('d')).length,
+        minSag: Number.isFinite(minSag) ? Math.round(minSag) : 0,
+        pointerEvents: getComputedStyle(svg).pointerEvents,
+      };
+    });
+
+    if (!rig) {
+      out.push(fail('wire rig: present', 'an svg with wires and poles', 'no [data-wire-rig]'));
+    } else {
+      out.push(
+        rig.wires === c.wireCount && rig.poles === c.poleCount
+          ? pass(`wire rig: ${rig.wires} wires on ${rig.poles} poles`)
+          : fail(
+              'wire rig: wires and poles',
+              `${c.wireCount} wires, ${c.poleCount} poles`,
+              `${rig.wires} wires, ${rig.poles} poles`,
+            ),
+      );
+      /* The whole difference between a rope and a line. */
+      out.push(
+        rig.minSag >= c.minSagPx
+          ? pass(`wire rig: every wire hangs (min sag ${rig.minSag}px)`)
+          : fail('wire rig: wires hang', `>= ${c.minSagPx}px below the chord`, `${rig.minSag}px`),
+      );
+      /* The rig covers all six frames. Without this it would eat every click
+         and drag on the section it sits over. */
+      out.push(
+        rig.pointerEvents === 'none'
+          ? pass('wire rig: takes no pointer events')
+          : fail('wire rig: pointer-events', 'none', rig.pointerEvents),
+      );
+    }
+
     const blog = await page.evaluate(() => {
       const row = document.querySelector<HTMLElement>('[data-blog-row]');
       const cards = [...(row?.querySelectorAll<HTMLElement>('[data-blog-card]') ?? [])];
@@ -444,6 +573,63 @@ async function checkCultureAndBlog(browser: Browser, baseUrl: string): Promise<C
         ? pass('blog row: #3b3b3b card ground', blog.background)
         : fail('blog row: card ground', c.blogGround, blog.background),
     );
+
+    /* ── the hollow footer wordmark · D-056 ─────────────────────────────── */
+    const m = BEHAVIOUR.hollowMark;
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await page.waitForTimeout(1200);
+
+    const mark = await page.evaluate(() => {
+      const footer = document.querySelector('footer');
+      const layers = [...(footer?.querySelectorAll<HTMLElement>('.wordmark') ?? [])];
+      const glow = layers.find((el) => getComputedStyle(el).position === 'absolute');
+      const base = layers.find((el) => getComputedStyle(el).position !== 'absolute');
+      if (!base) return null;
+      const bs = getComputedStyle(base);
+      return {
+        layers: layers.length,
+        fill: bs.color,
+        stroke: bs.webkitTextStrokeColor,
+        glowMasked: glow ? getComputedStyle(glow).webkitMaskImage !== 'none' : false,
+        glowHidden: glow ? glow.getAttribute('aria-hidden') === 'true' : false,
+        readableNames: footer ? footer.querySelectorAll('.visually-hidden').length : 0,
+      };
+    });
+
+    if (!mark) {
+      out.push(fail('hollow mark: present', 'a wordmark in the footer', 'none found'));
+    } else {
+      out.push(
+        mark.layers === m.layers
+          ? pass(`hollow mark: ${mark.layers} stacked copies`)
+          : fail('hollow mark: layers', String(m.layers), String(mark.layers)),
+      );
+      out.push(
+        mark.fill === m.fill && mark.stroke === m.stroke
+          ? pass('hollow mark: transparent fill, hairline stroke')
+          : fail(
+              'hollow mark: hollow',
+              `fill ${m.fill}, stroke ${m.stroke}`,
+              `fill ${mark.fill}, stroke ${mark.stroke}`,
+            ),
+      );
+      out.push(
+        mark.glowMasked
+          ? pass('hollow mark: the lit copy is masked to the pointer')
+          : fail('hollow mark: glow mask', 'a mask-image on the lit copy', 'none'),
+      );
+      /* Two copies of the same word, one name. The second layer exists to be
+         lit and must never be read out. */
+      out.push(
+        mark.readableNames === m.readableNames && mark.glowHidden
+          ? pass('hollow mark: one readable name, the lit copy hidden')
+          : fail(
+              'hollow mark: one accessible name',
+              `${m.readableNames} readable, glow aria-hidden`,
+              `${mark.readableNames} readable, glow hidden: ${mark.glowHidden}`,
+            ),
+      );
+    }
   } finally {
     await context.close();
   }
