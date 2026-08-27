@@ -1,5 +1,5 @@
 # Verification report
-Run: 2026-08-27T03:06:01.526Z · Phase 06 · commit `dc21f0b` · branch `main`
+Run: 2026-08-27T06:09:05.557Z · Phase 06 · commit `59cff7a` · branch `main`
 
 ## Summary
 ```
@@ -317,7 +317,7 @@ budget  ✅ 7/7
 ✅ hero 3D — the blades never leave the barrel = reach 1.930 of 2, invariant
 ✅ hero 3D — the housing tips across the viewport = 0.258
 ✅ hero 3D — the housing tips top to bottom = 0.317
-✅ hero 3D — the iris actuates = 0.318 rad about the bore
+✅ hero 3D — the iris actuates = 0.317 rad about the bore
 ✅ hero 3D — the blades lead the housing = 1.23x
 ✅ hero 3D — the response stays subtle = max 0.159 rad
 ✅ hero 3D — loop suspends off-screen = running: false
@@ -359,13 +359,13 @@ budget  ✅ 7/7
 ✅ works grid: the hovered card is not dimmed = 1
 ✅ works grid: every card sits at 1 after the pointer leaves = 1
 ✅ works grid: overlay reaches 0.55 = 0.55
-✅ works grid: overlay in is 0.5s = 0.5s
+✅ works grid: overlay in is 0.7s = 0.7s
 ✅ works grid: overlay OUT is 0.4s — faster than in, §21.2's inverted asymmetry = 0.4s
 ✅ works grid: overlay returns to 0 = 0
-✅ works grid: the hover sheet FADES in over 0.5s — it is not set = 0.5s
-✅ works grid: the hover sheet fades out over 0.4s = 0.4s
+✅ works grid: the hover sheet FADES in over 0.75s — it is not set = 0.75s
+✅ works grid: the hover sheet fades out over 0.75s = 0.75s
 ✅ works grid: the sheet opens to 1 and returns to 0
-✅ works grid: the sheet is a drawer, not a curtain — it does not fill the media = 74% of the media's height
+✅ works grid: the sheet is a drawer, not a curtain — it does not fill the media = 63% of the media's height
 ✅ works grid ≤767: the sheet is permanent content, not a hover state = position static, opacity 1
 ✅ works grid: the sheet is never a bright surface (luminance ≤ 0.1) = rgb(46, 46, 46) → 0.0273
 ✅ works grid: the sheet is still distinguishable from the page ground = sheet 0.0273 vs page 0.0152
@@ -374,18 +374,18 @@ budget  ✅ 7/7
 ✅ works grid ≤767: no reel playback = no reels yet
 ✅ accordion: 5 rows = 5
 ✅ accordion: every row closed on load
-✅ accordion: accordion.open: total = 1.2s
-✅ accordion: accordion.open: durations = [0.7,0,0.5]
-✅ accordion: accordion.open: positions resolve = [0,0.7,0.7]
+✅ accordion: accordion.open: total = 1.55s
+✅ accordion: accordion.open: durations = [0.9,0,0.65]
+✅ accordion: accordion.open: positions resolve = [0,0.9,0.9]
 ✅ accordion: an open row takes #2e2e2e = rgb(46, 46, 46)
 ✅ accordion: the arrow rotates to → = matrix(0, -1, 1, 0, 0, 0)
 ✅ accordion: the inverted panel has slid fully in = matrix(1, 0, 0, 1, 0, 0)
 ✅ accordion: the body opens to its content = 682px
 ✅ accordion: aria-expanded tracks the state = true
 ✅ accordion: opening one row closes the other = exactly 1 open
-✅ accordion: accordion.close: total = 1.1s
-✅ accordion: accordion.close: durations = [0.6,0.6,0.6,0]
-✅ accordion: accordion.close: positions resolve = [0,0.5,0.5,0.6]
+✅ accordion: accordion.close: total = 1.5s
+✅ accordion: accordion.close: durations = [0.8,0.8,0.8,0]
+✅ accordion: accordion.close: positions resolve = [0,0.7,0.7,0.8]
 ✅ accordion: the body collapses to 0 = 0px
 ✅ accordion ≤767: no x-slide — height only, per §6 = matrix(1, 0, 0, 1, 0, 0)
 ✅ accordion ≤767: the body is one column
@@ -416,7 +416,7 @@ budget  ✅ 7/7
 ✅ case nav: no drawer over the page it just navigated to (D-037)
 ✅ case nav: the page renders its own title ("Tessera")
 ✅ case nav: lands at the top, not where you left (I-050) — 0px, left from 1618px
-✅ case nav: back restores the grid position — 1618px against 1618px
+✅ case nav: back lands at the top too (D-053) — 0px, left from 1618px
 ✅ loader tint: the link declares data-accent-ink (#E75D23)
 ✅ loader tint: the glyph tints before navigating [T6.7] (rgb(208, 84, 32))
 
@@ -559,12 +559,12 @@ lists are authored to fill the accordion and T10.8 writes the real ones. The blo
 ✅ matter-js absent from the eagerly-loaded bundle = absent
 ✅ three absent from the eagerly-loaded bundle = absent
 ✅ plyr absent from the eagerly-loaded bundle = absent
-ℹ️ all built chunks, gzipped (not a per-route figure) = 572.4KB
-✅ JS on / (transferred) = 348.7KB / 360KB
-✅ home page total weight = 544.2KB / 1800KB
+ℹ️ all built chunks, gzipped (not a per-route figure) = 572.7KB
+✅ JS on / (transferred) = 349.0KB / 360KB
+✅ home page total weight = 545.2KB / 1800KB
 ✅ zero network font requests = both faces self-hosted
 ✅ CLS (local, unthrottled) = 0.0025
-ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 136ms
+ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 148ms
 
 > Poster and reel budgets become binding in phase 10, when assets exist.
 > Lighthouse scores are a phase 12 deliverable via mcp__chrome-devtools__lighthouse_audit; the figures here are local and unthrottled.

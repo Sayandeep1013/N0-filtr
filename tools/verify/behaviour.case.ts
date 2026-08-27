@@ -344,7 +344,9 @@ async function checkNavigation(browser: Browser, baseUrl: string): Promise<Check
           ),
     );
 
-    /* And the other direction: back must restore, not reset. */
+    /* And the other direction. **Back goes to the top too** — D-053 — which is
+       the opposite of what this asserted until Sayandeep asked for it: *"coming
+       back and going new .. always sets the position at the top."* */
     await page.goBack();
     await page.waitForTimeout(c.settle);
     const back = await page.evaluate(() => ({
@@ -352,11 +354,11 @@ async function checkNavigation(browser: Browser, baseUrl: string): Promise<Check
       scrollY: Math.round(window.scrollY),
     }));
     out.push(
-      back.url === '/' && Math.abs(back.scrollY - from) <= c.restoreTolerance
-        ? pass(`case nav: back restores the grid position — ${back.scrollY}px against ${from}px`)
+      back.url === '/' && back.scrollY <= c.topTolerance
+        ? pass(`case nav: back lands at the top too (D-053) — ${back.scrollY}px, left from ${from}px`)
         : fail(
-            'case nav: back restores the scroll position',
-            `/ at ~${from}px`,
+            'case nav: back lands at the top',
+            `/ at <= ${c.topTolerance}px`,
             `${back.url} at ${back.scrollY}px`,
           ),
     );

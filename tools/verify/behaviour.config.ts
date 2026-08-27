@@ -302,7 +302,7 @@ export const BEHAVIOUR = {
     tolerance: 0.02,
     /** §21.2 [ix2 a-29/a-30]. */
     overlayOpacity: 0.55,
-    overlayIn: 0.5,
+    overlayIn: 0.7,
     overlayOut: 0.4,
     /** 1.25rem at the 16.45 root — I-032's corrected gap. */
     columnGapPx: 20.5625,
@@ -334,8 +334,8 @@ export const BEHAVIOUR = {
      * Read off the live tweens rather than sampled, for the same reason as the
      * overlay: sampling an eased curve measures the harness's own jitter.
      */
-    sheetIn: 0.5,
-    sheetOut: 0.4,
+    sheetIn: 0.75,
+    sheetOut: 0.75,
     /** It must not fill the media any more. Fraction of the media's height. */
     sheetMaxCoverage: 0.8,
     desktop: { w: 1512, h: 900 },
@@ -367,15 +367,20 @@ export const BEHAVIOUR = {
     rowCount: 5,
     openTimelineId: 'accordion.open',
     closeTimelineId: 'accordion.close',
-    openTotal: 1.2,
-    openStarts: [0, 0.7, 0.7],
-    openDurations: [0.7, 0, 0.5],
+    /* D-052 slowed both directions and moved them onto `power1.inOut`. §6's
+       measured `.7 / .5 / .6` are recorded in the component's own note; these
+       are the values the site actually runs, and the point of asserting them is
+       that a future "tidy-up" back to the spec would be a regression rather than
+       a correction. */
+    openTotal: 1.55,
+    openStarts: [0, 0.9, 0.9],
+    openDurations: [0.9, 0, 0.65],
     /* The `set()` lands last in `getChildren()` order because GSAP sorts by
-       start time and `'>-0.1'` pulls the body's collapse back to 0.5, ahead of
-       it. Documented because it looks like a mis-ordering and is not. */
-    closeTotal: 1.1,
-    closeStarts: [0, 0.5, 0.5, 0.6],
-    closeDurations: [0.6, 0.6, 0.6, 0],
+       start time and `'>-0.1'` pulls the body's collapse back ahead of it.
+       Documented because it looks like a mis-ordering and is not. */
+    closeTotal: 1.5,
+    closeStarts: [0, 0.7, 0.7, 0.8],
+    closeDurations: [0.8, 0.8, 0.8, 0],
     /** §6: an open row takes `background: var(--grey-900)`. */
     openGround: 'rgb(46, 46, 46)',
     /** §6: the arrow rotates ↓ → →. `rotate(-90deg)`. */
@@ -493,8 +498,7 @@ export const CASE = {
     settle: 4000,
     /** "The top" allows a scrubbed reveal settling, not a screenful. */
     topTolerance: 40,
-    /** Back-restoration belongs to the browser, and it rounds. */
-    restoreTolerance: 120,
+
   },
 
   loaderTint: {

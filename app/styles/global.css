@@ -191,6 +191,37 @@ body {
 .footer-stage {
   position: relative;
   isolation: isolate;
+  /* Floor for the pile, below everything the footer has to say.
+
+     Sayandeep: *"make it a bit deeper .. the empty space between the bottom of
+     no filter and the end of page will be a bit more so that it doesnt totally
+     cover the no filter text."*
+
+     The pit is `inset: 0` on this element, so its floor is this element's
+     bottom edge — and with the footer ending just under the 14vw wordmark, the
+     blocks were settling **on** the wordmark rather than below it. This is
+     depth: room for the pile to come to rest under the type instead of across
+     it, with the top of the heap still overlapping, which is the bit that reads
+     well. */
+
+  /* Landed by eye across three tries, which is the honest way to describe it.
+     None buried the wordmark, none cleared it entirely — the target is the
+     overlap: *"so the overlap happens and the words are also readable."*
+
+       0rem     the pile settled ON the type; unreadable
+       11rem    the pile settled entirely below it; no overlap at all
+       5.5rem   the heap reaches the baseline and the letters read through it
+
+     A block is 48–74px, so this is roughly one and a half blocks of clearance
+     below the wordmark — enough for the pile to have a floor of its own while
+     its top row still crosses the type. */
+  padding-bottom: 5.5rem;
+}
+
+@media (max-width: 767px) {
+  .footer-stage {
+    padding-bottom: 3rem;
+  }
 }
 
 /* Everything the footer offers that can be clicked or read sits above the

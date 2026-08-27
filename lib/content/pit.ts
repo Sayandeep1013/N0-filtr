@@ -58,6 +58,24 @@ const PIT_EXTRA: string[] = [
   'Sharp',
   'Zod',
   'pnpm',
+  /* A third pass, for the larger pile — same rule: every one of these is named
+     in a repository the case studies were written from. */
+  'Jetpack Compose',
+  'JNI',
+  'GBNF',
+  'Edge Functions',
+  'GitHub Actions',
+  'Levenshtein',
+  'CRDT',
+  'WebGL',
+  'Canvas 2D',
+  'nanoid',
+  'use-gesture',
+  'localStorage',
+  'Hydrax',
+  'partyserver',
+  'VLR.gg',
+  'Lighthouse',
 ];
 
 /**
@@ -83,8 +101,16 @@ export const PIT_ACCENTS: string[] = [...WORKS]
   .map((work) => work.accent.light);
 
 /**
- * §7's budget: 44 bodies on desktop, 24 at ≤767 — and now also the number of
- * labels, since every tile carries one. If `PIT_LABELS` ever falls short the
- * pile simply gets smaller rather than growing blanks.
+ * §7 budgets 44 bodies on desktop and 24 at ≤767. Sayandeep asked for more —
+ * *"increase the amount object for matter js obj"* — so it is 56 and 32.
+ *
+ * The ceiling is the label list, not the physics: every tile carries a real name
+ * (D-049), so the pile can only be as large as the vocabulary is honest. If
+ * `PIT_LABELS` ever falls short of this the pile gets smaller rather than
+ * growing blanks — see `buildTiles`.
+ *
+ * §7's own note on the budget is about CPU when active, and sleeping is what
+ * actually pays for it: a settled pit of 56 costs the same as a settled pit of
+ * 44, which is nothing.
  */
-export const PIT_BODIES = { desktop: 44, mobile: 24 } as const;
+export const PIT_BODIES = { desktop: 56, mobile: 32 } as const;

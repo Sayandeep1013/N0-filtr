@@ -1946,3 +1946,33 @@ trips.
 
 **The durable lesson:** *the same error message twice is not the same bug twice.* Two correct fixes
 went in before anyone asked what was actually calling `kill()`.
+
+
+---
+
+## I-063 · A failed physics chunk left the pit blank and threw  🟢
+
+**Raised:** phase 11 · **Resolved:** phase 11
+
+```
+Loading chunk _app-pages-browser_node_modules_matter-js_build_matter_js failed.
+```
+
+Sayandeep hit this after `npm run verify` rebuilt `.next` underneath an open dev tab — a development
+artefact, and **my fault** rather than a code one: `verify` builds production into the same directory
+the dev server is serving from, so the chunk hashes in his tab went stale. A reload fixes that
+instance.
+
+The code problem it exposed is real and not development-only. `import('matter-js')` is a network
+request, and the same failure is available in production to anyone who navigates during a deploy or
+loses one request in a hundred. There was no `catch`, so the rejection was unhandled and the pit was
+simply blank.
+
+**Resolved** with a `catch` that logs and returns `null`. The page then keeps the arrangement it
+server-rendered: a real settled pile that cannot be dragged — which is the reduced-motion path (§9),
+already built and already correct, borrowed for a different reason.
+
+Logged rather than swallowed, because a pit that quietly stops being interactive is a thing nobody
+would ever report.
+
+**Note for the next agent:** do not leave the user on a dev server after running `verify`. Restart it.

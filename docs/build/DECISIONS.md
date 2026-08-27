@@ -1718,3 +1718,122 @@ link's centre returns the link, and clicking it navigates to `/privacy`.
 **Consequence:** the sweep pusher moved from a `pointermove` on the stage to one on the **window**,
 converted into stage coordinates — a stage with no pointer events never sees a move over empty space,
 and the sweep is mostly empty space.
+
+
+---
+
+## D-051 · The card name travels to the corner
+
+**Phase:** 7 · **Date:** 2026-08-27 · **Status:** active · **supersedes D-045**
+
+Sayandeep: *"the text title at the centre of the case study that will be a lot bigger .. while
+hovering the text gets clipped to the top right of the card [with animation .. show that its
+travelling from the centre to the top right and then the info slider comes .. let the animation
+breathe .. a bit slower is fine]."*
+
+D-045 did this as two elements swapping — a watermark fading out as a drawer title faded in. That
+stopped them competing and lost the thing worth watching, which is the journey.
+
+**One element, at `--t-h2`, that moves.** At rest it is a large faded watermark in the middle of the
+plate; on hover it travels to the top-right corner over `0.85s` and shrinks to `0.3`, and the drawer
+starts wiping in `0.3s` into that journey rather than after it — so the two read as one movement.
+The whole sequence reverses at `REVERSE_SCALE`.
+
+**Two things had to be measured rather than written in CSS.** The destination is a corner of the
+element's own **offset parent** — the `half` cards and the one `full` card are different shapes, and
+measuring the frame instead landed the title 151px short because the frame carries the plate's
+padding and the media inside it does not.
+
+And `transformOrigin` is the **top-right corner in both states**. GSAP's `xPercent` is a percentage
+of the element's *untransformed* width, so with a centre origin and `scale: 0.3` the title shifted by
+its full 377px natural width and then shrank about its middle. Anchoring the scale to the same corner
+the translate aligns to removes the discrepancy entirely: 20px from each edge, exactly as intended.
+
+---
+
+## D-052 · The services accordion is slower, and eases both ways
+
+**Phase:** 5 · **Date:** 2026-08-27 · **Status:** active · **departs from §6**
+
+Sayandeep: *"the opening and closing can be smoother and when it opens the top header getting clipped
+and while closing coming back to where it is .. that also can be smoother."*
+
+§6 gives `.7 / .5` opening and `.6` closing, on `power3`. Two things about that made it read as abrupt
+rather than fast.
+
+**`power3.in` on the close.** A cubic ease-in barely moves for the first third and then rushes — on a
+panel that is most of a viewport tall, the row appears to hang and then snap.
+
+**Everything was fast enough to be simultaneous.** At `.7` and `.5` the height collapse, the panel
+slide and the page scroll all landed within about a fifth of a second of each other, so the eye read
+one jolt rather than a sequence.
+
+Now `0.9` open, `0.65` for the panel, `0.8` close, all on `power1.inOut`. The **scroll** uses
+easeInOutCubic in *both* directions — the opening one had been on Lenis's default, a fast-out curve,
+so the head clipped to the top edge while the row was still growing underneath it and the two
+movements fought.
+
+These are our judgement over tonik's measured values, which is exactly the kind of change that should
+be written down. `behaviour.config.ts` asserts the new numbers, so a future tidy-up back to §6 fails
+as the regression it would be.
+
+---
+
+## D-053 · Every navigation lands at the top, including back
+
+**Phase:** 9 · **Date:** 2026-08-27 · **Status:** active
+
+Sayandeep: *"if i open a page and scrolls and thn go to another page .. if i come back to the page i
+have scrolled before when i come back if opens there .. make it so like a new page alway opens at the
+top .. coming back and going new .. always sets the position at the top of the page."*
+
+`<ScrollReset>` had grown a per-path position map, a `popstate` listener and a scroll listener in
+order to restore properly. All of it is gone: both directions go to **0**, and the component is half
+the size it was.
+
+`history.scrollRestoration = 'manual'` stays, because that part was doing real work — it stops the
+browser restoring on its own schedule and fighting the value set here.
+
+**Next restores too, and separately.** It keeps scroll positions in router state and applies them on
+a pop *after* the commit, so back-navigation still landed at 1618px with the layout effect having
+already set 0. There is now a second pass one frame later that puts it back. The layout effect is
+still the load-bearing one — it is what guarantees triggers are built at the top (I-058, I-062) — and
+the second is what makes the position stick.
+
+---
+
+## D-054 · The pit: deeper, fuller, more colour, and one interaction at a time
+
+**Phase:** 11 · **Date:** 2026-08-27 · **Status:** active
+
+Four adjustments from one review, all of them tuning rather than design.
+
+**Depth.** D-050's overlay put the pile's floor at the footer's bottom edge, so blocks settled *on*
+the wordmark. `11rem` of clearance moved them entirely below it and lost the overlap. `5.5rem` — about
+one and a half blocks — is the version where the heap reaches the baseline and the letters read
+through it: *"so the overlap happens and the words are also readable."*
+
+**Count.** 56 bodies on desktop, 32 at ≤767, up from §7's 44 and 24. The ceiling is the label list
+rather than the physics, because every tile carries a real name (D-049) — sixteen more were added
+from the same repositories, and the pile shortens rather than growing blanks if it ever runs out.
+
+**Colour.** §2 gives *"≈4"* white tiles and *"≈3"* accent out of 44 — about 7% and 9% — and Sayandeep
+was right that it read as *"most are grey transparent."* The accents are the only place the twelve
+works appear together, and at three tiles you cannot see there is a set. Accents go to **28%** and
+whites to **14%**, cycled across all twelve so a run shows the range rather than the first three.
+
+**The grabber.** *"sometimes the grabber doesnt work .. or it doesnt interact with mouse well."*
+
+Two bugs, one symptom. The first: `MouseConstraint` reads `mouse.position`, which Matter updates only
+from events **on the stage** — and D-050 made the stage `pointer-events: none`. So a drag tracked
+right up until the pointer left the block it was holding, which is immediately. The window listener
+that already existed for the pusher now writes `mouse.position` as well.
+
+The second was the real one. The pusher is a 46px static body sitting exactly under the cursor, so
+grabbing a block pointed both interactions at the same coordinates: the constraint pulling it toward
+the cursor while the pusher shoved it away from the same spot, hard, because a static body moved with
+`updateVelocity` carries real momentum. A 288×162px drag left the block **330px** from the pointer.
+Whether a grab survived depended on which won the frame, which is exactly why it felt intermittent.
+
+The pusher parks on `startdrag` and resumes on `enddrag`. One pointer, one interaction at a time.
+Same drag now ends **18px** from the pointer, which is the spring's own lag.

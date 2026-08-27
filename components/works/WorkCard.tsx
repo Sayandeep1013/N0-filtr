@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRef } from 'react';
 import { gsap, useGSAP } from '@/lib/motion/gsap';
-import { DUR, EASE, MQ } from '@/lib/motion/tokens';
+import { DUR, EASE, MQ, REVERSE_SCALE } from '@/lib/motion/tokens';
 import { registerTimeline, unregisterTimeline } from '@/lib/motion/registry';
 import { SpecTable } from '@/components/ui/SpecTable';
 import type { Work } from '@/content/works/_types';
@@ -45,6 +45,18 @@ import s from './WorkCard.module.css';
  * exists only to be revealed — it is real content that desktop happens to hide
  * until you point at it. The CSS carries that; the JS simply never runs.
  */
+/**
+ * The hover sequence's own clock. Sayandeep: *"let the animation breathe .. a
+ * bit slower is fine."*
+ *
+ * The name travels first and the drawer starts partway through its journey, so
+ * the two read as one movement rather than as two tweens that happen to
+ * overlap. Everything reverses at `REVERSE_SCALE`, which is the site-wide rule.
+ */
+const NAME_TRAVEL = 0.85;
+const SHEET_DELAY = 0.3;
+const SHEET_WIPE = 0.75;
+
 export function WorkCard({ work, className }: { work: Work; className?: string }) {
   const root = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -60,6 +72,7 @@ export function WorkCard({ work, className }: { work: Work; className?: string }
       const sheet = card.querySelector<HTMLElement>('[data-work-sheet]');
       const overlay = card.querySelector<HTMLElement>('[data-work-overlay]');
       const still = card.querySelector<HTMLElement>('[data-work-still]');
+      const name = card.querySelector<HTMLElement>('[data-work-name]');
       const video = videoRef.current;
 
       const mm = gsap.matchMedia();
@@ -163,24 +176,106 @@ export function WorkCard({ work, className }: { work: Work; className?: string }
         gsap.set(sheet, { opacity: 0, clipPath: CLOSED });
         gsap.set(rows, { opacity: 0, x: 14 });
 
+        /* ── the name travels ─────────────────────────────────────────────
+           Sayandeep: *"the text title at the centre of the case study that will
+           be a lot bigger .. while hovering the text gets clipped to the top
+           right of the card [with animation .. show that its travelling from
+           the centre to the top right and then the info slider comes .. let the
+           animation breathe]."*
+
+           So it is one element that moves, not two that swap — D-045 built the
+           swap and this replaces it. At rest it is a large, faded watermark in
+           the middle of the plate; on hover it travels to the top-right corner
+           and shrinks to a label, and the drawer follows it in.
+
+           The destination is measured on enter rather than expressed in CSS,
+           because it is a corner of the *frame* and the frame's size is decided
+           by the grid — a `half` card and the one `full` card are different
+           shapes and would need different offsets. One `getBoundingClientRect`
+           per hover is nothing; caching it would be wrong the first time the
+           window resizes. */
+        const NAME_INSET = 20;
+        const NAME_SMALL = 0.3;
+
+        /* `transformOrigin` is the **top-right corner**, in both states, and it
+           is what makes the landing land.
+
+           GSAP's `xPercent` is a percentage of the element's *untransformed*
+           width, while `getBoundingClientRect` reports the scaled one. With a
+           centre origin and `scale: 0.3`, `xPercent: -100` shifted the title by
+           its full 377px natural width and then shrank it about its middle — so
+           it settled 151px short of the corner it was aimed at, which looked
+           like a padding value someone had guessed.
+
+           Anchoring the scale to the same corner the translate is aligning to
+           removes the discrepancy: the corner is fixed under scaling, so the
+           visible right edge is exactly where `x` puts it. At rest the origin is
+           irrelevant, because `scale` is 1. */
+        const nameHome = {
+          xPercent: -50,
+          yPercent: -50,
+          x: 0,
+          y: 0,
+          scale: 1,
+          opacity: 0.3,
+          transformOrigin: '100% 0%',
+        };
+
+        const travelName = () => {
+          if (!name) return;
+          /* Measured against the name's own **offset parent**, which is the box
+             its `left: 50%` and `top: 50%` already resolve against. Measuring
+             the frame instead was close enough to look deliberate and wrong
+             enough to land the title short of the corner: the frame carries the
+             plate's padding and the media inside it does not. */
+          const parent = name.offsetParent as HTMLElement | null;
+          if (!parent) return;
+          const rect = parent.getBoundingClientRect();
+          gsap.to(name, {
+            xPercent: -100,
+            yPercent: 0,
+            x: rect.width / 2 - NAME_INSET,
+            y: -(rect.height / 2 - NAME_INSET),
+            scale: NAME_SMALL,
+            opacity: 1,
+            transformOrigin: '100% 0%',
+            duration: NAME_TRAVEL,
+            ease: EASE.inOut,
+            overwrite: 'auto',
+          });
+        };
+
+        const returnName = () => {
+          if (!name) return;
+          gsap.to(name, {
+            ...nameHome,
+            duration: NAME_TRAVEL / REVERSE_SCALE,
+            ease: EASE.inOut,
+            overwrite: 'auto',
+          });
+        };
+
         const showSheet = () => {
           gsap.to(sheet, {
             opacity: 1,
             clipPath: OPEN,
-            duration: DUR.mid,
-            ease: EASE.soft,
+            duration: SHEET_WIPE,
+            /* The drawer starts while the name is still travelling, not after
+               it lands — "and then the info slider comes" reads as a sequence
+               rather than as two things queued. */
+            delay: SHEET_DELAY,
+            ease: EASE.out,
             overwrite: 'auto',
           });
           /* The rows follow the wipe across rather than arriving with it, so
-             the panel reads as being drawn rather than switched on. `.04`
-             across five rows is 160ms of stagger inside a 500ms wipe — enough
-             to see, not enough to wait for. */
+             the panel reads as being drawn rather than switched on. */
           gsap.to(rows, {
             opacity: 1,
             x: 0,
-            duration: DUR.base,
-            ease: EASE.soft,
-            stagger: 0.04,
+            duration: DUR.mid,
+            ease: EASE.out,
+            stagger: 0.05,
+            delay: SHEET_DELAY + 0.12,
             overwrite: 'auto',
           });
         };
@@ -189,13 +284,13 @@ export function WorkCard({ work, className }: { work: Work; className?: string }
           gsap.to(sheet, {
             opacity: 0,
             clipPath: CLOSED,
-            duration: DUR.base,
+            duration: SHEET_WIPE / REVERSE_SCALE,
             ease: EASE.inOut,
             overwrite: 'auto',
           });
           /* No stagger on the way out. Reverses are faster everywhere on this
              site, and a staggered exit reads as the panel struggling to leave. */
-          gsap.to(rows, { opacity: 0, x: 14, duration: DUR.fast, overwrite: 'auto' });
+          gsap.to(rows, { opacity: 0, x: 14, duration: DUR.base, overwrite: 'auto' });
         };
 
         const enter = () => {
@@ -204,10 +299,11 @@ export function WorkCard({ work, className }: { work: Work; className?: string }
              wipes in from the right over the same 500ms the overlay takes to
              darken underneath it, so the media dims first and the drawer is
              drawn across the dimmed area. See D-022. */
+          travelName();
           showSheet();
           if (overlay) {
             // §21.2 — in over 500ms. Its own tween; see the component note.
-            gsap.to(overlay, { opacity: 0.55, duration: DUR.mid, ease: EASE.inOut });
+            gsap.to(overlay, { opacity: 0.55, duration: DUR.slower, ease: EASE.inOut });
           }
           if (video && still) {
             gsap.set(still, { opacity: 0 });
@@ -216,6 +312,7 @@ export function WorkCard({ work, className }: { work: Work; className?: string }
         };
 
         const leave = () => {
+          returnName();
           hideSheet();
           if (overlay) {
             // §21.2 — out over 400ms. Faster than in, the inverse of the site's
@@ -234,9 +331,14 @@ export function WorkCard({ work, className }: { work: Work; className?: string }
         /* Keyboard reaches the card through its link. Focus is not hover — it
            does not dim eleven other cards — but the sheet is real content and a
            keyboard visitor should be able to see it. */
-        card.addEventListener('focusin', showSheet);
+        card.addEventListener('focusin', () => {
+          travelName();
+          showSheet();
+        });
         card.addEventListener('focusout', () => {
-          if (!card.matches(':hover')) hideSheet();
+          if (card.matches(':hover')) return;
+          returnName();
+          hideSheet();
         });
 
         return () => {
@@ -370,7 +472,7 @@ export function WorkCard({ work, className }: { work: Work; className?: string }
             {/* The watermark. `aria-hidden` because the same title is read
                 twice otherwise — once here and once as the drawer's heading
                 below, which is the element that actually labels the panel. */}
-            <span className={s.watermark} data-t="h4" aria-hidden="true">
+            <span className={s.name} data-t="h2" data-work-name aria-hidden="true">
               {work.title}
             </span>
 
@@ -387,18 +489,6 @@ export function WorkCard({ work, className }: { work: Work; className?: string }
               second block. One element, two layouts, and only the second one is
               what a phone ever sees. */}
           <div className={s.sheet} data-work-sheet>
-            {/* The drawer's title, and the other half of D-045. At rest the name
-                is a faded watermark on the plate; on hover that fades out as
-                this fades in, so the name reads as having moved into the panel
-                rather than as two labels competing for the card.
-
-                Mono 500 — the heaviest weight loaded for this face. The display
-                face is never bolded (CLAUDE.md non-negotiable 3) and this is not
-                the display face. */}
-            <p data-t="label-big" className={s.sheetTitle}>
-              {work.title}
-            </p>
-
             {/* Not `invert`. The panel is dark now (D-024), so the table wants
                 its ordinary palette: grey keys, white values, white-30 rules. */}
             <SpecTable rows={specRows} className={s.sheetTable} />

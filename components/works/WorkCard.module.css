@@ -176,71 +176,52 @@
   pointer-events: none;
 }
 
-/* ── the name, in two places ──────────────────────────────────────────────
-   D-045. Sayandeep, on the first centred version: *"the centre text doesn't
-   look great with the info box."*
+/* ── the name ─────────────────────────────────────────────────────────────
+   One element that travels. D-051.
 
-   It does not, and the reason is that a floating label and an information panel
-   were competing for the same card. So the name is one idea rendered as two
-   elements that swap: a **watermark** on the plate at rest, and the drawer's
-   **title** on hover. As one fades out the other fades in, which reads as the
-   name moving into the panel rather than as two labels arguing.
+   At rest it is a large, faded watermark in the middle of the plate; on hover
+   it moves to the top-right corner and shrinks to a label, and the drawer
+   follows it in. D-045 did this as two elements swapping — a watermark fading
+   out as a drawer title faded in — and Sayandeep asked for the journey to be
+   visible: *"show that its travelling from the centre to the top right."*
 
-   `z-index: 4` puts the watermark above the media (1) and the overlay (2) and
-   below the sheet (3) — so if the timings ever drift, the drawer wins, which is
-   the right way round. */
-.watermark {
+   Everything here except the resting position is GSAP's: the travel needs to be
+   measured against the frame (a `half` card and the `full` card are different
+   shapes) and sequenced with the drawer, neither of which CSS can do.
+
+   `z-index: 4` puts it above the media (1) and the overlay (2) and below the
+   sheet (3) — so the corner it lands in is over the picture, and if the timings
+   ever drift the drawer wins, which is the right way round. */
+.name {
   position: absolute;
   z-index: 4;
   top: 50%;
   left: 50%;
+  /* GSAP owns `transform` from the first hover; this is the resting state
+     before it has ever run. */
   transform: translate(-50%, -50%);
-  width: 100%;
   padding: 0 1.5rem;
   text-align: center;
   color: var(--text-primary);
   font-family: var(--family-mono);
   font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  /* Faded — his word for it. Enough to read as a watermark on the plate, not
-     enough to compete with it. */
-  opacity: 0.28;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  opacity: 0.3;
   pointer-events: none;
   /* The plates are mid-grey in places. A hairline of shadow keeps it legible
      over the brightest tile without putting a panel behind it. */
-  text-shadow: 0 1px 8px rgb(0 0 0 / 70%);
-  transition: opacity var(--dur-base) var(--ease-in-out);
+  text-shadow: 0 1px 10px rgb(0 0 0 / 70%);
+  /* Promoted for the whole journey rather than for each tween, so the browser
+     never has to decide mid-travel. */
+  will-change: transform, opacity;
 }
 
-/* The drawer's heading. Mono 500 is the heaviest weight loaded for this face —
-   `app/fonts/fonts.ts` ships Regular and Medium — and it is not the display
-   face, so CLAUDE.md non-negotiable 3 does not apply. */
-.sheetTitle {
-  margin: 0 0 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: var(--hairline);
-  color: var(--text-primary);
-  font-family: var(--family-mono);
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-/* The swap. Gated to devices that actually hover: on a phone `:hover` sticks
-   after a tap, and there the sheet is permanent content rather than a hover
-   state — so the watermark simply stays legible (see below). */
-@media (hover: hover) and (min-width: 992px) {
-  .card:hover .watermark,
-  .link:focus-visible .watermark {
-    opacity: 0;
-  }
-}
-
-/* No hover to give it, and the drawer is always open here — so the watermark
-   would sit behind a permanent panel. It goes. */
+/* No hover to give it, and the drawer is always open here — so the name would
+   sit behind a permanent panel. It goes. */
 @media (max-width: 991px), (pointer: coarse) {
-  .watermark {
+  .name {
     display: none;
   }
 }
@@ -322,6 +303,11 @@
      along the top edge. It is what still tells twelve cards apart. */
   border-top: 1px solid var(--work-accent, var(--grey-700));
   padding: 1.25rem 1.5rem 0.75rem;
+  /* `clip-path` is the least composited thing on this card, and an unpromoted
+     layer re-rasterising every frame is what "skipping one or two frames" looks
+     like. Promoting it up front moves the wipe onto its own layer for the whole
+     gesture rather than for the duration of a tween. */
+  will-change: clip-path, opacity;
   /* The media clips at 16:10 and this sits inside that box, so a drawer taller
      than its card cannot spill. It never is. */
   max-height: 100%;

@@ -67,6 +67,31 @@ const OPEN_SCROLL_OFFSET_REM = 6;
  * Decision 2 dropped testimonials, and §6 says what to do about it: "columns 1
  * and 3 widen to 7/12 and 5/12."
  */
+/**
+ * The accordion's own clock. Sayandeep: *"the opening and closing can be
+ * smoother .. when it opens the top header getting clipped and while closing
+ * coming back to where it is .. that also can be smoother."*
+ *
+ * §6 gives `.7 / .5` opening and `.6` closing, on `power3`. Two things about
+ * that combination made it feel abrupt rather than fast:
+ *
+ * **`power3.in` on the close.** A cubic ease-in barely moves for the first
+ * third and then rushes — on a panel that is most of a viewport tall, the row
+ * appears to hang and then snap. `power1.inOut` leaves and arrives at the same
+ * gentleness, which is what "smoother" means here.
+ *
+ * **Everything was fast enough to be simultaneous.** At .7 and .5 the height
+ * collapse, the panel slide and the page scroll all land within about a fifth
+ * of a second of each other, so the eye reads one jolt rather than a sequence.
+ *
+ * These are a deliberate departure from §6's measured values, logged as D-052 —
+ * they are tonik's numbers and this is our judgement over them, which is exactly
+ * the kind of change that should be written down rather than absorbed.
+ */
+const OPEN_BODY = 0.9;
+const OPEN_PANEL = 0.65;
+const CLOSE_ALL = 0.8;
+
 export function ServicesAccordion() {
   /* Closed to start. `30-page-specs.md` §3: "5 rows, first closed by default."
      A pre-opened row would also mean the section's height changes on mount,
@@ -172,11 +197,13 @@ export function ServicesAccordion() {
            knows where they went. A scroll is the opposite case: nothing on
            screen tells you where you are going, so the motion has to. */
         lenis.scrollTo(to, {
-          duration: opening ? 0.6 : 1.15,
-          easing: opening
-            ? undefined
-            : /* easeInOutCubic — a soft departure, a soft arrival. */
-              (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2),
+          duration: opening ? 1 : 1.25,
+          /* easeInOutCubic, in **both** directions now. The opening scroll used
+             Lenis's default, which is a fast-out curve — so the head clipped up
+             to the top edge quickly while the row was still growing under it,
+             and the two movements fought. Same curve both ways, and the head
+             travels with the panel rather than ahead of it. D-052. */
+          easing: (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2),
         });
       } else {
         /* No Lenis under reduced motion, and no smooth scroll either — an
@@ -233,18 +260,18 @@ function ServiceRow({
       const buildDesktop = () => {
         if (isOpen) {
           const tl = gsap.timeline();
-          tl.fromTo(bodyEl, { height: 0 }, { height: 'auto', duration: DUR.slower, ease: EASE.out })
+          tl.fromTo(bodyEl, { height: 0 }, { height: 'auto', duration: OPEN_BODY, ease: EASE.inOut })
             .set(rightEl, { opacity: 1, height: 'auto' })
-            .to(rightEl, { xPercent: 0, duration: DUR.mid, ease: EASE.out });
+            .to(rightEl, { xPercent: 0, duration: OPEN_PANEL, ease: EASE.inOut });
           if (registers) registerTimeline('accordion.open', tl);
           return tl;
         }
 
         const tl = gsap.timeline();
-        tl.to(rightEl, { xPercent: -100, duration: DUR.slow, ease: EASE.in })
+        tl.to(rightEl, { xPercent: -100, duration: CLOSE_ALL, ease: EASE.inOut })
           .set(rightEl, { opacity: 0 })
-          .to(bodyEl, { height: 0, duration: DUR.slow, ease: EASE.in }, '>-0.1')
-          .to(rightEl, { height: '0%', duration: DUR.slow, ease: EASE.in }, '<');
+          .to(bodyEl, { height: 0, duration: CLOSE_ALL, ease: EASE.inOut }, '>-0.1')
+          .to(rightEl, { height: '0%', duration: CLOSE_ALL, ease: EASE.inOut }, '<');
         if (registers) registerTimeline('accordion.close', tl);
         return tl;
       };
@@ -253,17 +280,17 @@ function ServiceRow({
       const buildMobile = () => {
         const tl = gsap.timeline();
         if (isOpen) {
-          tl.fromTo(bodyEl, { height: 0 }, { height: 'auto', duration: DUR.slower, ease: EASE.out })
+          tl.fromTo(bodyEl, { height: 0 }, { height: 'auto', duration: OPEN_BODY, ease: EASE.inOut })
             .fromTo(
               rightEl,
               { height: 0 },
-              { height: 'auto', opacity: 1, duration: DUR.slower, ease: EASE.out },
+              { height: 'auto', opacity: 1, duration: OPEN_BODY, ease: EASE.inOut },
               '<',
             );
         } else {
-          tl.to(bodyEl, { height: 0, duration: DUR.slow, ease: EASE.in }).to(
+          tl.to(bodyEl, { height: 0, duration: CLOSE_ALL, ease: EASE.inOut }).to(
             rightEl,
-            { height: 0, duration: DUR.slow, ease: EASE.in },
+            { height: 0, duration: CLOSE_ALL, ease: EASE.inOut },
             '<',
           );
         }

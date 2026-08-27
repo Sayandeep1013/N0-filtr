@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { gsap } from '@/lib/motion/gsap';
-import { useMotion } from '@/lib/motion/MotionProvider';
-import { cx } from '@/lib/cx';
-import { buildTiles, type Tile } from './pitLayout';
-import s from './BlockPit.module.css';
+import { useEffect, useMemo, useRef, useState } from "react";
+import { gsap } from "@/lib/motion/gsap";
+import { useMotion } from "@/lib/motion/MotionProvider";
+import { cx } from "@/lib/cx";
+import { buildTiles, type Tile } from "./pitLayout";
+import s from "./BlockPit.module.css";
 
 /**
  * `<BlockPit />` — the physics playground below the footer.
@@ -107,7 +107,7 @@ export function BlockPit() {
      nothing else in this component's markup reads the preference: `live` starts
      `false` on both sides regardless. */
   useEffect(() => {
-    setMobile(window.matchMedia('(max-width: 767px)').matches);
+    setMobile(window.matchMedia("(max-width: 767px)").matches);
   }, []);
 
   /* ── the approach gate ──────────────────────────────────────────────────
@@ -126,7 +126,7 @@ export function BlockPit() {
           observer.disconnect();
         }
       },
-      { rootMargin: '150% 0px' },
+      { rootMargin: "150% 0px" },
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -144,59 +144,112 @@ export function BlockPit() {
     let disposed = false;
     let cleanup: (() => void) | undefined;
 
-    void import('matter-js').then((Matter) => {
-      if (disposed || !stage.current) return;
-      const { Bodies, Body, Composite, Engine, Events, Mouse, MouseConstraint } = Matter;
+    /* ── the chunk may not arrive ─────────────────────────────────────────
+       Matter is a dynamic import, so it is a network request that can fail:
 
-      const width = el.clientWidth;
-      const height = el.clientHeight;
-      if (width === 0 || height === 0) return;
+         ChunkLoadError: Loading chunk _app-pages-browser_node_modules_matter-js…
 
-      const engine = Engine.create();
-      /* §3. `enableSleeping` is the one that matters for the CPU budget: a
+       Sayandeep hit it after a rebuild replaced the chunk under an open tab,
+       which is a development artefact — but the same failure is available in
+       production to anyone who navigates during a deploy, or on a connection
+       that drops one request out of a hundred.
+
+       Without a `catch` the rejection is unhandled and the pit is simply blank.
+       With one, the page keeps the arrangement it server-rendered: a real
+       settled pile that cannot be dragged. That is the reduced-motion path
+       (§9), already built, already correct — this failure just borrows it.
+
+       The error is logged rather than swallowed, because a pit that quietly
+       stops being interactive is a thing nobody would ever report. */
+    void import("matter-js")
+      .catch((error: unknown) => {
+        console.warn(
+          "[block pit] physics unavailable, leaving the static pile",
+          error,
+        );
+        return null;
+      })
+      .then((Matter) => {
+        if (!Matter) return;
+        if (disposed || !stage.current) return;
+        const {
+          Bodies,
+          Body,
+          Composite,
+          Engine,
+          Events,
+          Mouse,
+          MouseConstraint,
+        } = Matter;
+
+        const width = el.clientWidth;
+        const height = el.clientHeight;
+        if (width === 0 || height === 0) return;
+
+        const engine = Engine.create();
+        /* §3. `enableSleeping` is the one that matters for the CPU budget: a
          settled pit costs approximately nothing. */
-      engine.enableSleeping = true;
-      engine.gravity.y = 1;
-      engine.gravity.scale = 0.0011;
-      engine.positionIterations = 8;
-      engine.velocityIterations = 6;
-      engine.constraintIterations = 2;
+        engine.enableSleeping = true;
+        engine.gravity.y = 1;
+        engine.gravity.scale = 0.0011;
+        engine.positionIterations = 8;
+        engine.velocityIterations = 6;
+        engine.constraintIterations = 2;
 
-      /* §5. The ceiling is 1500 above the frame, deliberately: a hard throw
+        /* §5. The ceiling is 1500 above the frame, deliberately: a hard throw
          should be able to leave the pit and come back. Flush with the top makes
          it a box; far above makes it a tray under open air. */
-      const WALL = 200;
-      const walls = [
-        Bodies.rectangle(width / 2, height + WALL / 2, width + 800, WALL, { isStatic: true }),
-        Bodies.rectangle(-WALL / 2, height / 2, WALL, height * 4, { isStatic: true }),
-        Bodies.rectangle(width + WALL / 2, height / 2, WALL, height * 4, { isStatic: true }),
-        Bodies.rectangle(width / 2, -1500, width + 800, WALL, { isStatic: true }),
-      ];
-      Composite.add(engine.world, walls);
+        const WALL = 200;
+        const walls = [
+          Bodies.rectangle(width / 2, height + WALL / 2, width + 800, WALL, {
+            isStatic: true,
+          }),
+          Bodies.rectangle(-WALL / 2, height / 2, WALL, height * 4, {
+            isStatic: true,
+          }),
+          Bodies.rectangle(width + WALL / 2, height / 2, WALL, height * 4, {
+            isStatic: true,
+          }),
+          Bodies.rectangle(width / 2, -1500, width + 800, WALL, {
+            isStatic: true,
+          }),
+        ];
+        Composite.add(engine.world, walls);
 
-      /* One body per element already in the DOM. */
-      const nodes = Array.from(el.querySelectorAll<HTMLElement>('[data-pit-tile]'));
-      const parts = nodes
-        .map((node) => {
-          const w = Number(node.dataset.w);
-          const h = Number(node.dataset.h);
-          const spawnX = Number(node.dataset.x) * width;
-          if (!w || !h) return null;
+        /* One body per element already in the DOM. */
+        const nodes = Array.from(
+          el.querySelectorAll<HTMLElement>("[data-pit-tile]"),
+        );
+        const parts = nodes
+          .map((node) => {
+            const w = Number(node.dataset.w);
+            const h = Number(node.dataset.h);
+            const spawnX = Number(node.dataset.x) * width;
+            if (!w || !h) return null;
 
-          const body = Bodies.rectangle(spawnX, -200, w, h, {
-            ...BODY_OPTIONS,
-            /* §3: real geometry, not a paint trick. */
-            chamfer: { radius: Math.min(w, h) * 0.22 },
-          });
+            const body = Bodies.rectangle(spawnX, -200, w, h, {
+              ...BODY_OPTIONS,
+              /* §3: real geometry, not a paint trick. */
+              chamfer: { radius: Math.min(w, h) * 0.22 },
+            });
 
-          return { node, body, w, h, spawnX };
-        })
-        .filter((part): part is NonNullable<typeof part> => part !== null);
+            return { node, body, w, h, spawnX };
+          })
+          .filter((part): part is NonNullable<typeof part> => part !== null);
 
-      Composite.add(
-        engine.world,
-        parts.map((p) => p.body),
-      );
+        Composite.add(
+          engine.world,
+          parts.map((p) => p.body),
+        );
+
+        /* Assigned once `Mouse.create` has run, below. Declared here because the
+         window listener that feeds them is defined first, and it cannot capture
+         something that does not exist yet. */
+      let mousePosition = { x: -999, y: -999 };
+      let mouseAbsolute = { x: -999, y: -999 };
+      /* Set between `startdrag` and `enddrag`. See the note where the pusher is
+         parked below — the two interactions fight over the same pointer. */
+      let dragging = false;
 
       /* ── 4.1 the sweep pusher ─────────────────────────────────────────────
          `MouseConstraint` only acts on press, so hover-push needs its own body.
@@ -204,45 +257,89 @@ export function BlockPit() {
          which is what makes a fast sweep scatter and a slow drift nudge — the
          interaction is pressure-sensitive for free. §4.1 calls this the single
          most important detail, and a pusher moved without it feels dead. */
-      const pusher = Bodies.circle(-999, -999, 46, {
-        isStatic: true,
-        friction: 0,
-        restitution: 0.2,
-      });
-      Composite.add(engine.world, pusher);
+        const pusher = Bodies.circle(-999, -999, 46, {
+          isStatic: true,
+          friction: 0,
+          restitution: 0.2,
+        });
+        Composite.add(engine.world, pusher);
 
-      /* `@types/matter-js` declares `setPosition(body, position)` — two
+        /* `@types/matter-js` declares `setPosition(body, position)` — two
          arguments — and the shipped library takes three. Verified against
          `node_modules/matter-js` rather than assumed: `Body.setPosition.length`
          is **3** and the source names the third `updateVelocity`. The cast is
          narrow and points at the reason, so it can be deleted when the types
          catch up. */
-      const setPosition = Body.setPosition as unknown as (
-        body: Matter.Body,
-        position: Matter.Vector,
-        updateVelocity?: boolean,
-      ) => void;
+        const setPosition = Body.setPosition as unknown as (
+          body: Matter.Body,
+          position: Matter.Vector,
+          updateVelocity?: boolean,
+        ) => void;
 
-      /* On the **window**, not the stage.
+        /* On the **window**, not the stage.
 
          The stage is `pointer-events: none` now (D-050) so that a footer link
          underneath a block is still clickable — which also means the stage never
          sees a pointer move over empty space, and the sweep is mostly empty
          space. Listening on the window and converting to stage coordinates gets
          the behaviour back without giving the pit the clicks. */
-      const onPointerMove = (event: PointerEvent) => {
-        const rect = el.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
-        /* Parked off-screen while the pointer is outside, so a settled pile is
+        const onPointerMove = (event: PointerEvent) => {
+          const rect = el.getBoundingClientRect();
+          const x = event.clientX - rect.left;
+          const y = event.clientY - rect.top;
+          /* Parked off-screen while the pointer is outside, so a settled pile is
            not disturbed by movement elsewhere on the page. */
-        const outside = x < -60 || y < -60 || x > rect.width + 60 || y > rect.height + 60;
-        setPosition(pusher, outside ? { x: -999, y: -999 } : { x, y }, true);
-      };
+          const outside =
+            x < -60 || y < -60 || x > rect.width + 60 || y > rect.height + 60;
+          /* `dragging` matters more than `outside` here.
 
-      window.addEventListener('pointermove', onPointerMove, { passive: true });
+             The pusher is a 46px static body that sits exactly under the cursor.
+             Grab a block and the two interactions point at the same coordinates:
+             the constraint pulls the block toward the cursor while the pusher
+             shoves it away from that same spot — hard, because a static body
+             moved with `updateVelocity` carries real momentum.
 
-      /* ── 4.2 drag and throw ───────────────────────────────────────────────
+             Measured before this: a 288x162px drag left the block **330px** from
+             the pointer. That is exactly what Sayandeep described — *"sometimes
+             the grabber doesnt work .. or it doesnt interact with mouse well"* —
+             because whether a grab survived depended on which of the two won the
+             frame. One pointer, one interaction at a time. */
+          setPosition(
+            pusher,
+            outside || dragging ? { x: -999, y: -999 } : { x, y },
+            true,
+          );
+
+          /* ── and the drag ──────────────────────────────────────────────────
+             Sayandeep: *"sometimes the grabber doesnt work .. or it doesnt
+             interact with mouse well."*
+
+             It works exactly until the pointer leaves the block it is holding.
+             `MouseConstraint` reads `mouse.position`, which Matter only updates
+             from `mousemove` events **on the stage** — and D-050 made the stage
+             `pointer-events: none` so footer links underneath stay clickable.
+             Tiles are `auto`, so a move over a tile still bubbles up; a move
+             over empty space does not.
+
+             Which means the grab lands, and then the moment you pull the block
+             out from under your own cursor the position stops updating and the
+             block stops following. It reads as flaky rather than as broken,
+             which is worse.
+
+             So the window listener that already exists for the pusher writes
+             `mouse.position` as well. Matter's own handlers still run when they
+             can; this guarantees the value is current whether they did or not. */
+          mousePosition.x = x;
+          mousePosition.y = y;
+          mouseAbsolute.x = x;
+          mouseAbsolute.y = y;
+        };
+
+        window.addEventListener("pointermove", onPointerMove, {
+          passive: true,
+        });
+
+        /* ── 4.2 drag and throw ───────────────────────────────────────────────
          `render.visible` defaults to **true** with a bright green line from the
          cursor to the body. §4.2 flags it as the classic bug; it is verified,
          and it must be off.
@@ -250,18 +347,22 @@ export function BlockPit() {
          Throwing needs no code: the constraint is a spring, the body accumulates
          real velocity chasing the cursor, and on release that velocity persists.
          The fling is emergent. */
-      const mouse = Mouse.create(el);
-      const mouseConstraint = MouseConstraint.create(engine, {
-        mouse,
-        constraint: {
-          stiffness: 0.12,
-          damping: 0.1,
-          render: { visible: false },
-        },
-      });
-      Composite.add(engine.world, mouseConstraint);
+        const mouse = Mouse.create(el);
+        /* The very objects Matter reads, not copies of them — writing to these
+           is what keeps `MouseConstraint` current. See `onPointerMove`. */
+        mousePosition = mouse.position;
+        mouseAbsolute = mouse.absolute;
+        const mouseConstraint = MouseConstraint.create(engine, {
+          mouse,
+          constraint: {
+            stiffness: 0.12,
+            damping: 0.1,
+            render: { visible: false },
+          },
+        });
+        Composite.add(engine.world, mouseConstraint);
 
-      /* ── the scroll traps ─────────────────────────────────────────────────
+        /* ── the scroll traps ─────────────────────────────────────────────────
          Matter's `Mouse.setElement` attaches six listeners. Three are harmless
          (`mousemove`/`mousedown`/`mouseup`, all passive). The other three are
          **not**, and only one of them is in the spec:
@@ -283,28 +384,37 @@ export function BlockPit() {
          All four come off. Matter's mouse handlers still drive the drag, and on
          touch devices the drag goes through those same handlers via the browser's
          compatibility mouse events. */
-      const handlers = mouse as unknown as Record<string, EventListener>;
-      (
-        [
-          ['wheel', 'mousewheel'],
-          ['touchmove', 'mousemove'],
-          ['touchstart', 'mousedown'],
-          ['touchend', 'mouseup'],
-        ] as const
-      ).forEach(([type, key]) => {
-        const handler = handlers[key];
-        if (handler) el.removeEventListener(type, handler);
-      });
+        const handlers = mouse as unknown as Record<string, EventListener>;
+        (
+          [
+            ["wheel", "mousewheel"],
+            ["touchmove", "mousemove"],
+            ["touchstart", "mousedown"],
+            ["touchend", "mouseup"],
+          ] as const
+        ).forEach(([type, key]) => {
+          const handler = handlers[key];
+          if (handler) el.removeEventListener(type, handler);
+        });
 
-      const onStartDrag = () => el.classList.add(s.grabbing ?? 'is-grabbing');
-      const onEndDrag = () => el.classList.remove(s.grabbing ?? 'is-grabbing');
-      Events.on(mouseConstraint, 'startdrag', onStartDrag);
-      Events.on(mouseConstraint, 'enddrag', onEndDrag);
+        const onStartDrag = () => {
+          dragging = true;
+          /* Out of the way now rather than on the next pointer move, so the very
+             first frame of a drag is already clean. */
+          setPosition(pusher, { x: -999, y: -999 }, true);
+          el.classList.add(s.grabbing ?? "is-grabbing");
+        };
+        const onEndDrag = () => {
+          dragging = false;
+          el.classList.remove(s.grabbing ?? "is-grabbing");
+        };
+        Events.on(mouseConstraint, "startdrag", onStartDrag);
+        Events.on(mouseConstraint, "enddrag", onEndDrag);
 
-      /* ── 4.3 the entry drop ───────────────────────────────────────────────
+        /* ── 4.3 the entry drop ───────────────────────────────────────────────
          §4.3, on the site's own motion signature: a stagger of amount .8 from
          random. GSAP does the timing; Matter does the falling. */
-      /* ── 4.3 the entry drop ───────────────────────────────────────────────
+        /* ── 4.3 the entry drop ───────────────────────────────────────────────
          §4.3, on the site's own motion signature: a stagger of amount .8 from
          random. GSAP does the timing; Matter does the falling.
 
@@ -319,88 +429,90 @@ export function BlockPit() {
          this runs after mount, on the client only, and changes no markup — so
          there is nothing for hydration to disagree about, and a pile that falls
          differently each visit is the point. */
-      let releases: gsap.core.Tween[] = [];
+        let releases: gsap.core.Tween[] = [];
 
-      const drop = () => {
-        releases.forEach((call) => call.kill());
-        releases = [];
+        const drop = () => {
+          releases.forEach((call) => call.kill());
+          releases = [];
 
-        parts.forEach((part) => {
-          Body.setStatic(part.body, true);
-          Body.setPosition(part.body, {
-            x: part.spawnX,
-            y: -120 - gsap.utils.random(0, 400),
+          parts.forEach((part) => {
+            Body.setStatic(part.body, true);
+            Body.setPosition(part.body, {
+              x: part.spawnX,
+              y: -120 - gsap.utils.random(0, 400),
+            });
+            Body.setAngle(part.body, gsap.utils.random(-0.4, 0.4));
+            Body.setVelocity(part.body, { x: 0, y: 0 });
+            Body.setAngularVelocity(part.body, 0);
           });
-          Body.setAngle(part.body, gsap.utils.random(-0.4, 0.4));
-          Body.setVelocity(part.body, { x: 0, y: 0 });
-          Body.setAngularVelocity(part.body, 0);
-        });
 
-        /* `from: 'random'` as a shuffled release order. */
-        const order = [...parts].sort(() => Math.random() - 0.5);
-        order.forEach((part, i) => {
-          const delay = order.length > 1 ? (i / (order.length - 1)) * 0.8 : 0;
-          releases.push(gsap.delayedCall(delay, () => Body.setStatic(part.body, false)));
-        });
-      };
-      drop();
-      resetRef.current = drop;
+          /* `from: 'random'` as a shuffled release order. */
+          const order = [...parts].sort(() => Math.random() - 0.5);
+          order.forEach((part, i) => {
+            const delay = order.length > 1 ? (i / (order.length - 1)) * 0.8 : 0;
+            releases.push(
+              gsap.delayedCall(delay, () => Body.setStatic(part.body, false)),
+            );
+          });
+        };
+        drop();
+        resetRef.current = drop;
 
-      /* ── the loop ─────────────────────────────────────────────────────────
+        /* ── the loop ─────────────────────────────────────────────────────────
          On GSAP's ticker, gated by an in-view flag, fixed timestep with a clamp
          that prevents the spiral of death after a backgrounded tab. */
-      let inView = true;
-      const viewObserver = new IntersectionObserver(
-        (entries) => {
-          inView = entries.some((entry) => entry.isIntersecting);
-        },
-        { threshold: 0 },
-      );
-      viewObserver.observe(el);
+        let inView = true;
+        const viewObserver = new IntersectionObserver(
+          (entries) => {
+            inView = entries.some((entry) => entry.isIntersecting);
+          },
+          { threshold: 0 },
+        );
+        viewObserver.observe(el);
 
-      let accumulator = 0;
-      const tick = (_time: number, deltaMs: number) => {
-        if (!inView) return;
-        accumulator += Math.min(deltaMs, 100);
-        while (accumulator >= FIXED) {
-          Engine.update(engine, FIXED);
-          accumulator -= FIXED;
-        }
-        for (const part of parts) {
-          part.node.style.transform =
-            `translate3d(${part.body.position.x - part.w / 2}px, ` +
-            `${part.body.position.y - part.h / 2}px, 0) ` +
-            `rotate(${part.body.angle}rad)`;
-        }
-      };
-      gsap.ticker.add(tick);
+        let accumulator = 0;
+        const tick = (_time: number, deltaMs: number) => {
+          if (!inView) return;
+          accumulator += Math.min(deltaMs, 100);
+          while (accumulator >= FIXED) {
+            Engine.update(engine, FIXED);
+            accumulator -= FIXED;
+          }
+          for (const part of parts) {
+            part.node.style.transform =
+              `translate3d(${part.body.position.x - part.w / 2}px, ` +
+              `${part.body.position.y - part.h / 2}px, 0) ` +
+              `rotate(${part.body.angle}rad)`;
+          }
+        };
+        gsap.ticker.add(tick);
 
-      /* §5's escape guard. A physics blow-out puts a body somewhere it can never
+        /* §5's escape guard. A physics blow-out puts a body somewhere it can never
          return from; this brings it back rather than losing it. Once a second,
          not once a frame — it is a safety net, not a simulation step. */
-      const guard = window.setInterval(() => {
-        for (const part of parts) {
-          const { x, y } = part.body.position;
-          if (x < -600 || x > width + 600 || y > height + 600) {
-            Body.setPosition(part.body, { x: part.spawnX, y: -200 });
-            Body.setVelocity(part.body, { x: 0, y: 0 });
+        const guard = window.setInterval(() => {
+          for (const part of parts) {
+            const { x, y } = part.body.position;
+            if (x < -600 || x > width + 600 || y > height + 600) {
+              Body.setPosition(part.body, { x: part.spawnX, y: -200 });
+              Body.setVelocity(part.body, { x: 0, y: 0 });
+            }
           }
-        }
-      }, 1000);
+        }, 1000);
 
-      cleanup = () => {
-        releases.forEach((call) => call.kill());
-        gsap.ticker.remove(tick);
-        window.clearInterval(guard);
-        viewObserver.disconnect();
-        window.removeEventListener('pointermove', onPointerMove);
-        Events.off(mouseConstraint, 'startdrag', onStartDrag);
-        Events.off(mouseConstraint, 'enddrag', onEndDrag);
-        Composite.clear(engine.world, false);
-        Engine.clear(engine);
-        resetRef.current = null;
-      };
-    });
+        cleanup = () => {
+          releases.forEach((call) => call.kill());
+          gsap.ticker.remove(tick);
+          window.clearInterval(guard);
+          viewObserver.disconnect();
+          window.removeEventListener("pointermove", onPointerMove);
+          Events.off(mouseConstraint, "startdrag", onStartDrag);
+          Events.off(mouseConstraint, "enddrag", onEndDrag);
+          Composite.clear(engine.world, false);
+          Engine.clear(engine);
+          resetRef.current = null;
+        };
+      });
 
     return () => {
       disposed = true;
@@ -461,7 +573,7 @@ function PitTile({ tile, live }: { tile: Tile; live: boolean }) {
         ...(live
           ? null
           : {
-              top: 'auto',
+              top: "auto",
               left: `${tile.rowX * 100}%`,
               bottom: `${tile.row * 62}px`,
               transform: `translateX(-50%) rotate(${tile.angle}rad)`,

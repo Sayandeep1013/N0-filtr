@@ -88,15 +88,27 @@ function shapeDeck(count: number, random: () => number): TileShape[] {
 }
 
 /**
- * §2's tone mix: mostly `--grey-800`, some `--grey-900`, about four white tiles
- * with dark text, and about three carrying a work's accent.
+ * The tone mix.
+ *
+ * §2 gives *"≈4 tiles"* white and *"≈3 tiles"* accent out of 44 — about 7% and
+ * 9%. Built to that, the pile read as what Sayandeep called it: *"most are grey
+ * transparent .. add a bit more coloured blocks."*
+ *
+ * He is right, and the reason is that the accents are the only place the twelve
+ * works appear together (§2 makes that point itself) — at three tiles you cannot
+ * see that there is a set. Accents go to **28%** and whites to **14%**, which
+ * leaves a clear grey majority and gives the colour enough presence to read as
+ * deliberate. See D-054.
+ *
+ * The tones are assigned by index against a shuffled order rather than rolled
+ * per tile, so the proportions land where they are set instead of near them.
  */
 function toneFor(index: number, count: number, random: () => number): TileTone {
-  const whites = Math.max(2, Math.round(count * 0.09));
-  const accents = Math.max(2, Math.round(count * 0.07));
+  const accents = Math.max(3, Math.round(count * 0.28));
+  const whites = Math.max(2, Math.round(count * 0.14));
   if (index < accents) return 'accent';
   if (index < accents + whites) return 'white';
-  return random() > 0.7 ? 'grey900' : 'grey800';
+  return random() > 0.6 ? 'grey900' : 'grey800';
 }
 
 export function buildTiles(mobile: boolean): Tile[] {
@@ -140,6 +152,8 @@ export function buildTiles(mobile: boolean): Tile[] {
       label,
       w,
       h,
+      /* Cycled across the twelve rather than taken in index order, so a run of
+         accent tiles shows the whole set instead of the first three works. */
       accent: tone === 'accent' ? PIT_ACCENTS[i % PIT_ACCENTS.length] : undefined,
       /* Spread across the width, avoiding the very edges so nothing spawns
          inside a wall. */
