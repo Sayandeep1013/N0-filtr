@@ -135,6 +135,19 @@
   height: 100%;
   overflow: visible;
   pointer-events: none;
+  /* **Above every frame, including a held one.**
+
+     The rig is a later sibling than the frames, so it painted on top by
+     default — right up until a dragged frame was given a `z-index` to keep it
+     off its neighbours, at which point the card you were holding covered its
+     own pole and its own wires. Sayandeep: *"when i move the cards the pole
+     disappears."*
+
+     A number rather than the source order it was relying on: the wires cross in
+     front of the plates by design, and that has to hold whatever any frame is
+     doing underneath. Stays below the navbar, which is fixed and in a stacking
+     context of its own. */
+  z-index: 3;
 }
 
 /* The collage is the rig's positioning context. */
@@ -168,8 +181,10 @@
   }
 }
 
-/* A frame you have moved keeps its transform, so it must not be a stacking
-   accident when it overlaps a neighbour. */
+/* A frame you have moved keeps its offset, so it must not be a stacking
+   accident when it overlaps a neighbour — but it stays under the rig, which is
+   at 3. Held cards go over other cards; wires go over everything. */
 .frame[data-held] {
+  position: relative;
   z-index: 2;
 }

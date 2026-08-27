@@ -1,5 +1,5 @@
 # Verification report
-Run: 2026-08-27T08:17:51.021Z · Phase 12 · commit `c82ce46` · branch `main`
+Run: 2026-08-27T08:27:27.618Z · Phase 12 · commit `c80114b` · branch `main`
 
 ## Summary
 ```
@@ -317,7 +317,7 @@ budget  ✅ 7/7
 ✅ hero 3D — the blades never leave the barrel = reach 1.930 of 2, invariant
 ✅ hero 3D — the housing tips across the viewport = 0.258
 ✅ hero 3D — the housing tips top to bottom = 0.317
-✅ hero 3D — the iris actuates = 0.318 rad about the bore
+✅ hero 3D — the iris actuates = 0.317 rad about the bore
 ✅ hero 3D — the blades lead the housing = 1.23x
 ✅ hero 3D — the response stays subtle = max 0.159 rad
 ✅ hero 3D — loop suspends off-screen = running: false
@@ -572,8 +572,8 @@ lists are authored to fill the accordion and T10.8 writes the real ones. The blo
 ✅ JS on / (transferred) = 351.7KB / 360KB
 ✅ home page total weight = 550.1KB / 1800KB
 ✅ zero network font requests = both faces self-hosted
-✅ CLS (local, unthrottled) = 0.0014
-ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 228ms
+✅ CLS (local, unthrottled) = 0.0025
+ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 352ms
 
 > Poster and reel budgets become binding in phase 10, when assets exist.
 > Lighthouse scores are a phase 12 deliverable via mcp__chrome-devtools__lighthouse_audit; the figures here are local and unthrottled.
