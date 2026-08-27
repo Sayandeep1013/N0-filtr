@@ -1837,3 +1837,40 @@ Whether a grab survived depended on which won the frame, which is exactly why it
 
 The pusher parks on `startdrag` and resumes on `enddrag`. One pointer, one interaction at a time.
 Same drag now ends **18px** from the pointer, which is the spring's own lag.
+
+---
+
+## D-055 · The mobile sweep: 44px, and nothing else moves
+
+**Phase:** 12 · **Date:** 2026-08-27 · **Status:** active
+
+Sayandeep: *"the mobile screen adjustment for everything .. do a proper sweep there."*
+
+Thirteen pages measured at 390×844 with touch emulation, looking for three things: horizontal
+scroll, elements escaping the viewport, and controls under the 44px floor.
+
+**No page scrolls horizontally.** Every overflow the probe reported turned out to be inside an
+`overflow: hidden` parent by design — the marquee, the pit's walls, the sliced aperture SVG, Embla's
+track, the ServiceNav strip, the flythrough. That is the shape a working full-bleed layout has, not
+a bug, and it is worth writing down so the next sweep does not re-investigate it.
+
+**Sixteen controls were under 44px.** The worst was the case-study hero's mini-link at **12px tall**;
+the footer's `PRIVACY POLICY` was 97×12; the burger was 24×24 and the wordmark — the way home from
+every page — was 96×20.
+
+Height was added with `min-height` and with padding cancelled by a negative margin, never by growing
+type or spacing. The composition at 390 is unchanged; the rows around the labels are what grew. All
+of it is scoped to `≤767` on purpose: a 44px floor on desktop would loosen a deliberately tight stack
+that a mouse has no trouble with.
+
+One control is still under the floor and stays there — a `mailto:` inside a sentence on the privacy
+page. Growing an inline link would break the line box around it, and prose links are not thumb
+targets in the way a nav row is.
+
+**Two things beyond tap targets.** The nav panel is hidden by translating it out of a clipping
+wrapper, which hides it from the eye and from nothing else — its four links stayed in the tab order,
+so a keyboard visitor on a phone tabbed through a menu they could not see. `inert` when closed below
+992 fixes that without touching the slide-out animation. And the pit was burying the wordmark at 390
+in a way it did not at 1440: 32 tiles across a 390px floor stack seven rows deep. **22** tiles and
+`8.5rem` of clearance restore D-054's relationship — the heap reaches the baseline, the letters read
+through it.

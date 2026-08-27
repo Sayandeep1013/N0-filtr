@@ -1,5 +1,5 @@
 # Verification report
-Run: 2026-08-27T06:09:05.557Z · Phase 06 · commit `59cff7a` · branch `main`
+Run: 2026-08-27T06:44:45.019Z · Phase 06 · commit `5b40075` · branch `main`
 
 ## Summary
 ```
@@ -317,7 +317,7 @@ budget  ✅ 7/7
 ✅ hero 3D — the blades never leave the barrel = reach 1.930 of 2, invariant
 ✅ hero 3D — the housing tips across the viewport = 0.258
 ✅ hero 3D — the housing tips top to bottom = 0.317
-✅ hero 3D — the iris actuates = 0.317 rad about the bore
+✅ hero 3D — the iris actuates = 0.318 rad about the bore
 ✅ hero 3D — the blades lead the housing = 1.23x
 ✅ hero 3D — the response stays subtle = max 0.159 rad
 ✅ hero 3D — loop suspends off-screen = running: false
@@ -359,7 +359,7 @@ budget  ✅ 7/7
 ✅ works grid: the hovered card is not dimmed = 1
 ✅ works grid: every card sits at 1 after the pointer leaves = 1
 ✅ works grid: overlay reaches 0.55 = 0.55
-✅ works grid: overlay in is 0.7s = 0.7s
+✅ works grid: overlay in is 0.5s = 0.5s
 ✅ works grid: overlay OUT is 0.4s — faster than in, §21.2's inverted asymmetry = 0.4s
 ✅ works grid: overlay returns to 0 = 0
 ✅ works grid: the hover sheet FADES in over 0.75s — it is not set = 0.75s
@@ -389,7 +389,7 @@ budget  ✅ 7/7
 ✅ accordion: the body collapses to 0 = 0px
 ✅ accordion ≤767: no x-slide — height only, per §6 = matrix(1, 0, 0, 1, 0, 0)
 ✅ accordion ≤767: the body is one column
-✅ accordion ≤767: the body still opens = 908px
+✅ accordion ≤767: the body still opens = 920px
 ✅ cta: the whole block is one real button = BUTTON
 ✅ cta: no interactive element nested inside it = 0
 ✅ cta: #2e2e2e ground = rgb(46, 46, 46)
@@ -559,12 +559,12 @@ lists are authored to fill the accordion and T10.8 writes the real ones. The blo
 ✅ matter-js absent from the eagerly-loaded bundle = absent
 ✅ three absent from the eagerly-loaded bundle = absent
 ✅ plyr absent from the eagerly-loaded bundle = absent
-ℹ️ all built chunks, gzipped (not a per-route figure) = 572.7KB
-✅ JS on / (transferred) = 349.0KB / 360KB
-✅ home page total weight = 545.2KB / 1800KB
+ℹ️ all built chunks, gzipped (not a per-route figure) = 572.9KB
+✅ JS on / (transferred) = 349.1KB / 360KB
+✅ home page total weight = 546.3KB / 1800KB
 ✅ zero network font requests = both faces self-hosted
 ✅ CLS (local, unthrottled) = 0.0025
-ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 148ms
+ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 172ms
 
 > Poster and reel budgets become binding in phase 10, when assets exist.
 > Lighthouse scores are a phase 12 deliverable via mcp__chrome-devtools__lighthouse_audit; the figures here are local and unthrottled.

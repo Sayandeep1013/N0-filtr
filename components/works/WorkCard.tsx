@@ -56,6 +56,10 @@ import s from './WorkCard.module.css';
 const NAME_TRAVEL = 0.85;
 const SHEET_DELAY = 0.3;
 const SHEET_WIPE = 0.75;
+/** How far the title sits from the corner it lands in, in pixels. */
+const NAME_INSET = 20;
+/** What it shrinks to. `--t-h2` at 0.3 is about the size of a mono label. */
+const NAME_SMALL = 0.3;
 
 export function WorkCard({ work, className }: { work: Work; className?: string }) {
   const root = useRef<HTMLElement>(null);
@@ -176,134 +180,117 @@ export function WorkCard({ work, className }: { work: Work; className?: string }
         gsap.set(sheet, { opacity: 0, clipPath: CLOSED });
         gsap.set(rows, { opacity: 0, x: 14 });
 
-        /* ── the name travels ─────────────────────────────────────────────
-           Sayandeep: *"the text title at the centre of the case study that will
-           be a lot bigger .. while hovering the text gets clipped to the top
-           right of the card [with animation .. show that its travelling from
-           the centre to the top right and then the info slider comes .. let the
-           animation breathe]."*
+        /* ── one timeline, played and reversed ────────────────────────────
+           Sayandeep: *"the info slider on the case studies stays on even when i
+           dont hover sometimes."*
 
-           So it is one element that moves, not two that swap — D-045 built the
-           swap and this replaces it. At rest it is a large, faded watermark in
-           the middle of the plate; on hover it travels to the top-right corner
-           and shrinks to a label, and the drawer follows it in.
+           It did, and there were two ways to get there — which is the argument
+           for this being one timeline rather than four independent tweens.
 
-           The destination is measured on enter rather than expressed in CSS,
-           because it is a corner of the *frame* and the frame's size is decided
-           by the grid — a `half` card and the one `full` card are different
-           shapes and would need different offsets. One `getBoundingClientRect`
-           per hover is nothing; caching it would be wrong the first time the
-           window resizes. */
-        const NAME_INSET = 20;
-        const NAME_SMALL = 0.3;
+           **A fast in-and-out left a pending tween behind.** The drawer's wipe
+           carried `delay: SHEET_DELAY` so it could start partway through the
+           name's journey. Leave inside those 300ms and `hideSheet` ran
+           immediately, then the delayed tween started afterwards and opened a
+           drawer nothing was going to close. `overwrite: 'auto'` does not help:
+           it kills tweens that have already rendered conflicting values, and a
+           delayed tween has rendered nothing.
 
-        /* `transformOrigin` is the **top-right corner**, in both states, and it
-           is what makes the landing land.
+           **Focus opened it with no pointer involved.** `focusin` fired whenever
+           the card's link received focus — including programmatically, on the
+           way back from the page it links to — and the matching `focusout`
+           listener was never removed on cleanup either.
 
-           GSAP's `xPercent` is a percentage of the element's *untransformed*
-           width, while `getBoundingClientRect` reports the scaled one. With a
-           centre origin and `scale: 0.3`, `xPercent: -100` shifted the title by
-           its full 377px natural width and then shrank it about its middle — so
-           it settled 151px short of the corner it was aimed at, which looked
-           like a padding value someone had guessed.
+           A paused timeline played forward and reversed cannot end up in a state
+           nobody asked for: there is one progress value, and `reverse()` from
+           anywhere is coherent. It also expresses the sequence in one place
+           instead of spreading it across two functions and a delay.
 
-           Anchoring the scale to the same corner the translate is aligning to
-           removes the discrepancy: the corner is fixed under scaling, so the
-           visible right edge is exactly where `x` puts it. At rest the origin is
-           irrelevant, because `scale` is 1. */
-        const nameHome = {
-          xPercent: -50,
-          yPercent: -50,
-          x: 0,
-          y: 0,
-          scale: 1,
-          opacity: 0.3,
-          transformOrigin: '100% 0%',
-        };
-
-        const travelName = () => {
-          if (!name) return;
-          /* Measured against the name's own **offset parent**, which is the box
-             its `left: 50%` and `top: 50%` already resolve against. Measuring
-             the frame instead was close enough to look deliberate and wrong
-             enough to land the title short of the corner: the frame carries the
-             plate's padding and the media inside it does not. */
-          const parent = name.offsetParent as HTMLElement | null;
-          if (!parent) return;
+           The name's destination is a corner of its own offset parent, which
+           depends on the card's size — so it is a **function-based value**, and
+           `invalidate()` before a fresh play re-measures it. Only when progress
+           is 0: invalidating a timeline mid-reverse would re-read values it is
+           currently interpolating from. */
+        const nameTarget = () => {
+          const parent = name?.offsetParent as HTMLElement | null;
+          if (!parent) return { x: 0, y: 0 };
           const rect = parent.getBoundingClientRect();
-          gsap.to(name, {
-            xPercent: -100,
-            yPercent: 0,
-            x: rect.width / 2 - NAME_INSET,
-            y: -(rect.height / 2 - NAME_INSET),
-            scale: NAME_SMALL,
-            opacity: 1,
-            transformOrigin: '100% 0%',
-            duration: NAME_TRAVEL,
-            ease: EASE.inOut,
-            overwrite: 'auto',
-          });
+          return { x: rect.width / 2 - NAME_INSET, y: -(rect.height / 2 - NAME_INSET) };
         };
 
-        const returnName = () => {
-          if (!name) return;
-          gsap.to(name, {
-            ...nameHome,
-            duration: NAME_TRAVEL / REVERSE_SCALE,
-            ease: EASE.inOut,
-            overwrite: 'auto',
-          });
-        };
-
-        const showSheet = () => {
-          gsap.to(sheet, {
-            opacity: 1,
-            clipPath: OPEN,
-            duration: SHEET_WIPE,
-            /* The drawer starts while the name is still travelling, not after
-               it lands — "and then the info slider comes" reads as a sequence
-               rather than as two things queued. */
-            delay: SHEET_DELAY,
-            ease: EASE.out,
-            overwrite: 'auto',
-          });
-          /* The rows follow the wipe across rather than arriving with it, so
-             the panel reads as being drawn rather than switched on. */
-          gsap.to(rows, {
-            opacity: 1,
+        gsap.set(sheet, { opacity: 0, clipPath: CLOSED });
+        gsap.set(rows, { opacity: 0, x: 14 });
+        if (name) {
+          gsap.set(name, {
+            xPercent: -50,
+            yPercent: -50,
             x: 0,
-            duration: DUR.mid,
-            ease: EASE.out,
-            stagger: 0.05,
-            delay: SHEET_DELAY + 0.12,
-            overwrite: 'auto',
+            y: 0,
+            scale: 1,
+            opacity: 0.3,
+            transformOrigin: '100% 0%',
           });
+        }
+
+        const hover = gsap.timeline({ paused: true });
+
+        if (name) {
+          hover.to(
+            name,
+            {
+              xPercent: -100,
+              yPercent: 0,
+              x: () => nameTarget().x,
+              y: () => nameTarget().y,
+              scale: NAME_SMALL,
+              opacity: 1,
+              transformOrigin: '100% 0%',
+              duration: NAME_TRAVEL,
+              ease: EASE.inOut,
+            },
+            0,
+          );
+        }
+
+        hover
+          /* The drawer starts while the name is still travelling, not after it
+             lands — "and then the info slider comes" reads as a sequence rather
+             than as two things queued. */
+          .to(sheet, { opacity: 1, clipPath: OPEN, duration: SHEET_WIPE, ease: EASE.out }, SHEET_DELAY)
+          /* The rows follow the wipe across rather than arriving with it, so the
+             panel reads as being drawn rather than switched on. */
+          .to(
+            rows,
+            { opacity: 1, x: 0, duration: DUR.mid, ease: EASE.out, stagger: 0.05 },
+            SHEET_DELAY + 0.12,
+          );
+
+        const open = () => {
+          if (hover.progress() === 0) hover.invalidate();
+          hover.timeScale(1).play();
         };
 
-        const hideSheet = () => {
-          gsap.to(sheet, {
-            opacity: 0,
-            clipPath: CLOSED,
-            duration: SHEET_WIPE / REVERSE_SCALE,
-            ease: EASE.inOut,
-            overwrite: 'auto',
-          });
-          /* No stagger on the way out. Reverses are faster everywhere on this
-             site, and a staggered exit reads as the panel struggling to leave. */
-          gsap.to(rows, { opacity: 0, x: 14, duration: DUR.base, overwrite: 'auto' });
-        };
+        /* Reverses run faster — CLAUDE.md non-negotiable 5. */
+        const close = () => hover.timeScale(REVERSE_SCALE).reverse();
 
         const enter = () => {
-          /* §5 sets the sheet's opacity outright, with no tween, and on a
-             1316x822 card that is #212121 to pure white in one frame. It now
-             wipes in from the right over the same 500ms the overlay takes to
-             darken underneath it, so the media dims first and the drawer is
-             drawn across the dimmed area. See D-022. */
-          travelName();
-          showSheet();
+          open();
+          /* ── the overlay stays off the timeline ────────────────────────────
+             §21.2's timings are asymmetric **in the opposite direction to the
+             rest of the site**: in over 500ms, out over 400ms, where everything
+             else reverses faster than it plays.
+
+             It was briefly folded into the hover timeline while that was being
+             rebuilt, and the file's own note had already said why not — a
+             reversed timeline runs at `REVERSE_SCALE`, which would have made the
+             exit *slower* than 400ms and quietly flattened the one place tonik
+             deliberately went the other way. `verify:motion` caught it, which is
+             the assertion earning its place.
+
+             Safe to keep separate: the stuck-sheet bug (I-064) came from a tween
+             carrying a `delay`, and this one has none — so a leave can never
+             arrive before it starts. */
           if (overlay) {
-            // §21.2 — in over 500ms. Its own tween; see the component note.
-            gsap.to(overlay, { opacity: 0.55, duration: DUR.slower, ease: EASE.inOut });
+            gsap.to(overlay, { opacity: 0.55, duration: DUR.mid, ease: EASE.inOut, overwrite: 'auto' });
           }
           if (video && still) {
             gsap.set(still, { opacity: 0 });
@@ -312,12 +299,10 @@ export function WorkCard({ work, className }: { work: Work; className?: string }
         };
 
         const leave = () => {
-          returnName();
-          hideSheet();
+          close();
+          // §21.2 — out over 400ms, faster than in. See the note in `enter`.
           if (overlay) {
-            // §21.2 — out over 400ms. Faster than in, the inverse of the site's
-            // usual rule, and the reason this is not on the main timeline.
-            gsap.to(overlay, { opacity: 0, duration: DUR.base, ease: EASE.inOut });
+            gsap.to(overlay, { opacity: 0, duration: DUR.base, ease: EASE.inOut, overwrite: 'auto' });
           }
           if (video && still) {
             gsap.set(still, { opacity: 1 });
@@ -326,24 +311,42 @@ export function WorkCard({ work, className }: { work: Work; className?: string }
           }
         };
 
+        /* Keyboard reaches the card through its link, and the sheet is real
+           content a keyboard visitor should be able to see. **`:focus-visible`,
+           not `focusin`** — the browser only sets it for focus the visitor
+           actually drove, so a link focused programmatically on the way back
+           from the page it points at no longer opens a drawer over an untouched
+           card. */
+        const onFocusIn = (event: FocusEvent) => {
+          const target = event.target as Element | null;
+          if (target?.matches?.(':focus-visible')) open();
+        };
+
+        const onFocusOut = () => {
+          /* Still pointed at, or focus simply moved within the card. */
+          if (card.matches(':hover') || card.contains(document.activeElement)) return;
+          close();
+        };
+
         card.addEventListener('mouseenter', enter);
         card.addEventListener('mouseleave', leave);
-        /* Keyboard reaches the card through its link. Focus is not hover — it
-           does not dim eleven other cards — but the sheet is real content and a
-           keyboard visitor should be able to see it. */
-        card.addEventListener('focusin', () => {
-          travelName();
-          showSheet();
-        });
-        card.addEventListener('focusout', () => {
-          if (card.matches(':hover')) return;
-          returnName();
-          hideSheet();
-        });
+        /* `pointercancel` for the case the other three miss: a gesture the
+           browser takes over — a scroll started on the card, a context menu —
+           ends the pointer without ever sending `mouseleave`. */
+        card.addEventListener('pointercancel', leave);
+        card.addEventListener('focusin', onFocusIn);
+        card.addEventListener('focusout', onFocusOut);
 
         return () => {
           card.removeEventListener('mouseenter', enter);
           card.removeEventListener('mouseleave', leave);
+          card.removeEventListener('pointercancel', leave);
+          /* These two were leaking. The old cleanup removed the mouse handlers
+             and left the focus ones attached, so a rebuild — a breakpoint
+             change, a filter on `/works` — stacked a second pair on the same
+             card. */
+          card.removeEventListener('focusin', onFocusIn);
+          card.removeEventListener('focusout', onFocusOut);
         };
       });
 

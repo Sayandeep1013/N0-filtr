@@ -146,3 +146,32 @@
     grid-row: auto;
   }
 }
+
+/* ── touch targets ──────────────────────────────────────────────────────────
+   Every guideline that exists puts the floor at 44px, and the mobile sweep
+   found this footer running 12 to 32.
+
+   The rows are already full-width — 350px on a 390 screen — so the miss was
+   entirely vertical: `PRIVACY POLICY` was **97×12**, a twelve-pixel-tall target
+   for a thumb. Height is added rather than type size, so nothing about the
+   footer's composition changes; the rows simply become rows you can hit.
+
+   Scoped to ≤767 deliberately. A 44px minimum on desktop would loosen a
+   deliberately tight stack that a mouse has no trouble with. */
+@media (max-width: 767px) {
+  .serviceLink,
+  .contact a,
+  .socials a,
+  .privacy {
+    display: flex;
+    align-items: center;
+    min-height: 2.75rem;
+  }
+
+  /* The one that is not full width, so it needs the horizontal padding too —
+     and a negative margin so the row it sits in does not shift. */
+  .privacy {
+    padding-right: 0.5rem;
+    margin-right: -0.5rem;
+  }
+}

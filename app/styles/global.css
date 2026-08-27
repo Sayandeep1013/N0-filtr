@@ -219,8 +219,11 @@ body {
 }
 
 @media (max-width: 767px) {
+  /* More clearance than the desktop's 5.5rem in proportion, not less: the pit
+     is 390px wide, so the same number of blocks stacks far higher. Paired with
+     the smaller mobile count in `lib/content/pit.ts`. */
   .footer-stage {
-    padding-bottom: 3rem;
+    padding-bottom: 8.5rem;
   }
 }
 

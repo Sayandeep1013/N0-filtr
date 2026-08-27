@@ -83,6 +83,12 @@
 
 /* §: 1-col ≤767. */
 @media (max-width: 767px) {
+  /* 34px to 44. The pills are a radio group and the most-tapped control on the
+     page, so they are the last place to save eight pixels. */
+  .pill {
+    min-height: 2.75rem;
+  }
+
   .hero {
     padding-top: 7rem;
     padding-bottom: 2rem;

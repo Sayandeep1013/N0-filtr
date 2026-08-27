@@ -120,12 +120,22 @@
 
 /* ── ≤991: burger, and the links become a panel ──────────────────────────── */
 
+/* The glyph is 1.5rem; the **target** is 44px.
+
+   Measured at 24×24 during the mobile sweep, which is well under the 44px floor
+   every platform guideline agrees on and small enough that a thumb misses it.
+   The padding grows the hit area without moving the "+" — negative margin pulls
+   the box back so the bar's layout is unchanged — and the strokes are positioned
+   against the content box, so they stay exactly where they were. */
 .burger {
   position: relative;
   display: none;
   flex: none;
+  box-sizing: content-box;
   width: 1.5rem;
   height: 1.5rem;
+  padding: 0.625rem;
+  margin: -0.625rem;
   color: var(--text-primary);
 }
 
@@ -178,9 +188,12 @@
 
   .menu {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-    padding: 1.5rem var(--gutter) 2rem;
+    align-items: stretch;
+    /* The gap goes to 0 because the padding on each link now supplies the
+       spacing — and a 44px row with a 1rem gap between rows is a very tall
+       menu on a 844px screen. */
+    gap: 0;
+    padding: 0.5rem var(--gutter) 1.25rem;
     background-color: var(--black);
     transform: translateY(-100%);
     transition: transform var(--dur-mid) var(--ease-in-out);
@@ -192,5 +205,29 @@
 
   .menuOpen .menu {
     transform: translateY(0);
+  }
+
+  /* Every menu row is a 44px target. The label stays where it was; the row
+     around it is what grew. See the note on `.burger`. */
+  .menu .link {
+    display: flex;
+    align-items: center;
+    min-height: 2.75rem;
+    width: 100%;
+  }
+}
+
+/* ── touch targets ──────────────────────────────────────────────────────────
+   The wordmark is the way home from every page, and it measured 96×20. The
+   padding grows the target and the negative margin keeps the bar's layout
+   exactly where it was — the same trick as `.burger` above, for the same
+   reason. */
+@media (max-width: 767px) {
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding-right: 0.75rem;
+    margin-right: -0.75rem;
   }
 }

@@ -132,6 +132,12 @@
 }
 
 @media (max-width: 767px) {
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+  }
+
   .hero {
     padding-top: 7rem;
     padding-bottom: 2.5rem;

@@ -171,6 +171,18 @@
     align-self: flex-start;
   }
 
+  /* 44px for the trigger and every option in the list it opens. */
+  .trigger,
+  .option {
+    min-height: 2.75rem;
+  }
+
+  .items .link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+  }
+
   .list {
     right: auto;
     left: 0;

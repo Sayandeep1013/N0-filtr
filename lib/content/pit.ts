@@ -112,5 +112,11 @@ export const PIT_ACCENTS: string[] = [...WORKS]
  * §7's own note on the budget is about CPU when active, and sleeping is what
  * actually pays for it: a settled pit of 56 costs the same as a settled pit of
  * 44, which is nothing.
+ *
+ * **Mobile went the other way — 32 down to 22.** The count is not the constraint
+ * there; the *width* is. Thirty-two blocks across 390px is five to a row and
+ * seven rows deep, and a pile that tall buried the 14vw wordmark it is supposed
+ * to overlap. Twenty-two settles at about four rows, which is the same
+ * relationship to the type that fifty-six has on a desktop.
  */
-export const PIT_BODIES = { desktop: 56, mobile: 32 } as const;
+export const PIT_BODIES = { desktop: 56, mobile: 22 } as const;

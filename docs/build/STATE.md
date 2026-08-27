@@ -3,7 +3,7 @@
 **The first file every agent reads. It must always be true.**
 If you change the build, change this file in the same session — not later.
 
-Last updated: **2026-08-26** · by: **phases 3-12 session (Opus)** · tag: `phase-05-complete`
+Last updated: **2026-08-27** · by: **phases 3-12 session (Opus)** · tag: `phase-05-complete`
 
 ---
 
@@ -61,6 +61,19 @@ got it right. Protocol §2.9 is the rule.
 
 ## Where we are
 
+> **2026-08-27 — the site is built and is being reviewed round by round.** Sayandeep is working
+> through it in the browser and reporting what is wrong; each round is fixed, verified and
+> committed before the next. The rounds so far: the works-card hover and its travelling title
+> (D-051), the services accordion's timing (D-052), always-landing-at-the-top navigation (D-053),
+> the pit's depth, count, colour and grabber (D-054), the stuck info drawer (I-064), and a full
+> mobile sweep at 390 (D-055).
+>
+> **What is still open is content and launch, not build.** 9 of 12 blog posts unwritten (D-043),
+> the showreel is a placeholder awaiting real footage (I-033), the 30 service FAQs are drafts
+> Sayandeep has not read, `support@nofilter.com` does not match the `nofilter.studio` placeholder
+> domain (I-040), and phase 12's own list — Lighthouse, OG images, sitemap and robots — has not
+> been done. T7.2 was deliberately dropped for a scroll strip.
+>
 > *Phase 1 was independently re-confirmed before this phase started: `npm run verify` re-run at
 > `63f4490`, green, exit 0.*
 >
@@ -94,11 +107,11 @@ got it right. Protocol §2.9 is the rule.
 
 | | |
 |---|---|
-| Current phase | **6 — Case study 🚦 GATE** |
-| Status | ⬜ not started |
-| Branch | *(create `phase/06-case-study`)* |
+| Current phase | **12 — polish, in review with Sayandeep** |
+| Status | 🟡 the whole site is built; running review rounds against it |
+| Branch | `main` |
 | Blocked | no |
-| Verify report | `tools/verify/output/report.md` — tokens 138/138, motion **241/241** (nothing pending), visual judged, budget 6/6 |
+| Verify report | `tools/verify/output/report.md` — tokens 138/138, motion **267/267**, visual judged, budget 7/7 |
 | Budget | JS **322.0KB of 360KB**. Ceiling raised from 320 by Sayandeep on the measurement — I-034 closed. |
 | 🚦 | **Phase 6 is the gate.** Present the finished case study before phase 7. |
 
@@ -120,14 +133,14 @@ got it right. Protocol §2.9 is the rule.
 | 9 | Blog | 🟡 | `phase/09-blog` | — | index + post template · **3 of 12** written (D-043) · typed blocks, not MDX (D-042) |
 | 10 | Content | 🟡 | `phase/10-content` | — | **all twelve case studies authored** from their repos · 3 of 12 blog posts |
 | 11 | Physics footer | 🟡 | `phase/11-physics` | — | the block pit, all of §1–§10 · 44 bodies · lazy Matter · reduced-motion static pile |
-| 7 | Service & industry | ⬜ | `phase/07-service-pages` | — | needs 6 |
-| 8 | About | ⬜ | `phase/08-about` | — | needs 5 |
-| 9 | Blog | ⬜ | `phase/09-blog` | — | needs 5 · parallel-safe |
-| 10 | Content & assets | ⬜ | `phase/10-assets` | — | needs 6 · parallel-safe |
-| 11 | Block pit | ⬜ | `phase/11-block-pit` | — | needs 1 · parallel-safe |
-| 12 | Polish & launch | ⬜ | `phase/12-polish` | — | needs all |
+| 12 | Polish & launch | 🟡 | `main` | — | review rounds done; Lighthouse, OG images, sitemap/robots still open |
 
-**Progress: 6 / 13 phases.**
+**Progress: 6 tagged · 3-12 built and under review on `main`.**
+
+> The ledger had **7-11 listed twice** — once updated, once as the original stubs — for long
+> enough that a reader could have believed either. The stubs are gone. 🟡 means *built and
+> verified, not yet tagged*: phases 3-12 ran as one session (see the scope note above), so they
+> share `main` rather than each having a branch and a tag.
 
 ---
 

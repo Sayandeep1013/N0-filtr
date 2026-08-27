@@ -52,6 +52,15 @@
     grid-template-columns: 1fr 1fr;
   }
 
+  /* 44px, from 12. These two are the only way out of a case study that is not
+     the browser's back button, and they were the smallest targets on the site —
+     a mono label with no padding at all. */
+  .miniLink {
+    display: flex;
+    align-items: center;
+    min-height: 2.75rem;
+  }
+
   /* The slug is the thing to drop first — it is the least useful of the three
      and the only one that is not a link. */
   .slug {

@@ -1976,3 +1976,39 @@ Logged rather than swallowed, because a pit that quietly stops being interactive
 would ever report.
 
 **Note for the next agent:** do not leave the user on a dev server after running `verify`. Restart it.
+
+---
+
+## I-064 · The card's info drawer stayed open with the pointer elsewhere  🟢
+
+**Raised:** phase 12 · **Resolved:** phase 12
+
+Sayandeep: *"the info slider on the case studies stays on even when i dont hover sometimes."*
+
+*Sometimes* was the useful part of the report — it meant a race, not a broken selector. There were
+two, which is the argument for the fix being structural rather than a patch.
+
+**A fast in-and-out left a pending tween behind.** D-051 gave the drawer's wipe `delay: SHEET_DELAY`
+so it could start partway through the title's journey. Leave inside those 300ms and the hide ran
+immediately, then the delayed tween started *afterwards* and opened a drawer nothing was going to
+close. `overwrite: 'auto'` does not help here: it kills tweens that have already rendered conflicting
+values, and a delayed tween has rendered nothing at all.
+
+**Focus opened it with no pointer involved.** `focusin` fired whenever the card's link received
+focus — including programmatically, on the way back from the page it links to. `:focus-visible` is
+the fix: the browser only sets it for focus the visitor actually drove.
+
+And the cleanup removed the two mouse listeners while leaving the focus pair attached, so every
+rebuild — a breakpoint change, a filter on `/works` — stacked another pair on the same card.
+
+**Resolved** by making the hover **one paused timeline**, played and reversed. A timeline has one
+progress value, so `reverse()` from anywhere is coherent and no state nobody asked for is reachable.
+Verified at 0 stuck sheets across all three paths that previously stranded one, with keyboard access
+intact.
+
+**One thing that came back out of the timeline.** §21.2's overlay is asymmetric in the *opposite*
+direction to the rest of the site — in over 500ms, out over 400ms, where everything else reverses
+faster than it plays. Folding it in made its exit run at `REVERSE_SCALE` and quietly flattened the
+one place tonik deliberately went the other way. `verify:motion` failed on it, which is an assertion
+earning its keep. It is a plain tween again, and safe as one: this bug was about a `delay`, and the
+overlay has none.

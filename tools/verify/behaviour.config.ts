@@ -302,7 +302,7 @@ export const BEHAVIOUR = {
     tolerance: 0.02,
     /** §21.2 [ix2 a-29/a-30]. */
     overlayOpacity: 0.55,
-    overlayIn: 0.7,
+    overlayIn: 0.5,
     overlayOut: 0.4,
     /** 1.25rem at the 16.45 root — I-032's corrected gap. */
     columnGapPx: 20.5625,

@@ -117,3 +117,14 @@
     color: var(--white);
   }
 }
+
+/* ── touch targets ──────────────────────────────────────────────────────────
+   The pill is 32px tall, which is right for a mouse and under the 44px floor
+   for a thumb. `min-height` rather than more padding, so the pill grows around
+   the label instead of the label moving inside it — the type stays exactly
+   where the desktop composition puts it. */
+@media (max-width: 767px) {
+  .button {
+    min-height: 2.75rem;
+  }
+}
