@@ -457,22 +457,26 @@ export const CASE = {
     viewport: { w: 1512, h: 900 },
     mobileViewport: { w: 390, h: 844 },
     /**
-     * The corner the pointer is sent to. Far enough from the tile that a 1:1
-     * follower would travel most of the viewport, which is what makes the drift
-     * assertion mean something.
+     * How close the disc has to be to the pointer, on entry and once settled.
+     *
+     * Six pixels, because that is a tolerance a lerp can genuinely reach and a
+     * centred-on-the-element implementation cannot get anywhere near — the bug
+     * this replaced put it hundreds of pixels away. See D-048.
      */
-    far: { x: 20, y: 20 },
-    /**
-     * §21.5's window is ±50px per axis, so the widest possible move between two
-     * pointer positions is 100px. 110 allows for the lerp still easing and for
-     * the element re-centring on its tile as the page settles; a 1:1 follower
-     * would be several hundred.
-     */
-    driftMax: 110,
-    /** It has to move *something*, or it is not tracking at all. */
-    driftMin: 8,
+    snapTolerance: 6,
+    /** Two frames, for the snap to be written and painted. */
+    snapSettle: 140,
+    /** a-10's scale is 500ms. Read the size after it, not with the position. */
+    scaleSettle: 700,
     /** The lerp is 0.15 per frame — about 25 frames to close 95% of the gap. */
-    settle: 1400,
+    trackSettle: 900,
+    /**
+     * How far behind it must be **mid-move**, which is what separates a disc
+     * with weight from one pinned to the pointer. Measured at ~260px on a fast
+     * sweep across a card; 40 is a floor that a 1:1 implementation fails and any
+     * reasonable lerp clears.
+     */
+    minLag: 40,
   },
 
   navigation: {

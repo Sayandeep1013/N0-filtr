@@ -13,8 +13,10 @@ import { CASE } from './behaviour.config';
  *       — a fact about a custom property on `<html>`, and about it being
  *         *removed* again, which is the half that breaks silently
  *   "Cursor is a ±50px drifting object, **not** a 1:1 pointer follower"
- *       — the one assertion that separates this component from the naive
- *         version of itself, and the naive version looks fine in a screenshot
+ *       — no longer true, and deliberately. D-048 made it track the pointer,
+ *         because D-046 hid the native one and a replacement that is not at the
+ *         pointer is broken rather than stylish. What is asserted now is the
+ *         thing that was actually wrong: where it appears when you enter
  *   "Escape, scrim and outside-click close it"
  *       — three handlers and a history entry
  *
@@ -126,7 +128,7 @@ async function checkAccent(browser: Browser, baseUrl: string): Promise<CheckResu
   return out;
 }
 
-/* ── 2. the cursor is a drifting object, not a follower ──────────────────── */
+/* ── 2. the cursor is at the pointer, and has weight ─────────────────────── */
 
 async function checkCursor(browser: Browser, baseUrl: string): Promise<CheckResult[]> {
   const c = CASE.cursor;
@@ -138,75 +140,117 @@ async function checkCursor(browser: Browser, baseUrl: string): Promise<CheckResu
     await waitForLoaderGone(page);
     await scrollToSelector(page, '[data-cursor]');
 
-    const tile = await page.evaluate(() => {
+    const box = await page.evaluate(() => {
       const el = document.querySelector('[data-cursor]');
       if (!el) return null;
       const r = el.getBoundingClientRect();
-      return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
+      return {
+        x: Math.round(r.x),
+        y: Math.round(r.y),
+        w: Math.round(r.width),
+        h: Math.round(r.height),
+      };
     });
-    if (!tile) {
+    if (!box) {
       out.push(fail('case cursor: a [data-cursor] target exists', '>= 1', '0'));
       return out;
     }
 
-    await page.mouse.move(tile.x, tile.y);
-    await page.waitForTimeout(c.settle);
+    /** The disc's centre, in viewport coordinates. */
+    const disc = () =>
+      page.evaluate(() => {
+        const root = document.querySelector('[data-custom-cursor]');
+        const wrap = root?.firstElementChild;
+        if (!root || !wrap) return null;
+        const r = wrap.getBoundingClientRect();
+        const cs = getComputedStyle(wrap);
+        return {
+          x: r.x + r.width / 2,
+          y: r.y + r.height / 2,
+          scale: new DOMMatrixReadOnly(cs.transform).a,
+          opacity: Number(cs.opacity),
+        };
+      });
 
-    const shown = await page.evaluate(() => {
-      const root = document.querySelector('[data-custom-cursor]');
-      const wrap = root?.firstElementChild;
-      if (!root || !wrap) return null;
-      const cs = getComputedStyle(wrap);
-      const r = root.getBoundingClientRect();
-      const m = new DOMMatrixReadOnly(cs.transform);
-      return { x: r.x, y: r.y, scale: m.a, opacity: Number(cs.opacity) };
-    });
+    /* Sayandeep's exact scenario: cross the **right** edge, mid-height. The
+       old implementation put the disc at the centre of the card, which is what
+       made it feel wrong — so entry position is the assertion, not a detail. */
+    const entry = { x: box.x + box.w - 6, y: box.y + Math.round(box.h / 2) };
+    await page.mouse.move(entry.x - 240, entry.y);
+    await page.mouse.move(entry.x, entry.y);
+    await page.waitForTimeout(c.snapSettle);
 
+    const shown = await disc();
     if (!shown) {
       out.push(fail('case cursor: mounted', '[data-custom-cursor]', 'missing'));
       return out;
     }
 
-    /* a-10: scale 0→1, opacity 0→1. Read after the settle rather than sampled,
-       because the shape of the tween is `verify:motion`'s job and whether the
-       handler is wired at all is this one's. */
+    /* a-10: it arrives. Read **after** the scale tween rather than with the
+       position, because the two happen on different clocks — the snap is one
+       frame and the scale is 500ms, and reading both at 140ms reported a disc
+       at 0.18 as a failure when it was simply still growing. */
+    await page.waitForTimeout(c.scaleSettle);
+    const grown = await disc();
     out.push(
-      near(shown.scale, 1, 0.02) && shown.opacity > 0.9
-        ? pass('case cursor: scales in over media [a-10]', `scale ${shown.scale.toFixed(2)}`)
-        : fail('case cursor: scales in over media', 'scale 1, opacity 1', `scale ${shown.scale.toFixed(2)}, opacity ${shown.opacity}`),
-    );
-
-    /* a-14, and the acceptance criterion. Move the pointer to the far corner of
-       the viewport. A 1:1 follower travels the whole distance; a ±50px drifting
-       object cannot move more than 100px on either axis however far the pointer
-       goes, and the element also has to have moved *something* or it is not
-       tracking at all. */
-    await page.mouse.move(c.far.x, c.far.y, { steps: 12 });
-    await page.waitForTimeout(c.settle);
-    const moved = await page.evaluate(() => {
-      const r = document.querySelector('[data-custom-cursor]')!.getBoundingClientRect();
-      return { x: r.x, y: r.y };
-    });
-
-    const dx = Math.abs(moved.x - shown.x);
-    const dy = Math.abs(moved.y - shown.y);
-    const pointerTravel = Math.abs(c.far.x - tile.x);
-
-    out.push(
-      dx <= c.driftMax && dy <= c.driftMax
-        ? pass(
-            `case cursor: drifts, does not follow [a-14] — moved ${Math.round(dx)}×${Math.round(dy)}px while the pointer moved ${Math.round(pointerTravel)}px`,
-          )
+      grown && near(grown.scale, 1, 0.05) && grown.opacity > 0.9
+        ? pass('case cursor: scales in over media [a-10]', `scale ${grown.scale.toFixed(2)}`)
         : fail(
-            'case cursor: ±50px drift, not 1:1 tracking',
-            `<= ${c.driftMax}px on each axis`,
-            `${Math.round(dx)}×${Math.round(dy)}px`,
+            'case cursor: scales in over media',
+            'scale 1, opacity 1',
+            grown ? `scale ${grown.scale.toFixed(2)}, opacity ${grown.opacity}` : 'gone',
           ),
     );
+
+    /* D-048, and the whole reason this component was rewritten: the disc has to
+       appear **where the pointer already is**, not where the element is. */
+    const entryOffset = Math.hypot(shown.x - entry.x, shown.y - entry.y);
     out.push(
-      dx + dy > c.driftMin
-        ? pass('case cursor: is tracking at all', `${Math.round(dx + dy)}px combined`)
-        : fail('case cursor: tracking', `> ${c.driftMin}px combined`, `${Math.round(dx + dy)}px`),
+      entryOffset <= c.snapTolerance
+        ? pass(`case cursor: appears at the pointer, not the centre (D-048) — ${Math.round(entryOffset)}px off`)
+        : fail(
+            'case cursor: appears at the pointer on entry',
+            `<= ${c.snapTolerance}px from where the pointer crossed`,
+            `${Math.round(entryOffset)}px`,
+          ),
+    );
+
+    /* It tracks: cross the card and let it settle on the pointer. */
+    const dest = { x: box.x + 60, y: box.y + 40 };
+    for (let i = 1; i <= 20; i += 1) {
+      await page.mouse.move(
+        entry.x + ((dest.x - entry.x) / 20) * i,
+        entry.y + ((dest.y - entry.y) / 20) * i,
+      );
+    }
+
+    /* Read mid-flight, before the lerp has closed the gap. A disc pinned 1:1
+       would be here already; the lag is what gives it weight. */
+    const inFlight = await disc();
+    const lag = inFlight ? Math.hypot(inFlight.x - dest.x, inFlight.y - dest.y) : 0;
+
+    await page.waitForTimeout(c.trackSettle);
+    const settled = await disc();
+    const settledOffset = settled ? Math.hypot(settled.x - dest.x, settled.y - dest.y) : Infinity;
+
+    out.push(
+      settledOffset <= c.snapTolerance
+        ? pass(`case cursor: settles on the pointer — ${Math.round(settledOffset)}px off`)
+        : fail(
+            'case cursor: settles on the pointer',
+            `<= ${c.snapTolerance}px`,
+            `${Math.round(settledOffset)}px`,
+          ),
+    );
+
+    out.push(
+      lag >= c.minLag
+        ? pass(`case cursor: lags on a fast move, so it has weight — ${Math.round(lag)}px behind`)
+        : fail(
+            'case cursor: trails the pointer rather than being pinned to it',
+            `>= ${c.minLag}px behind mid-move`,
+            `${Math.round(lag)}px`,
+          ),
     );
   } finally {
     await context.close();

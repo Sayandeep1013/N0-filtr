@@ -4,6 +4,10 @@
    is the one GSAP translates by the ±50px drift; the inner wrapper is the one
    that scales in and out, so the two transforms never fight over one matrix. */
 
+/* Fixed at the origin and moved entirely by transform — the transform IS the
+   viewport position now that the disc tracks the pointer rather than centring
+   on an element. Nothing writes `left` or `top`, so there is no second source
+   of truth to keep in step and nothing to recompute when the page scrolls. */
 .cursor {
   position: fixed;
   top: 0;

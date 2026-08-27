@@ -18,19 +18,26 @@ import s from './CustomCursor.module.css';
  * 2nd click [a-13]  labels   y → 0%,    500ms easeInOut
  * ```
  *
- * ── It is not a pointer follower, and that is the whole point ────────────
+ * ── It follows the pointer, and §21.5 says it should not ─────────────────
  *
- * §21.5, emphasised there and worth repeating: *"The move is a ±50px range, not
- * 1:1 tracking. The cursor element is centred and drifts within a small window
- * as the pointer crosses the viewport — it reads as a considered object, not a
- * mouse follower."*
+ * §21.5 is emphatic: *"The move is a ±50px range, not 1:1 tracking. The cursor
+ * element is centred and drifts within a small window as the pointer crosses
+ * the viewport — it reads as a considered object, not a mouse follower."* That
+ * was built exactly as written, and it was wrong here.
  *
- * So the element sits **centred on the media it belongs to** and moves by at
- * most 50px in each axis as the pointer crosses the whole viewport. §18's
- * simpler `pos += (mouse - pos) * 0.15` lerp is the earlier spec of the same
- * thing; §21.5 is the one read off their IX2 data and it wins. The lerp is
- * kept — it is what makes the drift feel weighted rather than linear — but it
- * chases the mapped ±50 target, not the pointer.
+ * **It is wrong because of a decision made after it.** §21.5 describes an object
+ * that sits *alongside* a visible arrow — tonik never hide theirs. D-046 hid
+ * ours (`cursor: none` on every target, I-059), and a replacement pointer that
+ * is not at the pointer is not stylish, it is broken: you lose the only feedback
+ * telling you where you are about to click.
+ *
+ * Sayandeep, precisely: *"the mouse cursor enters the card from right .. the
+ * view circle appears right exactly the mouse cursor would have been."*
+ *
+ * So it tracks. §18's own earlier line is the one that survives —
+ * `pos += (mouse - pos) * 0.15` — and it is applied to the **pointer** rather
+ * than to a mapped drift window. The lag is what gives it weight; the fact that
+ * it is a lag rather than an offset is what makes it a cursor. See D-048.
  *
  * ── Click toggles the label ──────────────────────────────────────────────
  *
@@ -52,9 +59,12 @@ import s from './CustomCursor.module.css';
  * element following a pointer that does not exist.
  */
 
-/** §21.5: the drift is ±50px across the whole viewport, in both axes. */
-const DRIFT = 50;
-/** §18's lerp. Applied to the mapped target, not to the pointer. */
+/**
+ * §18's lerp, applied to the pointer. Fifteen percent of the remaining distance
+ * per frame: it trails on a fast sweep and settles when the pointer stops, which
+ * is the weight. Higher reads as stuck to the pointer, lower as swimming behind
+ * it.
+ */
 const LERP = 0.15;
 
 export function CustomCursor() {
@@ -88,29 +98,12 @@ export function CustomCursor() {
         gsap.set(wrap, { scale: 0, opacity: 0 });
         gsap.set(labels, { yPercent: 0 });
 
-        const place = (el: HTMLElement) => {
-          const rect = el.getBoundingClientRect();
-          gsap.set(root, {
-            left: rect.left + rect.width / 2,
-            top: rect.top + rect.height / 2,
-          });
-        };
-
-        /* ── a-14: the ±50px map ──────────────────────────────────────────
-           The pointer's position across the viewport, remapped to the drift
-           window. `gsap.utils.mapRange` rather than arithmetic so the intent
-           reads: the left edge of the screen is −50 and the right edge is +50,
-           whatever the screen happens to be. */
+        /* The pointer, in viewport coordinates. The root is `position: fixed`
+           at the origin, so the transform below *is* the position — no `left`
+           or `top` to keep in step, and nothing to recompute on scroll. */
         const onMove = (event: PointerEvent) => {
-          target.x = gsap.utils.mapRange(0, window.innerWidth, -DRIFT, DRIFT, event.clientX);
-          target.y = gsap.utils.mapRange(0, window.innerHeight, -DRIFT, DRIFT, event.clientY);
-
-          /* The element is placed over whatever it is hovering, so it also has
-             to follow that element down the page as the visitor scrolls.
-             Reading the rect on move rather than caching it is cheap — one
-             element, only while hovering — and caching it was wrong the first
-             time: a scroll under a still pointer left the cursor behind. */
-          if (active) place(active);
+          target.x = event.clientX;
+          target.y = event.clientY;
         };
 
         /* ── a-10 / a-11: in and out ──────────────────────────────────────
@@ -147,7 +140,18 @@ export function CustomCursor() {
           active = el;
           setLabel(el.dataset.cursor || 'View');
           tint(el);
-          place(el);
+
+          /* **Snap, do not ease in.** The disc has to appear exactly where the
+             pointer already is — that is the whole of Sayandeep's note. Easing
+             from wherever it was left is how it ended up sliding in from the
+             middle of the card, or from the last card entirely. */
+          target.x = event.clientX;
+          target.y = event.clientY;
+          current.x = event.clientX;
+          current.y = event.clientY;
+          setX(current.x);
+          setY(current.y);
+
           gsap.to(wrap, { scale: 1, duration: 0.5, ease: 'power1.inOut', overwrite: true });
           gsap.to(wrap, { opacity: 1, duration: 0.2, ease: 'power1.inOut' });
         };

@@ -76,9 +76,22 @@ export function WorkCard({ work, className }: { work: Work; className?: string }
             trigger: card,
             start: 'top 90%',
             end: 'bottom bottom',
-            /* §5's guard, as a real one-shot. `once` retires the trigger; the
-               attribute is what phase 7's filter will read. */
-            once: true,
+            /* **Not `once: true`.** §5 wants a one-shot and this is one; what
+               it must not be is a trigger that *retires itself*.
+
+               `once` calls `kill()` from inside `onEnter`, and `onEnter` can fire
+               during ScrollTrigger's recursive refresh when a trigger is created
+               on a page that starts scrolled — a restored back-navigation, every
+               time. Killing splices the array that refresh is walking by index,
+               the next read is a hole, and the page loses every trigger built
+               after it. That is I-058 and I-062, and the position fix only moved
+               it from one navigation type to the other.
+
+               A timeline that has already played is idempotent, so the one-shot
+               is free: the trigger stays alive, `onEnter` sets the attribute the
+               filter reads, and nothing removes itself mid-walk. Twelve idle
+               triggers cost nothing measurable, and the leak check asserts they
+               go when the page does. */
             onEnter: () => card.setAttribute('data-revealed', 'true'),
           },
         });

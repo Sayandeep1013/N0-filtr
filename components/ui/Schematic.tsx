@@ -127,7 +127,12 @@ export function Schematic({
            `x2` tween: it is one composited property per line rather than a
            layout-affecting attribute, and the ends are the only thing moving. */
         const tl = gsap.timeline({
-          scrollTrigger: { trigger: scope, start: 'top 85%', once: true },
+          /* Not `once` — see the long note in `WorkCard.tsx`. Behaviourally
+             identical here: ScrollTrigger's default `toggleActions` is
+             `play none none none`, so the timeline runs on the first enter and
+             does nothing on any later one. `once` was only ever retiring the
+             trigger afterwards, which is the part that breaks. */
+          scrollTrigger: { trigger: scope, start: 'top 85%' },
         });
 
         tl.fromTo(

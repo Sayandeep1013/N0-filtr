@@ -121,7 +121,11 @@ export function CaseBoard({ items, caption }: { items: Media[]; caption?: string
         duration: DUR.slower,
         ease: EASE.out,
         stagger: 0.09,
-        scrollTrigger: { trigger: el, start: 'top 85%', once: true },
+        /* Not `once` — see the long note in `WorkCard.tsx`. A trigger that
+           kills itself from `onEnter` can do so during ScrollTrigger's own
+           refresh cascade, and take the rest of the page's triggers with it.
+           `gsap.from` does not re-run on re-entry anyway. */
+        scrollTrigger: { trigger: el, start: 'top 85%' },
       });
 
       mm.add(MQ.desktop, () => {

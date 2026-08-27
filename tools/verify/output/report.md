@@ -1,10 +1,10 @@
 # Verification report
-Run: 2026-08-26T22:14:47.297Z · Phase 06 · commit `0c56b57` · branch `main`
+Run: 2026-08-27T03:06:01.526Z · Phase 06 · commit `dc21f0b` · branch `main`
 
 ## Summary
 ```
 tokens  ✅ 138/138
-motion  ✅ 266/266
+motion  ✅ 267/267
 visual  ⚠️ reviewed by agent — see judgement
 budget  ✅ 7/7
 ```
@@ -408,8 +408,9 @@ budget  ✅ 7/7
 ✅ case accent: 1 [data-accent-fill] target(s) for the .7s crossfade
 ✅ case accent: removed from <html> on leaving the page
 ✅ case cursor: scales in over media [a-10] = scale 1.00
-✅ case cursor: drifts, does not follow [a-14] — moved 30×42px while the pointer moved 458px
-✅ case cursor: is tracking at all = 73px combined
+✅ case cursor: appears at the pointer, not the centre (D-048) — 0px off
+✅ case cursor: settles on the pointer — 0px off
+✅ case cursor: lags on a fast move, so it has weight — 78px behind
 ✅ case cursor: off at 390 (none)
 ✅ case nav: a card goes to /works/tessera = /works/tessera
 ✅ case nav: no drawer over the page it just navigated to (D-037)
@@ -560,10 +561,10 @@ lists are authored to fill the accordion and T10.8 writes the real ones. The blo
 ✅ plyr absent from the eagerly-loaded bundle = absent
 ℹ️ all built chunks, gzipped (not a per-route figure) = 572.4KB
 ✅ JS on / (transferred) = 348.7KB / 360KB
-✅ home page total weight = 544.3KB / 1800KB
+✅ home page total weight = 544.2KB / 1800KB
 ✅ zero network font requests = both faces self-hosted
 ✅ CLS (local, unthrottled) = 0.0025
-ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 152ms
+ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 136ms
 
 > Poster and reel budgets become binding in phase 10, when assets exist.
 > Lighthouse scores are a phase 12 deliverable via mcp__chrome-devtools__lighthouse_audit; the figures here are local and unthrottled.

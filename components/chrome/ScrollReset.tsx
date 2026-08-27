@@ -5,62 +5,47 @@ import { usePathname } from 'next/navigation';
 import { useMotion } from '@/lib/motion/MotionProvider';
 
 /**
- * Puts a new page at the top, and puts a page you came *back* to where you left
- * it. I-050, and then I-058.
+ * Owns the scroll position across route changes. I-050, I-058, and finally
+ * I-062.
  *
- * ── The first bug: the footer ────────────────────────────────────────────
+ * ── Three bugs, one cause ────────────────────────────────────────────────
  *
- * Sayandeep: *"whenever i visit a project it takes me to the no filter
- * footer."* Reproduced — leaving the bottom of Tessera landed on CanVas at
- * scrollY 6573 of 7766.
+ * **I-050 — the footer.** Leaving the bottom of one case study landed on the
+ * next at scrollY 6573. Next scrolls to the top on a push and restores on a
+ * pop; neither survives Lenis, which holds its own `animatedScroll` and writes
+ * it to the window on every tick of the GSAP ticker.
  *
- * Next's App Router scrolls to the top on a push and restores the offset on
- * back and forward. Neither survives Lenis, which holds its own
- * `animatedScroll` and writes it to the window on every tick of the GSAP
- * ticker — so whatever the router sets is overwritten on the next frame by a
- * number left over from the previous page.
+ * **I-058 — no ScrollTriggers.** The first fix corrected the position in a
+ * `useEffect` + `requestAnimationFrame`. Page components build their triggers in
+ * a **layout** effect, before paint, so every one of them was constructed at the
+ * *outgoing* page's scroll. At that position every `once: true` reveal reads as
+ * already passed, fires during ScrollTrigger's recursive refresh, and kills
+ * itself — splicing the array an outer loop is walking. The exception aborted
+ * `WorksGrid`, leaving the homepage with **zero** triggers.
  *
- * ── The second bug: it was one frame too late ────────────────────────────
+ * **I-062 — the back button.** The second fix moved the correction into a
+ * layout effect and branched: push went to the top immediately, and **pop still
+ * waited a frame** for the browser to restore. So the crash simply moved to the
+ * back button, which is where Sayandeep found it — in production, minified, as
+ * `ty[ef] is undefined`.
  *
- * The first version corrected the scroll in a `useEffect` + `requestAnimationFrame`,
- * which fixed the position and left something worse behind:
+ * ── The fix is to stop waiting for anyone ────────────────────────────────
  *
- * ```
- * TypeError: Cannot read properties of undefined (reading 'end')
- *     at ScrollTrigger.refresh  (×8, recursing)
- *     at ScrollTrigger.create   ← WorksGrid, mounting the homepage
- * ```
+ * `history.scrollRestoration = 'manual'` turns off the browser's own
+ * restoration, and this component records the scroll position per path as you
+ * leave it. Then **both** directions are known synchronously:
  *
- * The homepage's triggers are built in a **layout** effect, before paint — and
- * therefore before that rAF. Instrumenting `ScrollTrigger.create` showed all of
- * them being constructed at `scrollY = 6551`, the *outgoing* page's position.
+ *   · push → 0
+ *   · pop  → the position we remembered
  *
- * At that scroll every `once: true` reveal on the homepage evaluates as already
- * passed. Creating one trigger makes ScrollTrigger recursively refresh the
- * others; each `once` trigger that fires during the cascade **kills itself**,
- * splicing `_triggers` while an outer loop is walking it by index. The next read
- * is a hole, and `curTrigger.end` throws.
+ * No rAF, no branch that waits, and nothing else racing for the same value. A
+ * layout effect that runs before `<main>` sets the window and Lenis together,
+ * and every trigger built afterwards measures against a page that is already
+ * where it is going to be.
  *
- * The damage was not the console line. The exception aborted `WorksGrid`'s
- * `useGSAP`, so the homepage ended up with **zero** ScrollTriggers — no
- * parallax, no reveals, until a reload.
- *
- * ── The fix is ordering, not timing ──────────────────────────────────────
- *
- * The correction now happens in a **layout effect**, synchronously, before any
- * page component builds a trigger. `<ScrollReset />` is rendered in the root
- * layout ahead of `<main>`, and React runs sibling layout effects in order, so
- * this one lands first.
- *
- * Which costs the trick the first version was proud of. It could read
- * `window.scrollY` back and let the router's own decision stand for both push
- * and pop; running earlier means the router has not decided yet, so this has to
- * know which kind of navigation it is:
- *
- *   · **push** — go to the top, now, before anything measures anything.
- *   · **pop**  — the browser restores asynchronously, so let it, and sync Lenis
- *     a frame later. Back-navigation does not hit the crash because the position
- *     it restores *is* the one the page was built for.
+ * Keyed by pathname rather than by history entry. Two visits to the same path
+ * share a remembered position, which is worth knowing and is the correct answer
+ * far more often than it is the wrong one.
  */
 
 /** `useLayoutEffect` warns during SSR, and this component renders on the server. */
@@ -69,43 +54,64 @@ const useIsomorphicLayoutEffect = typeof window === 'undefined' ? useEffect : us
 export function ScrollReset() {
   const pathname = usePathname();
   const { lenis } = useMotion();
-  /** The first render is a load, not a navigation. The browser owns that one. */
+
+  /** The first render is a load, not a navigation. */
   const first = useRef(true);
   /** Set by `popstate`, read and cleared by the next pathname change. */
   const wasPop = useRef(false);
+  /** Where each path was when it was last left. */
+  const positions = useRef(new Map<string, number>());
+  /** The path currently on screen, so a scroll can be filed against it. */
+  const current = useRef(pathname);
 
   useEffect(() => {
+    /* Ours now. Without this the browser restores on its own schedule and
+       overwrites a correction that has already been applied. */
+    const previous = history.scrollRestoration;
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+
     const onPop = () => {
       wasPop.current = true;
     };
+    /* Passive and cheap: one map write per scroll event, no layout read beyond
+       `scrollY`, which is free. */
+    const onScroll = () => {
+      positions.current.set(current.current, window.scrollY);
+    };
+
     window.addEventListener('popstate', onPop);
-    return () => window.removeEventListener('popstate', onPop);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('popstate', onPop);
+      window.removeEventListener('scroll', onScroll);
+      if ('scrollRestoration' in history) history.scrollRestoration = previous;
+    };
   }, []);
 
   useIsomorphicLayoutEffect(() => {
+    const previousPath = current.current;
+    current.current = pathname;
+
     if (first.current) {
       first.current = false;
       return;
     }
 
-    const pop = wasPop.current;
-    wasPop.current = false;
-
-    if (!pop) {
-      /* Both, and in this order. The window is what ScrollTrigger measures
-         against; Lenis is what would otherwise write the old value back over it
-         on the next tick. */
-      window.scrollTo(0, 0);
-      lenis?.scrollTo(0, { immediate: true, force: true });
-      return;
+    /* The outgoing page's last known position. The scroll listener has it
+       already unless the visitor never scrolled, in which case 0 is right. */
+    if (previousPath !== pathname) {
+      positions.current.set(previousPath, positions.current.get(previousPath) ?? window.scrollY);
     }
 
-    /* Back or forward. The browser restores on its own schedule, so the only
-       job here is to stop Lenis fighting it once it has. */
-    const id = requestAnimationFrame(() => {
-      lenis?.scrollTo(window.scrollY, { immediate: true, force: true });
-    });
-    return () => cancelAnimationFrame(id);
+    const pop = wasPop.current;
+    wasPop.current = false;
+    const target = pop ? (positions.current.get(pathname) ?? 0) : 0;
+
+    /* Both, in this order, synchronously. The window is what ScrollTrigger
+       measures against; Lenis is what would otherwise write the old value back
+       over it on the next tick. */
+    window.scrollTo(0, target);
+    lenis?.scrollTo(target, { immediate: true, force: true });
   }, [pathname, lenis]);
 
   return null;

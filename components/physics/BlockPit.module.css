@@ -3,58 +3,21 @@
    The LAST thing on the page, below the footer — the site's punchline rather
    than a section. Nothing follows it. */
 
+/* An overlay across the footer, not a section after it — see BlockPit.tsx and
+   D-050. `inset: 0` against the wrapper in the root layout, which is the footer
+   plus this. */
 .pit {
-  position: relative;
-  height: 60vh;
-  min-height: 26rem;
-  max-height: 42rem;
-  background-color: var(--bg-primary);
-  border-top: var(--hairline);
+  position: absolute;
+  inset: 0;
+  z-index: 2;
   overflow: hidden;
-  /* §8: so trackpad momentum inside the pit does not bounce the page. */
-  overscroll-behavior: none;
-  cursor: grab;
+  /* The layering that lets blocks sit on top without taking the footer's
+     clicks. Tiles switch it back on individually. */
+  pointer-events: none;
 }
 
 .grabbing {
   cursor: grabbing;
-}
-
-/* ── the head ───────────────────────────────────────────────────────────── */
-
-.head {
-  position: absolute;
-  z-index: 2;
-  top: 1.5rem;
-  left: var(--gutter);
-  right: var(--gutter);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  pointer-events: none;
-}
-
-.label {
-  margin: 0;
-  color: var(--text-secondary);
-  font-family: var(--family-mono);
-  text-transform: uppercase;
-}
-
-.reset {
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--text-secondary);
-  font-family: var(--family-mono);
-  text-transform: uppercase;
-  cursor: pointer;
-  pointer-events: auto;
-  transition: color var(--dur-fast) var(--ease-in-out);
-}
-
-.reset:hover {
-  color: var(--text-primary);
 }
 
 /* ── the stage ──────────────────────────────────────────────────────────── */
@@ -76,6 +39,13 @@
   position: absolute;
   top: 0;
   left: 0;
+  /* The only part of the pit that takes a pointer. A pointerdown here bubbles
+     to the stage, where Matter is listening, even though the stage itself is
+     `pointer-events: none` — an ancestor's hit-testing does not affect events
+     bubbling up from a descendant. That is what makes "blocks on top, links
+     still clickable" possible at all. */
+  pointer-events: auto;
+  cursor: grab;
   display: grid;
   place-items: center;
   padding: 0 0.75rem;
@@ -93,16 +63,14 @@
   border-radius: 22%;
 }
 
-/* A disc is a disc, not a very rounded square. */
-.disc {
-  border-radius: 50%;
-}
-
+/* Smaller than `--t-label`, because the tiles are smaller now and every one of
+   them carries a name — see D-049. `--t-label-sm` is the scale that fits a
+   48px square without the label touching the chamfer. */
 .tileLabel {
   font-family: var(--family-mono);
-  font-size: var(--t-label-size);
-  line-height: var(--t-label-lh);
-  letter-spacing: var(--t-label-track);
+  font-size: var(--t-label-sm-size);
+  line-height: var(--t-label-sm-lh);
+  letter-spacing: var(--t-label-sm-track);
   text-transform: uppercase;
   text-align: center;
   white-space: nowrap;
@@ -138,27 +106,18 @@
 /* ── ≤767 ─────────────────────────────────────────────────────────────────
    §9: 24 tiles, smaller sizes, 45vh. The count and the sizes are decided in
    `pitLayout.ts`; the height is here. */
-@media (max-width: 767px) {
-  .pit {
-    height: 45vh;
-    min-height: 20rem;
-  }
-
-  .head {
-    top: 1rem;
-  }
-}
+/* Nothing to change below 767: the overlay is the footer's size at every width,
+   and the tile count and scale are decided in `pitLayout.ts`. */
 
 /* ── reduced motion ───────────────────────────────────────────────────────
    §9: "no simulation at all. Tiles render once in a pre-computed settled
    arrangement and never move." The component never imports Matter on this path;
    this removes the affordances that would imply otherwise. */
 @media (prefers-reduced-motion: reduce) {
-  .pit {
-    cursor: default;
-  }
-
   .tile {
     will-change: auto;
+    cursor: default;
+    /* Nothing to drag, so nothing should intercept a footer link. */
+    pointer-events: none;
   }
 }

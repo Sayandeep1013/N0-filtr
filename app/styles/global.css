@@ -180,3 +180,25 @@ body {
     cursor: none;
   }
 }
+
+/* ── the footer and the block pit ───────────────────────────────────────────
+   One positioning context for two things that are now one thing: the footer's
+   own content, and the physics overlay piled on top of it. See D-050 and
+   `components/physics/BlockPit.tsx`.
+
+   `isolation: isolate` gives the pair their own stacking context, so the pit's
+   z-index competes with the footer and with nothing else on the page. */
+.footer-stage {
+  position: relative;
+  isolation: isolate;
+}
+
+/* Everything the footer offers that can be clicked or read sits above the
+   blocks in the stacking order **and keeps its pointer events**, while the pit's
+   stage has none — so a block resting on PRIVACY POLICY is drawn over it and
+   the link still works. The blocks win the paint and lose the click. */
+.footer-stage a,
+.footer-stage button {
+  position: relative;
+  z-index: 3;
+}

@@ -1625,3 +1625,96 @@ them.
 **Consequence:** `Media.src` is now optional — `art` is a complete alternative to it rather than a
 decoration on it. The `code` block type still exists and is used by the blog, which is where a
 specimen belongs.
+
+
+---
+
+## D-048 · The custom cursor tracks the pointer
+
+**Phase:** 7 · **Date:** 2026-08-27 · **Status:** active · **departs from §21.5**
+
+`20-components-and-motion.md` §21.5 is emphatic: *"The move is a ±50px range, not 1:1 tracking. The
+cursor element is centred and drifts within a small window as the pointer crosses the viewport — it
+reads as a considered object, not a mouse follower."* It was built exactly as written.
+
+**It is wrong here because of a decision taken after it.** §21.5 describes an object that sits
+*alongside* a visible arrow — tonik never hide theirs. D-046 hid ours (I-059), and a replacement
+pointer that is not at the pointer is not stylish, it is broken: it removes the only feedback telling
+you where you are about to click.
+
+Sayandeep, precisely: *"suppose its a square and i drag my mouse cursor there the view appears at the
+center and i move i mouse it moves from there none of which is right .. the mouse cursor enters the
+card from right .. the view circle appears right exactly the mouse cursor would have been."*
+
+**Decision: the disc is the pointer.** §18's own earlier line survives —
+`pos += (mouse - pos) * 0.15` — applied to the pointer rather than to a mapped drift window. On
+entering a target it **snaps** to the pointer rather than easing in from wherever it was, which is
+the specific complaint: easing from the last position is what made it slide in from the middle of the
+card.
+
+The lerp stays because it is the weight. Measured: **0px** from the pointer on entry, **0px** once
+settled, **78px** behind mid-sweep.
+
+`behaviour.case.ts` was rewritten to assert the new contract rather than the old one, and the two
+readings are taken on different clocks — the snap is one frame, a-10's scale is 500ms, and reading
+both at once reported a disc that was merely still growing as a failure.
+
+---
+
+## D-049 · Every tile in the pit carries a real name
+
+**Phase:** 11 · **Date:** 2026-08-27 · **Status:** active
+
+Sayandeep: *"make the boxes n all smaller and fill each one of them with proper tech names."*
+
+`70-physics-footer.md` §10 pairs the twenty-two hero wordmarks with *"~22 unlabelled tiles and discs
+as filler"* — and filler is exactly what it looked like: half a pile of blank blocks reads as a pile
+that ran out of ideas.
+
+**The vocabulary widens rather than repeating.** `STACK` stays first and unchanged, so the hero's
+claim does not drift; the second twenty-two are tools genuinely present in the twelve repositories,
+taken from their READMEs while the case studies were being written — Supabase, Yjs, Zustand,
+Playwright, Shiki, Embla, BlockNote, Excalidraw, PL/pgSQL, Durable Objects, llama.cpp, mpv, EAS
+Build, SwiftShader and the rest. Nothing invented, nothing repeated, de-duplicated against `STACK`.
+
+**Discs are gone.** A disc cannot hold a label legibly at this size, and the point of the change is
+that every tile says something. The mix is squares and pills, and the pills exist for the long names
+a square cannot hold.
+
+**Smaller**, because D-050 moved the pit over the footer and 112px blocks on a 14vw wordmark is a
+wall rather than a pile. Squares are 48 / 60 / 74; pills are 112–158 × 42.
+
+The long-label swap runs in two passes now: any name over nine characters that landed on a square
+trades with the shortest name on a pill, then the pills sort longest-label-to-widest-tile. There is
+no runtime measurement, so `DURABLE OBJECTS` on a 48px square would simply be unreadable.
+
+---
+
+## D-050 · The pit is an overlay on the footer, not a section after it
+
+**Phase:** 11 · **Date:** 2026-08-27 · **Status:** active
+
+Sayandeep: *"get rid of the topbar that creates a sepratation and breaks the immersion .. let the
+boxes jump over the texts at the previous footers like no filter or privacy policy or soicals."*
+
+`70-physics-footer.md` §8 gives the pit its own 60vh section below the footer, separated by a
+hairline. Built that way it read as two endings — a footer, a rule, and then a toy.
+
+**Decision: the pit is absolutely positioned across the footer.** Blocks pile on the 14vw wordmark,
+the privacy link and the socials. The head bar — `DRAG US AROUND` and `RESET` — is deleted: it
+existed to announce a separate section, and now the affordance is the blocks moving under the cursor.
+The page loses a whole viewport of height and the ending stops being two endings.
+
+**The layering is what makes it work, and it is one CSS fact.** The stage is `pointer-events: none`
+and each **tile** is `pointer-events: auto`, so a click on empty pit space falls through to the
+footer link beneath it — while a click on a block still drags the block, because an event on a tile
+bubbles to the stage regardless of the stage's own hit-testing. Footer links and buttons additionally
+take `z-index: 3` inside a `.footer-stage` stacking context, so they stay reachable under a block
+that is drawn on top of them.
+
+Asserted rather than assumed: with a tile overlapping `PRIVACY POLICY`, `elementFromPoint` at the
+link's centre returns the link, and clicking it navigates to `/privacy`.
+
+**Consequence:** the sweep pusher moved from a `pointermove` on the stage to one on the **window**,
+converted into stage coordinates — a stage with no pointer events never sees a move over empty space,
+and the sweep is mostly empty space.

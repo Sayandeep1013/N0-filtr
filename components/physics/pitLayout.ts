@@ -17,14 +17,14 @@ import { PIT_ACCENTS, PIT_BODIES, PIT_LABELS } from '@/lib/content/pit';
  * See I-052.
  */
 
-export type TileShape = 'square' | 'pill' | 'disc';
+export type TileShape = 'square' | 'pill';
 export type TileTone = 'grey800' | 'grey900' | 'white' | 'accent';
 
 export interface Tile {
   id: string;
   shape: TileShape;
   tone: TileTone;
-  /** Empty for a disc — §2's shape mix has them unlabelled. */
+  /** Never empty. Every tile carries a real tool name — D-049. */
   label: string;
   w: number;
   h: number;
@@ -48,24 +48,36 @@ export interface Tile {
   angle: number;
 }
 
-/** §2: three sizes only, "on the same modular feel as the type scale". */
-const SQUARE_SIZES = [64, 88, 112];
-const DISC_SIZES = [56, 66, 76];
+/**
+ * §2 gives three square sizes — 64 / 88 / 112 — and a 15% share of unlabelled
+ * discs.
+ *
+ * Both changed on review. Sayandeep: *"make the boxes n all smaller and fill
+ * each one of them with proper tech names."*
+ *
+ * **Smaller**, because the pit now sits over the footer rather than in a 60vh
+ * section of its own, and 112px blocks over a 14vw wordmark is a wall rather
+ * than a pile. **No discs**, because a disc cannot carry a label legibly at this
+ * size and the whole point of the change is that every tile says something.
+ *
+ * The shape mix is therefore squares and pills, and the pills exist for the long
+ * names — `DURABLE OBJECTS`, `FRAMER MOTION` — that a square cannot hold. See
+ * D-049.
+ */
+const SQUARE_SIZES = [48, 60, 74];
 
 /**
- * §2's shape mix: square 60%, wide pill 25%, disc 15%.
+ * The shape mix: roughly five squares to three pills.
  *
  * Taken in order from a shuffled deck rather than rolled per tile, so the counts
- * come out at the specified proportions instead of near them. Forty-four rolls
- * of a weighted die is a small enough sample to land visibly wrong.
+ * come out at the intended proportions instead of near them. Forty-four rolls of
+ * a weighted die is a small enough sample to land visibly wrong.
  */
 function shapeDeck(count: number, random: () => number): TileShape[] {
-  const squares = Math.round(count * 0.6);
-  const pills = Math.round(count * 0.25);
+  const squares = Math.round(count * 0.62);
   const deck: TileShape[] = [
     ...Array<TileShape>(squares).fill('square'),
-    ...Array<TileShape>(pills).fill('pill'),
-    ...Array<TileShape>(count - squares - pills).fill('disc'),
+    ...Array<TileShape>(count - squares).fill('pill'),
   ];
   /* Fisher–Yates, so the labelled tiles are not all one shape. */
   for (let i = deck.length - 1; i > 0; i -= 1) {
@@ -92,31 +104,29 @@ export function buildTiles(mobile: boolean): Tile[] {
   const random = makeRandom(seedFrom(mobile ? 'pit-mobile' : 'pit-desktop'));
   const shapes = shapeDeck(count, random);
 
-  /* Labels first, so every wordmark gets a tile before the filler starts. §10:
-     twenty-two wordmarks plus filler to reach the body count. On mobile there
-     are fewer bodies than labels, so it takes the first `count` of them — the
-     stack's own order, which puts the front-end names first. */
+  /* One label per tile, in order — the hero's stack first, then the wider set.
+     On mobile there are fewer tiles than labels, so it takes the first `count`,
+     which is the stack's own order and puts the front-end names first. */
   const labels = [...PIT_LABELS];
 
+  /* Never more tiles than labels: a blank block is the thing this change
+     removes, so the pile shortens rather than padding itself. */
+  const total = Math.min(count, labels.length);
+
   const tiles: Tile[] = [];
-  for (let i = 0; i < count; i += 1) {
-    /* A disc is never labelled (§2), so it does not consume a wordmark. */
+  for (let i = 0; i < total; i += 1) {
     const shape = shapes[i] ?? 'square';
-    const label = shape === 'disc' ? '' : (labels.shift() ?? '');
+    const label = labels.shift() ?? '';
     const tone = toneFor(i, count, random);
 
-    const scale = mobile ? 0.72 : 1;
+    const scale = mobile ? 0.78 : 1;
     let w: number;
     let h: number;
     if (shape === 'pill') {
-      /* §2: 140–190 × 56. Wide enough for `CLOUDFLARE WORKERS`, which is why
-         the longest labels are steered here. */
-      w = Math.round((140 + random() * 50) * scale);
-      h = Math.round(56 * scale);
-    } else if (shape === 'disc') {
-      const size = Math.round(DISC_SIZES[Math.floor(random() * DISC_SIZES.length)]! * scale);
-      w = size;
-      h = size;
+      /* Wide enough for `CLOUDFLARE WORKERS` and `DURABLE OBJECTS`, which is why
+         the longest labels are steered here — see the swap at the end. */
+      w = Math.round((112 + random() * 46) * scale);
+      h = Math.round(42 * scale);
     } else {
       const size = Math.round(SQUARE_SIZES[Math.floor(random() * SQUARE_SIZES.length)]! * scale);
       w = size;
@@ -156,16 +166,34 @@ export function buildTiles(mobile: boolean): Tile[] {
     tile.rowX = (withinRow + 0.5) / perRow + (random() - 0.5) * 0.04;
   });
 
-  /* A pill whose label does not fit is worse than a square one. Longest labels
-     to the widest tiles, resolved here rather than left to chance. */
+  /* A label that does not fit its tile is worse than an unlabelled one, so the
+     longest names go to the widest pills. Resolved here rather than left to
+     chance, because `DURABLE OBJECTS` on a 48px square is unreadable and there
+     is no runtime measurement to catch it. */
   const pills = tiles.filter((t) => t.shape === 'pill' && t.label);
+  const squares = tiles.filter((t) => t.shape === 'square');
+
+  /* First: any long name that landed on a square trades with the shortest name
+     sitting on a pill. */
+  const LONG = 9;
+  squares
+    .filter((t) => t.label.length > LONG)
+    .forEach((square) => {
+      const shortestPill = pills
+        .filter((p) => p.label.length <= LONG)
+        .sort((a, b) => a.label.length - b.label.length)[0];
+      if (!shortestPill) return;
+      const label = square.label;
+      square.label = shortestPill.label;
+      shortestPill.label = label;
+    });
+
+  /* Then: among the pills, longest label to widest tile. */
   const byLength = [...pills].sort((a, b) => b.label.length - a.label.length);
   const byWidth = [...pills].sort((a, b) => b.w - a.w);
-  byLength.forEach((tile, i) => {
-    const target = byWidth[i]!;
-    const label = tile.label;
-    tile.label = target.label;
-    target.label = label;
+  const relabelled = byLength.map((t) => t.label);
+  byWidth.forEach((tile, i) => {
+    tile.label = relabelled[i]!;
   });
 
   return tiles;

@@ -49,6 +49,24 @@ import s from './BlockPit.module.css';
  * under the preference the pit is **a real settled pile that never moves**
  * rather than an empty box. Matter is never imported at all on that path.
  *
+ * ── It sits over the footer, not after it ────────────────────────────────
+ *
+ * `70-physics-footer.md` §8 puts the pit in its own 60vh section below the
+ * footer, with a hairline separating them. Sayandeep, on the built version:
+ * *"let the boxes jump over the texts at the previous footers like no filter or
+ * privacy policy or socials."*
+ *
+ * So it is an **overlay**: absolutely positioned across the footer, blocks
+ * piling on the 14vw wordmark, the privacy link and the socials. The page gets
+ * shorter by a whole viewport and the ending stops being two endings.
+ *
+ * The trade that makes it work is the layering. The stage is
+ * `pointer-events: none` and each **tile** is `pointer-events: auto`, so a click
+ * on empty pit space falls straight through to whatever footer link is under it
+ * — while a click on a block still drags the block, because an event on a tile
+ * bubbles to the stage regardless of the stage's own hit-testing. Blocks are
+ * visually on top and cost the footer nothing. See D-050.
+ *
  * ── Lazily imported ──────────────────────────────────────────────────────
  *
  * Matter is ~25KB gzipped and is fetched only when the pit is within 1.5
@@ -69,7 +87,7 @@ const BODY_OPTIONS = {
 };
 
 export function BlockPit() {
-  const root = useRef<HTMLElement>(null);
+  const root = useRef<HTMLDivElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const { reducedMotion } = useMotion();
 
@@ -83,16 +101,12 @@ export function BlockPit() {
   const [live, setLive] = useState(false);
   const resetRef = useRef<(() => void) | null>(null);
 
-  /* `reducedMotion` is resolved during the first client render, and the server
-     has no media queries — so anything that *reads* it in the markup is a
-     hydration mismatch. The pit's label said "Drag us around" on the server and
-     "The stack, at rest" in a browser that asked for less motion, and React
-     reported it. Gating on mount makes both renders agree and then corrects. */
-  const [mounted, setMounted] = useState(false);
-  const still = mounted && reducedMotion;
-
+  /* No `mounted` gate any more. It existed because the head bar's label read
+     `reducedMotion` during render — resolved on the client, unknowable on the
+     server, and therefore a hydration mismatch. D-050 deleted the head bar, and
+     nothing else in this component's markup reads the preference: `live` starts
+     `false` on both sides regardless. */
   useEffect(() => {
-    setMounted(true);
     setMobile(window.matchMedia('(max-width: 767px)').matches);
   }, []);
 
@@ -169,14 +183,11 @@ export function BlockPit() {
           const spawnX = Number(node.dataset.x) * width;
           if (!w || !h) return null;
 
-          const body =
-            node.dataset.shape === 'disc'
-              ? Bodies.circle(spawnX, -200, w / 2, BODY_OPTIONS)
-              : Bodies.rectangle(spawnX, -200, w, h, {
-                  ...BODY_OPTIONS,
-                  /* §3: real geometry, not a paint trick. */
-                  chamfer: { radius: Math.min(w, h) * 0.22 },
-                });
+          const body = Bodies.rectangle(spawnX, -200, w, h, {
+            ...BODY_OPTIONS,
+            /* §3: real geometry, not a paint trick. */
+            chamfer: { radius: Math.min(w, h) * 0.22 },
+          });
 
           return { node, body, w, h, spawnX };
         })
@@ -212,16 +223,24 @@ export function BlockPit() {
         updateVelocity?: boolean,
       ) => void;
 
+      /* On the **window**, not the stage.
+
+         The stage is `pointer-events: none` now (D-050) so that a footer link
+         underneath a block is still clickable — which also means the stage never
+         sees a pointer move over empty space, and the sweep is mostly empty
+         space. Listening on the window and converting to stage coordinates gets
+         the behaviour back without giving the pit the clicks. */
       const onPointerMove = (event: PointerEvent) => {
         const rect = el.getBoundingClientRect();
-        setPosition(pusher, { x: event.clientX - rect.left, y: event.clientY - rect.top }, true);
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        /* Parked off-screen while the pointer is outside, so a settled pile is
+           not disturbed by movement elsewhere on the page. */
+        const outside = x < -60 || y < -60 || x > rect.width + 60 || y > rect.height + 60;
+        setPosition(pusher, outside ? { x: -999, y: -999 } : { x, y }, true);
       };
-      /* Parked off-screen so a settled pile is not disturbed by a pointer that
-         left the section. */
-      const onPointerLeave = () => setPosition(pusher, { x: -999, y: -999 }, true);
 
-      el.addEventListener('pointermove', onPointerMove);
-      el.addEventListener('pointerleave', onPointerLeave);
+      window.addEventListener('pointermove', onPointerMove, { passive: true });
 
       /* ── 4.2 drag and throw ───────────────────────────────────────────────
          `render.visible` defaults to **true** with a bright green line from the
@@ -374,8 +393,7 @@ export function BlockPit() {
         gsap.ticker.remove(tick);
         window.clearInterval(guard);
         viewObserver.disconnect();
-        el.removeEventListener('pointermove', onPointerMove);
-        el.removeEventListener('pointerleave', onPointerLeave);
+        window.removeEventListener('pointermove', onPointerMove);
         Events.off(mouseConstraint, 'startdrag', onStartDrag);
         Events.off(mouseConstraint, 'enddrag', onEndDrag);
         Composite.clear(engine.world, false);
@@ -391,30 +409,29 @@ export function BlockPit() {
   }, [live, reducedMotion, tiles]);
 
   return (
-    <section
+    <div
       ref={root}
       className={s.pit}
       /* §9: "the pit is `aria-hidden` and not focusable — it carries no
-         information the footer does not already state in text." */
+         information the footer does not already state in text." It matters more
+         now that it sits *over* the footer: everything under it is real content
+         and this must not come between a screen reader and any of it. */
       aria-hidden="true"
     >
-      <div className={s.head}>
-        <p data-t="label" className={s.label}>
-          {still ? 'The stack, at rest' : 'Drag us around'}
-        </p>
-        {still ? null : (
-          <button type="button" className={s.reset} onClick={() => resetRef.current?.()} tabIndex={-1}>
-            <span data-t="label">Reset</span>
-          </button>
-        )}
-      </div>
+      {/* No label, no RESET button. Sayandeep: *"get rid of the topbar that
+          creates a sepratation and breaks the immersion."*
 
+          He is right, and the bar was solving a problem the pit no longer has.
+          It existed to announce a separate 60vh section; now that the blocks
+          pile over the footer itself, the affordance is the blocks moving under
+          the cursor and a label explaining them is the thing that makes it read
+          as a widget. D-050. */}
       <div ref={stage} className={cx(s.stage, !live && s.settled)}>
         {tiles.map((tile) => (
           <PitTile key={tile.id} tile={tile} live={live && !reducedMotion} />
         ))}
       </div>
-    </section>
+    </div>
   );
 }
 

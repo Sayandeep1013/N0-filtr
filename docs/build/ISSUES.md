@@ -1905,3 +1905,44 @@ had looked.
 **The durable lesson:** *a client component's props are a bundle decision.*
 Passing a rich domain object to a client component ships every field on it to
 every page that renders one, whether or not anything reads them.
+
+
+---
+
+## I-062 · `once: true` is what was breaking the back button  🟢
+
+**Raised:** phase 09 · **Resolved:** phase 09
+
+Sayandeep, from a production build: `can't access property "end", ty[ef] is undefined`, going back to
+the homepage from a work page.
+
+The **third** appearance of this message and the **second** distinct cause. I-051 was a double free.
+I-058 was the scroll position being corrected a frame too late. This one is the reason both fixes
+kept nearly working.
+
+`once: true` makes a ScrollTrigger call `kill()` from inside its own `onEnter`. On a page that starts
+scrolled — **every back-navigation** — `onEnter` fires during ScrollTrigger's recursive refresh as
+new triggers are created, so the trigger splices `_triggers` while an outer loop is walking it by
+index. The next read is a hole.
+
+I-058's fix made push navigations land at the top, which removed the condition for a push. It did
+nothing for a pop, where landing scrolled is *correct* — so the crash simply moved to the back
+button, which is where it was found.
+
+**Resolved** in two parts.
+
+`once` is gone from `WorkCard`, `CaseBoard` and `Schematic`. None of them needed it: ScrollTrigger's
+default `toggleActions` is `play none none none`, so a timeline runs on the first enter and does
+nothing on any later one. `once` was only ever retiring the trigger afterwards, which is the part
+that breaks. A played timeline is idempotent, so the one-shot is free.
+
+`<ScrollReset>` also stopped waiting for anyone: `history.scrollRestoration = 'manual'`, a scroll
+position recorded per path as you leave it, and both directions applied **synchronously** in a layout
+effect — 0 for a push, the remembered offset for a pop. No rAF, no branch that waits.
+
+Verified in a **production** build across every path: click-through, wordmark home, mini-nav, back
+from the bottom of a case study, back to `/works` from a case-study footer, forward, and three round
+trips.
+
+**The durable lesson:** *the same error message twice is not the same bug twice.* Two correct fixes
+went in before anyone asked what was actually calling `kill()`.

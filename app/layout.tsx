@@ -91,12 +91,15 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               case-study visuals. So this costs nothing on `/about` or `/blog`
               and saves five templates from each mounting their own. D-046. */}
           <CustomCursor />
-          <Footer />
-          {/* The last thing on the page — `70-physics-footer.md` §8 calls it the
-              site's punchline rather than a section, and nothing follows it.
-              Below the footer, on every route, because the stack it is made of
-              is a claim about the studio rather than about a page. */}
-          <BlockPit />
+          {/* The footer and the pit are one thing now. §8 gives the pit its
+              own 60vh section below the footer; D-050 makes it an overlay across
+              it, so the blocks pile on the wordmark and the links instead of
+              starting a second ending. The wrapper is the positioning context
+              they share. */}
+          <div className="footer-stage">
+            <Footer />
+            <BlockPit />
+          </div>
           <ContactPanel />
         </MotionProvider>
       </body>
