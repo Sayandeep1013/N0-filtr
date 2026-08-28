@@ -92,7 +92,23 @@ export function Flythrough({ seeds }: { seeds: string[] }) {
           .set(list, { rotationY: 25 })
           .set(items, {
             z: () => gsap.utils.random(-1600, 200),
-            y: () => gsap.utils.random(0, 150),
+            /* ── §13's spread, centred ────────────────────────────────────
+               [src] is `random(0, 150)` — downward only. Ours is the same
+               150px of spread with the anchor moved to the middle, and the
+               deviation is logged as I-070 rather than taken silently
+               (CLAUDE.md non-negotiable 1).
+
+               Measured at 1512 before changing it: cards overhang the box by
+               up to **166px at the bottom and 0px at the top**, across the
+               first half of the scrub. A one-directional offset needs a
+               container with room underneath it; ours is centred, so every
+               card hangs into the bottom edge and none of them uses the top.
+
+               It survived because the plates used to be texture — a clipped
+               field reads as a crop. D-059 gave them a footer rail, and a spec
+               line cut in half reads as broken. Sayandeep spotted it the day
+               it shipped. */
+            y: () => gsap.utils.random(-75, 75),
           })
           .fromTo(
             items,

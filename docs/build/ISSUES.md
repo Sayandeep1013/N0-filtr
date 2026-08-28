@@ -2171,3 +2171,53 @@ check's own comment always claimed it was doing.
 the check agree, not that either is right — and two checks that can only both pass under a bug are a
 contradiction nobody had to notice, because nothing was red. It took an unrelated DOM change to make
 one of them fail before anyone read them together.
+
+---
+
+## I-070 · The flythrough's cards hung out of the bottom of their own box  🟢
+
+**Raised:** phase 12 · **Resolved:** phase 12 · deviates from `[src]`
+
+Sayandeep, on the deployed site: *"that shifted the flying past cards a bit below .. but the outbox
+wasnt made bigger enough to fit that now some of the cards bottom section gets cut."*
+
+The diagnosis is right about the symptom and the cause is older than the change he attributed it to.
+
+**Measured before touching anything**, at 1512, sampling the scrub in ten steps:
+
+```
+step  boxH  maxCardH  clipBottom  clipTop
+   0   494       413          60        0
+   4   494       396         166        0
+   6   494       223           9        0
+   8   494       133           0        0
+```
+
+**Nothing ever clipped at the top.** That is the tell. §13's `[src]` sets `y: random(0, 150)` — a
+**one-directional** offset — and `.list` is `inset: 0`, so every card is centred and then pushed
+*down* by up to 150px, magnified a further 1.25× by the 1000px perspective on any item sitting at
+`z: +200`. A downward-only spread needs a container with room underneath it. Ours has room on both
+sides and uses one.
+
+Two things then had to be true at once for it to be noticed on 2026-08-28:
+
+- **The `/about` heading got longer** (D-060), which moved the section down the page and changed
+  which moment of the scrub was on screen at rest. That is what Sayandeep saw; it is not the cause.
+- **D-059 gave the plates a footer rail.** A clipped texture field reads as a crop. A clipped spec
+  line and half a barcode read as broken. The geometry had been wrong since §13 was transcribed and
+  had nothing legible in it to give the game away.
+
+### The fix, and the deviation
+
+`y: random(-75, 75)` — the **same 150px of spread**, anchored in the middle instead of at the top —
+plus the box grown from `30rem` to `40rem`. Either change alone still clips; the arithmetic is in
+the CSS comment.
+
+This changes a `[src]` value, so under CLAUDE.md non-negotiable 1 it is logged rather than taken
+silently. The magnitude tonik measured is preserved exactly; only the anchor moves, and it moves
+because their container evidently has room below its centre and ours does not. Re-measured after:
+`clipBottom` and `clipTop` are **0 at all ten steps**, with all twelve cards present throughout.
+
+**Worth carrying forward:** this is the second time in one round that legible content exposed a
+geometry bug that abstract content had been hiding (see I-067's three parked-mark windows). Making a
+thing readable is also a way of testing it.

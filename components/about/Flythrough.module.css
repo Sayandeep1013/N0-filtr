@@ -9,7 +9,16 @@
   position: relative;
   width: 100vw;
   margin-left: calc(50% - 50vw);
-  height: 30rem;
+  /* ── tall enough for the composition it contains ──────────────────────
+     30rem, and the cards did not fit in it. At the start of the scrub an
+     `.art` is at `scale: 2` and an item can sit at `z: +200`, which the
+     1000px perspective magnifies by a further 1.25 — a 413px card in a 494px
+     box, before the per-item `y` offset moves it at all.
+
+     40rem gives the worst case about 10px of clearance either side, measured
+     rather than guessed. Paired with centring the `y` spread (I-070); either
+     change alone still clips. */
+  height: 40rem;
   perspective: var(--perspective);
   overflow: hidden;
 }

@@ -1,10 +1,10 @@
 # Verification report
-Run: 2026-08-28T14:54:06.035Z · Phase 12 · commit `1ba8c1e` · branch `main`
+Run: 2026-08-28T15:14:49.640Z · Phase 12 · commit `3679627` · branch `main`
 
 ## Summary
 ```
 tokens  ✅ 138/138
-motion  ❌ 282/283
+motion  ✅ 283/283
 visual  ⚠️ reviewed by agent — see judgement
 budget  ✅ 7/7
 ```
@@ -424,7 +424,7 @@ budget  ✅ 7/7
 ✅ case accent: 1 [data-accent-fill] target(s) for the .7s crossfade
 ✅ case accent: removed from <html> on leaving the page
 ✅ case cursor: scales in over media [a-10] = scale 1.00
-❌ case cursor: appears at the pointer on entry — expected <= 6px from where the pointer crossed, got 47px
+✅ case cursor: appears at the pointer, not the centre (D-048) — 0px off
 ✅ case cursor: settles on the pointer — 0px off
 ✅ case cursor: lags on a fast move, so it has weight — 195px behind
 ✅ case cursor: off at 390 (none)
@@ -580,7 +580,7 @@ lists are authored to fill the accordion and T10.8 writes the real ones. The blo
 ✅ home page total weight = 557.6KB / 1800KB
 ✅ zero network font requests = both faces self-hosted
 ✅ CLS (local, unthrottled) = 0.0014
-ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 212ms
+ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 148ms
 
 > Poster and reel budgets become binding in phase 10, when assets exist.
 > Lighthouse scores are a phase 12 deliverable via mcp__chrome-devtools__lighthouse_audit; the figures here are local and unthrottled.
