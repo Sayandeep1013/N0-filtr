@@ -26,6 +26,14 @@ tools/verify/output/**/*.png
 tools/verify/output/contact-sheet.html
 !tools/verify/output/**/report.md
 
+# Stray captures at the repo root. The Playwright MCP tools default to writing
+# a screenshot into the working directory, and driving the dev server by hand
+# leaves a trail of them. Named shots that are meant to survive go to
+# docs/screenshots/ via `npm run readme:shots`, and temporary ones belong in a
+# scratchpad outside the repo.
+/*.png
+/fullpage screenshot.png
+
 # ── reference material dropped in by hand ───────────────────────────────
 # Screenshots and clips Sayandeep drops at the repo root while reviewing —
 # the electric-pole reel that became the wire rig (D-056), and whatever

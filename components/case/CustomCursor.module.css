@@ -27,13 +27,24 @@
   margin-left: -3rem;
   margin-top: -3rem;
   border-radius: 50%;
-  /* Overwritten per target by `tint()` in CustomCursor.tsx — this is the value
-     before the first hover and the floor if a target publishes no accent. */
-  background-color: var(--accent-ink);
-  color: var(--text-primary);
-  /* The accents are mid-tone, so the label needs its own contrast rather than
-     relying on the disc being dark. */
-  text-shadow: 0 1px 4px rgb(0 0 0 / 55%);
+  /* White, on every page and over every card. Nothing overwrites this any more.
+
+     It used to be `var(--accent-ink)` and then whatever `tint()` read off the
+     element the pointer entered, so the disc arrived blue over Tessera, pink
+     over ReIN Bot and green over Solidus. Sayandeep, 2026-08-28: *"lets just
+     use white uniformity instead."* D-057, and it is D-035's argument arriving
+     at the last object that had not heard it — the media is graded to grey and
+     white, so a pointer that changes colour twelve times crossing one grid is
+     the only thing on the page still keeping score.
+
+     `--white` rather than `#fff`: it is `#efefef`, the same off-white as the
+     type, and a pure white disc on this ground is brighter than any text on
+     the site. */
+  background-color: var(--white);
+  /* And the label inverts with it. On a white disc `--text-primary` was white
+     on white; the ground is now the light member of the pair, so the ink is
+     the dark one. */
+  color: var(--text-alternate);
   /* GSAP sets these on mount too, but they are declared here so the very first
      frame — before the timeline is built — is not a full-size circle sitting in
      the top-left corner. */

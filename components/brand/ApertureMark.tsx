@@ -101,8 +101,13 @@ const TICKS = Array.from({ length: 6 }, (_, i) => i * 60);
    magnitude is the measurement and the sign is the coordinate system, so the
    sign is what changes here: the 3D object keeps the number the spec measured,
    and the mark — which is ours — turns to meet it. See D-036. */
-const TILT_AXIS_DEGREES = -51.1;
-const TILT_SQUASH = 0.7247;
+/* Exported because the loader spins this mark, and a wheel drawn in projection
+   cannot be spun by rotating it on screen — that tumbles the ellipse instead of
+   turning the wheel. `Loader.tsx` composes `tilt ∘ rotate(θ) ∘ tilt⁻¹` out of
+   exactly these two numbers, so it needs them rather than a copy of them. See
+   D-061 and the standing rule in this file: `ApertureMark` owns the geometry. */
+export const TILT_AXIS_DEGREES = -51.1;
+export const TILT_SQUASH = 0.7247;
 
 /**
  * A point pushed through the tilt: `rotate(A) ∘ scale(1, k) ∘ rotate(−A)`,

@@ -1,10 +1,10 @@
 # Verification report
-Run: 2026-08-27T08:27:27.618Z · Phase 12 · commit `c80114b` · branch `main`
+Run: 2026-08-28T14:54:06.035Z · Phase 12 · commit `1ba8c1e` · branch `main`
 
 ## Summary
 ```
 tokens  ✅ 138/138
-motion  ✅ 276/276
+motion  ❌ 282/283
 visual  ⚠️ reviewed by agent — see judgement
 budget  ✅ 7/7
 ```
@@ -134,7 +134,7 @@ budget  ✅ 7/7
 ✅ [data-probe-colour="error"] @1512 background-color = rgb(180, 35, 24)
 ✅ [data-probe-colour="error-bg"] @1512 background-color = rgb(254, 243, 242)
 ✅ [data-probe-colour="accent"] @1512 background-color = rgb(33, 33, 33)
-✅ [data-t^="h"], [data-t^="p"] @1512 font-weight = 20 elements, all 400
+✅ [data-t^="h"], [data-t^="p"] @1512 font-weight = 21 elements, all 400
 ✅ [data-probe="gutter"] @1512 padding-left = 41.125px
 ✅ [data-probe="gutter"] @1512 padding-right = 41.125px
 ✅ [data-probe-length="grid-gap"] @1512 width = 20.563px
@@ -211,20 +211,27 @@ budget  ✅ 7/7
 ✅ loader.enter tween[4] target = div.Loader_mark__6dBzw.loader__mark
 ✅ loader.enter tween[4] props = opacity, scale, parent, repeat, immediateRender
 ✅ loader.enter tween[4] startTime = 0.6s
-✅ loader.mark totalDuration = 0.9s
-✅ loader.mark tween count = 5
+✅ loader.mark totalDuration = 1.3s
+✅ loader.mark tween count = 6
 ✅ loader.mark tween[0] duration = 0s
 ✅ loader.mark tween[0] target = div.Loader_mark__6dBzw.loader__mark
 ✅ loader.mark tween[0] props = opacity, scale, parent, repeat, immediateRender
 ✅ loader.mark tween[0] startTime = 0s
-✅ loader.mark tween[1] duration = 0.9s
-✅ loader.mark tween[1] ease = power3.out
-✅ loader.mark tween[1] props = rotate, parent, immediateRender, startAt
+✅ loader.mark tween[1] duration = 0s
+✅ loader.mark tween[1] props = strokeDasharray, parent, repeat, immediateRender
 ✅ loader.mark tween[1] startTime = 0s
-✅ loader.mark tween[2] duration = 0.75s
-✅ loader.mark tween[2] ease = power2.inOut
-✅ loader.mark tween[2] props = attr, parent, immediateRender, startAt
+✅ loader.mark tween[2] duration = 0.42s
+✅ loader.mark tween[2] ease = power2.out
+✅ loader.mark tween[2] props = strokeDashoffset, parent, immediateRender, startAt
 ✅ loader.mark tween[2] startTime = 0s
+✅ loader.mark tween[3] duration = 0.585s
+✅ loader.mark tween[3] ease = power2.out
+✅ loader.mark tween[3] props = attr, parent, immediateRender, startAt
+✅ loader.mark tween[3] startTime = 0.28s
+✅ loader.mark tween[4] duration = 0.72s
+✅ loader.mark tween[4] ease = power2.in
+✅ loader.mark tween[4] props = angle, onUpdate, parent, immediateRender, startAt
+✅ loader.mark tween[4] startTime = 0.58s
 ✅ schematic.draw totalDuration = 1.162s
 ✅ schematic.draw tween count = 1
 ✅ schematic.draw tween[0] duration = 1.162s
@@ -294,7 +301,7 @@ budget  ✅ 7/7
 ✅ nav.is-mini threshold — background = rgb(33, 33, 33)
 ✅ nav.is-mini threshold — padding-top = 0.750rem
 ✅ nav.is-mini threshold — off again after scrolling back up = no is-mini
-✅ footer service sibling-dim @1512 — siblings dim = 0.30, 0.30, 0.30, 0.30
+✅ footer service sibling-dim @1512 — siblings dim = 0.30, 0.30, 0.30, 0.30, 0.30
 ✅ footer service sibling-dim @1512 — hovered stays lit = 1.00
 ✅ footer service sibling-dim @1512 — restores on leave = 1 across the list
 ✅ footer service sibling-dim @991 — gated off = nothing dimmed
@@ -317,7 +324,7 @@ budget  ✅ 7/7
 ✅ hero 3D — the blades never leave the barrel = reach 1.930 of 2, invariant
 ✅ hero 3D — the housing tips across the viewport = 0.258
 ✅ hero 3D — the housing tips top to bottom = 0.317
-✅ hero 3D — the iris actuates = 0.317 rad about the bore
+✅ hero 3D — the iris actuates = 0.318 rad about the bore
 ✅ hero 3D — the blades lead the housing = 1.23x
 ✅ hero 3D — the response stays subtle = max 0.159 rad
 ✅ hero 3D — loop suspends off-screen = running: false
@@ -340,7 +347,7 @@ budget  ✅ 7/7
 ✅ showreel: the play icon is still on top after a full open/close = path
 ✅ showreel: showreel.close total = 0.4s
 ✅ showreel: close positions resolve = [0,0,0.1]
-✅ reveal: 12 words rest at 0.2 = min 0.2
+✅ reveal: 15 words rest at 0.2 = min 0.2
 ✅ reveal: fully lit past the end of the scrub = min 1
 ✅ reveal: scrolling back un-reveals — it is scrubbed, not triggered = min 0.2
 ✅ reveal: reveal.works ease = power1.out
@@ -372,7 +379,7 @@ budget  ✅ 7/7
 ✅ works grid ≤767: one column, every card the full measure = 350px
 ✅ works grid ≤767: no parallax — every cell untransformed
 ✅ works grid ≤767: no reel playback = no reels yet
-✅ accordion: 5 rows = 5
+✅ accordion: 6 rows = 6
 ✅ accordion: every row closed on load
 ✅ accordion: accordion.open: total = 1.55s
 ✅ accordion: accordion.open: durations = [0.9,0,0.65]
@@ -397,10 +404,10 @@ budget  ✅ 7/7
 ✅ cta: clicking the block opens the contact panel = 1
 ✅ culture: 6 frames = 6
 ✅ culture: every frame starts covered
-✅ culture: the wipe uncovers on scroll = [534,646,423,534,646,534] → [0,172,423,534,646,534]
+✅ culture: the wipe uncovers on scroll = [534,646,423,534,646,534] → [0,174,423,534,646,534]
 ✅ culture: parallax travels -20% = [-20,-20,-20]
 ✅ works grid: 9 distinct drift rates across 12 cells
-✅ wire rig: 9 wires on 4 poles
+✅ wire rig: 15 wires on 6 poles
 ✅ wire rig: every wire hangs (min sag 63px)
 ✅ wire rig: takes no pointer events
 ✅ blog row: three cards in three tracks
@@ -417,9 +424,9 @@ budget  ✅ 7/7
 ✅ case accent: 1 [data-accent-fill] target(s) for the .7s crossfade
 ✅ case accent: removed from <html> on leaving the page
 ✅ case cursor: scales in over media [a-10] = scale 1.00
-✅ case cursor: appears at the pointer, not the centre (D-048) — 0px off
+❌ case cursor: appears at the pointer on entry — expected <= 6px from where the pointer crossed, got 47px
 ✅ case cursor: settles on the pointer — 0px off
-✅ case cursor: lags on a fast move, so it has weight — 78px behind
+✅ case cursor: lags on a fast move, so it has weight — 195px behind
 ✅ case cursor: off at 390 (none)
 ✅ case nav: a card goes to /works/tessera = /works/tessera
 ✅ case nav: no drawer over the page it just navigated to (D-037)
@@ -568,12 +575,12 @@ lists are authored to fill the accordion and T10.8 writes the real ones. The blo
 ✅ matter-js absent from the eagerly-loaded bundle = absent
 ✅ three absent from the eagerly-loaded bundle = absent
 ✅ plyr absent from the eagerly-loaded bundle = absent
-ℹ️ all built chunks, gzipped (not a per-route figure) = 575.4KB
-✅ JS on / (transferred) = 351.7KB / 360KB
-✅ home page total weight = 550.1KB / 1800KB
+ℹ️ all built chunks, gzipped (not a per-route figure) = 579.0KB
+✅ JS on / (transferred) = 355.2KB / 360KB
+✅ home page total weight = 557.6KB / 1800KB
 ✅ zero network font requests = both faces self-hosted
-✅ CLS (local, unthrottled) = 0.0025
-ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 352ms
+✅ CLS (local, unthrottled) = 0.0014
+ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 212ms
 
 > Poster and reel budgets become binding in phase 10, when assets exist.
 > Lighthouse scores are a phase 12 deliverable via mcp__chrome-devtools__lighthouse_audit; the figures here are local and unthrottled.

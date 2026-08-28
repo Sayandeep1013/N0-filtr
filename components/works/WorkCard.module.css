@@ -208,11 +208,21 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   white-space: nowrap;
-  opacity: 0.3;
+  /* Kept in step with `NAME_REST` in WorkCard.tsx, which is what GSAP writes
+     from the first hover onwards — this is the value before it has ever run. */
+  opacity: 0.58;
   pointer-events: none;
-  /* The plates are mid-grey in places. A hairline of shadow keeps it legible
-     over the brightest tile without putting a panel behind it. */
-  text-shadow: 0 1px 10px rgb(0 0 0 / 70%);
+  /* The plate under this is ruled line work now (D-059), not a flat field, so
+     the letters need to be lifted off it rather than merely darkened behind.
+
+     Two shadows, and they do different jobs: a tight one that puts an edge on
+     each letter against a hairline crossing it, and a wide diffuse one that
+     drops the plate's mid-greys away from the whole word. One shadow doing both
+     has to be wide, and a wide shadow alone leaves the letterforms soft exactly
+     where a rule passes through them. */
+  text-shadow:
+    0 1px 6px rgb(0 0 0 / 90%),
+    0 0 20px rgb(0 0 0 / 45%);
   /* Promoted for the whole journey rather than for each tween, so the browser
      never has to decide mid-travel. */
   will-change: transform, opacity;

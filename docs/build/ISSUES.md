@@ -2049,3 +2049,125 @@ nothing moves. And **`verify:motion` asserts timeline durations and eases, not t
 setter reaches its target value**; 267 assertions passed the whole time this was broken. An
 assertion on the travelled distance would have caught it, and is the right shape of check for
 anything scrubbed.
+
+---
+
+## I-066 · The plate's DOM re-pinned the custom cursor once per child element  🟢
+
+**Raised:** phase 12 · **Resolved:** phase 12
+
+D-059 replaced the generated plate's single `<svg>` with a laid-out plate — a mount, four corner
+marks, two rails, a field of panels. `verify:motion` immediately reported:
+
+```
+case cursor: trails the pointer rather than being pinned to it
+  expected  >= 40px behind mid-move
+  got       0px
+```
+
+**`pointerover` fires for every element the pointer crosses**, not for every `[data-cursor]` target,
+and `closest('[data-cursor]')` resolves all of a target's descendants back to the same target. So
+`onEnter` ran once per child element under the pointer — and `onEnter`'s job is to *snap* the disc to
+the pointer, which is D-048's whole point on entry and exactly wrong on a move within one card.
+
+One sweep across a card re-pinned the disc about twenty times, which deletes the 0.15 lerp that gives
+it weight. The fix is one line and one comparison:
+
+```js
+if (el === active) return;   // the target has not changed; there is nothing to enter
+```
+
+**Worth recording because nothing about the change looked related to the cursor.** The plate is a
+picture; the cursor is a pointer decoration; the connection is that one is drawn inside the other's
+hit target. The assertion found it in a run whose purpose was to check the wire rig's pole count.
+
+---
+
+## I-067 · The loader showed a parked mark twice, for different reasons  🟢
+
+**Raised:** phase 12 · **Resolved:** phase 12
+
+Sayandeep: *"sometimes the loader just doesn't animate .. i switch page .. the wheel shows up stuck,
+after a second the curtain pulls up."*
+
+Not intermittent, and not one bug. Traced with a rAF sampler reading the mark's own animated values
+rather than by eye, which is what separated the two:
+
+**On navigation.** The mark's sequence was gated to the first paint (`hasDrawn`). Every route change
+after that swept a panel down over a *static* mark, held it for however long Next took to resolve the
+route, and swept up. On a warm local route that is a blink; on a cold one it was three seconds of a
+motionless logo. Fixed by running the sequence on every navigation and handing off to a continuous
+spin that lasts until the route lands — D-061.
+
+**At first paint.** The panel paints on the first byte; the sequence cannot start until React has
+hydrated and GSAP has built the timeline. The sampler put that window at ~700ms in dev, and in it the
+mark sat **fully drawn and motionless** — then jumped back to a bare arc to begin. Fixed in CSS:
+`.loader__mark` starts at `opacity: 0` and the sequence's first frame claims it.
+
+**During the exit sweep.** The same fault a third time, found by reading the trace again after fixing
+the first two: `loader.exit` set the mark to `opacity: 1` while the curtain came down, so a complete
+wheel rode up with the panel and then reset to a line the instant it landed. The non-reduced exit
+sets `opacity: 0` now.
+
+The general shape is worth keeping: **a loader has several windows where nothing is scheduled**, and
+each one shows whatever was left on screen. They do not look like bugs in the code, only in the
+trace.
+
+---
+
+## I-068 · The specs and the strings now deliberately disagree  🟡
+
+**Raised:** phase 12 · **Status:** open, and intentionally so
+
+D-060 and D-062 both put content in the code that contradicts `docs/spec/`:
+
+| Spec | Says | The site |
+|---|---|---|
+| `30-page-specs.md` §2 | works intro verbatim | rewritten (D-060) |
+| `30-page-specs.md` §3 | services lead verbatim | rewritten (D-060) |
+| `30-page-specs.md` §`/about` | three headings verbatim | rewritten (D-060) |
+| `40-content-model.md` §3 | **five** services | six (D-062) |
+| `20-components-and-motion.md` §194 | contact chips ×5 | six, derived from `SERVICES` |
+
+**This is not drift and must not be "corrected".** CLAUDE.md's non-negotiable 1 protects *measured*
+values — durations, colours, geometry read off tonik's running site. It does not protect their copy,
+and the brief has said from the start: their design language, **our own brand, our own work**. A
+heading that says "we are cool humans" is a claim about a different company, and a service list that
+omits app development is a description of tonik's studio rather than this one.
+
+Left open rather than resolved because the right fix is to annotate the spec files themselves, and
+the specs are the contract — editing them is a decision for Sayandeep, not a tidy-up. Until then this
+entry is the record.
+
+---
+
+## I-069 · The cursor-entry check was measuring the bug it sat next to  🟢
+
+**Raised:** phase 12 · **Resolved:** phase 12
+
+Fallout from I-066, and the more interesting half of it.
+
+`behaviour.case.ts` asserts two things about the custom cursor, twenty lines apart:
+
+- it **snaps** to the pointer on entry (D-048)
+- it **lags** behind the pointer on a fast move within a card (§18's lerp)
+
+Fixing I-066 made the first one fail — `expected <= 6px from where the pointer crossed, got 47px`.
+
+**The check never crossed anything.** Its setup moved to `entry.x - 240` and then to `entry`, and
+`entry.x` is `box.x + box.w - 6` — so on any target wider than 246px, which is every one of them,
+both points are *inside* the card. It entered at the first, then made a second move **within the
+same target**, and asserted the disc had snapped to the second.
+
+Which is precisely what the lag check forbids. The two assertions were in direct contradiction, and
+**only the bug satisfied both**: before I-066, `onEnter` re-ran for every element the pointer
+crossed, so a within-card move re-pinned the disc. The media was a single `<svg>`, so that was one
+re-snap and it read as an entry.
+
+The setup now starts 120px to the *right* of the card and crosses the edge inward, which is what the
+check's own comment always claimed it was doing.
+
+**The general lesson is worth more than the fix.** A green assertion is evidence that the code and
+the check agree, not that either is right — and two checks that can only both pass under a bug are a
+contradiction nobody had to notice, because nothing was red. It took an unrelated DOM change to make
+one of them fail before anyone read them together.

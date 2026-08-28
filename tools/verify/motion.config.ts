@@ -126,42 +126,55 @@ export const TIMELINE_ASSERTIONS: TimelineAssertion[] = [
     ],
   },
   /**
-   * [new] — **the iris opens.** Phase 5, and the third version of this.
+   * [new] — **the wheel is assembled, then spun.** Phase 5, and the fourth
+   * version of this.
    *
    * Not IX2 and not tonik: their loader shows a static logo. The first two
-   * versions drew the mark — a dash-offset stroke, then a rotating one — and
-   * Sayandeep called both. Dash-drawing a hairline on a 5rem mark is scratchy,
-   * and "the logo appears" is something done *to* a logo rather than something
-   * the logo does.
+   * versions drew the mark and Sayandeep called both; the third opened it as an
+   * iris, blades retracting from the bore. D-061 replaced that with the
+   * sequence he asked for by name — *"first the ring forms from a line and then
+   * the rims appear and connects and then the wheel spins ... first slower then
+   * faster and faster eventually very fast."*
    *
-   * `50-brand-and-3d.md` §1 draws the aperture **with its blades retracted**.
-   * So the loader is that mechanism arriving at the pose the mark is drawn in:
-   * the blades start closed over the bore and retract to their stations,
-   * turning as they go. Nothing is drawn — the ring is present from the first
-   * frame because it is present in the mark.
+   * Six children, and the shape of them is the sequence:
    *
-   * Five children: the mark's reset, the turn, the retraction, and two
-   * `clearProps` sets. Those last two are not tidiness. The loader is mounted
-   * once in the root layout and never rebuilt, so a rotation left on the blade
-   * group would tilt the same mark in the navbar and the footer, and a `y2`
-   * left short would leave the logo's blades the wrong length for the session.
+   * ```
+   * 0    set    the mark, revealed — it starts at opacity 0 in CSS so a
+   *             finished logo is never visible before it animates
+   * 0    set    the ring's dasharray, its own circumference
+   * 0    tween  the dashoffset closes a 14% arc into the ellipse   0.42s
+   * 0.28 tween  the blades grow out of their anchors, staggered    0.585s
+   * 0.58 tween  the spin, 0 → 630° on `power2.in`                  0.72s
+   * 1.30 set    the ring's dash properties handed back
+   * ```
    *
-   * **The retraction is an `attr` tween, not a transform**, and that is the one
-   * piece of craft in it: the blades already carry two rotations from the
-   * mark's own markup, and a scale composed on top of those would shear them
-   * off their radial line. Moving the endpoint keeps every blade exactly on its
-   * own axis, which is what §1's geometry is. See D-030.
+   * **tween[3] reports 0.585s, not the 0.36 it was given.** GSAP folds a
+   * stagger into the tween's own duration: 0.36 + 5 × 0.045 across six blades.
+   * Same arithmetic as `contact.open`'s tween[5] and the schematic's — the
+   * number in the source is per element, the number GSAP reports is the span.
+   *
+   * **The spin's target is a plain object**, not an element, and that is the
+   * one piece of craft in it. The mark is a *tilted* wheel drawn in projection,
+   * so rotating it on screen tumbles the ellipse instead of turning the wheel;
+   * the tween moves one number and an `onUpdate` writes the composed transform
+   * `tilt ∘ rotate(θ) ∘ tilt⁻¹`. See the block comment in `Loader.tsx`.
+   *
+   * The continuous spin the sequence hands off to is **not** registered: it
+   * repeats forever, and an assertion on `repeat: -1` says nothing a duration
+   * can express. Same reasoning as the schematic's travelling band.
    */
   {
     id: 'loader.mark',
     phase: 5,
     pending: false,
-    totalDuration: 0.9,
-    tweenCount: 5,
+    totalDuration: 1.3,
+    tweenCount: 6,
     tweens: [
       { target: '.loader__mark', duration: 0, props: ['opacity', 'scale'], startTime: 0 },
-      { duration: 0.9, ease: 'power3.out', props: ['rotate'], startTime: 0 },
-      { duration: 0.75, ease: 'power2.inOut', props: ['attr'], startTime: 0 },
+      { duration: 0, props: ['strokeDasharray'], startTime: 0 },
+      { duration: 0.42, ease: 'power2.out', props: ['strokeDashoffset'], startTime: 0 },
+      { duration: 0.585, ease: 'power2.out', props: ['attr'], startTime: 0.28 },
+      { duration: 0.72, ease: 'power2.in', props: ['angle'], startTime: 0.58 },
     ],
   },
   /**

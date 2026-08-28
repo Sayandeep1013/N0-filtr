@@ -7,7 +7,7 @@ export const droiddoodle: Work = {
   order: 12,
   thesis: "A phone runs the model that drives the canvas.",
   summary: "On-device agentic AI driving a drawing canvas on Android.",
-  services: ["Product Design", "Engineering"],
+  services: ["Product Design", "Engineering", "App Development"],
   tools: ["Kotlin", "C++", "on-device LLM"],
   industries: ["AI", "Mobile"],
   year: 2026,

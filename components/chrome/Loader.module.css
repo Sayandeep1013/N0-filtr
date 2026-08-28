@@ -28,4 +28,20 @@
   width: 3rem;
   height: 3rem;
   color: var(--text-primary);
+  /* ── it starts invisible, and that is not a fade-in ──────────────────────
+     The panel paints on the first byte; the sequence that assembles the mark
+     cannot start until React has hydrated and GSAP has built the timeline.
+     In between — about 700ms in dev, less in production but never zero — the
+     mark was sitting there **fully drawn and motionless**, and then jumped
+     back to a bare arc to begin.
+
+     That window is the same complaint D-061 fixes on navigation: a parked
+     logo reads as a stuck one. Starting at zero means the first thing anyone
+     sees of the mark is it drawing itself.
+
+     GSAP takes over from the sequence's first frame (`set(mark, opacity: 1)`),
+     and `play()` sets it directly in the one case where there is no sequence
+     to run — under `prefers-reduced-motion`, where the whole loader is a
+     200ms fade and the mark must simply be there. */
+  opacity: 0;
 }

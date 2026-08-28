@@ -8,7 +8,7 @@ export const solidus: Work = {
   thesis: "A sideloaded app can still be updated.",
   summary:
     "Real-time multiplayer Bingo on Expo and Supabase — ranked auto-matchmaking, private rooms and bot practice, with a leaderboard tracking wins and win rate.",
-  services: ["Product Design", "Engineering"],
+  services: ["Product Design", "Engineering", "App Development"],
   tools: ["Expo", "React Native", "Supabase"],
   industries: ["Mobile", "Realtime"],
   year: 2026,

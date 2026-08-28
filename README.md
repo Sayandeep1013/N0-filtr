@@ -1,7 +1,7 @@
 # No Filter
 
 **A studio site for a studio of one.** Design and engineering for founders who ship — twelve real
-projects, five services, and a footer you can play with.
+projects, six services, and a footer you can play with.
 
 Built with Next.js 15, GSAP and Three.js. Dark, typographic, and heavily animated, with every
 motion value written down and machine-checked before it lands.
@@ -17,11 +17,12 @@ motion value written down and machine-checked before it lands.
 | | |
 |---|---|
 | **12 case studies** | Each one written from its own repository, with a sampled accent pair that themes the whole page |
-| **5 services · 5 industries** | Templated pages with their own navigation and FAQ sets |
+| **6 services · 5 industries** | Templated pages with their own navigation and FAQ sets |
 | **A blog** | MDX-adjacent typed blocks, syntax-highlit with Shiki at build time |
 | **A 3D brand mark** | The Open Aperture — a housed iris mechanism in Three.js with a custom GLSL material, which tips and actuates as the pointer crosses it |
 | **A block pit** | 56 Matter.js bodies piled over the footer, each labelled with something the work is actually built with. Drag them around |
 | **A wire rig** | Simulated ropes strung between the culture frames. Drag a card and they swing, whip and settle |
+| **Generated plates** | Every thumbnail on the site is a specimen plate drawn in code — a ruled mount, registration crosses, and one to three instruments, annotated with facts about the work it belongs to |
 
 ---
 
@@ -31,9 +32,14 @@ motion value written down and machine-checked before it lands.
 
 ![Poles drawn in hairlines, with simulated ropes hanging between the culture frames](docs/screenshots/wire-rig.png)
 
-Four of the six culture frames grow an electric pole, and wires hang between them — out of one
-frame, across the gap, into the next. Every wire is fourteen verlet points with gravity and distance
+All six culture frames grow an electric pole, and wires hang between them — out of one frame,
+across the gap, into the next. Every wire is fourteen verlet points with gravity and distance
 constraints, pinned at both ends to the crossarm it leaves from.
+
+It ran on four for a while, on the argument that a real street does not wire every building. That is
+true about a street and wrong about this composition: 05 and 06 are the bottom row, and an omission
+in the middle of a run reads as restraint where the same omission at the end of one reads as the run
+having stopped.
 
 It started as a Bézier with a hand-tuned sag term, which was fine until the cards became draggable.
 A formula has no memory: it resolves to the right shape every frame, with no swing and no settle.
@@ -60,10 +66,45 @@ project's own accent; everywhere else it cycles the twelve.
 ![The works grid](docs/screenshots/works-grid.png)
 
 Twelve cards on a twelve-column grid with authored placements. Hovering one sends its title
-travelling to the corner while an info drawer wipes in behind it. Each card's plate is generated in
-code from the site's own vocabulary — there are no stock photographs anywhere on this site.
+travelling to the corner while an info drawer wipes in behind it.
 
 ![A case study page](docs/screenshots/case-study.png)
+
+### The specimen plates
+
+![One card's plate — a ruled mount, corner registration marks, two instruments and a spec rail](docs/screenshots/plate.png)
+
+There are no stock photographs anywhere on this site. Every thumbnail is drawn in code as a printed
+figure: a ruled mount with registration crosses at the corners, a header rail, one to three small
+instruments on a great deal of empty ground with a part name under each, and a footer carrying a
+spec line and an edition.
+
+**Every label on it is true.** `FIG.04` is the work's real position in the twelve, the code is the
+plate's actual seed, and the spec line names the instruments actually drawn and the hash they came
+from. Where there is no real edition number the field is omitted rather than invented — a studio
+called No Filter putting a decorative serial on its own work would be the one joke here at its own
+expense.
+
+The apparatus is DOM and only the instruments are SVG, which is a correctness choice rather than a
+stylistic one. These plates are drawn into boxes whose aspect ratios the component cannot know —
+16:10 on a half card, 21:9 on the full one, 4:3 on a phone — and one sliced viewBox crops 170 units
+off a 21:9 plate, which is both rails and every corner mark.
+
+`components/art/Artwork.tsx`
+
+### The loader
+
+The mark assembles itself and then spins: the ring forms from a line, six blades grow out of their
+anchors on the inner edge, and the wheel turns — slowly at first, then accelerating — until the
+curtain lifts. On a client-side navigation the whole sequence runs at 2.4× and the spin **keeps
+going until the route resolves**, so the wait is the fastest part of the animation rather than a
+parked logo.
+
+The spin is not a rotation. The mark is a tilted wheel drawn in projection, so turning it on screen
+tumbles its ellipse; the blade group is spun in the wheel's own plane by composing
+`tilt ∘ rotate(θ) ∘ tilt⁻¹` about the centre.
+
+`components/chrome/Loader.tsx`
 
 ### The about page
 
@@ -87,6 +128,7 @@ npm run build        # production build
 npm run verify       # THE GATE — see below
 npm run lint
 npm run typecheck
+npm run readme:shots # regenerate the images on this page (needs the dev server)
 ```
 
 ---
@@ -99,7 +141,7 @@ eyeballed, and `npm run verify` has to pass before anything is called done.
 
 ```
 tokens   138/138    computed styles vs the token table, at three viewports
-motion   276/276    timeline durations, eases, and distances actually travelled
+motion   283/283    timeline durations, eases, and distances actually travelled
 visual   judged     screenshot diffs, reviewed rather than thresholded
 budget     7/7      bundle size, route weight, triangle count, Lighthouse
 ```
@@ -113,10 +155,20 @@ npm run verify:budget
 
 It earns its keep. It has caught an easing curve a full power too strong across the whole site, a
 `once: true` that quietly broke the back button, a homepage that came back from a scrolled page with
-no ScrollTriggers at all, and — most recently — two scroll parallaxes that had **never once run**,
-because `gsap.quickSetter(el, 'yPercent', '%')` silently writes nothing at all. Two hundred and
-sixty-seven assertions had been passing the whole time; none of them measured distance travelled.
-Nine now do.
+no ScrollTriggers at all, and two scroll parallaxes that had **never once run**, because
+`gsap.quickSetter(el, 'yPercent', '%')` silently writes nothing at all. Two hundred and sixty-seven
+assertions had been passing the whole time; none of them measured distance travelled. Nine now do.
+
+The most recent catch is the one that says the most about the method. Redrawing the card thumbnails
+added a few dozen elements inside each card, and `verify:motion` immediately reported that the
+custom cursor no longer lagged behind the pointer — `pointerover` fires for every element crossed,
+so one sweep was re-pinning the disc twenty times. Nothing about a change to a picture looked
+related to a cursor, and it was found in a run started to check something else entirely.
+
+Fixing it then failed a *different* assertion, which turned out to be the better find: two checks in
+that file had been in direct contradiction — one demanding the disc snap on a move, the other
+demanding it lag on the same move — and **only the bug satisfied both**. Nothing had ever been red,
+so nobody had cause to read them together.
 
 ---
 

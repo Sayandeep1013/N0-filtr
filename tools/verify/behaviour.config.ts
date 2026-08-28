@@ -364,7 +364,8 @@ export const BEHAVIOUR = {
     phase: 5,
     page: '/',
     rowSelector: '[data-service-row]',
-    rowCount: 5,
+    /* Six since D-062 added App Development. */
+    rowCount: 6,
     openTimelineId: 'accordion.open',
     closeTimelineId: 'accordion.close',
     /* D-052 slowed both directions and moved them onto `power1.inOut`. §6's
@@ -435,9 +436,10 @@ export const BEHAVIOUR = {
     /** Twelve cells at one rate is not a differential parallax. */
     worksMinDistinctRates: 5,
 
-    /* ── the wire rig · D-056 ───────────────────────────────────────────── */
-    wireCount: 9,
-    poleCount: 4,
+    /* ── the wire rig · D-056, extended by D-058 ────────────────────────── */
+    /** Six frames, five spans, three wires per span. Was 4 and 9. */
+    wireCount: 15,
+    poleCount: 6,
     /** A rope has to hang below the straight line between its ends. */
     minSagPx: 10,
     /** How far a wire's end may sit from the pole it is pinned to. */

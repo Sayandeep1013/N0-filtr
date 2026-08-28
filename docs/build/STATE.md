@@ -3,7 +3,7 @@
 **The first file every agent reads. It must always be true.**
 If you change the build, change this file in the same session — not later.
 
-Last updated: **2026-08-27** · by: **phases 3-12 session (Opus)** · tag: `phase-05-complete`
+Last updated: **2026-08-28** · by: **review round 9 (Opus)** · tag: `phase-05-complete`
 
 ---
 
@@ -61,13 +61,34 @@ got it right. Protocol §2.9 is the rule.
 
 ## Where we are
 
-> **2026-08-27 — the site is built and is being reviewed round by round.** Sayandeep is working
+> **2026-08-28 — the site is built and is being reviewed round by round.** Sayandeep is working
 > through it in the browser and reporting what is wrong; each round is fixed, verified and
 > committed before the next. The rounds so far: the works-card hover and its travelling title
 > (D-051), the services accordion's timing (D-052), always-landing-at-the-top navigation (D-053),
 > the pit's depth, count, colour and grabber (D-054), the stuck info drawer (I-064), a full mobile
-> sweep at 390 (D-055), and two effects of his own choosing — a simulated wire rig over the culture
-> collage and a hollow, pointer-lit footer wordmark (D-056).
+> sweep at 390 (D-055), two effects of his own choosing — a simulated wire rig over the culture
+> collage and a hollow, pointer-lit footer wordmark (D-056) — and **round 9, the largest so far**.
+>
+> **Round 9 (2026-08-28) — D-057 to D-062.** Six changes, and three of them were bugs the change
+> surfaced rather than things that were asked for:
+>
+> - the custom cursor is **white everywhere**, not tinted per work (D-057)
+> - the wire rig runs **all six** collage frames, not four (D-058)
+> - the generated plates are **specimen plates** now — a ruled mount, registration crosses, header
+>   and footer rails, and one to three small instruments on empty ground, after Sayandeep brought
+>   `kojima-san.vercel.app` as a reference (D-059)
+> - **the copy pass**: six headings replaced, run through `/brainstorming`, and the specs and the
+>   strings now deliberately disagree (D-060)
+> - **the loader builds a wheel and spins it** — ring, rims, accelerating spin, curtain — and keeps
+>   spinning while a route resolves, which is what fixed the "stuck wheel" (D-061)
+> - **App Development is the sixth service** (D-062)
+>
+> The three found on the way, all worth reading before touching the same files: the plate's extra
+> DOM made `pointerover` re-snap the custom cursor once per child element and deleted its lag
+> (caught by `verify:motion`, not by eye); the loader's mark sequence was gated to *first paint*,
+> so every navigation showed a parked logo for the length of the route resolve; and the loader
+> mark sat fully drawn and motionless between first paint and hydration, which is now `opacity: 0`
+> in CSS until the sequence claims it.
 >
 > **That last round also turned up I-065**, which is the most consequential bug found in this build:
 > §12's culture parallax and the works grid's differential parallax had **never once run**, in dev
@@ -118,7 +139,7 @@ got it right. Protocol §2.9 is the rule.
 | Status | 🟡 the whole site is built; running review rounds against it |
 | Branch | `main` |
 | Blocked | no |
-| Verify report | `tools/verify/output/report.md` — tokens 138/138, motion **276/276**, visual judged, budget 7/7 |
+| Verify report | `tools/verify/output/report.md` — re-run at round 9; see the report for the current counts |
 | Budget | JS **351.7KB of 360KB**. Ceiling raised from 320 by Sayandeep on the measurement — I-034 closed. |
 | 🚦 | **Phase 6 is the gate.** Present the finished case study before phase 7. |
 
@@ -140,7 +161,7 @@ got it right. Protocol §2.9 is the rule.
 | 9 | Blog | 🟡 | `phase/09-blog` | — | index + post template · **3 of 12** written (D-043) · typed blocks, not MDX (D-042) |
 | 10 | Content | 🟡 | `phase/10-content` | — | **all twelve case studies authored** from their repos · 3 of 12 blog posts |
 | 11 | Physics footer | 🟡 | `phase/11-physics` | — | the block pit, all of §1–§10 · 44 bodies · lazy Matter · reduced-motion static pile |
-| 12 | Polish & launch | 🟡 | `main` | — | review rounds done; Lighthouse, OG images, sitemap/robots still open |
+| 12 | Polish & launch | 🟡 | `main` | — | 9 review rounds done; Lighthouse, OG images, sitemap/robots still open |
 
 **Progress: 6 tagged · 3-12 built and under review on `main`.**
 

@@ -1,10 +1,14 @@
 /**
  * `/about`. `30-page-specs.md` §`/about`, `40-content-model.md`.
  *
- * The headline is the spec's, verbatim. Everything else is ours and is written
- * to be **checkable** — the claims on this page are the ones a visitor can go
- * and verify in a repository, which is the only kind worth making on a studio
- * site nobody has heard of yet.
+ * Everything here is written to be **checkable** — the claims on this page are
+ * the ones a visitor can go and verify in a repository, which is the only kind
+ * worth making on a studio site nobody has heard of yet.
+ *
+ * Three of the headings were the spec's verbatim until D-060 and are now ours.
+ * The spec is a transcription of tonik; the brief has always said our own
+ * brand, our own work, and a heading that says "we are cool humans" is a claim
+ * about a company that is not this one.
  *
  * ── What is deliberately not here ────────────────────────────────────────
  *
@@ -16,9 +20,15 @@
 
 export const ABOUT = {
   hero: {
-    /* §`/about`, verbatim. */
-    heading: 'We are cool humans and we make a fuss',
-    lead: 'No Filter is a small studio that designs and builds software. Small enough that the person who drew the screen is the person who shipped it, and the person who shipped it is the one answering your email about it.',
+    /* Was §`/about`'s verbatim "We are cool humans and we make a fuss". D-060.
+
+       The replacement is the smallest checkable fact about the studio that
+       also explains everything else on the page — and it is the one claim a
+       visitor tests the moment they use the contact form. */
+    heading: 'A studio small enough to answer its own email.',
+    /* The email clause moved up into the heading, so the lead stops at the
+       handover. It said both, and saying both weakened each. */
+    lead: 'No Filter designs and builds software. Small enough that the person who drew the screen is the person who shipped it.',
     body: [
       'Most studios hand a design to a developer and call the join a process. We removed the join. It is the single decision everything else here follows from — the work we take, the way we quote it, the fact that every case study on this site ends in a repository you can read rather than a client logo.',
       'Twelve products so far. All of them ours, all of them running, and several of them still wrong in ways we will tell you about before you ask.',
@@ -61,14 +71,23 @@ export const ABOUT = {
   },
 
   people: {
-    /* §`/about` section 4, verbatim. */
-    heading: 'no filter is people',
+    /* Was §4's verbatim "no filter is people", which is tonik's line about
+       tonik's forty-five staff photographs.
+
+       **Ours had stopped being true.** Decision 2 replaced those photographs
+       with forty-five project artefacts, precisely because we are two to five
+       people per project and a wall of the same three faces is a worse lie
+       than no wall at all — so the heading sat above a wall with no people in
+       it. Same cadence, accurate subject. D-060. */
+    heading: 'no filter is the work',
     lead: 'Forty-five artefacts from twelve products — the screens, the documents, the diagrams and the dead ends. This is what the work actually looks like from the inside.',
   },
 
   open: {
-    /* §`/about` section 5, verbatim. */
-    heading: 'Always open to new nodes in our network',
+    /* Was §5's verbatim "Always open to new nodes in our network". A network
+       with nodes in it is an org chart; the section is about collaborators.
+       D-060. */
+    heading: 'There is always room for one more.',
     body: 'Collaborators, contractors, and people with a problem that does not fit anywhere else. If you have read this far you probably know whether we would get on.',
   },
 } as const;

@@ -185,9 +185,10 @@ export function CultureCollage() {
       });
 
       /* ── the wire rig ─────────────────────────────────────────────────
-         Poles on four frames and simulated ropes between them. `[new]` —
-         ours; see `wireRig.ts` for why the composition belongs here and why
-         the wires are simulated rather than drawn.
+         A pole on every frame and simulated ropes between them, 01 through
+         06 in one run. `[new]` — ours; see `wireRig.ts` for why the
+         composition belongs here, why the wires are simulated rather than
+         drawn, and why the run stopped at four frames until D-058.
 
          **Its own matchMedia block, gated on width alone.** Every other
          motion here also requires `noPreference`, because every other motion

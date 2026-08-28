@@ -6,6 +6,7 @@ import { gsap, useGSAP } from '@/lib/motion/gsap';
 import { DUR, EASE, MQ, REVERSE_SCALE } from '@/lib/motion/tokens';
 import { registerTimeline, unregisterTimeline } from '@/lib/motion/registry';
 import { SpecTable } from '@/components/ui/SpecTable';
+import { WORKS_COUNT } from '@/lib/content/site';
 import type { Work } from '@/content/works/_types';
 import { Artwork } from '@/components/art/Artwork';
 import { WorkCover } from './WorkCover';
@@ -58,6 +59,23 @@ const SHEET_DELAY = 0.3;
 const SHEET_WIPE = 0.75;
 /** How far the title sits from the corner it lands in, in pixels. */
 const NAME_INSET = 20;
+/**
+ * The watermark's opacity before a pointer arrives.
+ *
+ * It was `0.3`, chosen when the plates under it were flat generated fields.
+ * D-059 put a ruled plate there instead — rails, a mount, a divider, a drawing
+ * — and a title at 30% over line work is two greys at the same value: the
+ * letters and the plate mix and neither is readable. Sayandeep, 2026-08-28:
+ * *"the casestudy names that are centred, their opacity is too low so the
+ * background and the title get mixed and become unreadable."*
+ *
+ * `0.58` clears the plate at every weight it draws and still reads as a
+ * watermark rather than as a caption — which matters, because the hover takes
+ * it to 1 and that step has to remain visible. The shadow in the stylesheet
+ * does the rest of the work; opacity alone would have had to go far enough to
+ * stop being a watermark at all.
+ */
+const NAME_REST = 0.58;
 /** What it shrinks to. `--t-h2` at 0.3 is about the size of a mono label. */
 const NAME_SMALL = 0.3;
 
@@ -226,7 +244,7 @@ export function WorkCard({ work, className }: { work: Work; className?: string }
             x: 0,
             y: 0,
             scale: 1,
-            opacity: 0.3,
+            opacity: NAME_REST,
             transformOrigin: '100% 0%',
           });
         }
@@ -380,9 +398,14 @@ export function WorkCard({ work, className }: { work: Work; className?: string }
         {
           '--work-accent': work.accent.dark,
           /* The light member of the pair, for anything that has to be *read*
-             rather than filled — the custom cursor's disc, which is a mid-size
-             mark on a dark page and disappears in the dark accent. Same
-             distinction as `--accent-ink` on a case study (I-046). */
+             rather than filled. Same distinction as `--accent-ink` on a case
+             study (I-046).
+
+             Its consumer changed hands in the same session it nearly lost one:
+             the custom cursor's disc read this to tint itself, the disc went
+             white (D-057), and the plate's accent datum — a 1px line that
+             disappears entirely in the dark member on a `--grey-900` ground —
+             picked it up (D-059). */
           '--work-accent-ink': work.accent.light,
         } as React.CSSProperties
       }
@@ -411,8 +434,34 @@ export function WorkCard({ work, className }: { work: Work; className?: string }
           <div className={s.still} data-work-still>
             {work.card.art ? (
               /* A generated plate. D-038 — the card shows what the case study
-                 shows, and neither is a screenshot of somebody else's chrome. */
-              <Artwork seed={work.card.art} />
+                 shows, and neither is a screenshot of somebody else's chrome.
+
+                 The three annotations are **facts about this work**, not
+                 decoration: the figure number is its real position in the
+                 twelve, and the edition is that position over the real total.
+                 D-059 is emphatic about this — the reference generates a
+                 catalogue number because it has nothing else to print there,
+                 and a studio called No Filter putting an invented serial on its
+                 own work would be the one joke on the site that is at its own
+                 expense. `code` is left to default to the seed, which is the
+                 plate's actual name. */
+              <Artwork
+                seed={work.card.art}
+                figure={work.order}
+                /* `WORKS_COUNT`, not `WORKS.length`. This is a client
+                   component, and importing the collection here would pull all
+                   twelve work modules into the client bundle to read one
+                   number — the same shape of mistake as I-061, on a route
+                   already at 351.7KB of a 360KB budget. `WORKS_COUNT` is the
+                   constant the navbar's superscript already trusts. */
+                edition={`${String(work.order).padStart(2, '0')}/${WORKS_COUNT}`}
+                /* No rings, no arcs, no radial marks — see `RECTILINEAR` in
+                   `Artwork.tsx`. The card is the one place a plate is drawn
+                   under moving type, and a round instrument under a title that
+                   travels in a straight line to a corner reads as two systems
+                   rather than one. `/about` keeps all seven. */
+                family="rectilinear"
+              />
             ) : work.card.poster ? (
               /* `srcSet` derived from the 1× name rather than stored — see the
                  note on `poster` in `_types.ts`.

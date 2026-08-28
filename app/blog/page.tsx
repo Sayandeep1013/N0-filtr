@@ -33,10 +33,14 @@ export default function BlogPage() {
 
   return (
     <>
+      {/* The heading was "We share what we know." — the one line on the site
+          that read like a post about posting. Every entry here came out of
+          shipping one of the twelve, so it now says where they came from.
+          D-060. */}
       <BlogIndex
         posts={written}
         categories={categories}
-        heading="We share what we know."
+        heading="Notes from the build."
         lead="Everything here came out of building something on this site. No round-ups, no predictions — the specific thing we got wrong and what it cost to find out."
       />
       <CtaBlock />

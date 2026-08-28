@@ -8,7 +8,7 @@ export const discvault: Work = {
   thesis: "An attachment cap is a block size.",
   summary:
     "Chunked large-file storage on Discord's free-tier attachment limits, retrieved via a SHA-256-verified manifest — controlled from CLI, website, desktop exe, and Android apk.",
-  services: ["Engineering"],
+  services: ["Engineering", "App Development"],
   tools: ["TypeScript", "Node", "Discord API", "SHA-256"],
   industries: ["Dev Tools"],
   year: 2026,

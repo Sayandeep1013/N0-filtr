@@ -1,13 +1,20 @@
 /**
- * The five services. `40-content-model.md` §3.
+ * The six services. `40-content-model.md` §3 for the first five.
  *
  * ── What is measured and what is authored ──────────────────────────────────
  *
- * `slug`, `index`, `name` and `headline` are §3 **verbatim**. Everything else on
- * this page — the leads, the OUTPUT and TOOLS lists — is authored, and it is
- * authored from what this studio actually does rather than adapted from tonik's
- * copy. §3 supplies Product Design's two lists as an example and leaves the
- * other four to us.
+ * For services 01–05, `slug`, `index`, `name` and `headline` are §3
+ * **verbatim**. Everything else on this page — the leads, the OUTPUT and TOOLS
+ * lists — is authored, and it is authored from what this studio actually does
+ * rather than adapted from tonik's copy. §3 supplies Product Design's two lists
+ * as an example and leaves the other four to us.
+ *
+ * **Service 06, App Development, has no §3 entry at all** — it is ours end to
+ * end, headline included. §3 is a transcription of tonik's five, and tonik do
+ * not build apps. We do, and had not said so anywhere: three of the twelve
+ * works install on a device rather than open in a tab, and two of the blog
+ * posts are about shipping them. Sayandeep, 2026-08-28: *"i think we do app dev
+ * too but it never got added."* See D-062.
  *
  * `01-PHASES.md` T10.8 still writes the full service pages (~400 words each);
  * `body` is deliberately short until then.
@@ -122,7 +129,7 @@ export const SERVICES_FULL: Service[] = [
     faq: [
       {
         q: "You are engineers. Why does branding sit here?",
-        a: "Because most of what a brand is, for a software company, is the product. The typeface people see most is the one in the interface, and the tone of voice they remember is the error message. We are honest that this is the thinnest of our five services and the page says so.",
+        a: "Because most of what a brand is, for a software company, is the product. The typeface people see most is the one in the interface, and the tone of voice they remember is the error message. We are honest that this is the thinnest of our six services and the page says so.",
       },
       {
         q: "What is actually in a branding engagement?",
@@ -291,6 +298,58 @@ export const SERVICES_FULL: Service[] = [
       {
         q: "What happens when the engagement ends?",
         a: "You have everything, because you always did: your repository, your infrastructure, your accounts. There is no handover event because there was never a wall. If we did our job you should be able to keep going without calling us, and some clients do.",
+      },
+    ],
+  },
+  {
+    /* Service 06. No §3 entry — headline and all. See the note at the top of
+       this file and D-062. */
+    slug: "app-development",
+    index: 6,
+    name: "App Development",
+    headline: "Your product in someone's hand. Installed, not bookmarked.",
+    lead: "Three of the twelve install on a device rather than open in a tab. Android, cross-platform, and desktop.",
+    body: [
+      "A phone is a slower computer with a worse connection and a person holding it with one thumb. Everything that is merely inelegant on a laptop is disqualifying there, which is why we build the risky part on a real device in week one rather than in a simulator in week six.",
+      "Cross-platform when the product is mostly screens and sync, native when it is not — DroidDoodle runs a language model on the handset itself, and that is not a thing you reach through a bridge.",
+    ],
+    output: [
+      "iOS and Android builds",
+      "Offline and sync behaviour",
+      "On-device inference",
+      "Store listings and signing",
+      "Sideload and update channel",
+      "Crash and release monitoring",
+    ],
+    tools: ["Expo", "React Native", "Kotlin", "C++", "Supabase", "EAS"],
+    /* Solidus rather than DroidDoodle: both are ours and both are mobile, but
+       one is live and the other is archived, and evidence you can install beats
+       evidence you can only read about. */
+    featuredWorkSlug: "solidus",
+    faq: [
+      {
+        q: "Native or cross-platform?",
+        a: "Whichever the product actually needs, and the question is usually settled by one feature rather than by preference. If it is screens, forms and sync, Expo and React Native get it onto both platforms with one team. If it needs the hardware — on-device inference, a custom canvas, anything with a frame budget — it is native, and we say so before you have paid for the other answer.",
+      },
+      {
+        q: "Can you get it into the App Store and Play Store?",
+        a: "Yes: signing, listings, review notes, staged rollout. It is the least interesting part of the work and the part most likely to add two weeks if nobody planned for it, so we plan for it. Worth knowing that a first review can take days and a rejection can take a week.",
+      },
+      {
+        q: "Do we have to ship through a store at all?",
+        a: "No, and sometimes you should not. DiscVault ships as an apk and a desktop binary alongside its CLI and its website, because its audience already sideloads and a store listing would have bought nothing. A sideloaded app can still update itself — there is a post on this site about exactly how.",
+      },
+      {
+        q: "What about offline?",
+        a: "It is a data-model decision, not a feature you add at the end. Who owns the truth, what happens to an edit made on a train, what the second device sees when it comes back. We answer those three before drawing a screen, because every interface question downstream falls out of them.",
+      },
+      {
+        q: "Can you run AI on the device instead of in the cloud?",
+        a: "We have. DroidDoodle drives a drawing canvas from a model running on the handset — no round trip, no key, no per-token bill. It is a real trade: you get privacy and latency, you pay in binary size, battery and a much smaller model. It is worth it more often than people assume and not always.",
+      },
+      {
+        q: "Do you maintain apps after launch?",
+        a: "If you want us to. An app is the one thing we build that keeps needing us — OS releases break things a website never has to care about, and a build that shipped fine in June can be rejected in September. We would rather agree a small ongoing arrangement than be a phone number you call when the store emails you.",
       },
     ],
   },

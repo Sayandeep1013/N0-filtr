@@ -20,15 +20,30 @@ import { hangRope, ropePath, settleRope, stepRope, type Rope, type RopePoint } f
  * photographs, the six frames are generated fields on a dark ground (I-042),
  * and §12 rates itself the lowest-confidence layout on the site.
  *
- * ── Four frames, not six ────────────────────────────────────────────────────
+ * ── All six, in one run ─────────────────────────────────────────────────────
  *
- * A chain of 01 → 02 → 03 → 04, leaving 05 and 06 clean. A real street does not
- * wire every building, and six wired frames stops being an object in a
- * composition and becomes a pattern over one.
+ * It was four for a while — 01 → 02 → 03 → 04, on the argument that a real
+ * street does not wire every building and that six wired frames stops being an
+ * object in a composition and becomes a pattern over one.
  *
- * The chain is a Z — across the top, a long diagonal down through the middle,
- * across again. An earlier version ran 02 → 04, which sit in the same column,
- * and a vertical wire is a thing wires do not do.
+ * That argument is sound about a street and wrong about **this** composition,
+ * for a reason that is only visible on the built page. 05 and 06 are the
+ * bottom row: they are where the section ends, and they are the last thing seen
+ * before the blog row. Restraint reads as restraint when the omission is in the
+ * middle of a run; at the end of one it reads as the run having stopped.
+ * Sayandeep, 2026-08-28: *"we have two cards where we haven't added the pole
+ * and wire thing, those are just standing below like nothing."*
+ *
+ * "Standing below like nothing" is the correct diagnosis. The four wired frames
+ * are staggered and overlapping and hang together; the two bare ones sit on a
+ * clean shared baseline underneath them, so the eye reads them as a different
+ * section rather than as the quiet end of this one. See D-058.
+ *
+ * The chain is a serpentine — across the top, a long diagonal down, across, a
+ * long diagonal down, across again. Every span alternates between the two kinds
+ * of run, which is what keeps five spans from reading as a zigzag pattern. An
+ * earlier version ran 02 → 04, which sit in the same column, and a vertical
+ * wire is a thing wires do not do.
  *
  * ── The poles are drawn, and the wires are light ────────────────────────────
  *
@@ -83,20 +98,45 @@ type Node = { frame: number; pole: PoleGeometry };
 /** Tuned against the six real frame ratios, so each pole sits in its own plate
     rather than at a shared fraction that suits none of them.
 
-    **Four frames, not six.** 05 and 06 stay clean: a real street does not wire
-    every building, and six wired frames stops being an object in a composition
-    and becomes a pattern over one. The chain is a Z — across the top, a long
-    diagonal down through the middle, across again. An earlier version paired
-    02 with 04, which sit in the same column, and a vertical wire is a thing
-    wires do not do.
+    **All six frames, one continuous run.** See the note at the top of the file
+    for why this stopped at four and why it no longer does.
+
+    `x` is a fraction of each frame's own width, and the fractions differ wildly
+    because the frames do — the number that actually matters is where the pole
+    lands in the collage, and that is `frame.x + x * frame.w`. Measured at
+    1512, in the rig's 1400-wide space, the chain reads:
+
+    ```
+    01  457 ─────→ 02  849            across the top
+                   02  849 ─────→ 03  398    a long diagonal down
+                                  03  398 ─────→ 04  837   across
+                                                 04  837 ─────→ 05  427  diagonal down
+                                                                05  427 ─────→ 06  966  across
+    ```
+
+    Alternating, which is the point: no two consecutive spans are the same kind
+    of run, so five wires read as a route through the section rather than as a
+    zigzag applied to it.
+
+    **`arm` is a fraction of width, and the frames are not the same width**, so
+    it is not a constant. Every pole's crossarm comes out at 47–52px at 1512 —
+    05 is the widest frame in the set at 689, so its 0.075 is the same object as
+    02's 0.08 and 03's 0.105, not a narrower one.
 
     Frame 03's `top` is negative on purpose: its own frame edge crops the head
-    off, the way the bottom-left card is cropped in the reference. */
+    off, the way the bottom-left card is cropped in the reference. 06's is the
+    shallowest at 0.06, which puts its head nearest its own top edge — the run
+    ends on the tallest-standing pole rather than trailing off. */
 const NODES: readonly Node[] = [
   { frame: 0, pole: { x: 0.8, top: 0.1, a1: 0.16, a2: 0.25, arm: 0.085 } },
   { frame: 1, pole: { x: 0.2, top: 0.08, a1: 0.14, a2: 0.23, arm: 0.08 } },
   { frame: 2, pole: { x: 0.62, top: -0.18, a1: 0.12, a2: 0.21, arm: 0.105 } },
   { frame: 3, pole: { x: 0.22, top: 0.09, a1: 0.15, a2: 0.24, arm: 0.09 } },
+  /* 16:10 and the widest frame in the set — short for its width, so the pole
+     stands in a shallow plate and the arm is the smallest fraction here to come
+     out the same absolute size as the rest. */
+  { frame: 4, pole: { x: 0.62, top: 0.1, a1: 0.16, a2: 0.25, arm: 0.075 } },
+  { frame: 5, pole: { x: 0.24, top: 0.06, a1: 0.13, a2: 0.22, arm: 0.09 } },
 ];
 
 /** Three wires per span, at different slack so they never hang as one thick
@@ -181,7 +221,10 @@ export type WireRigOptions = {
 export function createWireRig(scope: HTMLElement, options: WireRigOptions): () => void {
   const svg = scope.querySelector<SVGSVGElement>('[data-wire-rig]');
   const frames = [...scope.querySelectorAll<HTMLElement>('[data-culture-frame]')];
-  if (!svg || frames.length < 4) return () => {};
+  /* Every node indexes into `frames`, so the guard is the table's own length
+     rather than a literal that has to be remembered when the table grows —
+     which is exactly what happened when it went from four nodes to six. */
+  if (!svg || frames.length < NODES.length) return () => {};
 
   const defs = document.createElementNS(SVG_NS, 'defs');
   const poleGroup = document.createElementNS(SVG_NS, 'g');

@@ -7,7 +7,7 @@ import { DUR, EASE } from '@/lib/motion/tokens';
 import { registerTimeline, unregisterTimeline } from '@/lib/motion/registry';
 import { markLoaderCleared } from '@/lib/motion/loaderSignal';
 import { useMotion } from '@/lib/motion/MotionProvider';
-import { ApertureMark } from '@/components/brand/ApertureMark';
+import { ApertureMark, TILT_AXIS_DEGREES, TILT_SQUASH } from '@/components/brand/ApertureMark';
 import { cx } from '@/lib/cx';
 import s from './Loader.module.css';
 
@@ -37,39 +37,69 @@ import s from './Loader.module.css';
 const REDUCED_FADE = 0.2;
 
 /**
- * [new] — **the iris opens.** First paint only.
+ * [new] — **the wheel is assembled, then spun.** D-061.
  *
- * The mark drew itself here, twice: a dash-offset stroke, then a rotating
- * version of the same. Sayandeep called both, and he was right — dash-drawing a
- * hairline on a 5rem mark is scratchy, and "the logo appears" is a thing done
- * *to* a logo rather than something the logo does.
+ * Sayandeep, 2026-08-28: *"first the ring forms from a line and then the rims
+ * appear and connects and then the wheel spins ... first slower then faster and
+ * faster eventually very fast and then curtain up to the page."*
  *
- * `50-brand-and-3d.md` §1 draws the aperture **with its blades retracted**: a
- * ring, and six short blades sitting at its inner edge. The mark is a shutter
- * that has already opened. So the loader is simply that mechanism arriving at
- * the pose the mark is drawn in — the blades start closed over the bore and
- * retract to their stations, turning as they go.
+ * Four beats, and the file already had the fourth:
  *
- * Nothing is drawn. The ring is present from the first frame, because it is
- * present in the mark; only the blades move, and they move the one way a real
- * iris moves. A visitor who watches it once knows what the logo is.
+ * ```
+ *  1  the ring draws        a 14% arc — a line — sweeps closed into the ellipse
+ *  2  the blades connect    each grows out of its anchor on the inner edge,
+ *                           staggered round the ring, so six spokes are fitted
+ *  3  the wheel spins       0 → 1.75 turns on `power2.in`: it starts slow and
+ *                           ends at about five revolutions a second
+ *  4  the curtain rises     `loader.enter`, untouched
+ * ```
  *
- * ── Two motions, both starting at zero ────────────────────────────────────
+ * ── The ring is drawn again, and it was rejected once ────────────────────
  *
- *   · the blade group **turns** −40° → 0 over 0.9s (`power3.out`)
- *   · each blade **retracts**, its far end travelling from the bore's centre
- *     out to its rest length, over 0.75s (`power2.inOut`)
+ * Two earlier versions dash-drew the mark and Sayandeep called both: *"dash-
+ * drawing a hairline on a 5rem mark is scratchy."* This is the same technique
+ * and it is being asked for by name, so the note stays as the record of why it
+ * failed before — the draw **was the whole animation**, so a thin stroke
+ * crawling round an ellipse was the only thing to look at, for a second. Here
+ * it is 0.42s of a 1.3s mechanism, it is the ring's own `SIZE/12` stroke rather
+ * than a hairline, and it opens onto something. A beat can be wrong alone and
+ * right in a sequence.
  *
- * In unison, not staggered. Six blades opening one after another is a fan; six
- * opening together is a shutter, and the turn is what keeps it from reading as
- * a simple scale.
+ * ── Why the spin is not a rotation ───────────────────────────────────────
+ *
+ * The mark is a **tilted** wheel, drawn in projection: the ring is an ellipse
+ * and every blade's endpoints were pushed through the tilt matrix as points
+ * (D-033). Rotating that on screen turns the ellipse's major axis, which reads
+ * as a coin tumbling — not as a wheel turning on its axle. Under 40° of travel
+ * nobody notices, which is why the previous version got away with it; over
+ * 630° it is the only thing you can see.
+ *
+ * So the blade group is spun **in the wheel's own plane**, by composing
+ * `tilt ∘ rotate(θ) ∘ tilt⁻¹` about the mark's centre. Written out, and using
+ * that rotations commute so `R(−A)·R(θ)·R(A)` collapses to `R(θ)`:
+ *
+ * ```
+ * translate(C,C) rotate(A) scale(1,k) rotate(θ) scale(1,1/k) rotate(−A) translate(−C,−C)
+ * ```
+ *
+ * Right to left: move to the origin, undo the tilt axis, undo the squash — the
+ * blades are now on a true circle — turn by θ, then put the projection back.
+ * The blades track the ellipse exactly, close at the sides and wide at the top,
+ * which is what a spinning tilted wheel does. `A` and `k` are imported from
+ * `ApertureMark` rather than retyped; that file owns the geometry.
+ *
+ * ── It keeps spinning while the route resolves ───────────────────────────
+ *
+ * The sequence above is finite; a navigation is not. When the intro finishes it
+ * hands off to a continuous spin at the exact angular velocity it ended on —
+ * `power2.in` finishes at twice its average speed, so the loop's period is
+ * `SPIN / (2 × SPIN_TURNS)` and there is no seam. That spin is what fills the
+ * wait, and it is the fix for the bug that prompted this: see `play()`.
  *
  * It is a **separate timeline** from `loader.enter`, deliberately. `enter` is a
  * transcription of IX2 `a-23` and `verify:motion` asserts its exact shape.
  * Adding to it would mean either breaking that assertion or loosening it, and a
  * loosened assertion is how a transcription quietly stops being one. See D-030.
- *
- * First visit only. On a route change the mark has already introduced itself.
  */
 /* ── the accent tint on the way out ─────────────────────────────────────────
    `01-PHASES.md` T6.7. Two specs describe this and they do not describe the same
@@ -111,29 +141,161 @@ function darken(hex: string, amount = 0.1): string {
   return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
 }
 
-/** The blade group's turn, and the spine of the sequence. */
-const IRIS_TURN = 0.9;
-/** How far back the blades start, in degrees. */
-const IRIS_TURN_FROM = -40;
-/** The retraction. Shorter than the turn, so the mechanism settles into it. */
-const IRIS_RETRACT = 0.75;
+/* ── the four beats, in seconds ─────────────────────────────────────────────
+   Positions are absolute rather than relative, because the beats **overlap on
+   purpose**: the blades start while the ring is still closing and the spin
+   starts while the blades are still arriving, so the sequence reads as one
+   mechanism coming up to speed rather than as three animations queued.
+
+   The total lands at 1.30s, which is what `tools/verify/motion.ts` already
+   budgets for the first-paint loader — the sequence got a beat longer and no
+   slower. */
+
+/** The arc visible at t=0, as a fraction of the ring. A line, not a dot. */
+const RING_SEED = 0.14;
+const RING_DRAW = 0.42;
+
+const BLADES_AT = 0.28;
+const BLADES_GROW = 0.36;
+/** Round the ring, one spoke at a time. Small enough to still read as a set. */
+const BLADES_STAGGER = 0.045;
+
+const SPIN_AT = 0.58;
+const SPIN = 0.72;
+/** How far it gets before the curtain. `power2.in` spends most of it slow. */
+const SPIN_TURNS = 1.75;
+
+/**
+ * The period of the continuous spin the intro hands off to, in seconds per
+ * revolution.
+ *
+ * Not a tuned number — a derived one, and deriving it is the whole point. A
+ * `power2.in` tween covers `T` degrees in `D` seconds along `T·t²`, so its
+ * velocity at the end is `2T/D`: exactly twice its average. A loop set to any
+ * other speed would show a step at the handoff, and a step is the one thing
+ * that would give away that the spin is two different tweens.
+ */
+const SPIN_LOOP = SPIN / (2 * SPIN_TURNS);
+
+/**
+ * How much faster the whole sequence runs when the site is already loaded.
+ *
+ * Sayandeep: *"if the site is already loaded then the animation n everything is
+ * much faster than when it isn't."* Which is the right instinct and worth
+ * saying why: on a first paint the loader is covering real work — fonts,
+ * the hero's WebGL context, the route's payload — and 1.3s of mechanism is
+ * time the visitor was going to spend anyway. On a client-side navigation
+ * there is often nothing left to wait for, and the same 1.3s is 1.3s of the
+ * site holding its own door shut.
+ *
+ * A `timeScale`, not a second set of constants: one sequence, one set of
+ * proportions, played at two speeds. 2.4 puts the warm intro at 0.54s.
+ */
+const WARM_SCALE = 2.4;
 
 export function Loader() {
   const panelRef = useRef<HTMLDivElement>(null);
   const markRef = useRef<HTMLDivElement>(null);
   const enterRef = useRef<gsap.core.Timeline | null>(null);
   const exitRef = useRef<gsap.core.Timeline | null>(null);
-  const drawRef = useRef<gsap.core.Timeline | null>(null);
-  /** The mark introduces itself once per session, not once per route. */
-  const hasDrawn = useRef(false);
+  const introRef = useRef<gsap.core.Timeline | null>(null);
+  /* The spin is built inside the GSAP context — it closes over the mark's
+     elements — but it is driven from the effects below, which are outside
+     it. Two refs rather than lifting the whole thing out: the context is
+     what makes the tween revert cleanly on a rebuild. */
+  const startSpinRef = useRef<(() => void) | null>(null);
+  const stopSpinRef = useRef<(() => void) | null>(null);
   /** Where the intercepted click was going. Read by the exit's onComplete. */
   const pendingHref = useRef<string | null>(null);
   /** False until the first enter has run, so a rebuild does not re-cover the page. */
   const hasEntered = useRef(false);
 
+  /**
+   * The curtain waits on **two** things, and this is the join.
+   *
+   * ── The bug this exists for ─────────────────────────────────────────────
+   *
+   * Sayandeep, 2026-08-28: *"sometimes the loader just doesn't animate .. i
+   * switch page .. the wheel shows up stuck, after a second the curtain pulls
+   * up."*
+   *
+   * It was not intermittent and it was not a failure to animate. The mark's
+   * sequence was gated to the **first paint** — `hasDrawn`, now gone — so on
+   * every route change after that the panel swept down over a static mark, sat
+   * there for however long Next took to resolve the route, and swept up again.
+   * A parked logo for the length of a navigation, which is exactly "stuck for a
+   * second and then the curtain". On a fast local route it was brief enough to
+   * read as a glitch; on a slow one it was a second of nothing.
+   *
+   * So the sequence now runs on every navigation, and the wheel keeps spinning
+   * until the route lands. Which means the curtain cannot simply follow either
+   * event — it has to wait for the later of the two:
+   *
+   *   · `route`  the new pathname has rendered
+   *   · `intro`  the assembly has finished and the spin has taken over
+   *
+   * Whichever arrives second calls `raise`. `armed` is what keeps a stray
+   * pathname change — a back button, a `router.push` from somewhere else —
+   * from raising a curtain that was never lowered.
+   */
+  const latch = useRef({ route: false, intro: false, armed: false });
+
   const { reducedMotion } = useMotion();
   const router = useRouter();
   const pathname = usePathname();
+
+  /**
+   * Take the curtain up, but only once both latches are set. See `latch`.
+   *
+   * Stable across renders — the effects below and the click handler all call
+   * it, and a fresh identity each render would put it in three dependency
+   * arrays for no reason.
+   */
+  const raise = useRef(() => {
+    const l = latch.current;
+    if (!l.armed || !l.route || !l.intro) return;
+    l.armed = false;
+    stopSpinRef.current?.();
+    enterRef.current?.restart();
+  }).current;
+
+  /**
+   * Cover the page if it is not covered already, run the sequence, and arm the
+   * curtain. `scale` is 1 on a cold first paint and `WARM_SCALE` on a warm
+   * navigation — one sequence, one set of proportions, two speeds.
+   */
+  const play = useRef((scale: number) => {
+    const l = latch.current;
+    l.armed = true;
+    l.route = false;
+    l.intro = false;
+
+    stopSpinRef.current?.();
+
+    const intro = introRef.current;
+    /* Under `prefers-reduced-motion` the sequence has no children at all, so
+       there is nothing to wait for and the latch closes immediately. The
+       curtain is then the 200ms fade, which is the whole animation that mode
+       gets — and should get.
+
+       The mark is revealed here rather than by the sequence, because there is
+       no sequence: the stylesheet starts it at `opacity: 0` so a static mark is
+       never visible before it animates, and in this mode nothing else would
+       ever turn it back on. */
+    if (!intro || intro.duration() === 0) {
+      gsap.set(markRef.current, { opacity: 1, scale: 1 });
+      l.intro = true;
+      return;
+    }
+
+    intro.timeScale(scale);
+    intro.eventCallback('onComplete', () => {
+      l.intro = true;
+      startSpinRef.current?.();
+      raise();
+    });
+    intro.restart();
+  }).current;
 
   useGSAP(
     () => {
@@ -141,9 +303,17 @@ export function Loader() {
       const mark = markRef.current;
       if (!panel || !mark) return;
 
+      /* Fired when the exit has finished covering the page.
+
+         **The sequence starts here, not after the route lands.** That ordering
+         is the whole fix: the panel is over the page and the navigation has not
+         begun, which is precisely the window that used to hold a parked mark.
+         The wheel is assembled and spinning throughout it, and `raise` takes
+         the curtain up when both the route and the sequence are done. */
       const navigate = () => {
         const href = pendingHref.current;
         pendingHref.current = null;
+        play(WARM_SCALE);
         if (href) router.push(href);
       };
 
@@ -173,88 +343,163 @@ export function Loader() {
           .set(mark, { opacity: 1, scale: 1 });
       }
 
-      /* ── the mark draws itself ───────────────────────────────────────────
-         See MARK_DRAW. Separate from `enter` so the IX2 transcription keeps its
-         asserted shape.
+      /* ── the wheel is assembled ──────────────────────────────────────────
+         See the block comment at the top of the file for the four beats and for
+         why the spin is a composed transform rather than a rotation.
 
-         The ring is drawn with `stroke-dasharray` set to its own circumference
-         and the offset animated to 0 — the standard SVG line-draw, and the
-         reason the circumference is read from the element rather than computed
-         here is that the mark's geometry lives in `ApertureMark` and this file
-         should not have a second copy of it that can drift.
-
-         The ticks scale from their outer end. `transform-origin` is set per
-         tick in user units because each one is already carrying two rotations
-         from the mark's own markup — a percentage origin would resolve against
-         the rotated box and send them wandering. */
+         Separate from `enter` so the IX2 transcription keeps its asserted
+         shape. */
       const ticks = [...mark.querySelectorAll<SVGLineElement>('[data-mark-tick]')];
 
-      const draw = gsap.timeline({ paused: true });
+      const intro = gsap.timeline({ paused: true });
       const svg = mark.querySelector<SVGSVGElement>('svg');
+      const ring = mark.querySelector<SVGGeometryElement>('[data-mark-ring]');
       const blades = mark.querySelector<SVGGElement>('[data-mark-blades]');
 
-      if (!reducedMotion && svg && blades && ticks.length > 0) {
-        /* The bore's centre and each blade's rest length, read off the elements
-           rather than duplicated here. `ApertureMark` owns the geometry, and a
-           second copy of it in this file is a copy that can drift. */
-        const centre = svg.viewBox.baseVal.width / 2;
-        /* Both coordinates, not just `y2`.
+      /* The spin's angle lives on a proxy rather than on the element, because
+         what the element needs is a whole composed transform and GSAP has no
+         property for "rotate within a projected plane". One number tweened,
+         one attribute written per frame. */
+      const spinState = { angle: 0 };
+      let spinLoop: gsap.core.Tween | null = null;
 
-           The blades used to be drawn straight up from the ring and swung into
-           place by a `transform`, so "retracted to the bore" was a change in
-           `y2` alone. The mark is tilted now and each blade's endpoints are
-           computed as points (D-033), so every one of the six lies at its own
-           angle — moving only `y2` would drag the far ends vertically towards a
-           line rather than inwards towards the bore, and the iris would close
-           into a slot. */
+      const centre = svg ? svg.viewBox.baseVal.width / 2 : 0;
+
+      /** `tilt ∘ rotate(θ) ∘ tilt⁻¹`, about the mark's centre. */
+      const spinTransform = (angle: number) =>
+        `translate(${centre} ${centre}) rotate(${TILT_AXIS_DEGREES}) scale(1 ${TILT_SQUASH})` +
+        ` rotate(${angle}) scale(1 ${1 / TILT_SQUASH}) rotate(${-TILT_AXIS_DEGREES})` +
+        ` translate(${-centre} ${-centre})`;
+
+      const applySpin = () => blades?.setAttribute('transform', spinTransform(spinState.angle));
+
+      if (!reducedMotion && svg && ring && blades && ticks.length > 0) {
+        /* Each blade's anchor on the ring's inner edge, and its rest length,
+           read off the elements rather than duplicated here. `ApertureMark`
+           owns the geometry, and a second copy of it in this file is a copy
+           that can drift. */
+        const anchor = ticks.map((tick) => ({
+          x: Number(tick.getAttribute('x1')),
+          y: Number(tick.getAttribute('y1')),
+        }));
         const rest = ticks.map((tick) => ({
           x2: Number(tick.getAttribute('x2')),
           y2: Number(tick.getAttribute('y2')),
         }));
 
-        draw
+        /* The ellipse's circumference, from the browser rather than from
+           Ramanujan's approximation — `getTotalLength` is on every
+           SVGGeometryElement and is exact for the path the browser will draw.
+           The fallback is only for a rasteriser that does not implement it: the
+           perimeter of a circle at the mean radius is within a percent of an
+           ellipse this round, and a percent of a dash length is invisible. */
+        const length =
+          typeof ring.getTotalLength === 'function'
+            ? ring.getTotalLength()
+            : Math.PI * 2 * centre * ((1 + TILT_SQUASH) / 2);
+
+        intro
           .set(mark, { opacity: 1, scale: 1 })
 
-          /* The turn. `power3.out` so it arrives quickly and settles slowly,
-             which is what a sprung mechanism does. */
+          /* ── 1. the ring forms from a line ──────────────────────────────
+             One dash the length of the whole ellipse, with the offset carrying
+             all but `RING_SEED` of it off the end — so the first frame is a
+             short arc and the last is a closed ring. Only the offset moves,
+             which is one animatable number and no string interpolation. */
+          .set(ring, { strokeDasharray: length })
           .fromTo(
-            blades,
-            { rotate: IRIS_TURN_FROM, transformOrigin: '50% 50%', svgOrigin: `${centre} ${centre}` },
-            { rotate: 0, duration: IRIS_TURN, ease: 'power3.out' },
+            ring,
+            { strokeDashoffset: length * (1 - RING_SEED) },
+            { strokeDashoffset: 0, duration: RING_DRAW, ease: 'power2.out' },
             0,
           )
 
-          /* The retraction. Each blade's far end travels from the centre of the
-             bore out to its own rest length. `y2` is animated as an ATTRIBUTE
-             rather than as a transform: the blades already carry two rotations
+          /* ── 2. the blades appear and connect ───────────────────────────
+             Each grows **out of its own anchor on the ring's inner edge**, not
+             inward from the bore — the previous version ran the other way,
+             because it was drawing an iris retracting rather than a wheel
+             being built.
+
+             `attr`, not a transform: the blades already carry two rotations
              from the mark's own markup, and a scale composed on top of those
              would shear them off their radial line. Moving the endpoint keeps
-             every blade exactly on its own axis, which is the whole point of
-             the geometry §1 specifies.
-
-             `power2.inOut` rather than an out-ease: an iris does not snap open,
-             it eases out of the closed position and eases into the open one. */
+             every blade exactly on its own axis, which is what §1's geometry
+             is. */
           .fromTo(
             ticks,
-            { attr: { x2: centre, y2: centre } },
+            {
+              attr: {
+                x2: (i: number) => anchor[i]?.x ?? centre,
+                y2: (i: number) => anchor[i]?.y ?? centre,
+              },
+            },
             {
               attr: {
                 x2: (i: number) => rest[i]?.x2 ?? centre,
                 y2: (i: number) => rest[i]?.y2 ?? centre,
               },
-              duration: IRIS_RETRACT,
-              ease: 'power2.inOut',
+              duration: BLADES_GROW,
+              ease: 'power2.out',
+              stagger: BLADES_STAGGER,
             },
-            0,
+            BLADES_AT,
           )
 
-          /* Hand everything back. The loader is mounted once in the root layout
-             and never rebuilt, so a rotation left on the blade group would tilt
-             the same mark in the navbar and the footer, and a `y2` left short
-             would leave the logo's blades the wrong length for the session. */
-          .set(blades, { clearProps: 'rotate,transformOrigin,svgOrigin' })
-          .set(ticks, { clearProps: 'attr' });
+          /* ── 3. the wheel spins, slow then very fast ────────────────────
+             `power2.in` is the ease that means "starts slow and keeps gaining":
+             it covers a quarter of the travel in the first half of the time.
+             It ends at twice its average speed, which is what `SPIN_LOOP` is
+             derived from so the handoff below has no step in it. */
+          .fromTo(
+            spinState,
+            { angle: 0 },
+            {
+              angle: SPIN_TURNS * 360,
+              duration: SPIN,
+              ease: 'power2.in',
+              onUpdate: applySpin,
+            },
+            SPIN_AT,
+          )
+
+          /* Hand the ring back. The blade group's transform is deliberately
+             NOT cleared here — the continuous spin picks up from this exact
+             angle the moment this timeline completes, and clearing it would
+             snap the spokes back to zero on the seam. It is cleared when the
+             spin stops instead. */
+          .set(ring, { clearProps: 'strokeDasharray,strokeDashoffset' });
       }
+
+      /* ── the spin that outlives the sequence ─────────────────────────────
+         Started when the intro completes and stopped when the curtain goes up,
+         so the wheel is turning for the whole of however long a navigation
+         actually takes. This is the fix for the stuck mark — see `play`.
+
+         Not registered as a timeline: it repeats forever, and an assertion on
+         `repeat: -1` says nothing a duration can express. It is a plain
+         `gsap.to` on the shared ticker rather than a second rAF, which is the
+         property that matters and which the runtime rAF check already
+         enforces — the same reasoning the schematic's travelling band uses. */
+      const startSpin = () => {
+        if (reducedMotion || !blades || spinLoop) return;
+        spinLoop = gsap.to(spinState, {
+          angle: '+=360',
+          duration: SPIN_LOOP,
+          ease: 'none',
+          repeat: -1,
+          onUpdate: applySpin,
+        });
+      };
+
+      const stopSpin = () => {
+        spinLoop?.kill();
+        spinLoop = null;
+        spinState.angle = 0;
+        /* Removed rather than reset to zero. The loader is mounted once in the
+           root layout and never rebuilt, so a transform left on the blade group
+           would tilt this same mark for the rest of the session. */
+        blades?.removeAttribute('transform');
+      };
 
       /* ── exit ────────────────────────────────────────────────────────────
          Built paused and restarted per click rather than created inside the
@@ -268,7 +513,20 @@ export function Loader() {
       } else {
         exit
           .set(panel, { yPercent: 100, display: 'flex', opacity: 1 })
-          .set(mark, { opacity: 1, scale: 1 })
+          /* **Zero, not one.** The mark used to ride up with the panel fully
+             drawn, and then — the instant the panel landed and `play` started
+             the sequence — snap back to a bare arc and redraw itself. A visible
+             reset, and the same fault the stylesheet fixes at first paint
+             (D-061): a finished logo shown before it animates.
+
+             The panel is a plain grey field for the length of the sweep, and
+             the wheel starts assembling the moment it lands. `scale` is still
+             set because `enter` leaves it at 0.5.
+
+             The reduced-motion branch above keeps `opacity: 1`: there is no
+             sequence in that mode to reveal it, and a 200ms fade onto an empty
+             panel is not a loader. */
+          .set(mark, { opacity: 0, scale: 1 })
           .to(panel, { yPercent: 0, duration: DUR.mid, ease: EASE.out });
       }
 
@@ -284,10 +542,12 @@ export function Loader() {
 
       enterRef.current = enter;
       exitRef.current = exit;
-      drawRef.current = draw;
+      introRef.current = intro;
+      startSpinRef.current = startSpin;
+      stopSpinRef.current = stopSpin;
       registerTimeline('loader.enter', enter);
       registerTimeline('loader.exit', exit);
-      registerTimeline('loader.mark', draw);
+      registerTimeline('loader.mark', intro);
 
       return () => {
         unregisterTimeline('loader.enter');
@@ -295,29 +555,47 @@ export function Loader() {
         unregisterTimeline('loader.mark');
         enterRef.current = null;
         exitRef.current = null;
-        drawRef.current = null;
+        introRef.current = null;
+        /* The spin is a bare `gsap.to`, not a context-managed timeline, and
+           the transform it writes is an attribute GSAP never recorded — so
+           neither goes away on its own when the context reverts. */
+        stopSpin();
+        startSpinRef.current = null;
+        stopSpinRef.current = null;
       };
     },
-    { scope: panelRef, dependencies: [reducedMotion] },
+    { scope: panelRef, dependencies: [reducedMotion, play] },
   );
 
-  /* Enter runs on mount and on every route change — tonik fires `a-23` on
+  /* Runs on mount and on every route change — tonik fires `a-23` on
      PAGE_START, PAGE_SCROLL_UP and PAGE_FINISH alike. */
   useEffect(() => {
     const first = !hasEntered.current;
     hasEntered.current = true;
 
-    /* First paint: the mark draws, then the panel sweeps. Every route change
-       after that is the sweep alone — see MARK_DRAW on why. */
-    if (first && !hasDrawn.current && drawRef.current && drawRef.current.duration() > 0) {
-      hasDrawn.current = true;
-      const draw = drawRef.current;
-      draw.eventCallback('onComplete', () => enterRef.current?.restart());
-      draw.restart();
+    if (first) {
+      /* Cold. The panel is already covering the page from CSS, the route is by
+         definition here, and the sequence runs at its full length because the
+         loader is covering real work — fonts, the hero's WebGL context, the
+         first route's payload. */
+      play(1);
+      latch.current.route = true;
+      raise();
       return;
     }
 
-    enterRef.current?.restart();
+    /* Warm. If our own exit covered the page then `play` already started when
+       it finished, and the wheel has been spinning since; this is just the
+       second latch closing. If it did not — a back button, a `router.push`
+       from elsewhere — nothing has covered the page and nothing is armed, so
+       cover it and run the sequence now rather than letting `enter` flash a
+       panel up from nowhere. */
+    if (!latch.current.armed) {
+      gsap.set(panelRef.current, { display: 'flex', yPercent: 0, opacity: 1 });
+      play(WARM_SCALE);
+    }
+    latch.current.route = true;
+    raise();
 
     /* The tint belongs to the transition, not to the page. Cleared here rather
        than in the exit's onComplete because the exit completes *before* the
@@ -327,7 +605,7 @@ export function Loader() {
     return () => {
       if (mark) mark.style.color = '';
     };
-  }, [pathname]);
+  }, [pathname, play, raise]);
 
   /* ── link interception ──────────────────────────────────────────────────
      Delegated at the document, so every internal link on the site is covered

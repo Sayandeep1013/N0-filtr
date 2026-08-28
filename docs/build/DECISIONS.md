@@ -1960,3 +1960,308 @@ changes with nobody touching it is not.
 **2.6KB** — `/` went from 349.1 to 351.7 of 360KB. No new dependency. A Matter.js rope was the
 obvious alternative and Matter is already in the tree, but ropes there are chains of constrained
 bodies, heavy and jittery, and it is lazy-loaded at the footer only.
+
+---
+
+## D-057 · The custom cursor is white, always
+
+**Phase:** 12 · **Date:** 2026-08-28 · **Status:** active
+
+Sayandeep: *"for the casestudy mouse cursor we currently show colours there — lets just use white
+uniformity instead. All stays same but just white."*
+
+The disc read `--work-accent-ink` off whatever card the pointer entered, falling back to a case
+study's `--accent-ink` and then to the page's `--accent`. So it arrived blue over Tessera, pink over
+ReIN Bot and green over Solidus, and changed identity twelve times crossing one grid.
+
+**This is D-035's argument reaching the last object that had not heard it.** Every product image on
+the site is graded to grey and white; the one thing still keeping score of which work you were
+pointing at was the pointer. A cursor that changes colour reads as a state indicator, and it was not
+indicating anything.
+
+`--white` rather than `#fff` — `#efefef`, the same off-white as the type, because a pure white disc
+on this ground is brighter than anything else on the page. The label inverts with it: it was
+`--text-primary` on an accent disc and is `--text-alternate` on a white one, and the text-shadow
+that used to lift it off a mid-tone accent is gone with the accent.
+
+**This supersedes one bullet of D-036.** That decision listed "the custom cursor's disc" among the
+places the accent survives. It no longer does; the accent budget it vacated went to the generated
+plate's datum (D-059), so the count of accent marks on a work card is unchanged.
+
+**Consequence:** `--work-accent-ink` briefly had no consumer and was removed from `WorkCard`, then
+restored in the same session when D-059's datum needed exactly that value. `tint()` is gone.
+
+---
+
+## D-058 · The wire rig runs all six frames
+
+**Phase:** 12 · **Date:** 2026-08-28 · **Status:** active · supersedes part of D-056
+
+Sayandeep: *"we have two cards where we haven't added the pole and wire thing, those are just
+standing below like nothing."*
+
+D-056 wired four of the six frames and argued for it: *"a real street does not wire every building,
+and six wired frames stops being an object in a composition and becomes a pattern over one."*
+
+**That argument is right about a street and wrong about this composition**, for a reason only
+visible on the built page. 05 and 06 are the bottom row — where the section ends, and the last thing
+seen before the blog row. Restraint reads as restraint when the omission is in the *middle* of a
+run; at the end of one it reads as the run having stopped. The four wired frames are staggered and
+overlapping and hang together; the two bare ones sat on a clean shared baseline underneath, so the
+eye read them as a different section rather than as the quiet end of this one.
+
+The chain is now a serpentine — across, diagonal down, across, diagonal down, across. Every span
+alternates between the two kinds of run, which is what stops five spans reading as a zigzag applied
+to the section rather than a route through it. Measured at 1512 in the rig's 1400-wide space the
+poles land at 457 → 849 → 398 → 837 → 427 → 966.
+
+Two things fell out of doing it:
+
+- **`arm` is a fraction of each frame's width and the frames are not the same width**, so the two
+  new values are not the same number as their neighbours. Every pole's crossarm comes out at 47–52px
+  at 1512; frame 05 is the widest in the set, so its smaller fraction is the same object, not a
+  narrower one.
+- The build guard was `frames.length < 4`, a literal that had to be remembered when the table grew.
+  It is `NODES.length` now.
+
+**Consequence:** fifteen wires on six poles, up from nine on four. `behaviour.config.ts`'s
+`wireCount` and `poleCount` were updated with it — the assertion caught the change, which is the
+assertion earning its place.
+
+---
+
+## D-059 · The generated plate becomes a specimen plate
+
+**Phase:** 12 · **Date:** 2026-08-28 · **Status:** active
+
+Sayandeep: *"the casestudy cards thumbnail — i need better thumbnails for those. Use this site link
+[kojima-san.vercel.app] .. see what it does .. the svg styling like these .. understand the intent
+and implement accordingly."*
+
+The reference is a generative "micro-graphic" poster maker. Reading its output rather than copying
+it, **the intent is that the annotation is the artwork**: a ruled frame with registration crosses at
+the corners, a header rail carrying a catalogue number and a figure number, one or two small precise
+instruments on a great deal of empty ground with a part name under each, and a footer rail with a
+spec line and an edition. The drawing is spare on purpose.
+
+D-038's plates were the opposite — *fields*, filling the whole 1600×1000 frame with texture. They
+had no subject and nothing to read.
+
+### The labels are facts, not fiction
+
+The reference generates a catalogue number because it has nothing else to print there. Ours has
+plenty: `FIG.04` is the work's real position in the twelve, the code is the plate's actual seed, the
+spec line names the instruments actually drawn and the hash they came from, and the edition is that
+position over the real total.
+
+**`edition` is optional and omitted rather than invented.** A studio called No Filter putting a
+decorative serial number on its own work would be the one joke on this site at its own expense.
+
+### The apparatus is DOM and the instruments are SVG
+
+Not a stylistic split — a correctness one, and the thing most likely to be "simplified" back.
+
+These plates are drawn into boxes whose aspect ratios are **not known in the component and not the
+same**: 16:10 on a half card, 21:9 on the full one, whatever a board tile's spans work out to, 4:3
+on a phone. One viewBox with `preserveAspectRatio="slice"` covers the box and crops the overflow — a
+field does not care, a frame does. On the 21:9 card slice crops about 170 units off the top and
+bottom, which is the header rail, the footer rail and both rows of corner marks.
+
+Passing the ratio in was considered and does not survive contact: the plate is inset from its box by
+`--card-plate`, in `rem`, on a *fluid* root, so the true ratio of the drawn area moves with the
+viewport and no caller can state it.
+
+So the apparatus is laid out by the box itself, in flexbox, and cannot be cropped by construction.
+It buys two more things: the micro-type is real type at `--t-label-sm-size` rather than SVG text
+scaled by the box, and `vector-effect: non-scaling-stroke` makes every instrument line a true 1px
+hairline — the width the rest of the site is drawn in.
+
+**One departure from the type scale, and only one:** the rails carry positive tracking (`0.09em`)
+where `--t-label-sm-track` is `-0.01rem`. Opened-out letter-spacing is the whole idiom of a
+technical plate's annotation, and at 8px it is what keeps a mono string from closing into a bar. The
+size, the family and the 400 weight are the system's.
+
+### Seven instruments, and the cards get four of them
+
+Sayandeep, on seeing it: *"don't use the circular ones where we have hover effect as in the
+casestudy cards. In the about section those look good though."*
+
+A distinction about **what else is moving**, not about the drawings. A work card is the one place a
+plate is drawn *under* something — the title watermark sits over its middle and travels to a corner
+on hover, and the info drawer wipes across it. All of that is straight-line motion over a
+rectilinear layout, and a ring underneath it reads as a second, unrelated system. `/about` has
+nothing over its plates and keeps all seven.
+
+Cutting the three round instruments left the cards with two, which is not a set — twelve plates
+drawn from `mosaic` and `strata` alone is a pattern. **`grid` and `stack` exist because of this**,
+and both are made of shapes the site already uses.
+
+The accent budget is unchanged from D-036 — one line per plate. It is the **datum**: a hairline
+across part of the field with a tick at each end, in the *light* member of the accent pair, because
+1px of the dark member is invisible on a `--grey-900` ground.
+
+### Two things this broke, both caught rather than noticed
+
+- **The custom cursor stopped lagging.** `pointerover` fires for every element the pointer crosses,
+  and `closest()` resolves all of a target's descendants to the same target — so one sweep across a
+  card re-ran the entry snap once per child. Invisible while the media was a single `<svg>`; with a
+  plate in there it re-pinned the disc twenty times and deleted the lerp. `verify:motion` reported
+  it as *"trails the pointer rather than being pinned to it — got 0px"*. The fix is one line:
+  `if (el === active) return`.
+- **The card's title watermark became unreadable.** Sayandeep: *"their opacity is too low so the
+  background and the title get mixed."* `0.3` was chosen against flat fields; over ruled line work
+  the letters and the plate are two greys at the same value. It is `0.58` now, with two shadows
+  doing different jobs — a tight one that puts an edge on each letter against a hairline crossing
+  it, and a wide diffuse one that drops the plate's mid-greys away from the whole word.
+
+---
+
+## D-060 · The copy pass: every borrowed line is replaced
+
+**Phase:** 12 · **Date:** 2026-08-28 · **Status:** active
+
+Sayandeep: *"the overall tagline n all for the site — we need creative taglines for main page
+homepage aboutpage everything. Do not use AI slop words. Use something that feels creative and
+simple at the same time."*
+
+Ran through `/brainstorming`. Three voices were put up with the same four slots written in each;
+**Voice A, "say the thing"** — plain declaratives, concrete numbers, no metaphor — was chosen, and
+the scope chosen was *every heading and lead on the site* rather than only the borrowed ones.
+
+Every slot was reviewed. **Six lines changed; the rest were left alone deliberately**, because they
+were already in this voice and replacing good copy with merely different copy is the failure mode of
+a full pass.
+
+| Slot | Was | Is |
+|---|---|---|
+| Home, works intro | A studio that defines, designs, and builds products and other digital machinery. | We draw it, we build it, we deploy it. The same hands do all three. |
+| Home, services lead | Design is the API between vision and reality. Consider us your gateway. | Six services. No handover between any of them. |
+| Home, blog link | Check out our blog | Read the blog |
+| `/about` hero | We are cool humans and we make a fuss | A studio small enough to answer its own email. |
+| `/about` wall | no filter is people | no filter is the work |
+| `/about` network | Always open to new nodes in our network | There is always room for one more. |
+| `/blog` heading | We share what we know. | Notes from the build. |
+
+The `/about` hero's lead lost its trailing email clause, which moved up into the heading; it said
+both and saying both weakened each.
+
+**One of these was not just borrowed, it was false.** Decision 2 replaced tonik's forty-five team
+photographs with forty-five project artefacts — we are two to five people per project and a wall of
+the same three faces is a worse lie than no wall. *"no filter is people"* had been sitting above a
+wall with no people in it.
+
+**The specs and the strings now deliberately disagree.** `30-page-specs.md` records several of these
+as verbatim. It is a transcription of tonik; the brief has always said *our own brand, our own
+work*. A later agent finding the divergence should not "correct" it back.
+
+Unchanged and worth naming so nobody re-opens them: the hero's two lines (the ≤16-character measure
+and the `selectedWord: 'build'` effect both depend on them), the footer tagline, `SITE.description`,
+the culture heading, all five service leads, all five industry leads, and the site-wide CTA.
+
+---
+
+## D-061 · The loader assembles a wheel and spins it
+
+**Phase:** 12 · **Date:** 2026-08-28 · **Status:** active · `[new]`
+
+Sayandeep, two things in one message. The sequence: *"first the ring forms from a line and then the
+rims appear and connects and then the wheel spins ... first slower then faster and faster eventually
+very fast and then curtain up to the page."* And the bug: *"sometimes the loader just doesn't
+animate .. i switch page .. the wheel shows up stuck, after a second the curtain pulls up."*
+
+They turned out to be one fix.
+
+### What was missing
+
+| Beat asked for | What existed |
+|---|---|
+| the ring forms from a line | nothing — the ring was present from frame 1, deliberately (D-030) |
+| the rims appear and connect | the blades retracted *inward from the bore*, which is the opposite motion |
+| spins slow → very fast | the blade group turned −40° → 0 on `power3.out` — arrives fast, settles slow |
+| curtain up | `loader.enter`, already correct |
+
+### The ring is drawn again, and it was rejected twice before
+
+Two earlier versions dash-drew the mark and were called: *"dash-drawing a hairline on a 5rem mark is
+scratchy."* That note stays in the file as the record of why it failed — **the draw was the whole
+animation**, so a thin stroke crawling round an ellipse was the only thing to look at, for a second.
+Here it is 0.42s of a 1.30s mechanism, on the ring's own `SIZE/12` stroke rather than a hairline,
+and it opens onto something. A beat can be wrong alone and right in a sequence.
+
+### The spin is not a rotation
+
+The mark is a **tilted** wheel drawn in projection: the ring is an ellipse and every blade's
+endpoints were pushed through the tilt matrix as points (D-033). Rotating that on screen turns the
+ellipse's major axis, which reads as a coin tumbling. Under 40° nobody notices — which is how the
+previous version got away with it; over 630° it is the only thing you can see.
+
+So the blade group is spun **in the wheel's own plane**, composing `tilt ∘ rotate(θ) ∘ tilt⁻¹` about
+the centre. `TILT_AXIS_DEGREES` and `TILT_SQUASH` are now exported from `ApertureMark` rather than
+retyped — that file owns the geometry.
+
+### The bug was not intermittent
+
+The mark's sequence was gated to the **first paint**. On every route change after that the panel
+swept down over a static mark, sat there for however long Next took to resolve the route, and swept
+up again. A parked logo for the length of a navigation — *"stuck for a second and then the curtain"*,
+exactly. On a fast local route it read as a glitch; on a slow one it was a second of nothing.
+
+**So the sequence runs on every navigation, and the wheel keeps spinning until the route lands.**
+The intro hands off to a continuous spin at the exact angular velocity it ended on — `power2.in`
+finishes at twice its average, so the loop's period is `SPIN / (2 × SPIN_TURNS)` and there is no
+seam. What used to be dead time is now the fastest part of the animation.
+
+That makes the curtain wait on **two** things, which is why there is a two-latch join: the route
+having rendered, and the sequence having finished. Whichever arrives second raises it.
+
+**A second dead window was found the same way and fixed in CSS.** The panel paints on the first
+byte; the sequence cannot start until React has hydrated. In between — ~700ms in dev, less in
+production but never zero — the mark sat there fully drawn and motionless and then jumped back to a
+bare arc to begin. `.loader__mark` starts at `opacity: 0`, so the first thing anyone sees of it is
+it drawing itself.
+
+### Cold and warm are one sequence at two speeds
+
+Sayandeep: *"if the site is already loaded then the animation n everything is much faster than when
+it isn't."* A `timeScale` of `2.4` on a warm navigation, not a second set of constants — one
+sequence, one set of proportions. The reasoning is worth keeping: on a first paint the loader is
+covering real work and 1.3s is time the visitor was going to spend anyway; on a client-side
+navigation there is often nothing left to wait for, and the same 1.3s is the site holding its own
+door shut.
+
+**`loader.enter` and `loader.exit` are untouched.** They are IX2 transcriptions with asserted
+shapes; the sequence is a third timeline, as D-030 established.
+
+---
+
+## D-062 · App Development is the sixth service
+
+**Phase:** 12 · **Date:** 2026-08-28 · **Status:** active
+
+Sayandeep: *"i think we do app dev too but it never got added. Can we add a sixth for the services
+and add tags of app dev too where needed?"*
+
+He is right, and the omission has a clear cause: `40-content-model.md` §3 lists five services
+because it is **a transcription of tonik's five**, and tonik do not build apps. Everything on this
+site that was not in their spec had to be noticed by someone, and this one had not been.
+
+The evidence was already on the site and unclaimed. Three of the twelve works install on a device
+rather than open in a tab — DroidDoodle (native Android, Kotlin and C++, a language model running on
+the handset), Solidus (Expo and React Native), DiscVault (an apk and a desktop binary alongside its
+CLI and its website) — and two of the blog posts are about shipping them.
+
+**Service 06 has no §3 entry at all**, headline included. It is the first service on this site that
+is ours end to end, and the file says so.
+
+`featuredWorkSlug` is Solidus rather than DroidDoodle: both are ours and both are mobile, but one is
+live and the other is archived, and evidence you can install beats evidence you can only read about.
+
+**Tagged on three works**, not five. ReelShell is a terminal client and NoteTakerXX is a web canvas;
+tagging either would make the filter lie, and a service tag that means "roughly adjacent" is a tag
+that stops meaning anything.
+
+**Consequence:** the accordion has six rows (`behaviour.config.ts`'s `rowCount`), the footer list and
+the contact form's chips pick it up from `SERVICES` automatically, the hero rail reads *12 shipped
+projects · 6 services*, `ServiceIcon` has a sixth placeholder glyph (still I-014), and the services
+lead written the same day under D-060 counts six rather than five. `20-components-and-motion.md`
+§194 still says the contact chips are ×5 — another deliberate spec divergence, same class as D-060's.

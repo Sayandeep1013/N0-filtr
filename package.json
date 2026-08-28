@@ -18,6 +18,7 @@
     "hero:fallback": "node scripts/hero-fallback.mjs",
     "showreel:placeholder": "node scripts/showreel-placeholder.mjs",
     "capture": "node scripts/capture.mjs",
+    "readme:shots": "node scripts/readme-shots.mjs",
     "optimise": "node scripts/optimise.mjs",
     "extract:tonik": "node tools/extract/tonik.mjs",
     "compare:hero": "node tools/extract/compare-hero.mjs",

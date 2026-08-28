@@ -112,34 +112,46 @@ export function CustomCursor() {
            **instant** out — the cursor vanishes the moment the pointer leaves
            and shrinks afterwards, which is what stops it trailing off the edge
            of an image. */
-        /* The disc takes the colour of whatever it is over.
- 
-           On a case study `--accent` is set on <html>, so it was blue there and
-           **black on the works grid**, where nothing sets it — Sayandeep liked
-           "the blue view circle" and on `/works` it was a dark disc on a dark
-           page. Each card already publishes its own `--work-accent`, so the
-           cursor reads that off the element it entered.
+        /* ── the disc is white, and only white ────────────────────────
+           It used to take the colour of whatever it was over: each card
+           publishes a `--work-accent-ink`, a case study sets `--accent-ink` on
+           <html>, and `tint()` read whichever was in scope and painted the disc
+           with it.
 
-           The chain prefers the **light** member of each pair, because the disc
-           is a mid-size mark on a dark page and the dark accents disappear into
-           it — the same distinction `--accent-ink` exists for (I-046). Card
-           first, then the page, then the fills as a floor. */
-        const tint = (el: HTMLElement) => {
-          const styles = getComputedStyle(el);
-          const colour =
-            styles.getPropertyValue('--work-accent-ink').trim() ||
-            styles.getPropertyValue('--accent-ink').trim() ||
-            styles.getPropertyValue('--work-accent').trim() ||
-            styles.getPropertyValue('--accent').trim();
-          if (colour) wrap.style.backgroundColor = colour;
-        };
+           Sayandeep, 2026-08-28: *"for the casestudy mouse cursor we currently
+           show colours there — lets just use white uniformity instead."*
+
+           Which is the same argument D-035 already made about the media, and
+           the cursor was the one thing still arguing back. Twelve accents meant
+           the pointer changed identity twelve times crossing one grid — it read
+           as a state indicator, and it is not indicating anything. White is the
+           pointer's own colour on every page, so it stops being a property of
+           the card and goes back to being a property of the cursor.
+
+           There is nothing to set here any more: the disc's colour lives in
+           `CustomCursor.module.css` and nothing overwrites it. See D-057. */
 
         const onEnter = (event: PointerEvent) => {
           const el = (event.target as Element | null)?.closest?.('[data-cursor]');
           if (!(el instanceof HTMLElement)) return;
+          /* ── already here ────────────────────────────────────────────────
+             `pointerover` fires for **every element the pointer crosses**, not
+             for every `[data-cursor]` target — and `closest()` resolves all of
+             a target's descendants back to the same target. So sliding across
+             one card fires this once per child element underneath, and each of
+             those re-ran the snap below.
+
+             That was invisible while a card's media was a single `<svg>`. D-059
+             put a plate in there — a mount, four corner marks, two rails, a
+             field of panels — and suddenly one sweep across a card re-pinned
+             the disc to the pointer twenty times, which deletes the lag that is
+             the entire point of the lerp. `verify:motion` caught it as
+             "trails the pointer rather than being pinned to it — got 0px".
+
+             The target has not changed, so there is nothing to enter. */
+          if (el === active) return;
           active = el;
           setLabel(el.dataset.cursor || 'View');
-          tint(el);
 
           /* **Snap, do not ease in.** The disc has to appear exactly where the
              pointer already is — that is the whole of Sayandeep's note. Easing

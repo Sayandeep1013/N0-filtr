@@ -33,9 +33,12 @@ export const NAV_LINKS: NavLink[] = [
 ];
 
 /**
- * The five services. Slugs and names are 40-content-model.md §3 verbatim; the
- * footer renders them as the sibling-dim list (§20). Headlines, copy, FAQ and
- * accordion panels are phase 7's.
+ * The six services. Slugs and names for 01–05 are 40-content-model.md §3
+ * verbatim; the footer renders them as the sibling-dim list (§20). Headlines,
+ * copy, FAQ and accordion panels are phase 7's.
+ *
+ * **06 has no §3 entry** — §3 transcribes tonik's five and tonik do not build
+ * apps. See `lib/content/services.ts` and D-062.
  */
 export interface ServiceSummary {
   slug: string;
@@ -51,6 +54,8 @@ export const SERVICES: ServiceSummary[] = [
   { slug: 'websites', name: 'Websites' },
   { slug: 'creative-development', name: 'Creative Development' },
   { slug: 'engineering', name: 'Engineering' },
+  /* Ours, not §3's. D-062. */
+  { slug: 'app-development', name: 'App Development' },
 ];
 
 /* ── the hero ──────────────────────────────────────────────────────────────
@@ -97,7 +102,7 @@ export const HERO = {
   selectedWord: 'build',
   /** The 2-up mono rail above the hairline at the section's foot. */
   labelLeft: '0→1 design and engineering for founders who ship',
-  labelRight: '12 shipped projects · 5 services',
+  labelRight: '12 shipped projects · 6 services',
 } as const;
 
 /* ── identity ──────────────────────────────────────────────────────────────
@@ -252,15 +257,20 @@ export const STACK: readonly string[] = [
 export const STACK_LABEL = 'The stack';
 
 /* ── the works section ─────────────────────────────────────────────────────
-   `30-page-specs.md` §2 gives this heading verbatim. It is the site's first
-   `<RevealText>` and the reason phase 3's Reading Map includes §2's heading
-   even though the grid under it belongs to phase 4.
+   It is the site's first `<RevealText>` and the reason phase 3's Reading Map
+   includes §2's heading even though the grid under it belongs to phase 4.
+
+   **The line is ours now.** §2 gave it verbatim — "A studio that defines,
+   designs, and builds products and other digital machinery" — and that is
+   tonik's sentence about tonik: three verbs of increasing abstraction and a
+   noun ("digital machinery") doing the work a claim should be doing. See D-060
+   for the copy pass this belongs to and why the specs and the strings now
+   deliberately disagree.
 
    Set in `--t-h3` (2rem / 2.5rem), not `--t-h2`. That is measured, not chosen:
    tonik's equivalent heading is `t-heading-3-rg`, 32.9px on a 41.125px leading
    at a 16.45 root, and there is no 5rem step anywhere on their site. See I-031. */
-export const WORKS_INTRO =
-  'A studio that defines, designs, and builds products and other digital machinery.';
+export const WORKS_INTRO = 'We draw it, we build it, we deploy it. The same hands do all three.';
 
 /* ── the showreel ──────────────────────────────────────────────────────────
    `20-components-and-motion.md` §15. The hero's play control *becomes* the
@@ -312,7 +322,12 @@ export const SHOWREEL = {
    accordion. The lead is §3's verbatim. */
 export const SERVICES_INTRO = {
   label: 'Our services',
-  lead: 'Design is the API between vision and reality. Consider us your gateway.',
+  /* §3 gave this verbatim as "Design is the API between vision and reality.
+     Consider us your gateway." — a metaphor borrowed from a discipline the
+     reader may not have, resolved with an offer to be a doorway. Ours says the
+     thing the six services actually have in common. D-060, and it counted
+     five until D-062 added App Development. */
+  lead: 'Six services. No handover between any of them.',
 } as const;
 
 /* ── the culture section ───────────────────────────────────────────────────
@@ -359,7 +374,9 @@ export const CULTURE = {
    `30-page-specs.md` §6: three cards and a link to the index. */
 export const BLOG_ROW = {
   label: 'From the blog',
-  link: 'Check out our blog',
+  /* "Check out our blog" was tonik's. A link label is the shortest copy on a
+     page and the easiest place to sound like everyone else. D-060. */
+  link: 'Read the blog',
 } as const;
 
 /**

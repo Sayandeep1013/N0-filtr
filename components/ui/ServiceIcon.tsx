@@ -1,10 +1,10 @@
 /**
- * Line-art glyphs for the five services, used in the footer list.
+ * Line-art glyphs for the six services, used in the footer list.
  *
  * ⚠ **Placeholder art.** `20-components-and-motion.md` §20 says the footer
  * service list is "icon + label" and gives the icon's size (1.25rem) and its
  * opacity (0.5), but there is no icon set to transcribe — tonik drew their own.
- * These five are minimal geometric marks in the same line weight as the aperture
+ * These six are minimal geometric marks in the same line weight as the aperture
  * so the footer composes correctly; they are not a designed set. Replacing them
  * is one file. See I-014.
  *
@@ -29,6 +29,11 @@ const PATHS: Record<string, string> = {
   'creative-development': 'M10 3l6 3.5v7L10 17l-6-3.5v-7zM10 3v7m0 0l6-3.5M10 10l-6-3.5',
   // Engineering — an angle bracket pair
   engineering: 'M7 6l-4 4 4 4M13 6l4 4-4 4',
+  // App Development — a handset outline with a speaker slot and a home line.
+  // Placeholder like the other five (D-062, I-014); it is the one shape nobody
+  // has to be told the meaning of, which is what a footer icon at 1.25rem and
+  // 50% opacity needs.
+  'app-development': 'M6 2.5h8v15H6zM8.5 5h3M8.5 15h3',
 };
 
 export function ServiceIcon({ slug, className }: { slug: string; className?: string }) {

@@ -174,9 +174,31 @@ async function checkCursor(browser: Browser, baseUrl: string): Promise<CheckResu
 
     /* Sayandeep's exact scenario: cross the **right** edge, mid-height. The
        old implementation put the disc at the centre of the card, which is what
-       made it feel wrong — so entry position is the assertion, not a detail. */
+       made it feel wrong — so entry position is the assertion, not a detail.
+
+       ── The pointer has to start OUTSIDE the card ─────────────────────────
+
+       It did not. The first move was `entry.x - 240`, which on a target wider
+       than 246px — every one of them — is 240px *inside* the card. So this
+       check never crossed a boundary: it entered at one point and then made a
+       second move **within** the same target, and asserted that the disc had
+       snapped to the second one.
+
+       That is the opposite of what the lag check below asserts about a
+       within-card move, and the two only ever agreed because of a bug. Until
+       I-066, `onEnter` re-ran for every element the pointer crossed — the media
+       being one `<svg>` meant one re-snap here, which looked like an entry —
+       so a move inside a card re-pinned the disc. D-059's plate turned that one
+       re-snap into twenty and deleted the lerp entirely, and the fix (`if
+       (el === active) return`) made this check's real premise visible: it was
+       measuring the bug.
+
+       Starting to the *right* of the card makes the crossing real, which is
+       what the comment above always claimed was happening. If another card
+       sits there, entering it and leaving it is a genuine target change and the
+       snap is still asserted at `entry`. */
     const entry = { x: box.x + box.w - 6, y: box.y + Math.round(box.h / 2) };
-    await page.mouse.move(entry.x - 240, entry.y);
+    await page.mouse.move(box.x + box.w + 120, entry.y);
     await page.mouse.move(entry.x, entry.y);
     await page.waitForTimeout(c.snapSettle);
 

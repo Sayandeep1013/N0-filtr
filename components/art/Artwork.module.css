@@ -1,13 +1,270 @@
-/* <Artwork />. D-038.
+/* <Artwork />. D-038, and D-059 for the plate it became.
 
    Grey and white, with one hairline of accent. Every value is a token — the
    plates have to sit beside the graded screenshots without looking like they
    came from somewhere else, and the only way to guarantee that is to draw them
    out of the same palette.
 
-   Stroke widths are in the SVG's own 1600×1000 space, so they scale with the
-   plate. At the ~700px a board tile is actually drawn, a width of 2 lands near
-   one device pixel — which is the hairline this whole site is made of. */
+   ── Why the apparatus is CSS and not SVG ──────────────────────────────────
+
+   Because it must never be cropped, and the component cannot know its own
+   aspect ratio — see the long note in `Artwork.tsx`. The consequence for this
+   file is that every offset here is `rem` on the fluid root rather than a
+   percentage: a rail measured in percentages of a 21:9 band is a different
+   object from the same rail on a 4:3 tile, and the plate has to read as one
+   printed thing at every shape it is asked to be.
+
+   The exception is the datum's vertical position and the dividers' horizontal
+   ones, which are percentages because they are positions *within* the field
+   rather than distances from an edge. */
+
+.plate {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  /* The rails sit inside the mount, which sits inside the plate's edge:
+     1.25rem to the mount, 1.25rem again to the type. Vertically a little
+     tighter, because the plates are landscape and the height is the scarce
+     axis — on a 21:9 band the field is only about 300px tall. */
+  padding: 2.5rem 3rem 2.25rem;
+  background-color: var(--grey-900);
+  overflow: hidden;
+  /* Nothing in here is a click target or a selection target. */
+  user-select: none;
+}
+
+/* `compact`: the instrument alone, no rails, no mount. `/about` draws
+   forty-five of these. */
+.bare {
+  padding: 0;
+  display: block;
+}
+
+/* ── the mount ─────────────────────────────────────────────────────────────
+   One ruled rectangle inside the plate's edge. It is the single element that
+   turns a dark box into a printed sheet, and it is why the corner marks below
+   have anything to register against. */
+.mount {
+  position: absolute;
+  inset: 1.25rem;
+  border: var(--hairline);
+  pointer-events: none;
+}
+
+/* ── registration crosses ──────────────────────────────────────────────────
+   Four of them, just inside the mount's corners. Each is one span drawing two
+   1px bars from its own pseudo-elements — a cross is two rules, and two rules
+   is two boxes, so the alternative was eight spans for four marks.
+
+   `1px`, not a rem: CLAUDE.md non-negotiable 4's first exception. A hairline is
+   a hairline at every root size. */
+.mark {
+  position: absolute;
+  width: 0.625rem;
+  height: 0.625rem;
+  pointer-events: none;
+}
+
+.mark::before,
+.mark::after {
+  content: '';
+  position: absolute;
+  background-color: var(--border-primary);
+}
+
+.mark::before {
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+}
+
+.mark::after {
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+}
+
+/* Half a rem inside the mount, and the rails start half a rem outside them —
+   so a cross sits in the corner it registers rather than on the rule it is
+   registering against, and no label ever runs into one. Sitting *on* the mount
+   line was the first attempt and it read as a break in the border. */
+.markTL {
+  top: 1.75rem;
+  left: 1.75rem;
+}
+
+.markTR {
+  top: 1.75rem;
+  right: 1.75rem;
+}
+
+.markBL {
+  bottom: 1.75rem;
+  left: 1.75rem;
+}
+
+.markBR {
+  bottom: 1.75rem;
+  right: 1.75rem;
+}
+
+/* ── the rails ─────────────────────────────────────────────────────────────
+   The micro-type. `--t-label-sm-size` is 0.5rem, the smallest label the system
+   has, and it is the right one: this is type inside a picture, at the scale a
+   printed figure carries its own annotation.
+
+   **Positive tracking, where the site's labels are negative.** The token's
+   `--t-label-sm-track` is -0.01rem, tuned for labels set on the page. Letter-
+   spacing opened out is the whole idiom of a technical plate's annotation, and
+   at 8px it is also what keeps a mono string from closing up into a bar. This
+   is the one place the type scale is deliberately departed from, and only in
+   tracking — the size and the family are the system's, and the weight is 400
+   like everything else (CLAUDE.md non-negotiable 3). */
+.head,
+.foot {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: none;
+  font-family: var(--family-mono);
+  font-size: var(--t-label-sm-size);
+  line-height: 1.4;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--grey-700);
+  white-space: nowrap;
+  /* The rails must never push the field out of the plate on a short tile. */
+  min-width: 0;
+}
+
+.head {
+  padding-bottom: 0.625rem;
+  border-bottom: var(--hairline);
+}
+
+.foot {
+  padding-top: 0.625rem;
+  border-top: var(--hairline);
+}
+
+/* Three cells, and the middle one is centred **in the plate** rather than
+   between its neighbours — which is what `flex: 1` on the outer two buys. A
+   `space-between` row would drift the series label left or right by half the
+   difference between the code and the figure number, and on twelve cards with
+   twelve different codes that reads as twelve misprints. */
+.headL,
+.headR {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.headR {
+  text-align: right;
+}
+
+/* The plate's own identity, so it takes the brighter ink. Everything else on
+   the rails is secondary by design. */
+.headC {
+  flex: 0 0 auto;
+  color: var(--white-50);
+}
+
+/* ── the field ─────────────────────────────────────────────────────────────
+   The instruments and the air around them. `min-height: 0` because it is a flex
+   child that must be allowed to shrink: without it a tall instrument sets the
+   floor and the footer rail is pushed out of a short plate. */
+.field {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  align-items: stretch;
+  padding: 1.25rem 0 0.875rem;
+}
+
+/* ── one instrument is not a centred instrument ────────────────────────────
+   A `solo` panel at `flex: 1` puts its drawing in the dead centre of the plate,
+   which is wrong twice over.
+
+   As composition, it is the least interesting place to put the only thing on
+   the sheet — the reference's own solo plates hang the instrument off one side
+   and let the ground carry the rest. And on a work card the centre is already
+   taken: D-051 parks the work's title there as a watermark, so a centred
+   instrument is guaranteed to be drawn through the one piece of type that says
+   which card this is.
+
+   Off to one side by seed, at a little under half the width. Both problems, one
+   rule. */
+.solo {
+  justify-content: flex-start;
+}
+
+.soloRight {
+  justify-content: flex-end;
+}
+
+.solo .panel {
+  flex: 0 0 46%;
+}
+
+.panel {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  /* Number, instrument, name — and only the middle row takes the slack, so the
+     captions stay pinned to the top and bottom of the field however tall it
+     is. That is what makes three panels of different instruments read as one
+     row of a catalogue. */
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 0.5rem;
+  justify-items: center;
+  align-items: center;
+  font-family: var(--family-mono);
+  font-size: var(--t-label-sm-size);
+  line-height: 1.4;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.panelNo {
+  color: var(--grey-700);
+}
+
+.panelName {
+  color: var(--white-50);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* The instrument's box. Square, centred, and as large as the panel allows —
+   up to a ceiling.
+
+   **The ceiling is the whole composition.** Without it the instrument is the
+   field's height, which on the 21:9 full card is a 430px drawing filling a
+   plate that is meant to be mostly empty. The reference's instruments are about
+   29% of their plate's width and the rest is ground; `12rem` lands in the same
+   place on a half card and smaller on the full one, which is right — a wider
+   sheet is more air, not a bigger drawing.
+
+   `aspect-ratio` on a box that is already height-constrained resolves to the
+   smaller axis, so a trio comes out width-bound and a 21:9 band height-bound
+   without either case being special. */
+.glyph {
+  display: block;
+  height: 100%;
+  max-height: 12rem;
+  aspect-ratio: 1;
+  max-width: 100%;
+}
 
 .art {
   display: block;
@@ -15,58 +272,216 @@
   height: 100%;
 }
 
-.ground {
-  fill: var(--grey-900);
+/* A `compact` plate has no panel around its instrument, so the sizing lives
+   here instead. */
+.bare .art {
+  padding: 12%;
+  box-sizing: border-box;
+}
+
+/* The seam between two panels. Dashed, so it reads as a fold rather than as
+   another drawn line, and inset top and bottom so it does not run into the
+   rails it is not part of. */
+.divider {
+  position: absolute;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  width: 0;
+  border-left: 1px dashed var(--border-primary);
+  transform: translateX(-0.5px);
+  pointer-events: none;
+}
+
+/* ── the datum ─────────────────────────────────────────────────────────────
+   D-036's one line of colour per plate, and the only colour anywhere on it.
+
+   `--work-accent-ink` is published by the work card, `--accent-ink` by a case
+   study on <html>; both are the **light** member of the accent pair, because a
+   1px line in the dark member is invisible on a `--grey-900` ground. That is
+   the same distinction I-046 drew for the loader glyph. `--white-30` is the
+   floor, for a plate drawn somewhere no accent is in scope at all.
+
+   The ticks at each end are what make it a datum rather than a stray rule: a
+   line that stops with a cap has been measured to somewhere. */
+.datum {
+  position: absolute;
+  left: var(--datum-x, 0);
+  /* `--datum-span` is set per plate. A hairline the full width of the field
+     reads as a border the plate has grown; one that stops somewhere particular
+     reads as a measurement taken, which is the whole difference between the
+     accent being information and the accent being trim. */
+  width: var(--datum-span, 100%);
+  height: 1px;
+  background-color: var(--work-accent-ink, var(--accent-ink, var(--white-30)));
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+.datum::before,
+.datum::after {
+  content: '';
+  position: absolute;
+  top: -0.1875rem;
+  width: 1px;
+  height: 0.4375rem;
+  background-color: inherit;
+}
+
+.datum::before {
+  left: 0;
+}
+
+.datum::after {
+  right: 0;
+}
+
+/* ── the footer rail ───────────────────────────────────────────────────────
+   The spec line takes the slack and truncates; the tick strip and the edition
+   keep their size. On the narrowest plate the spec is the part that can afford
+   to lose its tail — it is the only line here that is legible detail rather
+   than identity. */
+.spec {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.footR {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.edition {
+  color: var(--white-50);
+}
+
+.ticks {
+  display: block;
+  width: 5rem;
+  height: 0.75rem;
+}
+
+.tick {
+  fill: var(--grey-700);
+}
+
+/* ── line work ──────────────────────────────────────────────────────────────
+   `vector-effect: non-scaling-stroke` on every stroked class, and it is the
+   reason the instruments hold together across the range they are drawn at. The
+   viewBox is 100 units wide and the box it lands in is anywhere from 90px to
+   500px — a `stroke-width: 1` in user units would be a 0.9px hairline in one
+   panel and a 5px rule in another. Non-scaling pins it to device pixels, which
+   is the hairline the whole site is drawn in.
+
+   The three weights are the same three the fields used, so the plates that
+   existed before this rewrite and the ones after it are lit the same way. */
+.strokeDim,
+.strokeMid,
+.strokeBright,
+.strokeDash {
+  fill: none;
+  stroke: var(--white);
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.strokeDim {
+  stroke-width: 1;
+  opacity: 0.28;
+}
+
+.strokeMid {
+  stroke-width: 1;
+  opacity: 0.55;
+}
+
+.strokeBright {
+  stroke-width: 1.5;
+  opacity: 0.92;
+}
+
+/* The aperture ring at the centre of an iris, and the core of a burst. Dashed,
+   at the weight of the bright work — it is the part of the instrument the eye
+   is meant to land on. */
+.strokeDash {
+  stroke-width: 1;
+  opacity: 0.7;
+  stroke-dasharray: 2 3;
 }
 
 /* ── the mosaic ─────────────────────────────────────────────────────────── */
 
 .tileDim {
-  fill: var(--grey-800);
+  fill: var(--white);
+  opacity: 0.14;
 }
 
 .tileMid {
-  fill: var(--grey-700);
-  opacity: 0.55;
+  fill: var(--white);
+  opacity: 0.42;
 }
 
 .tileBright {
   fill: var(--white);
-  opacity: 0.85;
+  opacity: 0.88;
 }
 
-/* ── line work ──────────────────────────────────────────────────────────── */
+/* ── small plates ──────────────────────────────────────────────────────────
+   Below 768 a half card is the full viewport width but a board tile can be
+   350px across, and the rails at their desktop inset leave the field with
+   almost nothing. Everything tightens; nothing is removed, because a plate
+   missing its own annotation is a different object rather than a smaller one.
 
-.strokeDim,
-.strokeMid,
-.strokeBright {
-  fill: none;
-  stroke-linecap: round;
-}
+   `compact` is untouched here: it has no rails to tighten. */
+@media (max-width: 767px) {
+  .plate {
+    padding: 1.625rem 1.875rem 1.5rem;
+  }
 
-.strokeDim {
-  stroke: var(--white);
-  stroke-width: 2;
-  opacity: 0.16;
-}
+  .mount {
+    inset: 0.75rem;
+  }
 
-.strokeMid {
-  stroke: var(--white);
-  stroke-width: 2;
-  opacity: 0.38;
-}
+  .markTL,
+  .markTR {
+    top: 1.0625rem;
+  }
 
-.strokeBright {
-  stroke: var(--white);
-  stroke-width: 3;
-  opacity: 0.9;
-}
+  .markBL,
+  .markBR {
+    bottom: 1.0625rem;
+  }
 
-/* The one hairline of colour a plate is allowed. `--accent` is set per case
-   study on <html>; on the works grid the card sets `--work-accent`, so the
-   fallback chain reaches whichever is in scope. */
-.rule {
-  stroke: var(--accent, var(--work-accent, var(--white)));
-  stroke-width: 3;
-  opacity: 0.9;
+  .markTL,
+  .markBL {
+    left: 1.0625rem;
+  }
+
+  .markTR,
+  .markBR {
+    right: 1.0625rem;
+  }
+
+  .field {
+    padding: 0.75rem 0 0.625rem;
+  }
+
+  /* The strip is texture, and texture is the first thing a narrow rail can
+     lose. The spec line and the edition are not. */
+  .ticks {
+    display: none;
+  }
+
+  /* And the panel numbers go, which is worth more than it looks: a 16:10 card
+     at 350px leaves the field about 85px tall, and the number, its gap and the
+     part name are together a third of that. Dropping the number takes the
+     instrument from roughly 38px to 57px — the difference between a mark you
+     can read and a smudge. The part name stays, because it is the label that
+     says something the picture does not. */
+  .panelNo {
+    display: none;
+  }
 }
