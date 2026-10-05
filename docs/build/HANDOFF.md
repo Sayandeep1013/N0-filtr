@@ -5,6 +5,20 @@ not a log. The template is at the bottom.
 
 ---
 
+# → Round 10 addendum · 2026-10-06 · Opus
+
+One change, **D-063**: `<CursorTrail>` — githubuniverse.com's tile trail, restyled in our greys and
+plate marks. Two things to know before touching it:
+
+1. **Anything new that reacts to the pointer needs `data-trail-ignore`** on its root (or must sit
+   inside `[data-hero]` / `[data-cursor]`). Otherwise tiles pop over it.
+2. **The four-corner hit-test is the fix, not overhead.** Testing only the pointer (theirs) puts
+   tiles over text a few pixels above it. It runs once per new cell, not per move.
+
+Round 9's letter below is still current.
+
+---
+
 # → To the agent taking the next review round
 
 **From:** review round 9 · 2026-08-28 · **Opus** · one session

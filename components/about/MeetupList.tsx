@@ -115,7 +115,7 @@ export function MeetupList({
   );
 
   return (
-    <div ref={root} className={s.list}>
+    <div ref={root} className={s.list} data-trail-ignore>
       {items.map((item) => (
         <article key={item.title} className={s.row} data-meetup-row>
           <h3 data-t="h4" className={s.title}>

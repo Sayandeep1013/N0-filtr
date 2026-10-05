@@ -1,0 +1,96 @@
+/* <CursorTrail />. [new] — ours, after githubuniverse.com. D-063.
+
+   Ten fixed tiles at the viewport origin, each moved by transform onto a
+   1.25rem cell and popped in and out by scale. The outer tile owns position,
+   the inner face owns scale, so the two transforms never share a matrix —
+   the same split as <CustomCursor>. */
+
+.trail {
+  /* Nothing of its own to lay out; the tiles are fixed. */
+  display: contents;
+}
+
+.tile {
+  position: fixed;
+  top: 0;
+  left: 0;
+  /* Their 20px cell, on our root: 20px at ≤1440, fluid above. */
+  width: 1.25rem;
+  height: 1.25rem;
+  /* Above the page's sections, below the navbar (10) and the cursor disc (60).
+     It only ever lands on empty ground, so there is nothing for it to cover. */
+  z-index: 5;
+  pointer-events: none;
+}
+
+.face {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  /* Their 9px glyph. */
+  font-family: var(--family-mono);
+  font-size: 0.5625rem;
+  line-height: 1;
+  background-color: var(--tile-bg);
+  color: var(--tile-ink);
+  transform: scale(0);
+  /* Out: theirs is 0.1s both ways; ours closes at 1/1.2 of the open —
+     non-negotiable 5. Their curve, both directions. */
+  transition: transform 0.0833s cubic-bezier(0.3, 0.41, 0.04, 1.01);
+}
+
+.tile[data-on] .face {
+  transform: scale(1);
+  transition-duration: 0.1s;
+}
+
+/* ── tones ──────────────────────────────────────────────────────────────
+   The grey ramp from tokens.css, and the accent. The ink flips at the middle
+   of the ramp so the mark always reads against its own tile. */
+.tile[data-tone='white'] {
+  --tile-bg: var(--white);
+  --tile-ink: var(--black);
+}
+.tile[data-tone='pale'] {
+  --tile-bg: var(--grey-600);
+  --tile-ink: var(--grey-800);
+}
+.tile[data-tone='mid'] {
+  --tile-bg: var(--grey-700);
+  --tile-ink: var(--white);
+}
+.tile[data-tone='dark'] {
+  --tile-bg: var(--grey-800);
+  --tile-ink: var(--white);
+}
+/* `--accent-ink`: the work's light accent on a case study, white everywhere
+   else — the same colour the rest of the page is allowed to carry. */
+.tile[data-tone='accent'] {
+  --tile-bg: var(--accent-ink);
+  --tile-ink: var(--black);
+}
+
+/* ── the ring ───────────────────────────────────────────────────────────
+   The plate's iris, reduced to a mark. Drawn rather than typed: Plex Mono's
+   Latin cut has no U+25CB, and a fallback face would be the one off-system
+   glyph in the set. */
+.tile[data-mark='ring'] .face::after {
+  content: '';
+  width: 0.4375rem;
+  height: 0.4375rem;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile {
+    display: none;
+  }
+}
+
+@media (max-width: 991px), (pointer: coarse) {
+  .tile {
+    display: none;
+  }
+}

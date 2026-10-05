@@ -220,7 +220,7 @@ export function CultureCollage() {
   );
 
   return (
-    <div ref={root} className={s.collage}>
+    <div ref={root} className={s.collage} data-trail-ignore>
       {CULTURE.frames.map((frame, index) => {
         const seed = seedFrom(frame.caption);
         /* Two values off the seed, so six frames read as six places rather than

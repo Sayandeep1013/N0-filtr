@@ -3,7 +3,7 @@
 **The first file every agent reads. It must always be true.**
 If you change the build, change this file in the same session — not later.
 
-Last updated: **2026-08-28** · by: **review round 9 (Opus)** · tag: `phase-05-complete`
+Last updated: **2026-10-06** · by: **review round 10 (Opus)** · tag: `phase-05-complete`
 
 ---
 
@@ -68,6 +68,11 @@ got it right. Protocol §2.9 is the rule.
 > the pit's depth, count, colour and grabber (D-054), the stuck info drawer (I-064), a full mobile
 > sweep at 390 (D-055), two effects of his own choosing — a simulated wire rig over the culture
 > collage and a hollow, pointer-lit footer wordmark (D-056) — and **round 9, the largest so far**.
+>
+> **Round 10 (2026-10-06) — D-063.** A tile trail behind the pointer on empty ground, after
+> githubuniverse.com, read from their source and restyled: grey ramp plus one accent tile in six,
+> specimen-plate marks, off over the hero, cards, wire rig, meetup list, footer/pit and loader.
+> `components/motion/CursorTrail.*`. Tag a new element `data-trail-ignore` if it answers the pointer.
 >
 > **Round 9 (2026-08-28) — D-057 to D-062.** Six changes, and three of them were bugs the change
 > surfaced rather than things that were asked for:

@@ -2265,3 +2265,48 @@ the contact form's chips pick it up from `SERVICES` automatically, the hero rail
 projects · 6 services*, `ServiceIcon` has a sixth placeholder glyph (still I-014), and the services
 lead written the same day under D-060 counts six rather than five. `20-components-and-motion.md`
 §194 still says the contact chips are ×5 — another deliberate spec divergence, same class as D-060's.
+
+## D-063 · A tile trail on empty ground, after githubuniverse.com
+
+**Phase:** 12 · **Date:** 2026-10-06 · **Status:** active · `[new]`
+
+Sayandeep: *"i want the cursor movement and after animation like this site
+https://githubuniverse.com .. on my website too .. in our own taste."*
+
+**What theirs is**, read from source (chunk `834`, `CursorTrailAnimation`, not from screenshots): a
+pool of 10 fixed 20px tiles. The viewport is a 20px grid; when the pointer crosses into a new cell
+over empty ground, the next tile in the pool jumps there and scales 0 → 1 in 0.1s on
+`cubic-bezier(.3,.41,.04,1.01)`, holds 100 + 300·random ms, and scales back out. Each tile is one of
+six saturated colours with a code glyph (`- / ) . + = > < * & (`), blank 30% of the time. It never
+fires over a text leaf, an `<a>` or a `<button>`, or inside `.trailAnimationIgnore`.
+
+**Kept as measured:** the pool, the cell, the hold window, the blank rate, the in-curve and its
+duration, the text/control exclusion.
+
+**Ours, chosen by Sayandeep from three options each:**
+
+- **greys and one accent** — the token ramp (`--white`, `--grey-600/700/800`) with one tile in six
+  on `--accent-ink`. That is the work's colour on a case study and white everywhere else, because
+  off a case study the site *has* no other colour (D-035, D-057).
+- **specimen-plate marks** — `+ × · / — |` and a ring, the plate vocabulary of D-059. The ring is
+  drawn in CSS: Plex Mono's Latin cut has no U+25CB.
+- **empty ground, site-wide** — and off over everything that already answers the pointer: the hero
+  (`[data-hero]`), the work cards (`[data-cursor]`), the wire rig, the meetup list, the footer and
+  its pit, and the loader curtain (`[data-trail-ignore]`).
+
+**Ours, technical:**
+
+- the cell is `1.25rem` (non-negotiable 4), measured off a tile by ResizeObserver;
+- the out runs at 1/1.2 of the in (non-negotiable 5); theirs is symmetrical;
+- the hold is `gsap.delayedCall`, on the one ticker (non-negotiable 7), not `setTimeout`;
+- gated `>991px` and `(pointer: fine)` by `gsap.matchMedia`, off under reduced motion;
+- **the whole cell is hit-tested, not just the pointer.** Theirs tests only the pointer, so a
+  pointer a few pixels under a line of text snaps a tile up over the line — it did exactly that on
+  our works grid in the first probe. Four `elementFromPoint` calls per *new cell*, not per move.
+
+**Evidence:** headless probe at 1440×900 — 0 tiles over the hero, 0 over a work card, up to 7 on
+empty ground and 0 again 0.6s after rest, 0 under `reducedMotion: 'reduce'`, 0 at 900px wide; the
+case-study accent resolves to the work's (`#2595E4` on Tessera). `npm run verify` green: tokens
+138/138, motion 283/283, budget 7/7.
+
+**Files:** `components/motion/CursorTrail.{tsx,module.css}`, mounted in `app/layout.tsx`.

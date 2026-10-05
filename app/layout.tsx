@@ -14,6 +14,7 @@ import { Footer } from '@/components/chrome/Footer';
 import { BlockPit } from '@/components/physics/BlockPit';
 import { ScrollReset } from '@/components/chrome/ScrollReset';
 import { CustomCursor } from '@/components/case/CustomCursor';
+import { CursorTrail } from '@/components/motion/CursorTrail';
 import { ContactPanel } from '@/components/chrome/ContactPanel';
 import { Hero3D } from '@/components/hero/Hero3D';
 import { SITE } from '@/lib/content/site';
@@ -91,12 +92,16 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               case-study visuals. So this costs nothing on `/about` or `/blog`
               and saves five templates from each mounting their own. D-046. */}
           <CustomCursor />
+          {/* The tile trail on empty ground, after githubuniverse.com. Stands
+              down over everything that already answers the pointer — the
+              hero, the cards, the wire rig, the footer and its pit. D-063. */}
+          <CursorTrail />
           {/* The footer and the pit are one thing now. §8 gives the pit its
               own 60vh section below the footer; D-050 makes it an overlay across
               it, so the blocks pile on the wordmark and the links instead of
               starting a second ending. The wrapper is the positioning context
               they share. */}
-          <div className="footer-stage">
+          <div className="footer-stage" data-trail-ignore>
             <Footer />
             <BlockPit />
           </div>

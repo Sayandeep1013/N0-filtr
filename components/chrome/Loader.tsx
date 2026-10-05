@@ -688,7 +688,7 @@ export function Loader() {
       <noscript>
         <style>{`.loader { display: none !important; }`}</style>
       </noscript>
-      <div ref={panelRef} className={cx(s.loader, 'loader')} aria-hidden="true">
+      <div ref={panelRef} className={cx(s.loader, 'loader')} aria-hidden="true" data-trail-ignore>
         <div ref={markRef} className={cx(s.mark, 'loader__mark')}>
           <ApertureMark />
         </div>
