@@ -104,6 +104,41 @@ const SHOTS = [
     settle: 3500,
   },
   {
+    /* Parked below the navbar with the figure's centre well above the
+       trigger's end line, so it is fully assembled and the water is running. */
+    name: 'handover',
+    path: '/about',
+    note: 'Fig 01, assembled, water in the line',
+    viewport: { width: 1512, height: 1300 },
+    element: 'figure.nf-fig',
+    pad: 24,
+    at: 110,
+    settle: 3500,
+  },
+  {
+    /* Part-way up its scroll trigger (top 85% → centre 55%): the gauges still
+       in the air, the two ends drawn out, the line coming together (D-065).
+       The viewport is tall so the whole figure fits at that point. */
+    name: 'handover-assembling',
+    path: '/about',
+    note: 'Fig 01, part-way through assembling itself',
+    viewport: { width: 1512, height: 2400 },
+    element: 'figure.nf-fig',
+    pad: 24,
+    at: 1160,
+    settle: 1500,
+  },
+  {
+    name: 'dead-end',
+    path: '/no-such-page',
+    note: 'Fig 404, the line that goes nowhere',
+    viewport: { width: 1512, height: 1300 },
+    element: 'figure.nf-fig',
+    pad: 24,
+    at: 110,
+    settle: 3000,
+  },
+  {
     name: 'mobile-home',
     path: '/',
     note: 'the hero at 390',
@@ -150,7 +185,9 @@ for (const shot of targets) {
       const el = document.querySelector(sel);
       return el ? el.getBoundingClientRect().top + window.scrollY : null;
     }, shot.element);
-    if (top !== null) shot.scroll = Math.max(0, top - (shot.pad ?? 0) - 12);
+    /* `at` parks the element's top at that height in the viewport instead —
+       below the fixed navbar, or partway up a scroll trigger. */
+    if (top !== null) shot.scroll = Math.max(0, top - (shot.at ?? (shot.pad ?? 0) + 12));
   }
 
   if (shot.scroll !== undefined) {

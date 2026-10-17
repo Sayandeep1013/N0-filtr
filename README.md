@@ -22,6 +22,7 @@ motion value written down and machine-checked before it lands.
 | **A 3D brand mark** | The Open Aperture — a housed iris mechanism in Three.js with a custom GLSL material, which tips and actuates as the pointer crosses it |
 | **A block pit** | 56 Matter.js bodies piled over the footer, each labelled with something the work is actually built with. Drag them around |
 | **A wire rig** | Simulated ropes strung between the culture frames. Drag a card and they swing, whip and settle |
+| **Two bench figures** | Isometric machines with working gauges — the studio's name as a pipe line on `/about`, a dead end on the 404 — that assemble themselves as they come into view |
 | **Generated plates** | Every thumbnail on the site is a specimen plate drawn in code — a ruled mount, registration crosses, and one to three instruments, annotated with facts about the work it belongs to |
 
 ---
@@ -114,6 +115,37 @@ Forty-five artefacts rise out of the fold in a pinned, scrubbed sequence, stagge
 across a 4×9 grid with a real perspective and an X-rotation. It is the best piece of motion on the
 site and it is worth scrolling slowly.
 
+### The bench figures
+
+![Fig 01, part-way through assembling itself: the gauges still in the air, the screen drawn out of its body](docs/screenshots/handover-assembling.png)
+
+Right under the manifesto on `/about` — *the handover is where software goes wrong, so we do not
+have one* — is that sentence as a machine: a bench water line with a slide-plate screen filter in
+it, the screen pulled out. It arrives taken apart and puts itself together as you scroll it in, the
+gauges screwed on last; once the line is whole the water starts and the gauges come up. Click it
+and the screen slides into the line: the outlet gauge drops from 2.99 to 2.37 bar and the water
+slows. Part-way across, the plate shuts the line and everything stops, as a real one does.
+
+![Fig 01, assembled, with the screen in and the outlet gauge reading 2.37 bar](docs/screenshots/handover.png)
+
+The numbers are a model, not decoration (`lib/figures/handover.ts`): Idelchik's woven-screen loss
+for a four-layer pack against a full-bore gate, feeding a nozzle sized for 2.5 m/s in a 25 mm bore.
+
+The 404 gets a companion from the same bench: a valve feeding a pipe that ends in a blind flange
+with a lockout tag on it. Open the valve and the gauge climbs to **4.04 bar** and stays there —
+full pressure, no flow, nowhere to go.
+
+![Fig 404 — a regulator, a gate valve with a handwheel, a gauge, and a blind flange tagged 404](docs/screenshots/dead-end.png)
+
+Both are drawn with the anatomy skill's isometric kit (vendored in `tools/figures/kit/`), built
+offline into static SVG (`npm run figures`) and proved by its geometry audit — painter's order in
+every frame of the explode, nothing passing through anything, every line ending on something.
+`/about`'s drawing is server-rendered markup; the 404's, and both figures' motion code, are fetched
+only when a figure is actually on the page — the root 404 is in every page's payload, so anything
+heavier there would cost the homepage.
+
+`tools/figures/` · `components/figures/` · D-064, D-065
+
 ---
 
 ## Running it
@@ -129,6 +161,7 @@ npm run verify       # THE GATE — see below
 npm run lint
 npm run typecheck
 npm run readme:shots # regenerate the images on this page (needs the dev server)
+npm run figures      # rebuild and audit the two isometric figures
 ```
 
 ---
