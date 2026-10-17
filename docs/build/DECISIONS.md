@@ -2381,3 +2381,38 @@ errors, no sideways scroll; reduced motion jumps to the settled reading.
 **Files:** `tools/figures/*`, `lib/figures/*`, `components/figures/*`, `app/about/page.tsx`,
 `app/not-found.tsx` (+ their CSS), `package.json` (`figures`), `eslint.config.mjs` (ignores the
 vendored kit).
+
+## D-065 · The figures assemble themselves, and the water shows
+
+**Phase:** 12 · **Date:** 2026-10-17 · **Status:** active · amends D-064 · `[new]`
+
+Sayandeep, on seeing D-064: *"make it like its disassembled and as u scroll it gets assembled
+… also when i click nothing happens except one block moving back n forth"*. Asked what a click
+should show, he chose **water flowing in the pipe**.
+
+**Scroll assembly (/about).** The figure arrives as an exploded view — seven assemblies, mostly
+lifted straight up so every joint opens along the face it meets — and puts itself together as it
+scrolls in (`top 85%` → `center 55%`), the gauges screwed on last. Scrolling back takes it apart.
+The 404 does not scroll, so it builds itself on a timer on arrival. Both desktop-only, the same
+gate as every other scroll effect (non-negotiable 6); assembled below 992px and under reduced
+motion.
+
+The explode is the anatomy skill's own machinery, audited. Every item carries its assembly and
+move; the build settles painter's keys across rest, apart and every replayed frame and proves no
+pass-through mid-flight; the client translates and re-sorts from `data-k` / `data-l` / `data-p`
+(`components/figures/explode.ts`). Two geometry fixes it forced: the guide rails now start at the
+pedestal's edge (they sat over its corner and collided once lifted by different amounts), and the
+flanges bolted to the changer body travel with the body, not the pipes.
+
+**Water.** Flow marks run along every pipe and down the receiver's sight glass, at a speed in
+proportion to the model's flow — about a tenth slower with the screen in, stopped while the plate
+shuts the line. Nothing flows, and the gauges read zero, until the line is whole: an open line
+holds no pressure.
+
+**Click, not hover.** The hover-scrub is gone from both figures. It re-steered the plate on the
+next mouse move after a click, which is most of why "nothing happens" — the click did fire, and
+was overwritten. Click, tap, Space or Enter toggles; arrows step.
+
+**Cost:** none on `/` — the motion modules are dynamic imports (D-064). `npm run verify` exit 0:
+tokens 138/138, motion 283/283, budget 7/7, JS on `/` 357.7 KB. `npm run figures`: both audits pass;
+`lines.mjs` 0 floating ends on both.

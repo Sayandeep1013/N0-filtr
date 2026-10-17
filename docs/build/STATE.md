@@ -73,6 +73,8 @@ got it right. Protocol §2.9 is the rule.
 > family: **Fig 01 "The handover"** on /about after the manifesto (a slide-plate screen changer —
 > screen out, both gauges agree; screen in, a fifth of the pressure gone) and **Fig 404 "Dead end"**
 > on the 404 (a valve feeding a blind flange tagged `404`; the gauge climbs to 4.04 bar with no flow).
+> Then **D-065**: both arrive exploded and assemble — /about as you scroll it in, the 404 on
+> arrival — with water marks that run only once the line is whole; click replaces hover.
 > Built offline by `npm run figures`, geometry-audited. **Read D-064 before touching
 > `app/not-found.tsx`: the root not-found is in every page's payload.**
 >

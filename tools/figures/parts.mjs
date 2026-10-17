@@ -19,24 +19,67 @@ export const S = (paths, style) => k.solidSvg(paths, style);
 export const L = (d, style) => k.lineSvg(d, style);
 export const D = (points, style) => k.dotsSvg(points, style);
 
-/** One figure: a projection, a recorder, and the helpers that put into it. */
-export function figure({ width, height, azimuth, pad, points }) {
+/**
+ * The stagger the audit replays. The live figures scrub the explode from
+ * scroll (or a timer) rather than springing it, but their shares keep the same
+ * invariant — earlier assemblies always lead — so every frame they can show
+ * lies between the prefix states this replay includes.
+ */
+export const SPRING = { stagger: 0.06, stiffness: 64, damping: 16, substeps: 4 };
+
+/**
+ * One figure: a projection, a recorder, and the helpers that put into it.
+ *
+ * `pieces` is the explode, in the order the assemblies leave (the first out is
+ * the last home): `[{ name, move: [x, y, z] }]`. Set `fig.piece` before drawing
+ * an assembly's parts; anything drawn with no piece set is ground and stays.
+ */
+export function figure({ width, height, azimuth, pad, points, pieces = [] }) {
   const P = k.fitProjection(points, width, height, { pad, azimuth });
-  const R = A.recorder(P);
+  const order = pieces.map((p) => p.name);
+  const R = A.recorder(P, { order, spring: SPRING });
   const V = G.viewOf(P);
   const at = (p) => k.iso(p, P);
   const under = [];
-  const put = (name, centre, svg, shapes = [], extra = {}) =>
-    R.put({ name: R.nameFor(name), at: centre, svg, shapes: shapes.map((shape) => R.solid({ ...shape, name: shape.name ?? name })), ...extra });
-  return { P, R, V, at, put, under, width, height };
+  const moves = Object.fromEntries(pieces.map((p) => [p.name, p.move]));
+  const fig = { P, R, V, at, under, width, height, pieces, piece: '' };
+  fig.put = (name, centre, svg, shapes = [], extra = {}) =>
+    R.put({
+      name: R.nameFor(name),
+      at: centre,
+      svg,
+      piece: fig.piece,
+      move: moves[fig.piece] ?? [0, 0, 0],
+      shapes: shapes.map((shape) => R.solid({ ...shape, name: shape.name ?? name })),
+      ...extra,
+    });
+  return fig;
 }
 
-/** Settles the painter's keys from the recorded shapes and returns the body. */
+/**
+ * Settles the painter's keys from the recorded shapes — at rest, apart, and in
+ * every replayed frame of the explode — audits, and returns the body plus what
+ * the client needs to move it. Each item is wrapped in a `<g>` carrying its key
+ * (`data-k`), its lift per unit share (`data-l`, the move's depth) and its
+ * assembly (`data-p`, an index into `pieces`), so the client can translate and
+ * re-sort with no geometry of its own.
+ */
 export function finish(fig, options = {}) {
-  A.settle(fig.R, fig.P, { states: [0] });
+  A.settle(fig.R, fig.P);
   fig.R.items.sort((a, b) => a.key - b.key);
   A.auditOrExit(fig.R, fig.P, options);
-  return fig.under.join('') + fig.R.items.map((item) => item.svg).join('');
+  const index = Object.fromEntries(fig.pieces.map((p, i) => [p.name, i]));
+  const items = fig.R.items
+    .map((item) => {
+      const p = index[item.piece] ?? -1;
+      const lift = G.dot3(item.move ?? [0, 0, 0], fig.V);
+      return `<g class="it" data-k="${item.key.toFixed(3)}" data-l="${lift.toFixed(3)}" data-p="${p}">${item.svg}</g>`;
+    })
+    .join('');
+  return {
+    body: `${fig.under.join('')}<g data-items="">${items}</g>`,
+    pieces: fig.pieces.map((p) => ({ name: p.name, move: k.axisVector(fig.P, p.move) })),
+  };
 }
 
 const byDepth = (P, points) => [...points].sort((a, b) => k.depthOf([a[0], a[1], 0], P) - k.depthOf([b[0], b[1], 0], P));
@@ -113,12 +156,19 @@ export function labelPlate(fig, plan, { text } = {}) {
 export const alongX = (o) => G.frameOf(o, [1, 0, 0], [0, 1, 0], [0, 0, 1]);
 
 /** A straight pipe run from x0 to x1 at (y, z). */
-export function pipe(fig, name, x0, x1, y, z, r, { tone = 'mid', owner } = {}) {
-  const { P, put } = fig;
+export function pipe(fig, name, x0, x1, y, z, r, { tone = 'mid', owner, flow = false } = {}) {
+  const { P, at, put, V } = fig;
   const F = alongX([x0, y, z]);
   const len = x1 - x0;
   const seam = len > 30 ? L(G.arcOf(F, len / 2, r, P), { tone: 'faint' }) : '';
-  put(name, [(x0 + x1) / 2, y, z], S(G.disc(0, len, r, F, P), { tone, inner: seam }), [A.disc(F, 0, len, r, owner ? { owner } : {})]);
+  /* Flow marks run along the generator that faces the viewer, end rim to end
+     rim, so both ends land on the run's own outline. The client moves the
+     dashes; they are invisible until water is running. */
+  const n = G.unit3([0, V[1], V[2]]);
+  const flowLine = flow
+    ? `<path data-part="flow" class="iso-line nf-flow" d="${k.pathOf([at([x0, y + n[1] * r, z + n[2] * r]), at([x1, y + n[1] * r, z + n[2] * r])])}"/>`
+    : '';
+  put(name, [(x0 + x1) / 2, y, z], S(G.disc(0, len, r, F, P), { tone, inner: seam }) + flowLine, [A.disc(F, 0, len, r, owner ? { owner } : {})]);
 }
 
 /** A bolted flange: disc on the x axis, bolt dots on the face that turns toward you. */
@@ -261,8 +311,12 @@ export function needlePath([cx, cy], kx, ky, tip, theta, tail = 3) {
  * A gauge tap: tee on the run, riser, hex socket, then the gauge. Returns the
  * gauge's needle data. The run must be gapped by `teeR` either side of `x`.
  */
-export function gaugeTap(fig, name, x, y, zPipe, { teeR = TEE_R, rise = 16, R = 13, max = 4, value = 0 } = {}) {
+export function gaugeTap(fig, name, x, y, zPipe, { teeR = TEE_R, rise = 16, R = 13, max = 4, value = 0, pieces } = {}) {
+  /* The tee belongs to the line it is cast into; the riser up belongs to the gauge. */
+  const was = fig.piece;
+  if (pieces) fig.piece = pieces.tee;
   tee(fig, `${name}.tee`, [x, y, zPipe], teeR, { owner: name });
+  if (pieces) fig.piece = pieces.tap;
   const riserR = 2.4;
   const z0 = zPipe + Math.sqrt(teeR * teeR - riserR * riserR);
   const nutZ = z0 + rise * 0.45;
@@ -271,7 +325,9 @@ export function gaugeTap(fig, name, x, y, zPipe, { teeR = TEE_R, rise = 16, R = 
   const cz = nutZ + 3.6 + 4 + R;
   const bottom = cz - Math.sqrt((R + 0.5) ** 2 - riserR * riserR);
   post(fig, `${name}.stem`, x, y, nutZ + 3.6, bottom - nutZ - 3.6, riserR, { owner: `${name}.gauge` });
-  return gauge(fig, `${name}.gauge`, [x, y, cz], { R, max, value });
+  const g = gauge(fig, `${name}.gauge`, [x, y, cz], { R, max, value });
+  fig.piece = was;
+  return g;
 }
 
 /** A knurled knob on a vertical axis with a pointer line on top. */

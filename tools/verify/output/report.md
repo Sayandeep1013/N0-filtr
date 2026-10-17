@@ -1,5 +1,5 @@
 # Verification report
-Run: 2026-10-17T13:42:46.856Z · Phase 12 · commit `e945bae` · branch `main`
+Run: 2026-10-17T14:27:51.467Z · Phase 12 · commit `fa897df` · branch `main`
 
 ## Summary
 ```
@@ -324,7 +324,7 @@ budget  ✅ 7/7
 ✅ hero 3D — the blades never leave the barrel = reach 1.930 of 2, invariant
 ✅ hero 3D — the housing tips across the viewport = 0.258
 ✅ hero 3D — the housing tips top to bottom = 0.317
-✅ hero 3D — the iris actuates = 0.317 rad about the bore
+✅ hero 3D — the iris actuates = 0.318 rad about the bore
 ✅ hero 3D — the blades lead the housing = 1.23x
 ✅ hero 3D — the response stays subtle = max 0.159 rad
 ✅ hero 3D — loop suspends off-screen = running: false
@@ -408,7 +408,7 @@ budget  ✅ 7/7
 ✅ culture: parallax travels -20% = [-20,-20,-20]
 ✅ works grid: 9 distinct drift rates across 12 cells
 ✅ wire rig: 15 wires on 6 poles
-✅ wire rig: every wire hangs (min sag 63px)
+✅ wire rig: every wire hangs (min sag 64px)
 ✅ wire rig: takes no pointer events
 ✅ blog row: three cards in three tracks
 ✅ blog row: all three cards share a top and a bottom edge
@@ -575,12 +575,12 @@ lists are authored to fill the accordion and T10.8 writes the real ones. The blo
 ✅ matter-js absent from the eagerly-loaded bundle = absent
 ✅ three absent from the eagerly-loaded bundle = absent
 ✅ plyr absent from the eagerly-loaded bundle = absent
-ℹ️ all built chunks, gzipped (not a per-route figure) = 616.1KB
+ℹ️ all built chunks, gzipped (not a per-route figure) = 618.5KB
 ✅ JS on / (transferred) = 357.7KB / 360KB
-✅ home page total weight = 605.3KB / 1800KB
+✅ home page total weight = 606.1KB / 1800KB
 ✅ zero network font requests = both faces self-hosted
 ✅ CLS (local, unthrottled) = 0.0025
-ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 348ms
+ℹ️ LCP (local, unthrottled — not a Lighthouse score) = 424ms
 
 > Poster and reel budgets become binding in phase 10, when assets exist.
 > Lighthouse scores are a phase 12 deliverable via mcp__chrome-devtools__lighthouse_audit; the figures here are local and unthrottled.

@@ -20,7 +20,24 @@ import { emit } from './emit.mjs';
 import { spokesD } from '../../components/figures/live.ts';
 
 const WIDTH = 600;
-const HEIGHT = 380;
+const HEIGHT = 390;
+
+/*
+ * The explode, as on /about: mostly straight up so every joint opens along the
+ * face it meets. The blind comes off the end axially, the regulator off the
+ * line's start. Order is the order they leave; on arrival they come home in
+ * reverse — stand, valve, pipes, the two ends, the valve's top, the gauge.
+ */
+const EXPLODE = {
+  tap: [0, 0, 70],
+  top: [0, 0, 52],
+  reg: [-28, 0, 16],
+  end: [30, 0, 0],
+  pipes: [0, 0, 38],
+  valve: [0, 0, 22],
+  stand: [0, 0, 14],
+};
+const ORDER = ['tap', 'top', 'reg', 'end', 'pipes', 'valve', 'stand'];
 const Z = 48;
 const RP = 6;
 const PLATE = { x: -130, y: -60, w: 250, d: 118, r: 8 };
@@ -40,7 +57,8 @@ const fig = figure({
   height: HEIGHT,
   azimuth: 57,
   pad: 24,
-  points: [...k.boxCorners(PLATE, -15, 0), [VX, 0, WHEEL.z + 16 + LIFT], [VX - 15, 0, WHEEL.z], [VX + 15, 0, WHEEL.z], [TAP_X, 0, 98]],
+  points: [...k.boxCorners(PLATE, -15, 0), [VX, 0, WHEEL.z + 16 + LIFT], [VX - 15, 0, WHEEL.z], [VX + 15, 0, WHEEL.z], [TAP_X, 0, 98 + EXPLODE.tap[2] * 0.6]],
+  pieces: ORDER.map((name) => ({ name, move: EXPLODE[name] })),
 });
 const { P, at, put } = fig;
 
@@ -53,10 +71,14 @@ basePlate(fig, PLATE, {
 ruler(fig, { x: -112, y: 46, w: 84, d: 7, r: 1 });
 labelPlate(fig, { x: 4, y: 36, w: 46, d: 16, r: 1.6 }, { text: 'NF-404' });
 
+fig.piece = 'reg';
 regulator(fig, REG);
 const REG_FACE = REG.x + REG.w;
+fig.piece = 'pipes';
 flange(fig, 'up.flange.reg', REG_FACE + 1.5, 0, Z, { facing: 1 });
 pipe(fig, 'up.pipe', REG_FACE + 3, VALVE.x - 3, 0, Z, RP);
+/* bolted to the valve body, so it travels with it */
+fig.piece = 'valve';
 flange(fig, 'valve.flange.in', VALVE.x - 1.5, 0, Z, { facing: -1 });
 
 /* ── the valve: body on a support, bonnet, yoke, stem, handwheel ──────── */
@@ -78,7 +100,8 @@ flange(fig, 'valve.flange.in', VALVE.x - 1.5, 0, Z, { facing: -1 });
     S(k.slabOf(VALVE, z0, z1 - z0, P, 5, 0.8), { tone: 'mid', inner: L(k.sideSeam(VALVE, z0 + 6, P, 5) + k.sideSeam(VALVE, z1 - 6, P, 5), { tone: 'faint' }) }),
     [A.slab(VALVE, z0, z1 - z0, {}, 5)],
   );
-  /* bonnet with its bolted flange */
+  /* bonnet with its bolted flange — and everything above it is the valve's top */
+  fig.piece = 'top';
   put(
     'valve.bonnet',
     [VX, 0, z1 + 4],
@@ -103,6 +126,7 @@ flange(fig, 'valve.flange.in', VALVE.x - 1.5, 0, Z, { facing: -1 });
   hexNut(fig, 'valve.stemnut', VX, 0, hz + 5, WHEEL.z - hz - 5, 4.4);
 
   /* bleed port: a nipple out of the body's near face, open at its tip */
+  fig.piece = 'valve';
   const F = G.frameOf([VX + 4, VALVE.y + VALVE.d, z0 + 10], [0, 1, 0], [1, 0, 0], [0, 0, 1]);
   const nipple = [
     [0, 3.4],
@@ -120,6 +144,7 @@ flange(fig, 'valve.flange.in', VALVE.x - 1.5, 0, Z, { facing: -1 });
   );
 }
 
+fig.piece = 'top';
 /* the rising stem — moved by the client along z, inside a clip that stays put
    at the hub's top face, so the length still inside the hub is never drawn */
 const hubTop = WHEEL.z + WHEEL.h + 0.4;
@@ -175,15 +200,20 @@ const WHEEL_LIVE = { centre: at([VX, 0, wheelTop]), ex: k.axisVector(P, [1, 0, 0
 
 /* ── downstream: valve, gauge tap, stand, blind flange ────────────────── */
 const VXR = VALVE.x + VALVE.w;
+fig.piece = 'valve';
 flange(fig, 'valve.flange.out', VXR + 1.5, 0, Z, { facing: 1 });
+fig.piece = 'pipes';
 pipe(fig, 'down.pipe.a', VXR + 3, TAP_X - TEE_IN, 0, Z, RP, { owner: 'down.tap' });
-const gauge = gaugeTap(fig, 'down.tap', TAP_X, 0, Z, { max: 6, value: 0 });
+const gauge = gaugeTap(fig, 'down.tap', TAP_X, 0, Z, { max: 6, value: 0, pieces: { tee: 'pipes', tap: 'tap' } });
+fig.piece = 'stand';
 const stand = pipeStand(fig, 'down.stand', 44, 0, Z, RP);
+fig.piece = 'pipes';
 pipe(fig, 'down.pipe.b', TAP_X + TEE_IN, stand.from, 0, Z, RP, { owner: 'down.tap' });
 pipe(fig, 'down.pipe.c', stand.to, BLIND_X - 3, 0, Z, RP);
 flange(fig, 'end.flange', BLIND_X - 1.5, 0, Z, { r: 12, facing: 1, bolts: 8 });
 
-/* the blind: a plate bolted over the end, eight studs, and a tag on a wire */
+/* the blind: a plate bolted over the end, eight studs, and the tag on a stud */
+fig.piece = 'end';
 const BLIND_T = 4;
 const blindFace = BLIND_X + BLIND_T;
 {
@@ -237,7 +267,7 @@ const blindFace = BLIND_X + BLIND_T;
   );
 }
 
-const body = finish(fig, {
+const { body, pieces } = finish(fig, {
   /* The tee sliver, as on /about: looked at 6×, a joint. The stem's recorded
      shape is the part above the hub its clip lets through. */
   allow: [['down.pipe.a', 'down.tap.tee']],
@@ -251,7 +281,7 @@ const svg = k.figureSvg({ width: WIDTH, height: HEIGHT, label, body });
 emit('deadEnd', {
   svg,
   title: 'Dead end',
-  hint: 'Hover to open the valve',
+  hint: 'Click to open the valve',
   readout: 'valve shut · 0.00 bar · flow 0 L/min',
   live: {
     width: WIDTH,
@@ -260,5 +290,6 @@ emit('deadEnd', {
     /** Screen offset of one world unit up — the stem's rise. */
     up: k.axisVector(P, [0, 0, 1]),
     gauge,
+    pieces,
   },
 });

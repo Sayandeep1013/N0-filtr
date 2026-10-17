@@ -19,7 +19,7 @@ export function DeadEndFigure({ className }: { className?: string }) {
       className={className}
       fig="Fig 404"
       title="Dead end"
-      hint="Hover to open the valve"
+      hint="Click to open the valve"
       hintTouch="Tap to open the valve"
       readout={readoutOf({ open: 0, p: 0 })}
       keys={[

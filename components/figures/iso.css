@@ -89,3 +89,4 @@
 .nf-fig .tb-ring[data-tone="hi"]{stroke:var(--anatomy-hi)}
 @media (prefers-reduced-motion: reduce) { .nf-fig .iso-line[data-flow], .nf-fig .iso-dots circle[data-pulse] { animation: none; } }
 .nf-fig .iso-void{fill:#1d1d1d;stroke:none}
+.nf-fig .nf-flow{stroke:var(--anatomy-hi);stroke-width:1px;stroke-dasharray:2 7;stroke-linecap:round;opacity:0}

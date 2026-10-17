@@ -21,7 +21,7 @@ export function HandoverFigure({ className }: { className?: string }) {
       className={className}
       fig="Fig 01"
       title="The handover"
-      hint="Hover to slide the screen"
+      hint="Click to slide the screen"
       hintTouch="Tap to slide the screen"
       readout={readoutOf(readingAt(0))}
       keys={[

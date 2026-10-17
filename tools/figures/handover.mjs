@@ -20,7 +20,7 @@ import { k, G, A, S, L, D, figure, finish, TEE_IN, basePlate, ruler, labelPlate,
 import { emit } from './emit.mjs';
 
 const WIDTH = 640;
-const HEIGHT = 360;
+const HEIGHT = 400;
 const Z = 48; // pipe axis above the plate
 const RP = 6; // pipe outer radius
 const PLATE = { x: -172, y: -84, w: 344, d: 180, r: 8 };
@@ -41,12 +41,33 @@ const REG = { x: -158, y: -14, w: 30, d: 28, r: 3 };
 const RX = REG.x + REG.w / 2;
 const RECV = { x: 130, y: -20, w: 32, d: 40, r: 3 };
 
+/*
+ * The explode — how far each assembly sits from home when the figure arrives
+ * taken apart. Mostly straight up, so every joint opens along the face it
+ * meets: a pipe's end slides up its flange, a riser lifts off its tee. Order
+ * is the order they leave; scrolling the figure in brings them home in reverse
+ * — rails, stands, body, pipes, the two ends, and the gauges screwed on last.
+ */
+const EXPLODE = {
+  taps: [0, 0, 80],
+  reg: [-30, 0, 18],
+  recv: [30, 0, 18],
+  pipes: [0, 0, 56],
+  changer: [0, 0, 36],
+  stands: [0, 0, 24],
+  rails: [0, 0, 12],
+};
+const ORDER = ['taps', 'reg', 'recv', 'pipes', 'changer', 'stands', 'rails'];
+/** The plate also slides out of the body by this much, apart. */
+const SLIDE_APART = 24;
+
 const fig = figure({
   width: WIDTH,
   height: HEIGHT,
   azimuth: 57,
   pad: 22,
-  points: [...k.boxCorners(PLATE, -15, 0), [-60, 0, 98], [60, 0, 98], [RX, 0, 88], [0, 0, 90]],
+  points: [...k.boxCorners(PLATE, -15, 0), [-60, 0, 98 + EXPLODE.taps[2] * 0.62], [60, 0, 98 + EXPLODE.taps[2] * 0.62], [RX, 0, 88], [0, 0, 90]],
+  pieces: ORDER.map((name) => ({ name, move: EXPLODE[name] })),
 });
 const { P, at, put, under } = fig;
 
@@ -63,19 +84,26 @@ ruler(fig, { x: -152, y: 80, w: 112, d: 7, r: 1 });
 labelPlate(fig, { x: 44, y: 72, w: 46, d: 16, r: 1.6 }, { text: 'NF-01' });
 
 /* ── regulator: the supply, held at P_IN ──────────────────────────────── */
+fig.piece = 'reg';
 regulator(fig, REG);
 
 /* ── upstream line ────────────────────────────────────────────────────── */
 const REG_FACE = REG.x + REG.w;
-flange(fig, 'up.flange.reg', REG_FACE + 1.5, 0, Z, { facing: 1 });
+fig.piece = 'stands';
 const stand1 = pipeStand(fig, 'up.stand', -104, 0, Z, RP);
-pipe(fig, 'up.pipe.a', REG_FACE + 3, stand1.from, 0, Z, RP);
-pipe(fig, 'up.pipe.b', stand1.to, -74 - TEE_IN, 0, Z, RP, { owner: 'up.tap' });
-const gIn = gaugeTap(fig, 'up.tap', -74, 0, Z, { value: P_IN });
-pipe(fig, 'up.pipe.c', -74 + TEE_IN, BODY.x - 3, 0, Z, RP, { owner: 'up.tap' });
+fig.piece = 'pipes';
+flange(fig, 'up.flange.reg', REG_FACE + 1.5, 0, Z, { facing: 1 });
+pipe(fig, 'up.pipe.a', REG_FACE + 3, stand1.from, 0, Z, RP, { flow: true });
+pipe(fig, 'up.pipe.b', stand1.to, -74 - TEE_IN, 0, Z, RP, { owner: 'up.tap', flow: true });
+const gIn = gaugeTap(fig, 'up.tap', -74, 0, Z, { value: P_IN, pieces: { tee: 'pipes', tap: 'taps' } });
+pipe(fig, 'up.pipe.c', -74 + TEE_IN, BODY.x - 3, 0, Z, RP, { owner: 'up.tap', flow: true });
+/* Bolted to the body, so it travels with the body: riding the pipes, it would
+   slide past the body's wider cover and pedestal mid-explode. */
+fig.piece = 'changer';
 flange(fig, 'up.flange.body', BODY.x - 1.5, 0, Z, { facing: -1 });
 
 /* ── the changer body ─────────────────────────────────────────────────── */
+fig.piece = 'changer';
 {
   const ped = k.insetPlan(BODY, -4);
   const [z0, z1] = BODY_Z;
@@ -101,9 +129,14 @@ flange(fig, 'up.flange.body', BODY.x - 1.5, 0, Z, { facing: -1 });
   );
 
   /* guide rails the plate rides on, front and back, each on a pillar */
+  fig.piece = 'rails';
+  /* Each rail starts at the pedestal's edge, not the body's face: the pedestal
+     is 4 wider, and a rail over its corner collides with it once the two lift
+     by different amounts in the explode. */
+  const PED = 4;
   for (const [side, y0, y1, py] of [
-    ['front', BODY.y + BODY.d, 84, 70],
-    ['back', -74, BODY.y, -74],
+    ['front', BODY.y + BODY.d + PED, 84, 70],
+    ['back', -74, BODY.y - PED, -74],
   ]) {
     const rail = { x: -9, y: y0, w: 18, d: y1 - y0, r: 1 };
     const pillar = { x: -7, y: py, w: 14, d: 12, r: 1.4 };
@@ -186,6 +219,9 @@ const frontCut = k.pathOf(
 );
 const backCut = k.pathOf(G.hullOf(k.boxCorners({ x: px0, y: -FAR, w: pw, d: FAR + yB }, pz0, pz1).map(at)), true);
 under.push(`<defs><clipPath id="hv-front"><path d="${frontCut}"/></clipPath><clipPath id="hv-back"><path d="${backCut}"/></clipPath></defs>`);
+/* The plate rides the body's assembly — its clips are cut at the body's faces,
+   so they must move with it. Its own travel is along y, inside the clips. */
+fig.piece = 'changer';
 const slideGroup = (clip) => `<g clip-path="url(#${clip})"><g data-part="slide">${plateSvg}</g></g>`;
 put('changer.slide.back', [0, -43, Z], slideGroup('hv-back'), [A.slab({ x: SLIDE.x, y: SLIDE_Y[0] - STROKE, w: SLIDE.w, d: BODY.y - (SLIDE_Y[0] - STROKE), r: 1 }, SLIDE.z0, SLIDE.z1 - SLIDE.z0)]);
 put('changer.slide.front', [0, 50, Z], slideGroup('hv-front'), [
@@ -196,15 +232,19 @@ put('changer.slide.front', [0, 50, Z], slideGroup('hv-front'), [
 
 /* ── downstream line ──────────────────────────────────────────────────── */
 const BX = BODY.x + BODY.w;
-flange(fig, 'down.flange.body', BX + 1.5, 0, Z, { facing: 1 });
-pipe(fig, 'down.pipe.a', BX + 3, 60 - TEE_IN, 0, Z, RP, { owner: 'down.tap' });
-const gOut = gaugeTap(fig, 'down.tap', 60, 0, Z, { value: readingAt(0).pOut });
+fig.piece = 'stands';
 const stand2 = pipeStand(fig, 'down.stand', 98, 0, Z, RP);
-pipe(fig, 'down.pipe.b', 60 + TEE_IN, stand2.from, 0, Z, RP, { owner: 'down.tap' });
-pipe(fig, 'down.pipe.c', stand2.to, RECV.x - 3, 0, Z, RP);
+fig.piece = 'changer';
+flange(fig, 'down.flange.body', BX + 1.5, 0, Z, { facing: 1 });
+fig.piece = 'pipes';
+pipe(fig, 'down.pipe.a', BX + 3, 60 - TEE_IN, 0, Z, RP, { owner: 'down.tap', flow: true });
+const gOut = gaugeTap(fig, 'down.tap', 60, 0, Z, { value: readingAt(0).pOut, pieces: { tee: 'pipes', tap: 'taps' } });
+pipe(fig, 'down.pipe.b', 60 + TEE_IN, stand2.from, 0, Z, RP, { owner: 'down.tap', flow: true });
+pipe(fig, 'down.pipe.c', stand2.to, RECV.x - 3, 0, Z, RP, { flow: true });
 flange(fig, 'down.flange.recv', RECV.x - 1.5, 0, Z, { facing: -1 });
 
 /* ── receiver: a sight tank with a nozzle inside, a vent and a drain ───── */
+fig.piece = 'recv';
 {
   const pad = k.insetPlan(RECV, -3);
   const top = 72;
@@ -228,6 +268,8 @@ flange(fig, 'down.flange.recv', RECV.x - 1.5, 0, Z, { facing: -1 });
       S(k.slabOf(RECV, 3, top - 3, P, 4, 0.8), { tone: 'mid', inner: L(k.sideSeam(RECV, 66, P, 4), { tone: 'faint' }) }) +
       `<path class="iso-void" d="${slot}"/>` +
       L(k.pathOf([at([glass.x, face, level]), at([glass.x + glass.w, face, level])]), { tone: 'mid' }) +
+      /* the nozzle's jet, falling from the top of the glass to the level */
+      `<path data-part="flow" data-jet="" class="iso-line nf-flow" d="${k.pathOf([at([glass.x + glass.w / 2, face, glass.z1]), at([glass.x + glass.w / 2, face, level])])}"/>` +
       L(slot, { tone: 'lo' }) +
       D([at([glass.x + glass.w / 2, face, glass.z1 + 3.4]), at([glass.x + glass.w / 2, face, glass.z0 - 3.4])], { size: 0.5 }) +
       S(k.slabOf(k.insetPlan(RECV, -0.8), top, 3, P, 4, 0.5), { tone: 'mid' }) +
@@ -257,7 +299,7 @@ flange(fig, 'down.flange.recv', RECV.x - 1.5, 0, Z, { facing: -1 });
 /* Each run's rim sits 0.2 inside its tee ball, so a ~2 px² sliver of the run is
    nearer than the ball's limb where it enters. Looked at 6×: the ball's outline
    crosses the run at the joint, which is what a cast tee looks like. */
-const body = finish(fig, {
+const { body, pieces } = finish(fig, {
   cover: ['changer.slide.*'],
   allow: [
     ['up.pipe.b', 'up.tap.tee'],
@@ -273,13 +315,18 @@ const svg = k.figureSvg({ width: WIDTH, height: HEIGHT, label, body });
 emit('handover', {
   svg,
   title: 'The handover',
-  hint: 'Hover to slide the screen',
+  hint: 'Click to slide the screen',
   readout: readoutOf(r0),
   live: {
     width: WIDTH,
     height: HEIGHT,
     /** Screen offset of one unit of plate travel toward the body (−y). */
     slide: k.axisVector(P, [0, -1, 0]),
+    /** How far the plate is drawn out of the body, apart (units of −slide). */
+    slideApart: SLIDE_APART,
+    /** The explode: each assembly's screen move at full share, in leaving order. */
+    pieces,
+    changer: ORDER.indexOf('changer'),
     gauges: { in: gIn, out: gOut },
   },
 });

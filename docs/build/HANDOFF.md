@@ -17,6 +17,9 @@ Fig 404. Three things to know:
    payload and its client chunk loads everywhere; that is why the 404 figure's drawing and motion
    are a dynamic import. Keep it that way.
 3. **Budget headroom on `/` is 2.3 KB** (357.7 of 360) — `verify:budget` counts router prefetches.
+4. **They explode (D-065).** Each part is drawn under `fig.piece = '<assembly>'`; a part bolted to
+   something travels with that thing, not with what it connects to. Add a part and the audit
+   re-proves every frame of the explode — read its output before trusting your eyes.
 
 Round 10's letter below is still current.
 
