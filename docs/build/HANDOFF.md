@@ -5,6 +5,23 @@ not a log. The template is at the bottom.
 
 ---
 
+# → Round 11 addendum · 2026-10-17 · Opus
+
+One change, **D-064**: two isometric figures from the anatomy skill — `/about` Fig 01 and the 404's
+Fig 404. Three things to know:
+
+1. **The drawings are generated.** Edit `tools/figures/*.mjs`, then `npm run figures` (builds and
+   audits both). Never hand-edit `components/figures/generated/`. Previews for the skill's capture
+   and `lines.mjs` scripts land in `tools/figures/out/` (gitignored).
+2. **`app/not-found.tsx` costs every page.** The root not-found is serialised into every RSC
+   payload and its client chunk loads everywhere; that is why the 404 figure's drawing and motion
+   are a dynamic import. Keep it that way.
+3. **Budget headroom on `/` is 2.3 KB** (357.7 of 360) — `verify:budget` counts router prefetches.
+
+Round 10's letter below is still current.
+
+---
+
 # → Round 10 addendum · 2026-10-06 · Opus
 
 One change, **D-063**: `<CursorTrail>` — githubuniverse.com's tile trail, restyled in our greys and

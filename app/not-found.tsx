@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { NAV_LINKS } from '@/lib/content/site';
+import { DeadEndFigure } from '@/components/figures/DeadEndFigure';
 import s from './not-found.module.css';
 
 /**
@@ -31,7 +32,7 @@ import s from './not-found.module.css';
 export default function NotFound() {
   return (
     <div className={`${s.page} padding-global`}>
-      <div className="container-large">
+      <div className={`container-large ${s.grid}`}>
         <div className={s.inner}>
           <p className={s.code} data-t="label">
             404
@@ -63,6 +64,9 @@ export default function NotFound() {
             Back to the homepage
           </Link>
         </div>
+
+        {/* The page that is not here, as a machine — D-064. */}
+        <DeadEndFigure className={s.figure} />
       </div>
     </div>
   );

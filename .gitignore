@@ -57,3 +57,4 @@ docs/research/source/ix2-hover.txt
 # the dumps are large, regenerable with `npm run extract:tonik`, and are their
 # measurements rather than ours.
 tools/extract/output/
+tools/figures/out/

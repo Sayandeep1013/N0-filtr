@@ -57,6 +57,10 @@
   border-top: var(--hairline);
 }
 
+.figure {
+  padding-bottom: var(--section-y);
+}
+
 .manifesto {
   margin: 0;
   max-width: calc(9 * var(--col) + 8 * var(--grid-gap));

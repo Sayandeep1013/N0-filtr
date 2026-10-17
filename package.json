@@ -22,7 +22,8 @@
     "optimise": "node scripts/optimise.mjs",
     "extract:tonik": "node tools/extract/tonik.mjs",
     "compare:hero": "node tools/extract/compare-hero.mjs",
-    "tessera:states": "node scripts/tessera-states.mjs"
+    "tessera:states": "node scripts/tessera-states.mjs",
+    "figures": "tsx tools/figures/handover.mjs --audit && tsx tools/figures/dead-end.mjs --audit"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

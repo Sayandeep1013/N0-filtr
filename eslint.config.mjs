@@ -15,6 +15,10 @@ const config = [
       // source. Linting it produces a hundred warnings about someone else's
       // minifier output. See docs/research/source/README.md.
       'docs/**',
+      // The anatomy kit, vendored as shipped so it can be diffed against
+      // upstream. Its terse style trips no-unused-expressions. D-064.
+      'tools/figures/kit/**',
+      'tools/figures/out/**',
     ],
   },
   ...compat.extends('next/core-web-vitals', 'next/typescript'),

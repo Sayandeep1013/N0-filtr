@@ -3,7 +3,7 @@
 **The first file every agent reads. It must always be true.**
 If you change the build, change this file in the same session — not later.
 
-Last updated: **2026-10-06** · by: **review round 10 (Opus)** · tag: `phase-05-complete`
+Last updated: **2026-10-17** · by: **review round 11 (Opus)** · tag: `phase-05-complete`
 
 ---
 
@@ -68,6 +68,13 @@ got it right. Protocol §2.9 is the rule.
 > the pit's depth, count, colour and grabber (D-054), the stuck info drawer (I-064), a full mobile
 > sweep at 390 (D-055), two effects of his own choosing — a simulated wire rig over the culture
 > collage and a hollow, pointer-lit footer wordmark (D-056) — and **round 9, the largest so far**.
+>
+> **Round 11 (2026-10-17) — D-064.** Two isometric figures built with the anatomy skill, one rig
+> family: **Fig 01 "The handover"** on /about after the manifesto (a slide-plate screen changer —
+> screen out, both gauges agree; screen in, a fifth of the pressure gone) and **Fig 404 "Dead end"**
+> on the 404 (a valve feeding a blind flange tagged `404`; the gauge climbs to 4.04 bar with no flow).
+> Built offline by `npm run figures`, geometry-audited. **Read D-064 before touching
+> `app/not-found.tsx`: the root not-found is in every page's payload.**
 >
 > **Round 10 (2026-10-06) — D-063.** A tile trail behind the pointer on empty ground, after
 > githubuniverse.com, read from their source and restyled: grey ramp plus one accent tile in six,

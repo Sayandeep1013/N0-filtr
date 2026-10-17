@@ -2310,3 +2310,74 @@ case-study accent resolves to the work's (`#2595E4` on Tessera). `npm run verify
 138/138, motion 283/283, budget 7/7.
 
 **Files:** `components/motion/CursorTrail.{tsx,module.css}`, mounted in `app/layout.tsx`.
+
+## D-064 · Two isometric figures: the handover on /about, a dead end on the 404
+
+**Phase:** 12 · **Date:** 2026-10-17 · **Status:** active · `[new]`
+
+Sayandeep: *"use anatomy skill to implement something good in the project … if that skill can be
+implemented in a way that looks visually good for this site"*, then, mid-build, *"the 404 page ..
+implement something there too"*. He chose the object and the place from three options each: an
+**open filter housing** (recommended), **/about after the manifesto** (recommended).
+
+**What they are.** Two bench rigs drawn with the anatomy skill's kit, one family of parts:
+
+- **/about, Fig 01 — "The handover".** Regulator → inlet gauge → a slide-plate screen changer →
+  outlet gauge → receiver. The plate carries an open bore and a four-layer screen a stroke apart.
+  At rest the screen is pulled out and both gauges agree; push it in and the outlet drops by a
+  fifth. The manifesto above says the handover is where software goes wrong, "so we do not have
+  one" — this is the studio's name as a machine.
+- **404, Fig 404 — "Dead end".** Regulator at 4.04 bar → block-and-bleed gate valve (handwheel,
+  rising stem, bleed nipple) → gauge → a blind flange with a lockout tag stamped `404`. Open the
+  valve and the stub fills to 4.04 bar and stays there, with no flow.
+
+**The numbers are a model, not decoration.** `lib/figures/handover.ts`: losses as K on the dynamic
+head; Idelchik's woven-screen K (f = 0.30, four layers, K = 25.4) against a full-bore gate (Crane
+TP-410, K ≈ 0.17) feeding a fixed nozzle sized for 2.5 m/s in a 25 mm bore. Screen out reads
+2.99 bar · 0.2 %, screen in 2.37 bar · 21 %. Part-way, the plate's web shuts the line, and the
+readout says `line shut` rather than hiding it — a real discontinuous screen changer does that.
+`lib/figures/deadEnd.ts`: a closed-end line carries no flow, so it sits at the set point exactly;
+the fill and bleed lags are chosen to be watchable and are documented as chosen.
+
+**How it is built.**
+
+- `tools/figures/` builds both offline (`npm run figures`) with the kit vendored in
+  `tools/figures/kit/` (unchanged from the skill, so it can be diffed). Each build ends with the
+  kit's geometry audit — painter's order settled from recorded shapes, supports, sunk parts — and
+  both pass. The skill's line-end check (`lines.mjs`) reads `0 floating ends` on both.
+  Three audit excusals, each looked at 6–8×: the ~2 px² sliver where a run enters its tee ball
+  (that is how a cast tee reads), and the clipped plate and stem copies whose markup box is
+  larger than the part their clip lets through.
+- Output is two modules per figure: `generated/<name>.svg.ts` (the drawing, a string) and
+  `generated/<name>.live.ts` (a dozen numbers). The client never imports the drawing.
+- The kit's styles are retuned to the site in `components/figures/iso.css` — tones stepped around
+  `--grey-900`, lit = `--white` (D-035/D-057: the site has no colour off a case study). The card
+  (`FigurePlate`) is the specimen plate's sibling (D-059): hairline, registration crosses, mono
+  marginalia, rem throughout.
+- Motion follows the non-negotiables: the one GSAP ticker, only while on screen and moving
+  (7); hover-scrub only under `MQ.desktop` (6), tap/click/keys everywhere; reverses at
+  `REVERSE_SCALE` (5); an idle tour; reduced motion lands every change at once and keeps input
+  (8). Both roots are `data-trail-ignore` (D-063).
+
+**Two things found on the way, both worth knowing before touching the 404.**
+
+1. **The root `not-found` boundary is serialised into every page's RSC payload**, and its client
+   chunk loads on every page. Server-rendered, the 404's 147 KB SVG rode along in the homepage
+   HTML; `verify:budget` caught it as JS on `/` 361.6 KB. The 404's stage is now a thin shell that
+   imports `deadEndMotion.ts` — drawing and motion, one chunk — on mount, into a box held at the
+   drawing's aspect ratio. Anything added to `app/not-found.tsx` costs every page.
+2. **`verify:budget` counts router prefetches**, so the /about page chunk counts against `/`. Both
+   shells therefore import their motion lazily and take their resting aria text as props.
+   Net cost on `/`: 356.0 → 357.7 KB of 360.
+
+**Not done, and his call:** the 404's copy still says four of the five menu sections are "in
+progress", which has not been true since August. The figure sits beside it unchanged.
+
+**Evidence:** `npm run verify` exit 0 — tokens 138/138, motion 283/283, budget 7/7. Headless probes
+at 1440 and 390 on the production build: readouts `screen out · outlet 2.99 bar · loss 0.2%` →
+`screen in · outlet 2.37 bar · loss 21%`, `valve open · 4.04 bar · flow 0 L/min`, no console
+errors, no sideways scroll; reduced motion jumps to the settled reading.
+
+**Files:** `tools/figures/*`, `lib/figures/*`, `components/figures/*`, `app/about/page.tsx`,
+`app/not-found.tsx` (+ their CSS), `package.json` (`figures`), `eslint.config.mjs` (ignores the
+vendored kit).

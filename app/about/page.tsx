@@ -8,6 +8,7 @@ import { BlogRow } from '@/components/blog/BlogRow';
 import { Flythrough } from '@/components/about/Flythrough';
 import { PinnedRise } from '@/components/about/PinnedRise';
 import { MeetupList } from '@/components/about/MeetupList';
+import { HandoverFigure } from '@/components/figures/HandoverFigure';
 import s from './about.module.css';
 
 /**
@@ -82,6 +83,15 @@ export default function AboutPage() {
             <RevealText as="p" scale="h3" className={s.manifesto}>
               {ABOUT.vision.manifesto}
             </RevealText>
+          </div>
+        </div>
+      </section>
+
+      {/* The manifesto's argument as a machine — D-064. */}
+      <section className={s.figure} aria-label="The handover, drawn">
+        <div className="padding-global">
+          <div className="container-large">
+            <HandoverFigure />
           </div>
         </div>
       </section>

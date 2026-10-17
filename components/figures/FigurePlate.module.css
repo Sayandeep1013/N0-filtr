@@ -1,0 +1,185 @@
+/*
+ * The figure card. D-064. Sibling of the specimen plate (`components/art/`):
+ * a hairline mount on the secondary ground, registration crosses in the
+ * corners, mono marginalia on the top and bottom rails.
+ */
+
+.figure {
+  margin: 0;
+}
+
+.plate {
+  position: relative;
+  padding: 3.75rem 1.5rem 3.5rem;
+  background: var(--bg-secondary);
+  border: var(--hairline);
+}
+
+.corner {
+  position: absolute;
+  font-family: var(--family-mono);
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.fig {
+  top: 1.25rem;
+  left: 2.25rem;
+  color: var(--white-50);
+}
+
+.title {
+  top: 1.25rem;
+  right: 2.25rem;
+}
+
+.hint {
+  bottom: 1.25rem;
+  left: 2.25rem;
+}
+
+/* The one live element. Tabular figures, so the numbers do not jitter as they
+   count; no uppercase, so `bar` reads as a unit. */
+.readout {
+  bottom: 1.25rem;
+  right: 2.25rem;
+  color: var(--text-primary);
+  text-transform: none;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Registration crosses — the plate vocabulary of D-059. Hairlines in px. */
+.cross {
+  position: absolute;
+  width: 0.75rem;
+  height: 0.75rem;
+  pointer-events: none;
+}
+
+.cross::before,
+.cross::after {
+  content: '';
+  position: absolute;
+  background: var(--border-primary);
+}
+
+.cross::before {
+  left: 50%;
+  top: 0;
+  width: 1px;
+  height: 100%;
+}
+
+.cross::after {
+  top: 50%;
+  left: 0;
+  height: 1px;
+  width: 100%;
+}
+
+.tl {
+  top: 0.875rem;
+  left: 0.875rem;
+}
+
+.tr {
+  top: 0.875rem;
+  right: 0.875rem;
+}
+
+.bl {
+  bottom: 0.875rem;
+  left: 0.875rem;
+}
+
+.br {
+  bottom: 0.875rem;
+  right: 0.875rem;
+}
+
+.legend {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  color: var(--text-secondary);
+}
+
+.keys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  font-family: var(--family-mono);
+  text-transform: uppercase;
+}
+
+.key {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.swatch {
+  flex: none;
+  width: 1rem;
+  height: 0.625rem;
+  overflow: visible;
+}
+
+.swatch path {
+  fill: none;
+  stroke: var(--anatomy-mid);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  stroke-linejoin: round;
+}
+
+.swatch[data-mark='lit'] path {
+  stroke: var(--anatomy-lit);
+}
+
+.swatch[data-mark='dim'] path {
+  stroke: var(--anatomy-lo);
+}
+
+.swatch .crease {
+  stroke: var(--anatomy-lo);
+}
+
+.caption {
+  max-width: 44rem;
+}
+
+.hintTouch {
+  display: none;
+}
+
+/* The same breakpoint the hover is gated on (MQ.desktop, non-negotiable 6). */
+@media (max-width: 991px) {
+  .hintWide {
+    display: none;
+  }
+
+  .hintTouch {
+    display: inline;
+  }
+}
+
+@media (max-width: 767px) {
+  .plate {
+    padding: 3.25rem 0.5rem 5rem;
+  }
+
+  /* Hint above the readout: both will not fit one rail at 390, and the
+     readout may wrap rather than run under the corner cross. */
+  .hint {
+    bottom: 3.25rem;
+  }
+
+  .readout {
+    left: 2.25rem;
+    white-space: normal;
+    text-align: right;
+  }
+}

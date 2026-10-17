@@ -1,0 +1,91 @@
+/*
+ * The anatomy kit's drawing styles (tools/figures/kit/iso.css), retuned to the
+ * site's ground. Global on purpose: the figures are SVG strings built offline,
+ * so their class names cannot be CSS-module hashed. Every rule is scoped under
+ * `.nf-fig`, which only the figure components set. See D-064.
+ *
+ * The tones step about 3% in luminance around --grey-900 (#2e2e2e), the card's
+ * ground. `--anatomy-lit` is --white: off a case study the site has no colour
+ * (D-035, D-057), and one white part is the figure's only accent.
+ *
+ * Strokes stay in px — they are hairlines, the one exception to rem (rule 4).
+ */
+.nf-fig {
+  --anatomy-card: var(--grey-900, #2e2e2e);
+  --anatomy-paper: var(--grey-900, #2e2e2e);
+  --anatomy-face: #353535;
+  --anatomy-top: #383838;
+  --anatomy-shade-0: #242424;
+  --anatomy-shade-1: #282828;
+  --anatomy-shade-2: #2c2c2c;
+  --anatomy-shade-3: #313131;
+  --anatomy-lit-top: #444444;
+  --anatomy-lit-shade: #3a3a3a;
+  --anatomy-hi: var(--grey-600, #e0e0e0);
+  --anatomy-mid: #8c8c8c;
+  --anatomy-lo: #5c5c5c;
+  --anatomy-faint: #444444;
+  --anatomy-lit: var(--white, #efefef);
+  --anatomy-halo: #121212;
+  --anatomy-halo-opacity: 0.85;
+  --anatomy-dot: var(--white, #efefef);
+  --anatomy-weight: 0.6px;
+  --anatomy-mono: var(--family-mono, ui-monospace, monospace);
+}
+.nf-fig .iso-svg{display:block;width:100%;height:auto;overflow:visible}
+.nf-fig .iso-svg path, .nf-fig .iso-svg circle{vector-effect:non-scaling-stroke}
+.nf-fig .iso-fill{fill:var(--anatomy-paper);stroke:none}
+.nf-fig .iso-solid[data-lit]>.iso-fill{fill:var(--anatomy-face)}
+.nf-fig .iso-shade, .nf-fig .iso-top{stroke:none}
+.nf-fig .iso-shade[data-shade="0"]{fill:var(--anatomy-shade-0)}
+.nf-fig .iso-shade[data-shade="1"]{fill:var(--anatomy-shade-1)}
+.nf-fig .iso-shade[data-shade="2"]{fill:var(--anatomy-shade-2)}
+.nf-fig .iso-shade[data-shade="3"]{fill:var(--anatomy-shade-3)}
+.nf-fig .iso-top{fill:var(--anatomy-top)}
+.nf-fig .iso-solid[data-lit]>.iso-top{fill:var(--anatomy-lit-top)}
+.nf-fig .iso-solid[data-lit]>.iso-shade{fill:var(--anatomy-lit-shade)}
+.nf-fig .iso-solid[data-seamless]>.iso-shade, .nf-fig .iso-solid[data-seamless]>.iso-top{stroke-width:.4;stroke-linejoin:round}
+.nf-fig .iso-solid[data-seamless]>.iso-shade[data-shade="0"]{stroke:var(--anatomy-shade-0)}
+.nf-fig .iso-solid[data-seamless]>.iso-shade[data-shade="1"]{stroke:var(--anatomy-shade-1)}
+.nf-fig .iso-solid[data-seamless]>.iso-shade[data-shade="2"]{stroke:var(--anatomy-shade-2)}
+.nf-fig .iso-solid[data-seamless]>.iso-shade[data-shade="3"]{stroke:var(--anatomy-shade-3)}
+.nf-fig .iso-solid[data-seamless]>.iso-top{stroke:var(--anatomy-top)}
+.nf-fig .iso-solid[data-seamless][data-lit]>.iso-top{stroke:var(--anatomy-lit-top)}
+.nf-fig .iso-solid[data-seamless][data-lit]>.iso-shade{stroke:var(--anatomy-lit-shade)}
+.nf-fig .iso-solid[data-lit]>.iso-edge{stroke:var(--anatomy-lit)}
+.nf-fig .iso-halo{fill:var(--anatomy-halo);stroke:none;filter:blur(9px);opacity:var(--anatomy-halo-opacity);transform:translateY(3px)}
+.nf-fig .iso-line{fill:none;stroke:var(--anatomy-lo);stroke-width:var(--anatomy-weight);stroke-linecap:round;stroke-linejoin:round}
+.nf-fig .iso-line[data-tone="hi"]{stroke:var(--anatomy-hi)}
+.nf-fig .iso-line[data-tone="mid"]{stroke:var(--anatomy-mid)}
+.nf-fig .iso-line[data-tone="lo"]{stroke:var(--anatomy-lo)}
+.nf-fig .iso-line[data-tone="faint"]{stroke:var(--anatomy-faint)}
+.nf-fig .iso-line[data-tone="lit"]{stroke:var(--anatomy-lit)}
+.nf-fig .iso-line[data-tone="red"]{stroke:var(--anatomy-red)}
+.nf-fig .iso-line[data-tone="green"]{stroke:var(--anatomy-green)}
+.nf-fig .iso-line[data-tone="blue"]{stroke:var(--anatomy-blue)}
+.nf-fig .iso-line[data-dotted]{stroke-dasharray:.01 3.5;stroke-width:1}
+.nf-fig .iso-line[data-dashed]{stroke-dasharray:3 3}
+.nf-fig .iso-line[data-flow]{stroke-dasharray:2 6}
+.nf-fig .iso-wire-end{fill:var(--anatomy-paper);stroke:var(--anatomy-lo);stroke-width:var(--anatomy-weight)}
+.nf-fig .iso-wire[data-tone="hi"] .iso-wire-end{stroke:var(--anatomy-hi)}
+.nf-fig .iso-wire[data-tone="mid"] .iso-wire-end{stroke:var(--anatomy-mid)}
+.nf-fig .iso-wire[data-tone="faint"] .iso-wire-end{stroke:var(--anatomy-faint)}
+.nf-fig .iso-wire[data-tone="lit"] .iso-wire-end{stroke:var(--anatomy-lit)}
+.nf-fig .iso-dots circle{fill:var(--anatomy-dot);stroke:none;opacity:.32}
+.nf-fig .iso-dots[data-tone="hi"] circle{opacity:.85}
+.nf-fig .iso-dots[data-tone="mid"] circle{opacity:.45}
+.nf-fig .iso-dots[data-tone="lo"] circle{opacity:.22}
+.nf-fig .iso-dots[data-tone="faint"] circle{opacity:.12}
+.nf-fig .iso-face-text{fill:var(--anatomy-mid);font-family:var(--anatomy-mono);letter-spacing:.04em}
+.nf-fig .iso-face-text[data-tone="hi"]{fill:var(--anatomy-hi)}
+.nf-fig .iso-face-text[data-tone="lo"]{fill:var(--anatomy-lo)}
+.nf-fig .iso-face-text[data-tone="faint"]{fill:var(--anatomy-faint)}
+.nf-fig .tb-body{fill:var(--anatomy-shade-2);stroke:none}
+.nf-fig .tb-shine{fill:var(--anatomy-top);stroke:none}
+.nf-fig .tb-shade{fill:var(--anatomy-shade-0);stroke:none}
+.nf-fig .tb-ring{fill:none;stroke:var(--anatomy-lo);stroke-width:.45;stroke-linecap:butt;stroke-linejoin:round}
+.nf-fig .tb-ring[data-tone="mid"]{stroke:var(--anatomy-mid)}
+.nf-fig .tb-ring[data-tone="faint"]{stroke:var(--anatomy-faint)}
+.nf-fig .tb-ring[data-tone="hi"]{stroke:var(--anatomy-hi)}
+@media (prefers-reduced-motion: reduce) { .nf-fig .iso-line[data-flow], .nf-fig .iso-dots circle[data-pulse] { animation: none; } }
+.nf-fig .iso-void{fill:#1d1d1d;stroke:none}
